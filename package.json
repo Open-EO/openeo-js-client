@@ -1,5 +1,5 @@
 {
-  "name": "sinergise-front",
+  "name": "openeo-js-client",
   "version": "1.0.0",
   "author": "Gustav Jv Rensburg",
   "description": "",
@@ -10,7 +10,7 @@
     "start": "webpack-dev-server",
     "test": "webpack"
   },
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "babel": "^6.23.0",
     "babel-core": "^6.26.0",
