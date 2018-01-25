@@ -1,11 +1,11 @@
 {
-  "name": "openeo-js-client",
+  "name": "openeo-js-client-editor",
   "version": "1.0.0",
   "author": "Gustav Jv Rensburg",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config prod.webpack.config.js -p",
+    "build": "webpack --display-error-details --config prod.webpack.config.js -p",
     "postbuild": "cp index.html ./dist/index.html",
     "start": "webpack-dev-server",
     "test": "webpack"
