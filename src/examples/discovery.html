@@ -5,10 +5,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script src="../src/OpenEO.js"></script>
+		<script src="../OpenEO.js"></script>
         <script type="text/javascript">
 			$(function () {
-				OpenEO.Capabilities.get(function (data) {
+				var openEO = OpenEOClient;
+				openEO.Core.baseUrl = 'http://localhost/api';
+				openEO.Capabilities.get(function (data) {
 					var items = [];
 					$.each(data, function (key, val) {
 						items.push("<li>" + val + "</li>");
@@ -19,7 +21,7 @@
 					}).replaceAll("#capabilities");
 				});
 
-				OpenEO.Data.get({}, function (data) {
+				openEO.Data.get({}, function (data) {
 					var items = [];
 					$.each(data, function (key, val) {
 						items.push("<li><strong>" + val.product_id + "</strong>: " + val.description + "</li>");
@@ -31,7 +33,7 @@
 					alert("Data delivered error " + errorCode);
 				});
 
-				OpenEO.Data.getById('landsat7_ndvi', function (data) {
+				openEO.Data.getById('landsat7_ndvi', function (data) {
 					var items = [];
 					$.each(data, function (key, val) {
 						items.push("<li><em>" + key + "</em>: " + val + "</li>");
@@ -43,7 +45,7 @@
 					alert("Data by id delivered error " + errorCode);
 				});
 
-				OpenEO.Processes.get("ndvi", function (data) {
+				openEO.Processes.get("ndvi", function (data) {
 					var items = [];
 					$.each(data, function (key, val) {
 						items.push("<li><strong>" + val.process_id + "</strong>: " + val.description + "</li>");
@@ -55,7 +57,7 @@
 					alert("Processes delivered error " + errorCode);
 				});
 
-				OpenEO.Processes.getById('calculate_ndvi', function (data) {
+				openEO.Processes.getById('calculate_ndvi', function (data) {
 					var items = [];
 					$.each(data, function (key, val) {
 						items.push("<li><em>" + key + "</em>: " + val + "</li>");

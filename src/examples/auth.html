@@ -5,11 +5,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script src="../src/OpenEO.js"></script>
+		<script src="../OpenEO.js"></script>
         <script type="text/javascript">
 			$(function () {
-				OpenEO.Auth.setCredentials("test", "test");
-				OpenEO.Auth.login(function (data) {
+				var openEO = OpenEOClient;
+				openEO.Core.baseUrl = 'http://localhost/api';
+				openEO.Auth.setCredentials("test", "test");
+				openEO.Auth.login(function (data) {
 					$(data).replaceAll("#user_id");
 				}, function (errorCode) {
 					alert("Auth delivered error " + errorCode);

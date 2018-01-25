@@ -1,11 +1,74 @@
-var OpenEO = {
+class ImageCollectionNode {
+	constructor() { }
+
+	filter_daterange(startT, endT) {
+		return new ProcessNode('filter_daterange', {
+			collections: [this],
+			from: startT,
+			to: endT
+		});
+	}
+
+	filter_bbox(box, crs = 'EPSG:4326') {
+		return new ProcessNode('filter_bbox', {
+			collections: [this],
+			srs: crs,
+			bbox: box
+		});
+	}
+
+	NDI(first, second) {
+		return new ProcessNode('NDI', {
+			collections: [this],
+			band1: first,
+			band2: second
+		});
+	}
+
+	min_time() {
+		return new ProcessNode('min_time', {
+			collections: [this]
+		});
+	}
+
+	max_time() {
+		return new ProcessNode('max_time', {
+			collections: [this]
+		});
+	}
+}
+
+class ProcessNode extends ImageCollectionNode {
+	constructor(process_id, args) {
+		super();
+		this.process_id = process_id;
+		this.args = args;
+	}
+}
+
+class SourceDatasetNode extends ImageCollectionNode {
+	constructor(srcId) {
+		super();
+		this.product_id = srcId;
+	}
+}
+
+var OpenEOClient = {
 
 	Core: {
 
-		baseUrl: 'http://localhost/api',
+		baseUrl: 'http://localhost/api/v0',
+
+		imagecollection: function(collId) {
+			return new SourceDatasetNode(collId);
+		},
 
 		createUrl: function (path, query) {
 			return this.baseUrl + path + this.createQueryString(query);
+		},
+
+		createWcsUrl: function(job_id) {
+			return this.createUrl('/download/' + job_id + '/wcs');
 		},
 
 		createQueryString: function (query) {
@@ -34,6 +97,7 @@ var OpenEO = {
 		},
 
 		callApi: function (method, dataType, url, successCallback, errorCallback, data) {
+			// ToDo: Node implementation only, make cross platform compatible
 			var options = {
 				dataType: dataType,
 				url: url,
@@ -42,9 +106,9 @@ var OpenEO = {
 				options: options,
 				method: method
 			};
-			if (OpenEO.Auth.hasCredentials()) {
+			if (OpenEOClient.Auth.hasCredentials()) {
 				options.beforeSend = function (xhr) {
-					xhr.setRequestHeader("Authorization", "Basic " + btoa(OpenEO.Auth.username + ":" + OpenEO.Auth.password));
+					xhr.setRequestHeader("Authorization", "Basic " + btoa(OpenEOClient.Auth.username + ":" + OpenEOClient.Auth.password));
 				};
 			}
 			$.ajax(options).fail(function (jqXHR, textStatus, errorThrown) {
@@ -54,6 +118,22 @@ var OpenEO = {
 			});
 		}
 
+	},
+	
+	Jobs: {
+		
+		create: function(processGraph) {
+			// ToDo: Node implementation only, make cross platform compatible
+			return fetch(this.Core.createUrl('/jobs'), {
+				method: 'POST',
+				body: JSON.stringify({
+					process_graph: processGraph
+				})
+			})
+			.then(response => response.json())
+			.then(resJson => resJson.job_id);
+		}
+		
 	},
 
 	Auth: {
@@ -72,7 +152,7 @@ var OpenEO = {
 		},
 
 		login: function (callback, errorCallback) {
-			OpenEO.Core.getJSON('/auth/login', callback, errorCallback);
+			OpenEOClient.Core.getJSON('/auth/login', callback, errorCallback);
 		}
 
 	},
@@ -80,7 +160,7 @@ var OpenEO = {
 	Capabilities: {
 
 		get: function (callback) {
-			OpenEO.Core.getJSON('/capabilities', callback);
+			OpenEOClient.Core.getJSON('/capabilities', callback);
 		}
 
 	},
@@ -100,11 +180,11 @@ var OpenEO = {
 
 		get: function (options, callback, errorCallback) {
 			var opts = options || OpenEO.Data.DefaultOptions;
-			OpenEO.Core.getJSON('/data/', callback, errorCallback);
+			OpenEOClient.Core.getJSON('/data/', callback, errorCallback);
 		},
 
 		getById: function (id, callback, errorCallback) {
-			OpenEO.Core.getJSON('/data/' + id, callback, errorCallback);
+			OpenEOClient.Core.getJSON('/data/' + id, callback, errorCallback);
 		}
 
 	},
@@ -116,13 +196,17 @@ var OpenEO = {
 			if (name) {
 				query.qname = name;
 			}
-			OpenEO.Core.getJSON('/processes/', callback, errorCallback, query);
+			OpenEOClient.Core.getJSON('/processes/', callback, errorCallback, query);
 		},
 
 		getById: function (id, callback, errorCallback) {
-			OpenEO.Core.getJSON('/processes/' + id, callback, errorCallback);
+			OpenEOClient.Core.getJSON('/processes/' + id, callback, errorCallback);
 		}
 
 	}
 
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports.OpenEOClient = OpenEOClient;
+}
