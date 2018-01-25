@@ -124,7 +124,7 @@ var OpenEOClient = {
 		
 		create: function(processGraph) {
 			// ToDo: Node implementation only, make cross platform compatible
-			return fetch(this.Core.createUrl('/jobs'), {
+			return fetch(OpenEOClient.Core.createUrl('/jobs'), {
 				method: 'POST',
 				body: JSON.stringify({
 					process_graph: processGraph

@@ -113,10 +113,10 @@ function parseScript(script) {
 
 function runProsScript() {
 	const scriptArea = document.getElementById('firstTextArea');
-	const graph = openEO.parseScript(processingScript.getValue());
+	const graph = parseScript(processingScript.getValue());
 	openEO.Jobs.create(graph).then(jobId => {
-		tiles.setUrl(openEO.Core.getWcsUrl(jobId), false);
-		console.log(openEO.Core.getWcsUrl(jobId));
+		tiles.setUrl(openEO.Core.createWcsUrl(jobId), false);
+		console.log(openEO.Core.createWcsUrl(jobId));
 	});
 }
 
