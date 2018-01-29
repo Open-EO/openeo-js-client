@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>JS Client Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script src="../OpenEO.js"></script>
+		<script src="examples.js"></script>
+        <script type="text/javascript">
+			window.onload = function () {
+				OpenEOClient.API.baseUrl = 'http://localhost/api';
+				OpenEOClient.Auth.setCredentials("test", "test");
+				OpenEOClient.Auth.login()
+					.then(data => {
+						document.getElementById('user_id').innerHTML = data;
+					}).catch(errorCode => {
+						document.getElementById('content').innerHTML = "Auth delivered error " + errorCode;
+					});
+			};
+        </script>
+    </head>
+    <body>
+		<h2>Auth: Login</h2>
+		<div id="content">
+			User ID: <span id="user_id">Loading...</span>
+		</div>
+    </body>
+</html>

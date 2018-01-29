@@ -3,12 +3,12 @@ import CodeMirror from 'codemirror';
 import './node_modules/codemirror/lib/codemirror.css';
 import './main.css';
 import './node_modules/leaflet/dist/leaflet.css';
-import { OpenEOClient } from '../OpenEO.js';
+import { OpenEOClient as oeo } from '../OpenEO.js';
 
 let evalScipt;
 
-var openEO = OpenEOClient;
-openEO.Core.baseUrl = 'http://localhost:8080/';
+var OpenEOClient = oeo;
+OpenEOClient.API.baseUrl = 'http://localhost:8080/';
 
 function recolor(tile) {
 	if (!tile.originalImage) {
@@ -78,27 +78,25 @@ document.getElementById('runProsScript').addEventListener('click', runProsScript
 document.getElementById('runVisScript').addEventListener('click', runVisScript);
 
 const processingScript = CodeMirror(document.getElementById('proseditor'), {
-	value: `return openEO.Core.imagecollection('Sentinel2A-L1C')
-      .filter_daterange("2018-01-01","2018-01-31")
-      .NDI(3,8)
-      .max_time();`,
+	value: `return OpenEOClient.ImageCollection.create('Sentinel2A-L1C')
+    .filter_daterange("2018-01-01","2018-01-31")
+    .NDI(3,8)
+    .max_time();`,
 	// .bbox_filter([16.1, 47.9, 16.6, 48.6], "EPSG:4326")
 	mode: 'javascript',
 	indentUnit: 4,
 	lineNumbers: true
 });
 const visualisationScript = CodeMirror(document.getElementById('viseditor'), {
-	value: `
-  function ramp2colors(val, min, max) {
+	value: `function ramp2colors(val, min, max) {
     const clrMin = [240, 220, 150, 255];
     const clrMax = [ 10,  70, 230, 255];
     const m = (val-min)/(max-min);
 
     return clrMin.map((elMin, i) => m * clrMax[i] + (1 - m) * elMin);
-  }
+}
   
-  return ramp2colors(input[0], 0, 255)
-    `,
+return ramp2colors(input[0], 0, 255)`,
 	mode: 'javascript',
 	indentUnit: 4,
 	lineNumbers: true
@@ -107,17 +105,18 @@ const visualisationScript = CodeMirror(document.getElementById('viseditor'), {
 
 
 function parseScript(script) {
-	// var openEO = OpenEOClient;
 	return eval('( () => {' + script + '})()');
 }
 
 function runProsScript() {
 	const scriptArea = document.getElementById('firstTextArea');
 	const graph = parseScript(processingScript.getValue());
-	openEO.Jobs.create(graph).then(jobId => {
-		tiles.setUrl(openEO.Core.createWcsUrl(jobId), false);
-		console.log(openEO.Core.createWcsUrl(jobId));
-	});
+	OpenEOClient.Jobs.create(graph)
+		.then(data => {
+			tiles.setUrl(OpenEOClient.Jobs.getWcsPath(data.job_id), false);
+		}).catch(errorCode => {
+			alert('Sorry, could not create an OpenEO job. (' + errorCode + ')');
+		});
 }
 
 function runVisScript() {

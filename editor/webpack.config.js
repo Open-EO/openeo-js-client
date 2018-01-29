@@ -1,16 +1,14 @@
-const srcDir = __dirname;
-const distDir = __dirname;
 module.exports = {
-	context: srcDir,
+	context: __dirname,
 	// No source map for production build
 	devtool: "source-map",
 	entry: ["./index.js"],
 	output: {
-		path: distDir,
-		filename: "bundle.js"
+		path: __dirname,
+		filename: "openeo-editor.js"
 	},
 	devServer: {
-		contentBase: srcDir,
+		contentBase: __dirname,
 		// match the output path
 		publicPath: "/",
 		open: true,
