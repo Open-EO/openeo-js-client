@@ -3,7 +3,7 @@ import CodeMirror from 'codemirror';
 import './node_modules/codemirror/lib/codemirror.css';
 import './main.css';
 import './node_modules/leaflet/dist/leaflet.css';
-import { OpenEOClient as oeo } from '../OpenEO.js';
+import { OpenEOClient as oeo } from '../openeo.js';
 
 let evalScipt;
 
