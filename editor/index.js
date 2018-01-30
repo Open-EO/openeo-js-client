@@ -9,6 +9,7 @@ let evalScipt;
 
 var OpenEOClient = oeo;
 OpenEOClient.API.baseUrl = 'http://localhost:8080/';
+OpenEOClient.API.driver = 'openeo-sentinelhub-driver';
 
 function recolor(tile) {
 	if (!tile.originalImage) {

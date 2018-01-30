@@ -65,7 +65,12 @@ var OpenEOClient = {
 
 	API: {
 
+		// The URL of the server to query for information.
 		baseUrl: 'http://localhost/api/v0',
+		// The driver expected to respond on the server, e.g. 'openeo-sentinelhub-driver'.
+		// Currently this is only to work around specific behaviour of backends
+		// during development phase.
+		driver: null,
 
 		get: function (path, query, responseType) {
 			return this.send({
@@ -77,16 +82,20 @@ var OpenEOClient = {
 		},
 
 		post: function (path, body, responseType) {
-			return this.send({
+			var options = {
 				method: 'post',
 				responseType: responseType,
 				url: path,
 				data: body,
-				// ToDo: Remove this hack, only the sentinel driver needs a plain text header instead of json.
-				headers: {
+				headers: {}
+			};
+			// ToDo: Remove this hack, only the sentinel driver needs a plain text header instead of json.
+			if (OpenEOClient.API.driver === 'openeo-sentinelhub-driver') {
+				options.headers = {
 					'Content-Type': 'text/plain'
-				}
-			});
+				};
+			}
+			return this.send(options);
 		},
 
 		send: function (options) {
@@ -112,8 +121,8 @@ var OpenEOClient = {
 
 		// ToDo: This should be temporary and be replaced with a more elegant solution
 		// see: /jobs/{job_id}/download and services in API 0.0.2
-		getWcsPath: function (job_id) {
-			return OpenEOClient.API.baseUrl + '/download/' + job_id + '/wcs';
+		getWcsPath: function (jobId) {
+			return OpenEOClient.API.baseUrl + '/download/' + jobId + '/wcs';
 		},
 
 		create: function (processGraph) {
@@ -155,7 +164,7 @@ var OpenEOClient = {
 
 	Data: {
 
-		DefaultOptions: {
+		DefaultQueryOptions: {
 			qname: null,
 			qgeom: null,
 			qstartdate: null,
@@ -167,8 +176,13 @@ var OpenEOClient = {
 		},
 
 		get: function (options) {
-			var opts = options || OpenEOClient.Data.DefaultOptions;
-			return OpenEOClient.API.get('/data/'); // ToDo: Remove trailing slash, it's just for the R backend for now
+			var opts = options || this.DefaultQueryOptions;
+			var path = '/data';
+			// ToDo: Remove this, it's just for the R backend for now
+			if (OpenEOClient.API.driver === 'openeo-r-backend') {
+				path += '/';
+			}
+			return OpenEOClient.API.get(path, opts);
 		},
 
 		getById: function (id) {
@@ -184,7 +198,12 @@ var OpenEOClient = {
 			if (name) {
 				query.qname = name;
 			}
-			return OpenEOClient.API.get('/processes/', query);
+			var path = '/processes';
+			// ToDo: Remove this, it's just for the R backend for now
+			if (OpenEOClient.API.driver === 'openeo-r-backend') {
+				path += '/';
+			}
+			return OpenEOClient.API.get(path, query);
 		},
 
 		getById: function (id) {
