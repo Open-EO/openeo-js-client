@@ -11,6 +11,56 @@ var OpenEOClient = oeo;
 OpenEOClient.API.baseUrl = 'http://localhost:8080/';
 OpenEOClient.API.driver = 'openeo-sentinelhub-driver';
 
+OpenEOClient.Data.get().then(discoverData);
+OpenEOClient.Processes.get().then(discoverProcesses);
+
+document.getElementById('setServer').addEventListener('click', setServer);
+
+function setServer() {
+	var server = prompt("URL of the OpenEO compatible server to query", OpenEOClient.API.baseUrl);
+	if (server && server != OpenEOClient.API.baseUrl) {
+		alert("Changing servers on the fly not implemented yet.\r\n" + server);
+	}
+}
+
+function discoverData(data) {
+	var dataSelect = document.getElementById('data');
+	for (var i in data) {
+		makeOption(dataSelect, data[i].product_id, data[i].description);
+	}
+	document.getElementById('insertData').addEventListener('click', insertToEditor);
+}
+
+function discoverProcesses(data) {
+	var processSelect = document.getElementById('processes');
+	for (var i in data) {
+		makeOption(processSelect, data[i].process_id, data[i].description);
+	}
+	document.getElementById('insertProcesses').addEventListener('click', insertToEditor);
+}
+
+function makeOption(select, name, description) {
+	var option = document.createElement("option");
+	var text = document.createTextNode(name);
+	option.appendChild(text);
+	option.value = name;
+	option.title = description;
+	select.appendChild(option);
+}
+
+function insertToEditor(evt) {
+	var select = null;
+	if (evt.target.id === 'insertData') {
+		select = document.getElementById('data');
+	}
+	else if (evt.target.id === 'insertProcesses') {
+		select = document.getElementById('processes');
+	}
+	if (select) {
+		processingScript.replaceSelection(select.value);
+	}
+}
+
 function recolor(tile) {
 	if (!tile.originalImage) {
 		return;

@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 	overflow: hidden;
+	font-family: sans-serif;
 }
 
 #map {
@@ -35,9 +36,19 @@ body {
 	background-color: white;
 	overflow-y: auto;
 }
+.toolbar {
+	border: solid 1px #676767;
+	background-color: #f7f7f7;
+    margin: 1%;
+	padding: 5px;
+}
+.data-toolbar, .processes-toolbar, .server-toolbar {
+	display: inline-block;
+	margin-right: 3%;
+}
 .script{
 	border: solid 1px #676767;
-    margin: 5px;
+    margin: 1%;
 	background-color: #f7f7f7;
 }
 .script button{
