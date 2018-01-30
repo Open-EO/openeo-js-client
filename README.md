@@ -1,7 +1,7 @@
 # openeo-js-client
 JavaScript client for the OpenEO API.
 
-This library can be run in a recent browser or using node.js. One depencency is required to run the OpenEO JS client: [axios](https://github.com/axios/axios). See [examples/](examples/) for usage exmaples. 
+This library can be run in a recent browser supporting ECMAScript 2015 or node.js. One depencency is required to run the OpenEO JS client: [axios](https://github.com/axios/axios). See [examples/](examples/) for usage exmaples. 
 
 ## Interactive JS Editor
 

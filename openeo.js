@@ -120,7 +120,7 @@ var OpenEOClient = {
 			return OpenEOClient.API.post('/jobs', {
 				process_graph: processGraph
 			});
-		},
+		}
 
 	},
 

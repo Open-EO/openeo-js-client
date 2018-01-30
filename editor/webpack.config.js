@@ -1,6 +1,5 @@
 module.exports = {
 	context: __dirname,
-	// No source map for production build
 	devtool: "source-map",
 	entry: ["./index.js"],
 	output: {
@@ -9,10 +8,8 @@ module.exports = {
 	},
 	devServer: {
 		contentBase: __dirname,
-		// match the output path
 		publicPath: "/",
 		open: true,
-		// match the output `publicPath`
 		historyApiFallback: true,
 		port: 3000
 	},

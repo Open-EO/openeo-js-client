@@ -5,8 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --display-error-details --config prod.webpack.config.js -p",
-    "postbuild": "cp index.html ./dist/index.html",
+    "build": "webpack -p",
     "start": "webpack-dev-server",
     "test": "webpack"
   },
