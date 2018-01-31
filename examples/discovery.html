@@ -9,35 +9,35 @@
 		<script src="examples.js"></script>
         <script type="text/javascript">
 			window.onload = function () {
-				OpenEOClient.API.baseUrl = "http://localhost/api";
-				OpenEOClient.API.driver = 'openeo-r-backend';
+				OpenEO.API.baseUrl = "http://localhost/api";
+				OpenEO.API.driver = 'openeo-r-backend';
 				
-				OpenEOClient.Capabilities.get().then(data => {
+				OpenEO.Capabilities.get().then(data => {
 					replaceWithList("capabilities", data);
 				});
 
-				OpenEOClient.Data.get()
+				OpenEO.Data.get()
 					.then(data => {
 						replaceWithList("data", data);
 					}).catch(function(errorCode) {
 						replace("data", "Request returned error " + errorCode);
 					});
 
-				OpenEOClient.Data.getById('landsat7_ndvi')
+				OpenEO.Data.getById('landsat7_ndvi')
 					.then(data => {
 						replaceWithList("data_id", data);
 					}).catch(errorCode => {
 						replace("data_id", "Request returned error " + errorCode);
 					});
 
-				OpenEOClient.Processes.get("ndvi")
+				OpenEO.Processes.get("ndvi")
 					.then(data => {
 						replaceWithList("processes", data);
 					}).catch(errorCode => {
 						replace("processes", "Request returned error " + errorCode);
 					});
 
-				OpenEOClient.Processes.getById('calculate_ndvi')
+				OpenEO.Processes.getById('calculate_ndvi')
 					.then(data => {
 						replaceWithList("processes_id", data);
 					}).catch(errorCode => {

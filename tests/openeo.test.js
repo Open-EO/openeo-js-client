@@ -1,6 +1,6 @@
-const OpenEOClient = require('../openeo.js');
+const OpenEO = require('../openeo.js');
 
 test('Checks for credentials', () => {
-	OpenEOClient.Auth.setCredentials("test", "test");
-	expect(OpenEOClient.Auth.hasCredentials()).toBe(true);
+	OpenEO.Auth.setCredentials("test", "test");
+	expect(OpenEO.Auth.hasCredentials()).toBe(true);
 });

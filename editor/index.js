@@ -8,21 +8,21 @@ require('./node_modules/codemirror/addon/hint/javascript-hint.js');
 require('./node_modules/codemirror/mode/javascript/javascript.js');
 var L = require('leaflet');
 var CodeMirror = require('codemirror');
-var OpenEOClient = require('../openeo.js');
+var OpenEO = require('../openeo.js');
 
 let evalScipt;
 
-OpenEOClient.API.baseUrl = 'http://localhost:8080/';
-OpenEOClient.API.driver = 'openeo-sentinelhub-driver';
+OpenEO.API.baseUrl = 'http://localhost:8080/';
+OpenEO.API.driver = 'openeo-sentinelhub-driver';
 
-OpenEOClient.Data.get().then(discoverData);
-OpenEOClient.Processes.get().then(discoverProcesses);
+OpenEO.Data.get().then(discoverData);
+OpenEO.Processes.get().then(discoverProcesses);
 
 document.getElementById('setServer').addEventListener('click', setServer);
 
 function setServer() {
-	var server = prompt("URL of the OpenEO compatible server to query", OpenEOClient.API.baseUrl);
-	if (server && server != OpenEOClient.API.baseUrl) {
+	var server = prompt("URL of the OpenEO compatible server to query", OpenEO.API.baseUrl);
+	if (server && server != OpenEO.API.baseUrl) {
 		alert("Changing servers on the fly not implemented yet.\r\n" + server);
 	}
 }
@@ -142,7 +142,7 @@ var editorOptions = {
 	}
 };
 
-editorOptions.value = `return OpenEOClient.ImageCollection.create('Sentinel2A-L1C')
+editorOptions.value = `return OpenEO.ImageCollection.create('Sentinel2A-L1C')
     .filter_daterange("2018-01-01","2018-01-31")
     .NDI(3,8)
     .max_time();`;
@@ -167,9 +167,9 @@ function parseScript(script) {
 function runProsScript() {
 	const scriptArea = document.getElementById('firstTextArea');
 	const graph = parseScript(processingScript.getValue());
-	OpenEOClient.Jobs.create(graph)
+	OpenEO.Jobs.create(graph)
 		.then(data => {
-			tiles.setUrl(OpenEOClient.Jobs.getWcsPath(data.job_id), false);
+			tiles.setUrl(OpenEO.Jobs.getWcsPath(data.job_id), false);
 		}).catch(errorCode => {
 			alert('Sorry, could not create an OpenEO job. (' + errorCode + ')');
 		});

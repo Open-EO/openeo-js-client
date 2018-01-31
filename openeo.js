@@ -53,7 +53,7 @@ class SourceDatasetNode extends ImageCollectionNode {
 	}
 }
 
-var OpenEOClient = {
+var OpenEO = {
 
 	ImageCollection: {
 
@@ -90,7 +90,7 @@ var OpenEOClient = {
 				headers: {}
 			};
 			// ToDo: Remove this hack, only the sentinel driver needs a plain text header instead of json.
-			if (OpenEOClient.API.driver === 'openeo-sentinelhub-driver') {
+			if (OpenEO.API.driver === 'openeo-sentinelhub-driver') {
 				options.headers = {
 					'Content-Type': 'text/plain'
 				};
@@ -100,11 +100,11 @@ var OpenEOClient = {
 
 		send: function (options) {
 			options.baseURL = this.baseUrl;
-			if (OpenEOClient.Auth.hasCredentials()) {
+			if (OpenEO.Auth.hasCredentials()) {
 				options.withCredentials = true;
 				options.auth = {
-					username: OpenEOClient.Auth.username,
-					password: OpenEOClient.Auth.password
+					username: OpenEO.Auth.username,
+					password: OpenEO.Auth.password
 				};
 			}
 			if (!options.responseType) {
@@ -122,11 +122,11 @@ var OpenEOClient = {
 		// ToDo: This should be temporary and be replaced with a more elegant solution
 		// see: /jobs/{job_id}/download and services in API 0.0.2
 		getWcsPath: function (jobId) {
-			return OpenEOClient.API.baseUrl + '/download/' + jobId + '/wcs';
+			return OpenEO.API.baseUrl + '/download/' + jobId + '/wcs';
 		},
 
 		create: function (processGraph) {
-			return OpenEOClient.API.post('/jobs', {
+			return OpenEO.API.post('/jobs', {
 				process_graph: processGraph
 			});
 		}
@@ -149,7 +149,7 @@ var OpenEOClient = {
 		},
 
 		login: function () {
-			return OpenEOClient.API.get('/auth/login');
+			return OpenEO.API.get('/auth/login');
 		}
 
 	},
@@ -157,7 +157,7 @@ var OpenEOClient = {
 	Capabilities: {
 
 		get: function () {
-			return OpenEOClient.API.get('/capabilities');
+			return OpenEO.API.get('/capabilities');
 		}
 
 	},
@@ -179,14 +179,14 @@ var OpenEOClient = {
 			var opts = options || this.DefaultQueryOptions;
 			var path = '/data';
 			// ToDo: Remove this, it's just for the R backend for now
-			if (OpenEOClient.API.driver === 'openeo-r-backend') {
+			if (OpenEO.API.driver === 'openeo-r-backend') {
 				path += '/';
 			}
-			return OpenEOClient.API.get(path, opts);
+			return OpenEO.API.get(path, opts);
 		},
 
 		getById: function (id) {
-			return OpenEOClient.API.get('/data/' + id);
+			return OpenEO.API.get('/data/' + id);
 		}
 
 	},
@@ -200,14 +200,14 @@ var OpenEOClient = {
 			}
 			var path = '/processes';
 			// ToDo: Remove this, it's just for the R backend for now
-			if (OpenEOClient.API.driver === 'openeo-r-backend') {
+			if (OpenEO.API.driver === 'openeo-r-backend') {
 				path += '/';
 			}
-			return OpenEOClient.API.get(path, query);
+			return OpenEO.API.get(path, query);
 		},
 
 		getById: function (id) {
-			return OpenEOClient.API.get('/processes/' + id);
+			return OpenEO.API.get('/processes/' + id);
 		}
 
 	}
@@ -216,15 +216,15 @@ var OpenEOClient = {
 
 // ToDo: Export classes etc
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = OpenEOClient;
+	module.exports = OpenEO;
 }
 else {
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
-			return OpenEOClient;
+			return OpenEO;
 		});
 	}
 	else {
-		window.OpenEOClient = OpenEOClient;
+		window.OpenEO = OpenEO;
 	}
 }

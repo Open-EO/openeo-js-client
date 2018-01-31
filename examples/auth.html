@@ -9,9 +9,9 @@
 		<script src="examples.js"></script>
         <script type="text/javascript">
 			window.onload = function () {
-				OpenEOClient.API.baseUrl = 'http://localhost/api';
-				OpenEOClient.Auth.setCredentials("test", "test");
-				OpenEOClient.Auth.login()
+				OpenEO.API.baseUrl = 'http://localhost/api';
+				OpenEO.Auth.setCredentials("test", "test");
+				OpenEO.Auth.login()
 					.then(data => {
 						document.getElementById('user_id').innerHTML = data;
 					}).catch(errorCode => {
