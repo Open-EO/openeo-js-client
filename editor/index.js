@@ -1,7 +1,11 @@
 require('./node_modules/codemirror/lib/codemirror.css');
-require('./main.css');
+require('./node_modules/codemirror/addon/hint/show-hint.css');
 require('./node_modules/leaflet/dist/leaflet.css');
+require('./main.css');
 
+require('./node_modules/codemirror/addon/hint/show-hint.js');
+require('./node_modules/codemirror/addon/hint/javascript-hint.js');
+require('./node_modules/codemirror/mode/javascript/javascript.js');
 var L = require('leaflet');
 var CodeMirror = require('codemirror');
 var OpenEOClient = require('../openeo.js');
@@ -128,18 +132,23 @@ tiles.addTo(map);
 document.getElementById('runProsScript').addEventListener('click', runProsScript);
 document.getElementById('runVisScript').addEventListener('click', runVisScript);
 
-const processingScript = CodeMirror(document.getElementById('proseditor'), {
-	value: `return OpenEOClient.ImageCollection.create('Sentinel2A-L1C')
-    .filter_daterange("2018-01-01","2018-01-31")
-    .NDI(3,8)
-    .max_time();`,
-	// .bbox_filter([16.1, 47.9, 16.6, 48.6], "EPSG:4326")
+var editorOptions = {
+	value: '',
 	mode: 'javascript',
 	indentUnit: 4,
-	lineNumbers: true
-});
-const visualisationScript = CodeMirror(document.getElementById('viseditor'), {
-	value: `function ramp2colors(val, min, max) {
+	lineNumbers: true,
+	extraKeys: {
+		"Ctrl-Space": "autocomplete"
+	}
+};
+
+editorOptions.value = `return OpenEOClient.ImageCollection.create('Sentinel2A-L1C')
+    .filter_daterange("2018-01-01","2018-01-31")
+    .NDI(3,8)
+    .max_time();`;
+const processingScript = CodeMirror(document.getElementById('proseditor'), editorOptions);
+
+editorOptions.value = `function ramp2colors(val, min, max) {
     const clrMin = [240, 220, 150, 255];
     const clrMax = [ 10,  70, 230, 255];
     const m = (val-min)/(max-min);
@@ -147,12 +156,8 @@ const visualisationScript = CodeMirror(document.getElementById('viseditor'), {
     return clrMin.map((elMin, i) => m * clrMax[i] + (1 - m) * elMin);
 }
   
-return ramp2colors(input[0], 0, 255)`,
-	mode: 'javascript',
-	indentUnit: 4,
-	lineNumbers: true
-});
-
+return ramp2colors(input[0], 0, 255)`;
+const visualisationScript = CodeMirror(document.getElementById('viseditor'), editorOptions);
 
 
 function parseScript(script) {
