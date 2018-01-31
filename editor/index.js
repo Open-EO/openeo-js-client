@@ -9,8 +9,6 @@ require('./node_modules/codemirror/mode/javascript/javascript.js');
 var L = require('leaflet');
 var CodeMirror = require('codemirror');
 var OpenEO = require('../openeo.js');
-	
-let evalScript;
 
 OpenEO.Editor = {
 	
@@ -24,8 +22,12 @@ OpenEO.Editor = {
 		}
 	},
 	
-	processEditor: null,
-	visualizationEditor: null,
+	ProcessGraph: null,
+	Visualization: null,
+
+	Environment: null,
+
+	script: null,
 	
 	init: function() {
 		OpenEO.API.baseUrl = 'http://localhost:8080/';
@@ -35,36 +37,33 @@ OpenEO.Editor = {
 		OpenEO.Processes.get().then(this.setDiscoveredProcesses);
 
 		document.getElementById('setServer').addEventListener('click', this.setServer);
-		document.getElementById('runProcessScript').addEventListener('click', this._runProcessScript);
-		document.getElementById('runVisScript').addEventListener('click', this._runVisualizationScript);
+		document.getElementById('runScript').addEventListener('click', this._runScript);
 
-		this.initProcessEditor();
-		this.initVisualizationEditor();
+		this.initEnvironment();
 		
 		this.Map.init();
 	},
 	
-	initProcessEditor: function() {
+	initEnvironment: function() {
 		var options = Object.create(this.DefaultEditorOptions);
-		options.value = `return OpenEO.ImageCollection.create('Sentinel2A-L1C')
+		options.value = `// Create the process graph
+OpenEO.Editor.ProcessGraph = OpenEO.ImageCollection.create('Sentinel2A-L1C')
 	.filter_daterange("2018-01-01","2018-01-31")
 	.NDI(3,8)
-	.max_time();`;
-		this.processEditor = CodeMirror(document.getElementById('processEditor'), options);
-	},
-	
-	initVisualizationEditor: function() {
-		var options = Object.create(this.DefaultEditorOptions);
-		options.value = `function ramp2colors(val, min, max) {
-	const clrMin = [240, 220, 150, 255];
-	const clrMax = [ 10,  70, 230, 255];
-	const m = (val-min)/(max-min);
+	.max_time();
 
-	return clrMin.map((elMin, i) => m * clrMax[i] + (1 - m) * elMin);
-}
-
-return ramp2colors(input[0], 0, 255);`;
-		this.visualizationEditor = CodeMirror(document.getElementById('visEditor'), options);
+// Apply a custom visualization to the results
+OpenEO.Editor.Visualization = {
+	function: OpenEO.Visualizations.rampColors,
+	args: {
+		band: 0,
+		valMin: 0,
+		valMax: 255,
+		clrMin: [240, 220, 150, 255],
+		clrMax: [ 10,  70, 230, 255],
+	}
+};`;
+		this.Environment = CodeMirror(document.getElementById('editor'), options);
 	},
 	
 	setServer: function() {
@@ -89,10 +88,6 @@ return ramp2colors(input[0], 0, 255);`;
 		}
 		document.getElementById('insertProcesses').addEventListener('click', OpenEO.Editor._insertToEditor);
 	},
-	
-	parseScript: function(script) {
-		return eval('( () => {' + script + '})()');
-	},
 
 	_makeOption: function(select, name, description) {
 		var option = document.createElement("option");
@@ -112,25 +107,25 @@ return ramp2colors(input[0], 0, 255);`;
 			select = document.getElementById('processes');
 		}
 		if (select) {
-			OpenEO.Editor.processEditor.replaceSelection(select.value);
+			OpenEO.Editor.Environment.replaceSelection(select.value);
 		}
 	},
 
-	_runProcessScript: function () {
-		const graph = OpenEO.Editor.parseScript(OpenEO.Editor.processEditor.getValue());
-		OpenEO.Jobs.create(graph)
+	_runScript: function () {
+		OpenEO.Editor.ProcessGraph = {};
+		OpenEO.Editor.Visualization = null;
+		OpenEO.Editor.script = OpenEO.Editor.Environment.getValue();
+		eval(OpenEO.Editor.script);
+		OpenEO.Jobs.create(OpenEO.Editor.ProcessGraph)
 			.then(data => {
 				OpenEO.Editor.Map.tiles.setUrl(OpenEO.Jobs.getWcsPath(data.job_id), false);
+				OpenEO.Editor.Map.tiles.recolor();
 			}).catch(errorCode => {
 				alert('Sorry, could not create an OpenEO job. (' + errorCode + ')');
 			});
-	},
-
-	_runVisualizationScript: function () {
-		evalScript = OpenEO.Editor.visualizationEditor.getValue();
-		OpenEO.Editor.Map.recolorTiles();
+		
 	}
-	
+
 };
 
 OpenEO.Editor.Map = {
@@ -178,7 +173,6 @@ OpenEO.Editor.Map = {
 			imageObj.onload = function () {
 				const ctx = tile.getContext('2d');
 				ctx.drawImage(imageObj, 0, 0);
-
 				tile.originalImage = ctx.getImageData(0, 0, tile.width, tile.height);
 				OpenEO.Editor.Map.recolor(tile);
 			};
@@ -188,27 +182,33 @@ OpenEO.Editor.Map = {
 
 		this.tiles.addTo(OpenEO.Editor.Map.instance);
 	},
-	
+
 	recolor: function(tile) {
-		if (!tile.originalImage || !evalScript) {
+		if (!tile.originalImage || !OpenEO.Editor.Visualization || typeof OpenEO.Editor.Visualization.function !== 'function') {
 			return;
 		}
 		const ctx = tile.getContext('2d');
 		const tgtData = ctx.getImageData(0, 0, tile.width, tile.height);
+		
+		var args = OpenEO.Editor.Visualization.args || {};
 
-		const esFun = eval('(function(input) {' + evalScript + '})');
 		for (var i = 0; i < tgtData.data.length; i += 4) {
 			const input = tile.originalImage.data.slice(i, i + 4);
-			const es = esFun(input);
+			const es = OpenEO.Editor.Visualization.function(input, args);
 			tgtData.data.set(es, i);
 		}
 		ctx.putImageData(tgtData, 0, 0);
-	},
-
-	recolorTiles: function() {
-		OpenEO.Editor.Map.tiles.recolor();
 	}
 
+};
+
+OpenEO.Visualizations = {
+	
+	rampColors: function(input, o) {
+		const m = (input[o.band] - o.valMin) / (o.valMax - o.valMin);
+		return o.clrMin.map((elMin, i) => m * o.clrMax[i] + (1 - m) * elMin);
+	}
+	
 };
 
 OpenEO.Editor.init();
