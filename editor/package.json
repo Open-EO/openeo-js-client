@@ -1,8 +1,23 @@
 {
   "name": "openeo-js-client-editor",
-  "version": "1.0.0",
-  "author": "Gustav Jv Rensburg",
-  "description": "",
+  "version": "0.0.1",
+  "author": "OpenEO Team",
+  "contributors": [
+    {
+      "name": "Gustav Jv Rensburg"
+    },
+    {
+      "name": "Miha Kadunc"
+    },
+    {
+      "name": "Matthias Mohr"
+    }
+  ],
+  "description": "A JavaScript editor for interactive usage of the OpenEO API.",
+  "homepage": "https://github.com/Open-EO/openeo-js-client/tree/master/editor",
+  "bugs": {
+    "url": "https://github.com/Open-EO/openeo-js-client/issues"
+  },
   "main": "index.js",
   "scripts": {
     "build": "webpack -p",

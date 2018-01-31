@@ -140,7 +140,7 @@ var OpenEOClient = {
 		userId: null,
 
 		hasCredentials: function () {
-			return (this.username && this.password);
+			return Boolean(this.username && this.password);
 		},
 
 		setCredentials: function (username, password) {
@@ -214,6 +214,17 @@ var OpenEOClient = {
 
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-	module.exports.OpenEOClient = OpenEOClient;
+// ToDo: Export classes etc
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = OpenEOClient;
+}
+else {
+	if (typeof define === 'function' && define.amd) {
+		define([], function () {
+			return OpenEOClient;
+		});
+	}
+	else {
+		window.OpenEOClient = OpenEOClient;
+	}
 }

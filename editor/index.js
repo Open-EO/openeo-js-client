@@ -1,13 +1,13 @@
-import L from 'leaflet';
-import CodeMirror from 'codemirror';
-import './node_modules/codemirror/lib/codemirror.css';
-import './main.css';
-import './node_modules/leaflet/dist/leaflet.css';
-import { OpenEOClient as oeo } from '../openeo.js';
+require('./node_modules/codemirror/lib/codemirror.css');
+require('./main.css');
+require('./node_modules/leaflet/dist/leaflet.css');
+
+var L = require('leaflet');
+var CodeMirror = require('codemirror');
+var OpenEOClient = require('../openeo.js');
 
 let evalScipt;
 
-var OpenEOClient = oeo;
 OpenEOClient.API.baseUrl = 'http://localhost:8080/';
 OpenEOClient.API.driver = 'openeo-sentinelhub-driver';
 
