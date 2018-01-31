@@ -42,7 +42,7 @@ body {
     margin: 1%;
 	padding: 5px;
 }
-.data-toolbar, .processes-toolbar, .server-toolbar {
+.data-toolbar, .processes-toolbar, .server-toolbar, .vis-toolbar {
 	display: inline-block;
 	margin-right: 3%;
 }

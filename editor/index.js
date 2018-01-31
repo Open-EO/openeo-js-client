@@ -33,6 +33,7 @@ OpenEO.Editor = {
 		OpenEO.API.baseUrl = 'http://localhost:8080/';
 		OpenEO.API.driver = 'openeo-sentinelhub-driver';
 
+		this.setVisualizations();
 		OpenEO.Data.get().then(this.setDiscoveredData);
 		OpenEO.Processes.get().then(this.setDiscoveredProcesses);
 
@@ -50,19 +51,7 @@ OpenEO.Editor = {
 OpenEO.Editor.ProcessGraph = OpenEO.ImageCollection.create('Sentinel2A-L1C')
 	.filter_daterange("2018-01-01","2018-01-31")
 	.NDI(3,8)
-	.max_time();
-
-// Apply a custom visualization to the results
-OpenEO.Editor.Visualization = {
-	function: OpenEO.Visualizations.rampColors,
-	args: {
-		band: 0,
-		valMin: 0,
-		valMax: 255,
-		clrMin: [240, 220, 150, 255],
-		clrMax: [ 10,  70, 230, 255],
-	}
-};`;
+	.max_time();`;
 		this.Environment = CodeMirror(document.getElementById('editor'), options);
 	},
 	
@@ -74,31 +63,87 @@ OpenEO.Editor.Visualization = {
 	},
 	
 	setDiscoveredData: function(data) {
-		var dataSelect = document.getElementById('data');
+		var select = document.getElementById('data');
 		for (var i in data) {
-			OpenEO.Editor._makeOption(dataSelect, data[i].product_id, data[i].description);
+			OpenEO.Editor._makeOption(select, null, data[i].product_id, data[i].description);
 		}
-		document.getElementById('insertData').addEventListener('click', OpenEO.Editor._insertToEditor);
+		document.getElementById('insertData').addEventListener('click', OpenEO.Editor._insertToEditorFromEvent);
 	},
 	
 	setDiscoveredProcesses: function(data) {
-		var processSelect = document.getElementById('processes');
+		var select = document.getElementById('processes');
 		for (var i in data) {
-			OpenEO.Editor._makeOption(processSelect, data[i].process_id, data[i].description);
+			OpenEO.Editor._makeOption(select, null, data[i].process_id, data[i].description);
 		}
-		document.getElementById('insertProcesses').addEventListener('click', OpenEO.Editor._insertToEditor);
+		document.getElementById('insertProcesses').addEventListener('click', OpenEO.Editor._insertToEditorFromEvent);
+	},
+	
+	setVisualizations: function() {
+		var select = document.getElementById('visualizations');
+		for (var key in OpenEO.Visualizations) {
+			OpenEO.Editor._makeOption(select, key, OpenEO.Visualizations[key].name);
+		}
+		document.getElementById('insertVisualizations').addEventListener('click', OpenEO.Editor._insertVisualization);
 	},
 
-	_makeOption: function(select, name, description) {
+	_makeOption: function(select, key, title, description) {
 		var option = document.createElement("option");
-		var text = document.createTextNode(name);
+		var text = document.createTextNode(title);
 		option.appendChild(text);
-		option.value = name;
-		option.title = description;
+		if (!key) {
+			option.value = title;
+		}
+		else {
+			option.value = key;
+		}
+		if (description) {
+			option.title = description;
+		}
 		select.appendChild(option);
 	},
+	
+	_insertVisualization: function() {
+		var select = document.getElementById('visualizations');
+		var code;
+		if (select.value === 'custom') {
+			code = `
+OpenEO.Editor.Visualization = {
+	function: function(input) {
+		// ToDo: Implement your custom visualization
+	}
+};
+`;
+		}
+		else if (typeof OpenEO.Visualizations[select.value] !== 'undefined') {
+			var argsCode = '';
+			var argList = [];
+			for(var key in OpenEO.Visualizations[select.value].arguments) {
+				var arg = OpenEO.Visualizations[select.value].arguments[key];
+				var value = prompt(arg.description, arg.defaultValue);
+				if (value !== null) {
+					argList.push('"' + key + '": "' + value + '"');
+				}
+			}
+			if (argList.length > 0) {
+				argsCode = `,
+	args: {
+		` + argList.join(",\r\n		") + `
+	}`;
+			}
 
-	_insertToEditor: function(evt) {
+			code = `
+OpenEO.Editor.Visualization = {
+	function: OpenEO.Visualizations.` + select.value + argsCode + `
+};
+`;
+		}
+		else {
+			code = '';
+		}
+		OpenEO.Editor._insertToEditor(code);
+	},
+
+	_insertToEditorFromEvent: function(evt) {
 		var select = null;
 		if (evt.target.id === 'insertData') {
 			select = document.getElementById('data');
@@ -107,8 +152,12 @@ OpenEO.Editor.Visualization = {
 			select = document.getElementById('processes');
 		}
 		if (select) {
-			OpenEO.Editor.Environment.replaceSelection(select.value);
+			OpenEO.Editor._insertToEditor(select.value);
 		}
+	},
+
+	_insertToEditor: function(text) {
+		OpenEO.Editor.Environment.replaceSelection(text);
 	},
 
 	_runScript: function () {
@@ -116,6 +165,23 @@ OpenEO.Editor.Visualization = {
 		OpenEO.Editor.Visualization = null;
 		OpenEO.Editor.script = OpenEO.Editor.Environment.getValue();
 		eval(OpenEO.Editor.script);
+
+		OpenEO.Editor.Visualization.args = OpenEO.Editor.Visualization.args || {};
+		// Modify visualization when user specified a pre-defined visualization
+		if (typeof OpenEO.Editor.Visualization.function === 'object') {
+			var vis = OpenEO.Editor.Visualization.function;
+			OpenEO.Editor.Visualization.function = vis.callback;
+			// Set default arguments when not given by user
+			if (typeof vis.arguments !== 'undefined') {
+				for(var key in vis.arguments) {
+					if (typeof OpenEO.Editor.Visualization.args[key] === 'undefined') {
+						OpenEO.Editor.Visualization.args[key] = vis.arguments[key].defaultValue;
+					}
+				}
+			}
+		}
+
+		// Execute job
 		OpenEO.Jobs.create(OpenEO.Editor.ProcessGraph)
 			.then(data => {
 				OpenEO.Editor.Map.tiles.setUrl(OpenEO.Jobs.getWcsPath(data.job_id), false);
@@ -184,17 +250,16 @@ OpenEO.Editor.Map = {
 	},
 
 	recolor: function(tile) {
-		if (!tile.originalImage || !OpenEO.Editor.Visualization || typeof OpenEO.Editor.Visualization.function !== 'function') {
+		if (!tile.originalImage || !OpenEO.Editor.Visualization) {
 			return;
 		}
+		
 		const ctx = tile.getContext('2d');
 		const tgtData = ctx.getImageData(0, 0, tile.width, tile.height);
-		
-		var args = OpenEO.Editor.Visualization.args || {};
 
 		for (var i = 0; i < tgtData.data.length; i += 4) {
 			const input = tile.originalImage.data.slice(i, i + 4);
-			const es = OpenEO.Editor.Visualization.function(input, args);
+			const es = OpenEO.Editor.Visualization.function(input, OpenEO.Editor.Visualization.args);
 			tgtData.data.set(es, i);
 		}
 		ctx.putImageData(tgtData, 0, 0);
@@ -204,11 +269,57 @@ OpenEO.Editor.Map = {
 
 OpenEO.Visualizations = {
 	
-	rampColors: function(input, o) {
-		const m = (input[o.band] - o.valMin) / (o.valMax - o.valMin);
-		return o.clrMin.map((elMin, i) => m * o.clrMax[i] + (1 - m) * elMin);
-	}
+	/**
+	 * Color gradient/ramp.
+	 * 
+	 * Parameters: band, valMin, valMax, clrMin, clrMax. Examples:	
+	 * band: 0,
+	 * valMin: 0,
+	 * valMax: 255,
+	 * clrMin: [240, 220, 150, 255],
+	 * clrMax: [ 10,  70, 230, 255]
+	 * 
+	 * @param {type} input
+	 * @param {type} o
+	 * @returns {unresolved}
+	 */
 	
+	rampColors: {
+		name: "Color ramp",
+		callback: function(input, o) {
+			if (typeof o.clrMin === 'string') {
+				o.clrMin = o.clrMin.split(',');
+			}
+			if (typeof o.clrMax === 'string') {
+				o.clrMax = o.clrMax.split(',');
+			}
+			const m = (input[o.band] - o.valMin) / (o.valMax - o.valMin);
+			return o.clrMin.map((elMin, i) => m * o.clrMax[i] + (1 - m) * elMin);
+		},
+		arguments: {
+			band: {
+				description: 'The band to use',
+				defaultValue: 0
+			},
+			valMin: {
+				description: 'Minimum value of the band',
+				defaultValue: 0
+			},
+			valMax: {
+				description: 'Maximum value of the band',
+				defaultValue: 255
+			},
+			clrMin: {
+				description: 'Color for the minimum value',
+				defaultValue: [240, 220, 150, 255]
+			},
+			clrMax: {
+				description: 'Color for the maximum value',
+				defaultValue: [ 10,  70, 230, 255]
+			}
+		}
+	}
+
 };
 
 OpenEO.Editor.init();
