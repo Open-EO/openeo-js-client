@@ -46,19 +46,23 @@ body {
 	display: inline-block;
 	margin-right: 3%;
 }
+#runScript {
+	font-weight: bold;
+}
+#newScript {
+	margin-left: 3%;
+}
 .script{
 	border: solid 1px #676767;
     margin: 1%;
 	background-color: #f7f7f7;
 }
-.script button{
+.script button {
 	margin: 5px;
-	margin-left: 45%;
 	width: 10%;
 	min-width: 100px;
 }
 .scriptHeader{
-	text-align: center;
 	margin: 0;
 	padding: 5px;
 }

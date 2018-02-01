@@ -28,6 +28,7 @@ OpenEO.Editor = {
 	Environment: null,
 
 	script: null,
+	scriptName: "",
 	
 	init: function() {
 		OpenEO.API.baseUrl = 'http://localhost:8080/';
@@ -38,7 +39,11 @@ OpenEO.Editor = {
 		OpenEO.Processes.get().then(this.setDiscoveredProcesses);
 
 		document.getElementById('setServer').addEventListener('click', this.setServer);
-		document.getElementById('runScript').addEventListener('click', this._runScript);
+		document.getElementById('newScript').addEventListener('click', this.newScript);
+		document.getElementById('runScript').addEventListener('click', this.runScript);
+		document.getElementById('loadScript').addEventListener('click', this.loadScript);
+		document.getElementById('saveScript').addEventListener('click', this.saveScript);
+		document.getElementById('downloadScript').addEventListener('click', this.downloadScript);
 
 		this.initEnvironment();
 		
@@ -119,9 +124,9 @@ OpenEO.Editor.Visualization = {
 			var argList = [];
 			for(var key in OpenEO.Visualizations[select.value].arguments) {
 				var arg = OpenEO.Visualizations[select.value].arguments[key];
-				var value = prompt(arg.description, arg.defaultValue);
+				var value = prompt(arg.description, JSON.stringify(arg.defaultValue));
 				if (value !== null) {
-					argList.push('"' + key + '": "' + value + '"');
+					argList.push('"' + key + '": ' + value);
 				}
 			}
 			if (argList.length > 0) {
@@ -160,10 +165,19 @@ OpenEO.Editor.Visualization = {
 		OpenEO.Editor.Environment.replaceSelection(text);
 	},
 
-	_runScript: function () {
+	runScript: function () {
 		OpenEO.Editor.ProcessGraph = {};
-		OpenEO.Editor.Visualization = null;
-		OpenEO.Editor.script = OpenEO.Editor.Environment.getValue();
+		OpenEO.Editor.Visualization = {
+			function: null,
+			args: {}
+		};
+		OpenEO.Editor.script = OpenEO.Editor.Environment.getSelection();
+		if (!OpenEO.Editor.script) {
+			OpenEO.Editor.script = OpenEO.Editor.Environment.getValue();
+		}
+		if (!OpenEO.Editor.script) {
+			return;
+		}
 		eval(OpenEO.Editor.script);
 
 		OpenEO.Editor.Visualization.args = OpenEO.Editor.Visualization.args || {};
@@ -190,6 +204,64 @@ OpenEO.Editor.Visualization = {
 				alert('Sorry, could not create an OpenEO job. (' + errorCode + ')');
 			});
 		
+	},
+	
+	newScript: function() {
+		var confirmed = confirm("Do you really want to clear the existing script to create a new one?");
+		if (confirmed) {
+			OpenEO.Editor.Environment.setValue('');
+			OpenEO.Editor._setScriptName('');
+		}
+	},
+	
+	loadScript: function() {
+		var name = prompt("Name of the script to load:");
+		if (!name) {
+			return;
+		}
+		var code = localStorage.getItem(name);
+		if (code) {
+			OpenEO.Editor.Environment.setValue(code);
+			OpenEO.Editor._setScriptName(name);
+		}
+		else {
+			alert('No script with this name found.');
+		}
+	},
+	
+	saveScript: function() {
+		var name = prompt("Name for the script:", OpenEO.Editor.scriptName);
+		if (!name) {
+			return;
+		}
+		localStorage.setItem(name, OpenEO.Editor.Environment.getValue());
+		OpenEO.Editor._setScriptName(name);
+	},
+	
+	downloadScript: function() {
+		var downloadData = (function () {
+			var a = document.createElement("a");
+			document.body.appendChild(a);
+			a.style = "display: none";
+			return function (data, fileName) {
+				var blob = new Blob([data], {type: "text/javascript"});
+				var url = window.URL.createObjectURL(blob);
+				a.href = url;
+				a.download = fileName;
+				a.click();
+				window.URL.revokeObjectURL(url);
+			};
+		}());
+		var name = OpenEO.Editor.scriptName;
+		if (!name) {
+			name = "openeo-script";
+		}
+		downloadData(OpenEO.Editor.Environment.getValue(), name + ".js");
+	},
+	
+	_setScriptName: function(name) {
+		OpenEO.Editor.scriptName = name;
+		document.getElementById('scriptName').innerText = name;
 	}
 
 };
@@ -250,7 +322,7 @@ OpenEO.Editor.Map = {
 	},
 
 	recolor: function(tile) {
-		if (!tile.originalImage || !OpenEO.Editor.Visualization) {
+		if (!tile.originalImage || !OpenEO.Editor.Visualization || !OpenEO.Editor.Visualization.function) {
 			return;
 		}
 		
