@@ -13,7 +13,6 @@ var OpenEO = require('../openeo.js');
 OpenEO.Editor = {
 	
 	DefaultEditorOptions: {
-		value: '',
 		mode: 'javascript',
 		indentUnit: 4,
 		lineNumbers: true,
@@ -31,7 +30,8 @@ OpenEO.Editor = {
 	scriptName: "",
 	
 	init: function() {
-		OpenEO.API.baseUrl = 'http://localhost:8080/';
+		this._setBaseUrl('http://localhost:8080/');
+		// ToDo: Remove this at a later stage
 		OpenEO.API.driver = 'openeo-sentinelhub-driver';
 
 		this.setVisualizations();
@@ -44,6 +44,7 @@ OpenEO.Editor = {
 		document.getElementById('loadScript').addEventListener('click', this.loadScript);
 		document.getElementById('saveScript').addEventListener('click', this.saveScript);
 		document.getElementById('downloadScript').addEventListener('click', this.downloadScript);
+		document.getElementById('authenticate').addEventListener('click', this.authenticate);
 
 		this.initEnvironment();
 		
@@ -51,20 +52,30 @@ OpenEO.Editor = {
 	},
 	
 	initEnvironment: function() {
-		var options = Object.create(this.DefaultEditorOptions);
-		options.value = `// Create the process graph
+		this.Environment = CodeMirror(document.getElementById('editor'), this.DefaultEditorOptions);
+		var value = `// Create the process graph
 OpenEO.Editor.ProcessGraph = OpenEO.ImageCollection.create('Sentinel2A-L1C')
 	.filter_daterange("2018-01-01","2018-01-31")
 	.NDI(3,8)
 	.max_time();`;
-		this.Environment = CodeMirror(document.getElementById('editor'), options);
+		this.Environment.setValue(value);
 	},
 	
 	setServer: function() {
-		var server = prompt("URL of the OpenEO compatible server to query", OpenEO.API.baseUrl);
-		if (server && server != OpenEO.API.baseUrl) {
+		var server = document.getElementById('serverAddress').value;
+		if (server && server !== OpenEO.API.baseUrl) {
+			OpenEO.Editor._setBaseUrl(server);
 			alert("Changing servers on the fly not implemented yet.\r\n" + server);
 		}
+	},
+	
+	_setBaseUrl: function(server) {
+		OpenEO.API.baseUrl = server;
+		document.getElementById('serverAddress').value = server;
+	},
+	
+	authenticate: function() {
+		alert("Sorry, authentication is not implemented yet.");
 	},
 	
 	setDiscoveredData: function(data) {

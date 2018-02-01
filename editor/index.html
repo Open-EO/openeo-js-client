@@ -14,8 +14,12 @@
 		<div class="right-wrapper">
 			<div class="toolbar">
 				<div class="server-toolbar">
-					<button id="setServer">Set Server</button>
+					<h3>Server: <input type="text" id="serverAddress" value="" /> <button id="setServer">Change</button></h3>
 				</div>
+				<div class="auth-toolbar">
+					<button id="authenticate">Authenticate</button>
+				</div>
+				<hr />
 				<div class="data-toolbar">
 					Data: <select id="data"></select> <button id="insertData">+</button>
 				</div>
@@ -30,7 +34,7 @@
 				</div>
 			</div>
 			<div class="script">
-				<h2 class="scriptHeader">Script: <span id="scriptName"></span></h2>
+				<h3 class="scriptHeader">Script: <span id="scriptName"></span></h3>
 				<div id="editor"></div>
 				<button id="runScript">Run</button>
 				<button id="newScript">New</button>

@@ -2,6 +2,7 @@ body {
 	margin: 0;
 	overflow: hidden;
 	font-family: sans-serif;
+	font-size: 90%;
 }
 
 #map {
@@ -41,10 +42,15 @@ body {
 	background-color: #f7f7f7;
     margin: 1%;
 	padding: 5px;
+	vertical-align: middle;
 }
-.data-toolbar, .processes-toolbar, .server-toolbar, .vis-toolbar {
+.data-toolbar, .processes-toolbar, .server-toolbar, .vis-toolbar, .auth-toolbar {
 	display: inline-block;
 	margin-right: 3%;
+}
+#serverAddress {
+	width: 300px;
+	font-family: monospace;
 }
 #runScript {
 	font-weight: bold;
@@ -52,7 +58,7 @@ body {
 #newScript {
 	margin-left: 3%;
 }
-.script{
+.script {
 	border: solid 1px #676767;
     margin: 1%;
 	background-color: #f7f7f7;
@@ -62,7 +68,13 @@ body {
 	width: 10%;
 	min-width: 100px;
 }
-.scriptHeader{
+h3 {
 	margin: 0;
+	padding: 0;
+}
+.scriptHeader {
 	padding: 5px;
+}
+#scriptName {
+	font-style: italic;
 }
