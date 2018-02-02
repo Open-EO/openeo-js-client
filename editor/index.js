@@ -46,6 +46,11 @@ OpenEO.Editor = {
 		document.getElementById('downloadScript').addEventListener('click', this.downloadScript);
 		document.getElementById('authenticate').addEventListener('click', this.authenticate);
 
+		var tabItem = document.getElementsByClassName("tabItem");
+		for (var i = 0; i < tabItem.length; i++) {
+			tabItem[i].addEventListener('click', this.changeUserTab);
+		}
+
 		this.initEnvironment();
 		
 		this.Map.init();
@@ -179,7 +184,7 @@ OpenEO.Editor.Visualization = {
 	runScript: function () {
 		OpenEO.Editor.ProcessGraph = {};
 		OpenEO.Editor.Visualization = {
-			function: null,
+			function: undefined, // Don't use null, typeof null is object in JS.
 			args: {}
 		};
 		OpenEO.Editor.script = OpenEO.Editor.Environment.getSelection();
@@ -273,6 +278,21 @@ OpenEO.Editor.Visualization = {
 	_setScriptName: function(name) {
 		OpenEO.Editor.scriptName = name;
 		document.getElementById('scriptName').innerText = name;
+	},
+	
+	changeUserTab: function(evt) {
+		var i, x, tablinks;
+		var tabName = evt.currentTarget.name;
+		x = document.getElementsByClassName("tabContent");
+		for (i = 0; i < x.length; i++) {
+			x[i].style.display = "none";
+		}
+		tablinks = document.getElementsByClassName("tabItem");
+		for (i = 0; i < x.length; i++) {
+			tablinks[i].className = tablinks[i].className.replace(" tabActive", "");
+		}
+		document.getElementById(tabName).style.display = "block";
+		evt.currentTarget.className += " tabActive";
 	}
 
 };
