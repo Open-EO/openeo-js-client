@@ -15,7 +15,7 @@ Dependencies required to run the OpenEO JS client:
 
 ## Interactive JS Editor
 
-There is an experimental interactive JS editor for coding using the OpenEO API,
-where you can define processes and visualizations.
-See [editor/README.md](editor/README.md) for instructions.
+There is an experimental interactive web-based editor for coding using the OpenEO API,
+where you can define processes and visualizations in JavaScript.
+See [https://github.com/Open-EO/openeo-web-editor](https://github.com/Open-EO/openeo-web-editor) for more details.
 
