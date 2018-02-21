@@ -10,8 +10,8 @@
         <script type="text/javascript">
 			window.onload = function () {
 				OpenEO.API.baseUrl = 'http://localhost/api';
-				OpenEO.Auth.setCredentials("test", "test");
-				OpenEO.Auth.login()
+				OpenEO.API.driver = 'openeo-r-backend';
+				OpenEO.Auth.login("test", "test")
 					.then(data => {
 						document.getElementById('user_id').innerHTML = data;
 					}).catch(errorCode => {
