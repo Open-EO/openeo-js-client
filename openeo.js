@@ -336,11 +336,13 @@ var OpenEO = {
 			return OpenEO.HTTP.send(options).then(data => {
 				this.userId = data.user_id;
 				this.token = data.token;
+				return data;
 			}).catch(code => {
 				if (code == 403) {
 					this.userId = null;
 					this.token = null;
 				}
+				return code;
 			});
 		},
 
@@ -350,6 +352,7 @@ var OpenEO = {
 			};
 			return OpenEO.HTTP.post('/auth/register', body).then(data => {
 				this.userId = data.user_id;
+				return data;
 			});
 		}
 

@@ -13,7 +13,7 @@
 				OpenEO.API.driver = 'openeo-r-backend';
 				OpenEO.Auth.login("test", "test")
 					.then(data => {
-						document.getElementById('user_id').innerHTML = data;
+						document.getElementById('user_id').innerHTML = data.user_id;
 					}).catch(errorCode => {
 						document.getElementById('content').innerHTML = "Auth delivered error " + errorCode;
 					});
