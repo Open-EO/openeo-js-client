@@ -419,7 +419,7 @@ var OpenEO = {
 	Jobs: {
 
 		create(processGraph) {
-			return OpenEO.API.post('/jobs', {
+			return OpenEO.HTTP.post('/jobs', {
 				process_graph: processGraph
 			});
 		},
