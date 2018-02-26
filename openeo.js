@@ -293,6 +293,11 @@ var OpenEO = {
 			if (!options.responseType) {
 				options.responseType = 'json';
 			}
+
+			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
+			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services)$/)) {
+				options.url += '/';
+			}
 			return axios(options)
 				.then(data => data.data)
 				.catch(data => data.status);
@@ -363,12 +368,7 @@ var OpenEO = {
 
 		get(options) {
 			var opts = options || this.DefaultQueryOptions;
-			var path = '/data';
-			// ToDo: Remove this, it's just for the R backend for now
-			if (OpenEO.API.driver === 'openeo-r-backend') {
-				path += '/';
-			}
-			return OpenEO.HTTP.get(path, opts);
+			return OpenEO.HTTP.get('/data', opts);
 		},
 
 		getById(id) {
@@ -384,12 +384,7 @@ var OpenEO = {
 			if (name) {
 				query.qname = name;
 			}
-			var path = '/processes';
-			// ToDo: Remove this, it's just for the R backend for now
-			if (OpenEO.API.driver === 'openeo-r-backend') {
-				path += '/';
-			}
-			return OpenEO.HTTP.get(path, query);
+			return OpenEO.HTTP.get('/processes', query);
 		},
 
 		getById(id) {
