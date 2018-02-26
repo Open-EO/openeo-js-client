@@ -288,7 +288,7 @@ var OpenEO = {
 				if (!options.headers) {
 					options.headers = {};
 				}
-				options.headers['Authentication'] = 'Bearer ' + OpenEO.Auth.token;
+				options.headers['Authorization'] = 'Bearer ' + OpenEO.Auth.token;
 			}
 			if (!options.responseType) {
 				options.responseType = 'json';
