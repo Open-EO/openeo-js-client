@@ -278,12 +278,6 @@ var OpenEO = {
 				data: body,
 				headers: {}
 			};
-			// ToDo: Remove this hack, only the sentinel driver needs a plain text header instead of json.
-			if (OpenEO.API.driver === 'openeo-sentinelhub-driver') {
-				options.headers = {
-					'Content-Type': 'text/plain'
-				};
-			}
 			return this.send(options);
 		},
 
