@@ -110,7 +110,7 @@ class UserAPI {
 	}
 	
 	getProcessGraphs() {
-		throw new Exception('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/process_graphs');
 	}
 	
 	createProcessGraph() {
@@ -122,7 +122,7 @@ class UserAPI {
 	}
 	
 	getFiles() {
-		throw new Exception('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/files');
 	}
 	
 	getFileObject(path) {
@@ -130,15 +130,15 @@ class UserAPI {
 	}
 	
 	getJobs() {
-		throw new Exception('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/jobs');
 	}
 	
 	getServices() {
-		throw new Exception('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/services');
 	}
 	
 	getCredits() {
-		throw new Exception('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/credits');
 	}
 	
 }
@@ -295,7 +295,7 @@ var OpenEO = {
 			}
 
 			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services)$/)) {
+			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|users(\/[^\/]+\/(files|process_graphs))?)$/)) {
 				options.url += '/';
 			}
 			return axios(options)
