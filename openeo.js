@@ -113,8 +113,8 @@ class UserAPI {
 		return OpenEO.HTTP.get('/users/' + this.user_id + '/process_graphs');
 	}
 	
-	createProcessGraph() {
-		throw new Exception('Not implemented');
+	createProcessGraph(process_graph) {
+		throw new Error('Not implemented');
 	}
 	
 	getProcessGraphObject(process_graph_id) {
@@ -151,15 +151,15 @@ class UserProcessGraphAPI {
 	}
 	
 	get() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
-	replace() {
-		throw new Exception('Not implemented');
+	replace(process_graph) {
+		throw new Error('Not implemented');
 	}
 	
 	delete() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 }
@@ -172,15 +172,15 @@ class UserFileAPI {
 	}
 	
 	get() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
-	replace() {
-		throw new Exception('Not implemented');
+	replace(file) {
+		throw new Error('Not implemented');
 	}
 	
 	delete() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 }
@@ -191,28 +191,28 @@ class JobAPI {
 		this.job_id = job_id;
 	}
 	
-	modify() {
-		throw new Exception('Not implemented');
+	modify(processGraph, output) {
+		throw new Error('Not implemented');
 	}
 	
 	get() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 	subscribe() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 	queue() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 	pause() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 	cancel() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 }
@@ -223,16 +223,16 @@ class ServiceAPI {
 		this.service_id = service_id;
 	}
 	
-	modify() {
-		throw new Exception('Not implemented');
+	modify(job_id, service_type, service_args = {}) {
+		throw new Error('Not implemented');
 	}
 	
 	get() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 	delete() {
-		throw new Exception('Not implemented');
+		throw new Error('Not implemented');
 	}
 	
 }
@@ -396,20 +396,21 @@ var OpenEO = {
 	UDFRuntimes: {
 		
 		get() {
-			throw new Exception('Not implemented');
+			throw new Error('Not implemented');
 		},
 		
 		getProcess(lang, udf_type) {
-			throw new Exception('Not implemented');
+			throw new Error('Not implemented');
 		}
 		
 	},
 
 	Jobs: {
 
-		create(processGraph) {
+		create(processGraph, output) {
 			return OpenEO.HTTP.post('/jobs', {
-				process_graph: processGraph
+				process_graph: processGraph,
+				output: output
 			});
 		},
 		
@@ -421,8 +422,8 @@ var OpenEO = {
 	
 	Services: {
 		
-		create() {
-			throw new Exception('Not implemented');
+		create(job_id, service_type, service_args = {}) {
+			throw new Error('Not implemented');
 		},
 		
 		getCapabilities() {
