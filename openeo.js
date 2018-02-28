@@ -274,15 +274,28 @@ var OpenEO = {
 		},
 
 		post(path, body, responseType) {
-			return this.send('post', path, body, responseType);
+			return this.send({
+				method: 'post',
+				responseType: responseType,
+				url: path,
+				data: body
+			});
 		},
 
 		patch(path, body) {
-			return this.sendWithBody('patch', path, body);
+			return this.send({
+				method: 'patch',
+				url: path,
+				data: body
+			});
 		},
 
 		put(path, body) {
-			return this.sendWithBody('put', path, body);
+			return this.send({
+				method: 'put',
+				url: path,
+				data: body
+			});
 		},
 
 		delete(path) {
@@ -290,16 +303,6 @@ var OpenEO = {
 				method: 'delete',
 				url: path
 			});
-		},
-
-		send(method, path, body, responseType) {
-			var options = {
-				method: 'post',
-				responseType: responseType,
-				url: path,
-				data: body
-			};
-			return this.send(options);
 		},
 
 		send(options) {
