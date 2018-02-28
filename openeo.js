@@ -173,7 +173,7 @@ class UserFileAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this.path);
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this.path, null, 'stream');
 	}
 	
 	replace(file) {
@@ -214,6 +214,14 @@ class JobAPI {
 	
 	cancel() {
 		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/cancel');
+	}
+	
+	download(output_format = null) {
+		var query = {};
+		if (output_format) {
+			query.format = output_format;
+		}
+		return OpenEO.HTTP.get('/jobs/' + this.job_id + '/download', query, 'stream');
 	}
 	
 }
