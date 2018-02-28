@@ -332,7 +332,14 @@ var OpenEO = {
 			}
 			return axios(options)
 				.then(data => data.data)
-				.catch(data => data.status);
+				.catch(error => {
+					if (error.response) {
+						throw error.response.status;
+					}
+					else {
+						throw 0;
+					}
+				});
 		}
 
 	},
