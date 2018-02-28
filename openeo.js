@@ -30,11 +30,11 @@ class ProcessGraphNode {
 		// ToDo: add band names and wavelength filters
 	}
 
-	NDVI(first, second, imagery = null) {
+	NDVI(red, nir, imagery = null) {
 		return new ProcessNode('NDVI', {
 			imagery: (imagery ? imagery : this),
-			band1: first,
-			band2: second
+			red: red,
+			nir: nir
 		});
 	}
 
@@ -114,7 +114,7 @@ class UserAPI {
 	}
 	
 	createProcessGraph(process_graph) {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.post('/users/' + this.user_id + '/process_graphs', process_graph);
 	}
 	
 	getProcessGraphObject(process_graph_id) {
@@ -151,19 +151,20 @@ class UserProcessGraphAPI {
 	}
 	
 	get() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id);
 	}
 	
 	replace(process_graph) {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.put('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id, process_graph);
 	}
 	
 	delete() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.delete('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id);
 	}
 	
 }
 
+// ToDo: Encode path in requests
 class UserFileAPI {
 	
 	constructor(user_id, path) {
@@ -172,7 +173,7 @@ class UserFileAPI {
 	}
 	
 	get() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this.path);
 	}
 	
 	replace(file) {
@@ -180,7 +181,7 @@ class UserFileAPI {
 	}
 	
 	delete() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.delete('/users/' + this.user_id + '/files/' + this.path);
 	}
 	
 }
@@ -196,7 +197,7 @@ class JobAPI {
 	}
 	
 	get() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.get('/jobs/' + this.job_id);
 	}
 	
 	subscribe() {
@@ -204,15 +205,15 @@ class JobAPI {
 	}
 	
 	queue() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/queue');
 	}
 	
 	pause() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/pause');
 	}
 	
 	cancel() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/cancel');
 	}
 	
 }
@@ -223,16 +224,18 @@ class ServiceAPI {
 		this.service_id = service_id;
 	}
 	
-	modify(job_id, service_type, service_args = {}) {
-		throw new Error('Not implemented');
+	modify(service_args) {
+		return OpenEO.HTTP.patch('/services/' + this.service_id, {
+			service_args: service_args
+		});
 	}
 	
 	get() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.get('/services/' + this.service_id);
 	}
 	
 	delete() {
-		throw new Error('Not implemented');
+		return OpenEO.HTTP.patch('/services/' + this.service_id);
 	}
 	
 }
@@ -271,12 +274,30 @@ var OpenEO = {
 		},
 
 		post(path, body, responseType) {
+			return this.send('post', path, body, responseType);
+		},
+
+		patch(path, body) {
+			return this.sendWithBody('patch', path, body);
+		},
+
+		put(path, body) {
+			return this.sendWithBody('put', path, body);
+		},
+
+		delete(path) {
+			return this.send({
+				method: 'delete',
+				url: path
+			});
+		},
+
+		send(method, path, body, responseType) {
 			var options = {
 				method: 'post',
 				responseType: responseType,
 				url: path,
-				data: body,
-				headers: {}
+				data: body
 			};
 			return this.send(options);
 		},
@@ -295,7 +316,7 @@ var OpenEO = {
 			}
 
 			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|users(\/[^\/]+\/(files|process_graphs))?)$/)) {
+			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users(\/[^\/]+\/(files|process_graphs))?)$/)) {
 				options.url += '/';
 			}
 			return axios(options)
@@ -396,11 +417,11 @@ var OpenEO = {
 	UDFRuntimes: {
 		
 		get() {
-			throw new Error('Not implemented');
+			return OpenEO.HTTP.get('/udf_runtimes');
 		},
 		
 		getProcess(lang, udf_type) {
-			throw new Error('Not implemented');
+			return OpenEO.HTTP.get('/udf_runtimes/' + lang + '/' + udf_type);
 		}
 		
 	},
@@ -423,7 +444,11 @@ var OpenEO = {
 	Services: {
 		
 		create(job_id, service_type, service_args = {}) {
-			throw new Error('Not implemented');
+			return OpenEO.HTTP.post('/services', {
+				job_id: job_id,
+				service_type: service_type,
+				service_args: service_args
+			});
 		},
 		
 		getCapabilities() {

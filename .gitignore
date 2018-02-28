@@ -1,2 +1,6 @@
-/nbproject/
 node_modules/
+/dist
+/package-lock.json
+
+/nbproject/
+.vscode
