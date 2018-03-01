@@ -243,7 +243,163 @@ class ServiceAPI {
 	}
 	
 	delete() {
-		return OpenEO.HTTP.patch('/services/' + this.service_id);
+		return OpenEO.HTTP.delete('/services/' + this.service_id);
+	}
+	
+}
+
+class Capabilities {
+	
+	constructor(response) {
+		if (Array.isArray(response) && response.length > 0) {
+			this.data = response.map(elem => elem.toLowerCase());
+		}
+		else {
+			this.data = [];
+		}
+	}
+	
+	outputFormatCapabilities() {
+		return this.capable('/capabilities/output_formats');
+	}
+	
+	serviceCapabilities() {
+		return this.capable('/capabilities/services');
+	}
+	
+	data() {
+		return this.capable('/data');
+	}
+	
+	dataByOpenSearch() {
+		return this.capable('/data/opensearch');
+	}
+	
+	dataById() {
+		return this.capable('/data/{data_id}');
+	}
+	
+	processes() {
+		return this.capable('/processes');
+	}
+	
+	processesByOpenSearch() {
+		return this.capable('/processes/opensearch');
+	}
+	
+	processById() {
+		return this.capable('/processes/{process_id}');
+	}
+	
+	udfRuntimes() {
+		return this.capable('/udf_runtimes');
+	}
+	
+	udfRuntimeDescriptions() {
+		return this.capable('/udf_runtimes/{lang}/{udf_type}');
+	}
+	
+	userProcessGraphs() {
+		return this.capable('/users/{user_id}/process_graphs');
+	}
+	
+	createUserProcessGraphs() {
+		return this.capable('/users/{user_id}/process_graphs', 'post');
+	}
+	
+	updateUserProcessGraph() {
+		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}', 'put');
+	}
+	
+	deleteUserProcessGraph() {
+		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}', 'delete');
+	}
+	
+	userFiles() {
+		return this.capable('/users/{user_id}/files');
+	}
+	
+	uploadUserFiles() {
+		return this.capable('/users/{user_id}/files/{path}', 'put');
+	}
+	
+	deleteUserFileByPath() {
+		return this.capable('/users/{user_id}/files/{path}', 'delete');
+	}
+	
+	userJobs() {
+		return this.capable('/users/{user_id}/jobs');
+	}
+	
+	userServices() {
+		return this.capable('/users/{user_id}/services');
+	}
+	
+	userCredits() {
+		return this.capable('/users/{user_id}/credits');
+	}
+	
+	userLogin() {
+		return this.capable('/auth/login');
+	}
+	
+	userRegister() {
+		return this.capable('/auth/register', 'post');
+	}
+	
+	executeJob() {
+		return this.capable('/execute');
+	}
+	
+	createJob() {
+		return this.capable('/jobs', 'post');
+	}
+	
+	jobById() {
+		return this.capable('/jobs/{job_id}');
+	}
+	
+	updateJob() {
+		return this.capable('/jobs/{job_id}', 'patch');
+	}
+	
+	queueJob() {
+		return this.capable('/jobs/{job_id}/queue', 'patch');
+	}
+	
+	pauseJob() {
+		return this.capable('/jobs/{job_id}/pause', 'patch');
+	}
+	
+	cancelJob() {
+		return this.capable('/jobs/{job_id}/cancel', 'patch');
+	}
+	
+	downloadJob() {
+		return this.capable('/jobs/{job_id}/download');
+	}
+	
+	createServices() {
+		return this.capable('/services', 'post');
+	}
+
+	serviceById() {
+		return this.capable('/services/{service_id}');
+	}
+
+	updateService() {
+		return this.capable('/services/{service_id}', 'patch');
+	}
+
+	deleteService() {
+		return this.capable('/services/{service_id}', 'delete');
+	}
+
+	capable(path, method = 'get') {
+		if (this.data.indexOf(path) !== -1) {
+			return true;
+		}
+		return false;
 	}
 	
 }
@@ -261,7 +417,7 @@ var OpenEO = {
 		driver: null,
 	
 		getCapabilities() {
-			return OpenEO.HTTP.get('/capabilities');
+			return OpenEO.HTTP.get('/capabilities').then(data => new Capabilities(data));
 		},
 		
 		getOutputFormats() {
@@ -470,7 +626,9 @@ var OpenEO = {
 		},
 		
 		getCapabilities() {
-			return OpenEO.HTTP.get('/capabilities/services');
+			return OpenEO.HTTP.get('/capabilities/services').then((data) => {
+				data.map(elem => elem.toLowerCase());
+			});
 		},
 		
 		getObject(service_id) {
@@ -490,16 +648,23 @@ var OpenEO = {
 };
 
 // ToDo: Export classes etc
+let exports = {
+	OpenEO: OpenEO,
+	Capabilities: Capabilities
+};
+
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = OpenEO;
+	module.exports = exports;
 }
 else {
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
-			return OpenEO;
+			return exports;
 		});
 	}
 	else {
-		window.OpenEO = OpenEO;
+		for (let exportObjName in exports) {
+			window[exportObjName] = exports[exportObjName];
+		}
 	}
 }
