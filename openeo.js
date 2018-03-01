@@ -252,10 +252,10 @@ class Capabilities {
 	
 	constructor(response) {
 		if (Array.isArray(response) && response.length > 0) {
-			this.data = response.map(elem => elem.toLowerCase());
+			this.rawData = response.map(elem => elem.toLowerCase());
 		}
 		else {
-			this.data = [];
+			this.rawData = [];
 		}
 	}
 	
@@ -275,7 +275,7 @@ class Capabilities {
 		return this.capable('/data/opensearch');
 	}
 	
-	dataById() {
+	dataInfo() {
 		return this.capable('/data/{data_id}');
 	}
 	
@@ -287,7 +287,7 @@ class Capabilities {
 		return this.capable('/processes/opensearch');
 	}
 	
-	processById() {
+	processInfo() {
 		return this.capable('/processes/{process_id}');
 	}
 	
@@ -303,8 +303,12 @@ class Capabilities {
 		return this.capable('/users/{user_id}/process_graphs');
 	}
 	
-	createUserProcessGraphs() {
+	createUserProcessGraph() {
 		return this.capable('/users/{user_id}/process_graphs', 'post');
+	}
+	
+	userProcessGraphInfo() {
+		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}');
 	}
 	
 	updateUserProcessGraph() {
@@ -319,11 +323,15 @@ class Capabilities {
 		return this.capable('/users/{user_id}/files');
 	}
 	
-	uploadUserFiles() {
+	downloadUserFile() {
+		return this.capable('/users/{user_id}/files/{path}');
+	}
+	
+	uploadUserFile() {
 		return this.capable('/users/{user_id}/files/{path}', 'put');
 	}
 	
-	deleteUserFileByPath() {
+	deleteUserFile() {
 		return this.capable('/users/{user_id}/files/{path}', 'delete');
 	}
 	
@@ -355,7 +363,7 @@ class Capabilities {
 		return this.capable('/jobs', 'post');
 	}
 	
-	jobById() {
+	jobInfo() {
 		return this.capable('/jobs/{job_id}');
 	}
 	
@@ -383,7 +391,7 @@ class Capabilities {
 		return this.capable('/services', 'post');
 	}
 
-	serviceById() {
+	serviceInfo() {
 		return this.capable('/services/{service_id}');
 	}
 
@@ -396,7 +404,7 @@ class Capabilities {
 	}
 
 	capable(path, method = 'get') {
-		if (this.data.indexOf(path) !== -1) {
+		if (this.rawData.indexOf(path) !== -1) {
 			return true;
 		}
 		return false;

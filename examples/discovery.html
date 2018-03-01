@@ -13,7 +13,7 @@
 				OpenEO.API.driver = 'openeo-r-backend';
 				
 				OpenEO.API.getCapabilities().then(obj => {
-					replaceWithList("capabilities", obj.data);
+					replaceWithList("capabilities", obj.rawData);
 				});
 
 				OpenEO.Data.get()
