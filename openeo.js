@@ -379,7 +379,7 @@ class Capabilities {
 		return this.capable('/jobs/{job_id}/download');
 	}
 	
-	createServices() {
+	createService() {
 		return this.capable('/services', 'post');
 	}
 

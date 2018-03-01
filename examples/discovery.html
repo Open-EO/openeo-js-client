@@ -12,8 +12,8 @@
 				OpenEO.API.baseUrl = "http://localhost/api";
 				OpenEO.API.driver = 'openeo-r-backend';
 				
-				OpenEO.API.getCapabilities().then(data => {
-					replaceWithList("capabilities", data);
+				OpenEO.API.getCapabilities().then(obj => {
+					replaceWithList("capabilities", obj.data);
 				});
 
 				OpenEO.Data.get()
