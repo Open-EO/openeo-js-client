@@ -167,7 +167,6 @@ class UserProcessGraphAPI {
 	
 }
 
-// ToDo: Encode path in requests
 class UserFileAPI {
 	
 	constructor(user_id, path) {
@@ -176,15 +175,37 @@ class UserFileAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this.path, null, 'stream');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this._encodePath(this.path), null, 'stream');
 	}
 	
-	replace(file) {
-		throw new Error('Not implemented');
+	replace(fileData, statusCallback = null) {
+		var options = {
+			method: 'put',
+			url: '/users/' + this.user_id + '/files/' + this._encodePath(this.path),
+			data: fileData,
+			headers: {
+				'Content-Type': 'application/octet-stream'
+			}
+		};
+		if (typeof statusCallback === 'function') {
+			options.onUploadProgress = function(progressEvent) {
+				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+				statusCallback(percentCompleted);
+			};
+		}
+		return OpenEO.HTTP.send(options);
 	}
 	
 	delete() {
-		return OpenEO.HTTP.delete('/users/' + this.user_id + '/files/' + this.path);
+		return OpenEO.HTTP.delete('/users/' + this.user_id + '/files/' + this._encodePath(this.path));
+	}
+
+	_encodePath(path) {
+		// ToDo: Remove later
+		if (OpenEO.API.driver === 'openeo-r-backend') {
+			path = path.replace(/\./g, '_');
+		}
+		return encodeURIComponent(path);
 	}
 	
 }
@@ -279,7 +300,7 @@ class Capabilities {
 	}
 	
 	dataInfo() {
-		return this.capable('/data/{data_id}');
+		return this.capable('/data/{product_id}');
 	}
 	
 	processes() {
@@ -407,8 +428,12 @@ class Capabilities {
 	}
 
 	capable(path, method = 'get') {
-		if (this.rawData.indexOf(path) !== -1) {
-			return true;
+		var path = path.replace('/', '\\/').replace(/\{\w+\}/ig, '\\{[^\\/\\{\\}]+\\}');
+		var regexp = new RegExp('^' + path + '\\/?$', 'i');
+		for(var i in this.rawData) {
+			if (this.rawData[i].match(regexp) !== null) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -494,7 +519,7 @@ var OpenEO = {
 			}
 
 			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users(\/[^\/]+\/(files|process_graphs))?)$/)) {
+			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users(\/[^\/]+\/process_graphs)?)$/)) {
 				options.url += '/';
 			}
 			return axios(options)
