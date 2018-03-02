@@ -69,10 +69,13 @@ class ProcessGraphNode {
 	}
 	
 	execute(output_args = {}) {
-		return OpenEO.HTTP.post('/execute', {
-			process_graph: this, 
-			output: output_args
-		});
+		var body = {
+			process_graph: this
+		};
+		if (typeof output_args.format === 'string') {
+			body.output = output_args;
+		}
+		return OpenEO.HTTP.post('/execute', body);
 	}
 	
 }
@@ -610,11 +613,14 @@ var OpenEO = {
 
 	Jobs: {
 
-		create(processGraph, output) {
-			return OpenEO.HTTP.post('/jobs', {
-				process_graph: processGraph,
-				output: output
-			});
+		create(processGraph, output = {}) {
+			var body = {
+				process_graph: processGraph
+			};
+			if (typeof output.format === 'string') {
+				body.output = output;
+			}
+			return OpenEO.HTTP.post('/jobs', body);
 		},
 		
 		getObject(job_id) {
