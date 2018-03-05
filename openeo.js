@@ -69,13 +69,15 @@ class ProcessGraphNode {
 	}
 	
 	execute(output_args = {}) {
-		var body = {
-			process_graph: this
-		};
-		if (typeof output_args.format === 'string') {
-			body.output = output_args;
-		}
-		return OpenEO.HTTP.post('/execute', body);
+		return OpenEO.HTTP.send({
+			method: 'post',
+			responseType: 'blob',
+			url: '/execute',
+			data: {
+				process_graph: this,
+				output: output_args
+			}
+		});
 	}
 	
 }
@@ -175,7 +177,7 @@ class UserFileAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this._encodePath(this.path), null, 'stream');
+		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this._encodePath(this.path), null, 'blob');
 	}
 	
 	replace(fileData, statusCallback = null) {
@@ -245,7 +247,7 @@ class JobAPI {
 		if (output_format) {
 			query.format = output_format;
 		}
-		return OpenEO.HTTP.get('/jobs/' + this.job_id + '/download', query, 'stream');
+		return OpenEO.HTTP.get('/jobs/' + this.job_id + '/download', query, 'blob');
 	}
 	
 }
