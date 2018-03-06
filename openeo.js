@@ -689,23 +689,23 @@ var OpenEO = {
 };
 
 // ToDo: Export classes etc
-let exports = {
+let toExport = {
 	OpenEO: OpenEO,
 	Capabilities: Capabilities
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = exports;
+	module.exports = toExport;
 }
 else {
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
-			return exports;
+			return toExport;
 		});
 	}
 	else {
-		for (let exportObjName in exports) {
-			window[exportObjName] = exports[exportObjName];
+		for (let exportObjName in toExport) {
+			window[exportObjName] = toExport[exportObjName];
 		}
 	}
 }
