@@ -668,7 +668,7 @@ var OpenEO = {
 		
 		getCapabilities() {
 			return OpenEO.HTTP.get('/capabilities/services').then((data) => {
-				data.map(elem => elem.toLowerCase());
+				return data.map(elem => elem.toLowerCase());
 			});
 		},
 		
