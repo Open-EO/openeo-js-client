@@ -1,11 +1,11 @@
 function makeList(data, level) {
 	var items = [];
 	var callback = function (val, key) {
-		var type = typeof val;
-		if (type === "array" || type === "object") {
+		var typeOfVal = typeof val;
+		if (typeOfVal === "object") {
 			val = makeList(val, level ? level+1 : 1);
 		}
-		if (key && (!isNumeric(key) || level > 0 || type !== 'string')) {
+		if (!this.isNumeric(key) || typeOfVal === 'object') {
 			val = "<em>" + key + "</em>: " + val;
 		}
 		items.push("<li>" + val + "</li>");

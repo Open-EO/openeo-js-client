@@ -62,9 +62,12 @@ class ProcessGraphNode {
 		});
 	}
 	
-	custom(process_id, args, processParameterName, imagery = null) {
+	process(process_id, args, processParameterName, imagery = null) {
 		// ToDo: Improve? Doesn't seem very tidy (changing an object from outer scope).
-		args[processParameterName] = (imagery ? imagery : this);
+		// Should be solved with the new API version though
+		if (processParameterName) {
+			args[processParameterName] = (imagery ? imagery : this);
+		}
 		return new ProcessNode(process_id, args);
 	}
 	
@@ -507,9 +510,18 @@ var OpenEO = {
 			});
 		},
 
+		download(url, authorize = true) {
+			return this.send({
+				method: 'get',
+				responseType: 'blob',
+				url: url,
+				withCredentials: (authorize === true)
+			});
+		},
+
 		send(options) {
 			options.baseURL = OpenEO.API.baseUrl;
-			if (OpenEO.Auth.isLoggedIn()) {
+			if (OpenEO.Auth.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
 				options.withCredentials = true;
 				if (!options.headers) {
 					options.headers = {};
@@ -566,15 +578,19 @@ var OpenEO = {
 				}
 			};
 			return OpenEO.HTTP.send(options).then(data => {
+				if (!data.user_id) {
+					throw "No user_id returned.";
+				}
+				if (!data.token) {
+					throw "No token returned.";
+				}
 				this.userId = data.user_id;
 				this.token = data.token;
 				return data;
-			}).catch(code => {
-				if (code == 403) {
-					this.userId = null;
-					this.token = null;
-				}
-				return code;
+			}).catch(error => {
+				this.userId = null;
+				this.token = null;
+				return error;
 			});
 		},
 
@@ -583,6 +599,9 @@ var OpenEO = {
 				password: password
 			};
 			return OpenEO.HTTP.post('/auth/register', body).then(data => {
+				if (!data.user_id) {
+					throw "No user_id returned.";
+				}
 				this.userId = data.user_id;
 				return data;
 			});
