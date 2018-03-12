@@ -533,7 +533,7 @@ var OpenEO = {
 			}
 
 			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users(\/[^\/]+\/process_graphs)?)$/)) {
+			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users|execute)$/)) {
 				options.url += '/';
 			}
 			return axios(options)
