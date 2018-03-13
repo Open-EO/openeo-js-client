@@ -71,15 +71,21 @@ class ProcessGraphNode {
 		return new ProcessNode(process_id, args);
 	}
 	
-	execute(output_args = {}) {
+	execute(output_format = null, output_args = {}) {
+		var body = {
+				process_graph: this
+			}
+		if (typeof output_format === 'string' && output_format.length > 0) {
+			body.output = {
+				format: output_format,
+				args: output_args
+			};
+		}
 		return OpenEO.HTTP.send({
 			method: 'post',
 			responseType: 'blob',
 			url: '/execute',
-			data: {
-				process_graph: this,
-				output: output_args
-			}
+			data: body
 		});
 	}
 	
@@ -247,7 +253,7 @@ class JobAPI {
 	
 	download(output_format = null) {
 		var query = {};
-		if (output_format) {
+		if (typeof output_format === 'string' && output_format.length > 0) {
 			query.format = output_format;
 		}
 		return OpenEO.HTTP.get('/jobs/' + this.job_id + '/download', query, 'blob');
@@ -659,12 +665,15 @@ var OpenEO = {
 
 	Jobs: {
 
-		create(processGraph, output = {}) {
+		create(processGraph, output_format = null, output_args = {}) {
 			var body = {
 				process_graph: processGraph
 			};
-			if (typeof output.format === 'string') {
-				body.output = output;
+			if (typeof output_format === 'string' && output_format.length > 0) {
+				body.output = {
+					format: output_format,
+					args: output_args
+				};
 			}
 			return OpenEO.HTTP.post('/jobs', body);
 		},
