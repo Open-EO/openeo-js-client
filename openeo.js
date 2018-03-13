@@ -71,21 +71,18 @@ class ProcessGraphNode {
 		return new ProcessNode(process_id, args);
 	}
 	
-	execute(output_format = null, output_args = {}) {
-		var body = {
-				process_graph: this
-			}
-		if (typeof output_format === 'string' && output_format.length > 0) {
-			body.output = {
-				format: output_format,
-				args: output_args
-			};
-		}
+	execute(output_format, output_args = {}) {
 		return OpenEO.HTTP.send({
 			method: 'post',
 			responseType: 'blob',
 			url: '/execute',
-			data: body
+			data: {
+				process_graph: this,
+				output: {
+					format: output_format,
+					args: output_args
+				}
+			}
 		});
 	}
 	
