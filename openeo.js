@@ -593,7 +593,7 @@ var OpenEO = {
 			}).catch(error => {
 				this.userId = null;
 				this.token = null;
-				return error;
+				throw error;
 			});
 		},
 
