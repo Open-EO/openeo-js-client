@@ -565,6 +565,11 @@ var OpenEO = {
 
 		userId: null,
 		token: null,
+		
+		reset() {
+			this.userId = null;
+			this.token = null;
+		},
 
 		isLoggedIn() {
 			return (this.token !== null);
@@ -591,8 +596,7 @@ var OpenEO = {
 				this.token = data.token;
 				return data;
 			}).catch(error => {
-				this.userId = null;
-				this.token = null;
+				this.reset();
 				throw error;
 			});
 		},
