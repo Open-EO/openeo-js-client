@@ -121,11 +121,11 @@ class UserAPI {
 	}
 	
 	getProcessGraphs() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/process_graphs');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/process_graphs');
 	}
 	
 	createProcessGraph(process_graph) {
-		return OpenEO.HTTP.post('/users/' + this.user_id + '/process_graphs', process_graph);
+		return OpenEO.HTTP.post('/users/' + tencodeURIComponent(this.user_id) + '/process_graphs', process_graph);
 	}
 	
 	getProcessGraphObject(process_graph_id) {
@@ -133,7 +133,7 @@ class UserAPI {
 	}
 	
 	getFiles() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/files');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/files');
 	}
 	
 	getFileObject(path) {
@@ -141,15 +141,15 @@ class UserAPI {
 	}
 	
 	getJobs() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/jobs');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/jobs');
 	}
 	
 	getServices() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/services');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/services');
 	}
 	
 	getCredits() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/credits');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/credits');
 	}
 	
 }
@@ -162,15 +162,15 @@ class UserProcessGraphAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id);
+		return OpenEO.HTTP.get('/users/' + tencodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
 	}
 	
 	replace(process_graph) {
-		return OpenEO.HTTP.put('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id, process_graph);
+		return OpenEO.HTTP.put('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id), process_graph);
 	}
 	
 	delete() {
-		return OpenEO.HTTP.delete('/users/' + this.user_id + '/process_graphs/' + this.process_graph_id);
+		return OpenEO.HTTP.delete('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
 	}
 	
 }
@@ -183,13 +183,13 @@ class UserFileAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + this.user_id + '/files/' + this._encodePath(this.path), null, 'blob');
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path), null, 'blob');
 	}
 	
 	replace(fileData, statusCallback = null) {
 		var options = {
 			method: 'put',
-			url: '/users/' + this.user_id + '/files/' + this._encodePath(this.path),
+			url: '/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path),
 			data: fileData,
 			headers: {
 				'Content-Type': 'application/octet-stream'
@@ -205,7 +205,7 @@ class UserFileAPI {
 	}
 	
 	delete() {
-		return OpenEO.HTTP.delete('/users/' + this.user_id + '/files/' + this._encodePath(this.path));
+		return OpenEO.HTTP.delete('/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path));
 	}
 
 	_encodePath(path) {
@@ -229,7 +229,7 @@ class JobAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/jobs/' + this.job_id);
+		return OpenEO.HTTP.get('/jobs/' + encodeURIComponent(this.job_id));
 	}
 	
 	subscribe() {
@@ -237,15 +237,15 @@ class JobAPI {
 	}
 	
 	queue() {
-		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/queue');
+		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/queue');
 	}
 	
 	pause() {
-		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/pause');
+		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/pause');
 	}
 	
 	cancel() {
-		return OpenEO.HTTP.patch('/jobs/' + this.job_id + '/cancel');
+		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/cancel');
 	}
 	
 	download(output_format = null) {
@@ -253,7 +253,7 @@ class JobAPI {
 		if (typeof output_format === 'string' && output_format.length > 0) {
 			query.format = output_format;
 		}
-		return OpenEO.HTTP.get('/jobs/' + this.job_id + '/download', query, 'blob');
+		return OpenEO.HTTP.get('/jobs/' + encodeURIComponent(this.job_id) + '/download', query, 'blob');
 	}
 	
 }
@@ -265,17 +265,17 @@ class ServiceAPI {
 	}
 	
 	modify(service_args) {
-		return OpenEO.HTTP.patch('/services/' + this.service_id, {
+		return OpenEO.HTTP.patch('/services/' + encodeURIComponent(this.service_id), {
 			service_args: service_args
 		});
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/services/' + this.service_id);
+		return OpenEO.HTTP.get('/services/' + encodeURIComponent(this.service_id));
 	}
 	
 	delete() {
-		return OpenEO.HTTP.delete('/services/' + this.service_id);
+		return OpenEO.HTTP.delete('/services/' + encodeURIComponent(this.service_id));
 	}
 	
 }
@@ -631,7 +631,7 @@ var OpenEO = {
 		},
 
 		getById(id) {
-			return OpenEO.HTTP.get('/data/' + id);
+			return OpenEO.HTTP.get('/data/' + encodeURIComponent(id));
 		}
 
 	},
@@ -647,7 +647,7 @@ var OpenEO = {
 		},
 
 		getById(id) {
-			return OpenEO.HTTP.get('/processes/' + id);
+			return OpenEO.HTTP.get('/processes/' + encodeURIComponent(id));
 		}
 
 	},
@@ -659,7 +659,7 @@ var OpenEO = {
 		},
 		
 		getProcess(lang, udf_type) {
-			return OpenEO.HTTP.get('/udf_runtimes/' + lang + '/' + udf_type);
+			return OpenEO.HTTP.get('/udf_runtimes/' + encodeURIComponent(lang) + '/' + encodeURIComponent(udf_type));
 		}
 		
 	},
