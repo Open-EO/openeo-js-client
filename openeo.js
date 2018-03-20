@@ -513,7 +513,13 @@ var OpenEO = {
 			});
 		},
 
-		download(url, authorize = true) {
+		// authorize = true: Always authorize
+		// authorize = false: Never authorize
+		// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
+		download(url, authorize = null) {
+			if (authorize === null) {
+				authorize = (url.toLowerCase().indexOf(OpenEO.API.baseUrl.toLowerCase()) === 0);
+			}
 			return this.send({
 				method: 'get',
 				responseType: 'blob',
