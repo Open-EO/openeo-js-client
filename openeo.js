@@ -125,7 +125,7 @@ class UserAPI {
 	}
 	
 	createProcessGraph(process_graph) {
-		return OpenEO.HTTP.post('/users/' + tencodeURIComponent(this.user_id) + '/process_graphs', process_graph);
+		return OpenEO.HTTP.post('/users/' + encodeURIComponent(this.user_id) + '/process_graphs', process_graph);
 	}
 	
 	getProcessGraphObject(process_graph_id) {
@@ -162,7 +162,7 @@ class UserProcessGraphAPI {
 	}
 	
 	get() {
-		return OpenEO.HTTP.get('/users/' + tencodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
+		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
 	}
 	
 	replace(process_graph) {
