@@ -7,9 +7,17 @@ JavaScript client for the OpenEO API.
 
 ## Usage
 This library can run in a recent browser supporting ECMAScript 2015 or node.js.
+
+To use it in a browser environment simply add the following code to your HTML file:
+```
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/@openeo/js-client/openeo.js"></script>
+```
+
+To install it with npm: `npm install @openeo/js-client`
+
 See [examples/](examples/) for usage examples. 
 
-### Dependencies
 Dependencies required to run the OpenEO JS client:
 * [axios](https://github.com/axios/axios)
 
