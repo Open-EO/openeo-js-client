@@ -1,6 +1,6 @@
 {
-  "name": "openeo-js-client",
-  "version": "0.0.1",
+  "name": "@openeo/js-client",
+  "version": "0.2.0",
   "author": "OpenEO Team",
   "contributors": [
     {
@@ -14,7 +14,7 @@
     }
   ],
   "description": "JavaScript client for the OpenEO API (proof-of-concept).",
-  "homepage": "https://github.com/Open-EO/openeo-js-client",
+  "homepage": "http://openeo.org",
   "bugs": {
     "url": "https://github.com/Open-EO/openeo-js-client/issues"
   },
@@ -28,7 +28,7 @@
     "jest": "^22.1.4"
   },
   "dependencies": {
-    "axios": "^0.17.1"
+    "axios": "^0.18.0"
   },
   "scripts": {
     "test": "jest"
