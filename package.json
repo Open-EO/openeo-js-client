@@ -1,7 +1,7 @@
 {
   "name": "@openeo/js-client",
   "version": "0.2.0",
-  "author": "OpenEO Team",
+  "author": "openEO Consortium",
   "contributors": [
     {
       "name": "Matthias Mohr"
@@ -13,7 +13,8 @@
       "name": "Miha Kadunc"
     }
   ],
-  "description": "JavaScript client for the OpenEO API (proof-of-concept).",
+  "description": "JavaScript client for the openEO API (proof-of-concept).",
+  "license": "Apache-2.0",
   "homepage": "http://openeo.org",
   "bugs": {
     "url": "https://github.com/Open-EO/openeo-js-client/issues"
@@ -23,7 +24,6 @@
     "url": "https://github.com/Open-EO/openeo-js-client.git"
   },
   "main": "openeo.js",
-  "license": "Apache-2.0",
   "devDependencies": {
     "jest": "^22.1.4"
   },

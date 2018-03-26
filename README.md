@@ -1,6 +1,6 @@
 # openeo-js-client
 
-JavaScript client for the OpenEO API.
+JavaScript client for the openEO API.
 
 [![Status](https://img.shields.io/badge/Status-proof--of--concept-yellow.svg)]()
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
@@ -18,12 +18,12 @@ To install it with npm: `npm install @openeo/js-client`
 
 See [examples/](examples/) for usage examples. 
 
-Dependencies required to run the OpenEO JS client:
+Dependencies required to run the openEO JS client:
 * [axios](https://github.com/axios/axios)
 
 ## Interactive JS Editor
 
-There is an experimental interactive web-based editor for coding using the OpenEO API,
+There is an experimental interactive web-based editor for coding using the openEO API,
 where you can define processes and visualizations in JavaScript.
 See [https://github.com/Open-EO/openeo-web-editor](https://github.com/Open-EO/openeo-web-editor) for more details.
 
