@@ -62,6 +62,13 @@ class ProcessGraphNode {
 		});
 	}
 	
+	processImg(process_id, args = {}) {
+		// ToDo: Improve? Doesn't seem very tidy (changing an object from outer scope).
+		// Should be solved with the new API version though
+		args['imagery'] = this;
+		return new ProcessNode(process_id, args);
+	}
+	
 	process(process_id, args, processParameterName, imagery = null) {
 		// ToDo: Improve? Doesn't seem very tidy (changing an object from outer scope).
 		// Should be solved with the new API version though
@@ -72,18 +79,7 @@ class ProcessGraphNode {
 	}
 	
 	execute(output_format, output_args = {}) {
-		return OpenEO.HTTP.send({
-			method: 'post',
-			responseType: 'blob',
-			url: '/execute',
-			data: {
-				process_graph: this,
-				output: {
-					format: output_format,
-					args: output_args
-				}
-			}
-		});
+		return OpenEO.Jobs.executeSync(this, output_format, output_args);
 	}
 	
 }
@@ -687,6 +683,21 @@ var OpenEO = {
 		
 		getObject(job_id) {
 			return new JobAPI(job_id);
+		},
+	
+		executeSync (process_graph, output_format, output_args = {}) {
+			return OpenEO.HTTP.send({
+				method: 'post',
+				responseType: 'blob',
+				url: '/execute',
+				data: {
+					process_graph: process_graph,
+					output: {
+						format: output_format,
+						args: output_args
+					}
+				}
+			});
 		}
 
 	},
