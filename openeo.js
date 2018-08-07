@@ -228,19 +228,6 @@ class JobAPI {
 		return OpenEO.HTTP.get('/jobs/' + encodeURIComponent(this.job_id));
 	}
 	
-	subscribe() {
-		console.warn('Subscriptions are not (fully) implemented (yet)');
-		// This way we would have to do everything manually:
-		// return OpenEO.HTTP.post('/jobs/' + encodeURIComponent(this.job_id) + '/subscriptions');
-		// This takes care of the upgrading automatically:
-		const socket = new WebSocket(OpenEO.API.baseUrl.replace('http', 'ws') + '/jobs/' + encodeURIComponent(this.job_id) + '/subscriptions');
-		// However, there's no way (at least I haven't found one) to do this with a POST instead of a GET... (although doing so would be valid according to the specs!)
-		socket.addEventListener('open', function (event) {
-			console.log('WebSocket connection has been opened successfully.');
-		});
-		return socket;
-	}
-	
 	queue() {
 		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/queue');
 	}
@@ -302,6 +289,10 @@ class Capabilities {
 	
 	serviceCapabilities() {
 		return this.capable('/capabilities/services');
+	}
+
+	subscription() {
+		return this.capable('/subscription');
 	}
 	
 	data() {
@@ -423,10 +414,6 @@ class Capabilities {
 	downloadJob() {
 		return this.capable('/jobs/{job_id}/download');
 	}
-
-	subscribeToJob() {
-		return this.capable('/jobs/{job_id}/subscriptions', 'post');
-	}
 	
 	createService() {
 		return this.capable('/services', 'post');
@@ -475,6 +462,15 @@ var OpenEO = {
 		
 		getOutputFormats() {
 			return OpenEO.HTTP.get('/capabilities/output_formats');
+		},
+
+		subscribe(onOpen, onMessage) {
+			console.warn('Subscriptions are not (fully) implemented (yet)');
+			var url = OpenEO.API.baseUrl.replace('http', 'ws') + '/subscription';
+			const socket = new WebSocket(url, "openeo-v0.3");
+			socket.addEventListener('open', onOpen);
+			socket.addEventListener('message', onMessage);
+			return socket;
 		}
 
 	},
