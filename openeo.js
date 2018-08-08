@@ -455,6 +455,9 @@ var OpenEO = {
 		// Currently this is only to work around specific behaviour of backends
 		// during development phase.
 		driver: null,
+		// Subscriptions
+		subscriptionSocket: null,
+		subscriptionListener: {},
 	
 		getCapabilities() {
 			return OpenEO.HTTP.get('/capabilities').then(data => new Capabilities(data));
@@ -464,13 +467,75 @@ var OpenEO = {
 			return OpenEO.HTTP.get('/capabilities/output_formats');
 		},
 
-		subscribe(onOpen, onMessage) {
-			console.warn('Subscriptions are not (fully) implemented (yet)');
-			var url = OpenEO.API.baseUrl.replace('http', 'ws') + '/subscription';
-			const socket = new WebSocket(url, "openeo-v0.3");
-			socket.addEventListener('open', onOpen);
-			socket.addEventListener('message', onMessage);
-			return socket;
+		subscribe(topic, parameters, callback) {
+			console.warn('Subscriptions are not fully implemented yet.');
+			if (callback) {
+				this.subscriptionListener[topic] = callback;
+			}
+			this._sendSubscription('subscribe', topic, parameters);
+		},
+
+		unsubscribe(topic, parameters) {
+			delete subscriptionListener[topic];
+			this._sendSubscription('unsubscribe', topic, parameters);
+			// Close subscription socket if there is no subscription left
+			if (this.subscriptionSocket !== null && Object.keys(this.subscriptionListener).length === 0) {
+				this.subscriptionSocket.close();
+			}
+		},
+
+		_createWebSocket() {
+			if (this.subscriptionSocket === null || this.subscriptionSocket.readyState === this.subscriptionSocket.CLOSING || this.subscriptionSocket.readyState === this.subscriptionSocket.CLOSED) {
+				var url = OpenEO.API.baseUrl + '/subscription?authorization=' + OpenEO.Auth.token;
+				this.subscriptionSocket = new WebSocket(url.replace('http', 'ws'), "openeo-v0.3");
+				this.subscriptionSocket.addEventListener('error', () => {
+					this.subscriptionSocket = null;
+				});
+				this.subscriptionSocket.addEventListener('close', () => {
+					this.subscriptionSocket = null;
+				});
+				this.subscriptionSocket.addEventListener('message', event => {
+					// ToDo: Add error handling
+					var json = JSON.parse(event.data);
+					if (json.message.topic == 'openeo.welcome') {
+						console.log("Supported topics: " + json.payload.topics);
+					}
+					else {
+						var callback = this.subscriptionListener[json.message.topic];
+						if (callback) {
+							callback(json.payload, json.message);
+						}
+					}
+				});
+				
+			}
+			return this.subscriptionSocket;
+		},
+
+		_sendSubscription(action, topic, parameters) {
+			this._createWebSocket();
+
+			var callback = () => {
+				parameters.topic = topic;
+				this.subscriptionSocket.send(JSON.stringify({
+					message: {
+						topic: 'openeo.' + action,
+						issued: (new Date()).toISOString()
+					},
+					payload: {
+						topics: [parameters]
+					}
+				}));
+			};
+
+			if(this.subscriptionSocket.readyState === this.subscriptionSocket.CONNECTING){
+				this.subscriptionSocket.addEventListener('open', event => {
+					callback();
+				});
+			}
+			else if(this.subscriptionSocket.readyState === this.subscriptionSocket.OPEN){
+				callback();
+			}
 		}
 
 	},
