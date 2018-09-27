@@ -2,8 +2,8 @@ class openEO {
 	constructor() {
 	}
 
-	connect(url, auth_type = null, auth_options = null) {
-		return new Connection(url, auth_type, auth_options);
+	connect(url, authType = null, authOptions = null) {
+		return new Connection(url, authType, authOptions);
 	}
 
 	version() {
@@ -12,18 +12,18 @@ class openEO {
 
 
 class Connection {
-	constructor(baseUrl, auth_type = null, auth_options = null) {
+	constructor(baseUrl, authType = null, authOptions = null) {
 		this._baseUrl = baseUrl;
 		this._userId = null;
 		this._token = null;
 
-		if(auth_type !== null) {
-			switch(auth_type) {
+		if(authType !== null) {
+			switch(authType) {
 				case 'basic':
-					this.authenticateBasic(auth_options.username, auth_options.password);
+					this.authenticateBasic(authOptions.username, authOptions.password);
 					break;
 				case 'oidc':
-					this.authenticateOIDC(auth_options);
+					this.authenticateOIDC(authOptions);
 					break;
 				default:
 					throw "Unknown authentication type";
@@ -86,7 +86,7 @@ class Connection {
 				throw "No user_id returned.";
 			}
 			if (!data.access_token) {
-				throw "No access token returned.";
+				throw "No access_token returned.";
 			}
 			this._userId = data.user_id;
 			this._token = data.access_token;
@@ -103,31 +103,31 @@ class Connection {
 			.catch(error => { throw error; });
 	}
 
-	listFiles(user_id = null) {  // user_id defaults to authenticated user
+	listFiles(userId = null) {  // userId defaults to authenticated user
 	}
 
-	createFile(path, user_id = null) {  // user_id defaults to authenticated user
+	createFile(path, userId = null) {  // userId defaults to authenticated user
 	}
 
-	validateProcessGraph(process_graph) {
+	validateProcessGraph(processGraph) {
 	}
 
 	listProcessGraphs() {
 	}
 
-	execute(process_graph, output_format, output_parameters = null, budget = null) {
+	execute(processGraph, outputFormat, outputParameters = null, budget = null) {
 	}
 
 	listJobs() {
 	}
 
-	createJob(process_graph, output_format, output_parameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+	createJob(processGraph, outputFormat, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
 	}
 
 	listServices() {
 	}
 
-	createService(process_graph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+	createService(processGraph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
 	}
 
 	_get(path, query, responseType) {
@@ -239,7 +239,7 @@ class Capabilities {
 	listFeatures() {
 	}
 
-	hasFeature(method_name) {
+	hasFeature(methodName) {
 	}
 
 	currency() {
@@ -251,8 +251,8 @@ class Capabilities {
 
 
 class File {
-	constructor(user_id, path) {
-		this.user_id = user_id;
+	constructor(userId, path) {
+		this.userId = userId;
 		this.path = path;
 	}
 
@@ -268,14 +268,14 @@ class File {
 
 
 class Job {
-	constructor(job_id) {
-		this.job_id = job_id;
+	constructor(jobId) {
+		this.jobId = jobId;
 	}
 
 	describeJob() {
 	}
 
-	updateJob(process_graph = null, output_format = null, output_parameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+	updateJob(processGraph = null, outputFormat = null, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
 	}
 
 	deleteJob() {
@@ -299,14 +299,14 @@ class Job {
 
 
 class ProcessGraph {
-	constructor(pg_id) {
-		this.pg_id = pg_id;
+	constructor(pgId) {
+		this.pgId = pgId;
 	}
 
 	describeProcessGraph() {
 	}
 
-	updateProcessGraph(process_graph = null, title = null, description = null) {
+	updateProcessGraph(processGraph = null, title = null, description = null) {
 	}
 
 	deleteProcessGraph() {
@@ -315,14 +315,14 @@ class ProcessGraph {
 
 
 class Service {
-	constructor(service_id) {
-		this.service_id = service_id;
+	constructor(serviceId) {
+		this.serviceId = serviceId;
 	}
 
 	describeService() {
 	}
 
-	updateService(process_graph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+	updateService(processGraph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
 	}
 
 	deleteService() {
