@@ -3,6 +3,7 @@ class openEO {
 	}
 
 	connect(url, auth_type = null, auth_options = null) {
+		return new Connection(url, auth_type, auth_options);
 	}
 
 	version() {
@@ -11,7 +12,10 @@ class openEO {
 
 
 class Connection {
-	constructor() {
+	constructor(baseUrl, auth_type = null, auth_options = null) {
+		this._baseUrl = baseUrl;
+		this._userId = null;
+		this._token = null;
 	}
 
 	capabilities() {
@@ -154,6 +158,54 @@ class Connection {
 					throw 0;
 				}
 			});
+	}
+
+	_resetAuth() {
+		this._userId = null;
+		this._token = null;
+	}
+
+	_isLoggedIn() {
+		return (this._token !== null);
+	}
+
+	_login(username, password) {
+		var options = {
+			method: 'get',
+			url: '/auth/login',
+			withCredentials: true,
+			auth: {
+				username: username,
+				password: password
+			}
+		};
+		return this._send(options).then(data => {
+			if (!data.user_id) {
+				throw "No user_id returned.";
+			}
+			if (!data.token) {
+				throw "No token returned.";
+			}
+			this._userId = data.user_id;
+			this._token = data.token;
+			return data;
+		}).catch(error => {
+			this._resetAuth();
+			throw error;
+		});
+	}
+
+	_register(password) {
+		var body = {
+			password: password
+		};
+		return this._post('/auth/register', body).then(data => {
+			if (!data.user_id) {
+				throw "No user_id returned.";
+			}
+			this._userId = data.user_id;
+			return data;
+		});
 	}
 }
 
@@ -860,61 +912,6 @@ var OpenEO = {
 
 		create(collId) {
 			return new ImageCollectionNode(collId);
-		}
-
-	},
-
-	Auth: {
-
-		userId: null,
-		token: null,
-		
-		reset() {
-			this.userId = null;
-			this.token = null;
-		},
-
-		isLoggedIn() {
-			return (this.token !== null);
-		},
-
-		login(username, password) {
-			var options = {
-				method: 'get',
-				url: '/auth/login',
-				withCredentials: true,
-				auth: {
-					username: username,
-					password: password
-				}
-			};
-			return OpenEO.HTTP.send(options).then(data => {
-				if (!data.user_id) {
-					throw "No user_id returned.";
-				}
-				if (!data.token) {
-					throw "No token returned.";
-				}
-				this.userId = data.user_id;
-				this.token = data.token;
-				return data;
-			}).catch(error => {
-				this.reset();
-				throw error;
-			});
-		},
-
-		register(password) {
-			var body = {
-				password: password
-			};
-			return OpenEO.HTTP.post('/auth/register', body).then(data => {
-				if (!data.user_id) {
-					throw "No user_id returned.";
-				}
-				this.userId = data.user_id;
-				return data;
-			});
 		}
 
 	},
