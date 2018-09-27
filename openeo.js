@@ -17,7 +17,7 @@ class Connection {
 		this._userId = null;
 		this._token = null;
 
-		if(! auth_type === null) {
+		if(auth_type !== null) {
 			switch(auth_type) {
 				case 'basic':
 					this.authenticateBasic(auth_options.username, auth_options.password);
@@ -51,9 +51,29 @@ class Connection {
 	}
 
 	authenticateOIDC(options = null) {
+		throw "Not implemented (yet)";
 	}
 
 	authenticateBasic(username, password) {
+		return this._send({
+			method: 'get',
+			responseType: 'json',
+			url: '/credentials/basic',
+			headers: {'Authorization': 'Basic ' + btoa(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
+		}).then(data => {
+			if (!data.user_id) {
+				throw "No user_id returned.";
+			}
+			if (!data.access_token) {
+				throw "No access token returned.";
+			}
+			this._userId = data.user_id;
+			this._token = data.access_token;
+			return data;
+		}).catch(error => {
+			this._resetAuth();
+			throw error;
+		});
 	}
 
 	describeAccount() {
@@ -181,32 +201,6 @@ class Connection {
 
 	_isLoggedIn() {
 		return (this._token !== null);
-	}
-
-	_login(username, password) {
-		var options = {
-			method: 'get',
-			url: '/auth/login',
-			withCredentials: true,
-			auth: {
-				username: username,
-				password: password
-			}
-		};
-		return this._send(options).then(data => {
-			if (!data.user_id) {
-				throw "No user_id returned.";
-			}
-			if (!data.token) {
-				throw "No token returned.";
-			}
-			this._userId = data.user_id;
-			this._token = data.token;
-			return data;
-		}).catch(error => {
-			this._resetAuth();
-			throw error;
-		});
 	}
 
 	_register(password) {
