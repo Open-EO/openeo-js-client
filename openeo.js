@@ -16,6 +16,20 @@ class Connection {
 		this._baseUrl = baseUrl;
 		this._userId = null;
 		this._token = null;
+
+		if(! auth_type === null) {
+			switch(auth_type) {
+				case 'basic':
+					this.authenticateBasic(auth_options.username, auth_options.password);
+					break;
+				case 'oidc':
+					this.authenticateOIDC(auth_options);
+					break;
+				default:
+					throw "Unknown authentication type";
+			}
+		}
+		
 	}
 
 	capabilities() {
@@ -36,7 +50,7 @@ class Connection {
 	listProcesses() {
 	}
 
-	autenticateOIDC(options = null) {
+	authenticateOIDC(options = null) {
 	}
 
 	authenticateBasic(username, password) {
