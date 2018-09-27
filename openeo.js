@@ -32,21 +32,43 @@ class Connection {
 	}
 
 	capabilities() {
+		this._get('/')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	listFileTypes() {
+		this._get('/output_formats')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	listServiceTypes() {
+		this._get('/service_types')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	listCollections() {
+		this._get('/collections')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	describeCollection(name) {
+		if(/^[A-Za-z0-9_\-\.~\/]+$/.test(name)) {
+			this._get('/collections' + name)
+				.then(data => data)
+				.catch(error => { throw error; });
+		} else {
+			throw "Invalid name for collection";
+		}
 	}
 
 	listProcesses() {
+		this._get('/processes')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	authenticateOIDC(options = null) {
@@ -76,6 +98,9 @@ class Connection {
 	}
 
 	describeAccount() {
+		this._get('/me')
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	listFiles(user_id = null) {  // user_id defaults to authenticated user
