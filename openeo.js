@@ -67,6 +67,94 @@ class Connection {
 
 	createService(process_graph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
 	}
+
+	_get(path, query, responseType) {
+		return this._send({
+			method: 'get',
+			responseType: responseType,
+			url: path,
+			params: query
+		});
+	}
+
+	_post(path, body, responseType) {
+		return this._send({
+			method: 'post',
+			responseType: responseType,
+			url: path,
+			data: body
+		});
+	}
+
+	_patch(path, body) {
+		return this._send({
+			method: 'patch',
+			url: path,
+			data: body
+		});
+	}
+
+	_put(path, body) {
+		return this._send({
+			method: 'put',
+			url: path,
+			data: body
+		});
+	}
+
+	_delete(path) {
+		return this._send({
+			method: 'delete',
+			url: path
+		});
+	}
+
+	// authorize = true: Always authorize
+	// authorize = false: Never authorize
+	// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
+	_download(url, authorize = null) {
+		if (authorize === null) {
+			authorize = (url.toLowerCase().indexOf(this._baseUrl.toLowerCase()) === 0);
+		}
+		return this._send({
+			method: 'get',
+			responseType: 'blob',
+			url: url,
+			withCredentials: (authorize === true)
+		});
+	}
+
+	_send(options) {
+		options.baseURL = this._baseUrl;
+		if (this._isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
+			options.withCredentials = true;
+			if (!options.headers) {
+				options.headers = {};
+			}
+			options.headers['Authorization'] = 'Bearer ' + this._token;
+		}
+		if (!options.responseType) {
+			options.responseType = 'json';
+		}
+
+		/*
+		// ToDo: Remove this, it's just for the R backend for now, might need to be extended
+		if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users|execute)$/)) {
+			options.url += '/';
+		}
+		*/
+
+		return axios(options)
+			.then(data => data.data)
+			.catch(error => {
+				if (error.response) {
+					throw error.response.status;
+				}
+				else {
+					throw 0;
+				}
+			});
+	}
 }
 
 
@@ -764,95 +852,6 @@ var OpenEO = {
 			else if(this.subscriptionSocket.readyState === this.subscriptionSocket.OPEN){
 				callback();
 			}
-		}
-
-	},
-	
-	HTTP: {
-
-		get(path, query, responseType) {
-			return this.send({
-				method: 'get',
-				responseType: responseType,
-				url: path,
-				params: query
-			});
-		},
-
-		post(path, body, responseType) {
-			return this.send({
-				method: 'post',
-				responseType: responseType,
-				url: path,
-				data: body
-			});
-		},
-
-		patch(path, body) {
-			return this.send({
-				method: 'patch',
-				url: path,
-				data: body
-			});
-		},
-
-		put(path, body) {
-			return this.send({
-				method: 'put',
-				url: path,
-				data: body
-			});
-		},
-
-		delete(path) {
-			return this.send({
-				method: 'delete',
-				url: path
-			});
-		},
-
-		// authorize = true: Always authorize
-		// authorize = false: Never authorize
-		// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
-		download(url, authorize = null) {
-			if (authorize === null) {
-				authorize = (url.toLowerCase().indexOf(OpenEO.API.baseUrl.toLowerCase()) === 0);
-			}
-			return this.send({
-				method: 'get',
-				responseType: 'blob',
-				url: url,
-				withCredentials: (authorize === true)
-			});
-		},
-
-		send(options) {
-			options.baseURL = OpenEO.API.baseUrl;
-			if (OpenEO.Auth.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
-				options.withCredentials = true;
-				if (!options.headers) {
-					options.headers = {};
-				}
-				options.headers['Authorization'] = 'Bearer ' + OpenEO.Auth.token;
-			}
-			if (!options.responseType) {
-				options.responseType = 'json';
-			}
-
-			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users|execute)$/)) {
-				options.url += '/';
-			}
-			return axios(options)
-				.then(data => data.data)
-				.catch(error => {
-					if (error.response) {
-						throw error.response.status;
-					}
-					else {
-						throw 0;
-					}
-				});
 		}
 
 	},
