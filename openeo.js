@@ -29,7 +29,6 @@ class Connection {
 					throw "Unknown authentication type";
 			}
 		}
-		
 	}
 
 	capabilities() {
@@ -201,19 +200,6 @@ class Connection {
 
 	_isLoggedIn() {
 		return (this._token !== null);
-	}
-
-	_register(password) {
-		var body = {
-			password: password
-		};
-		return this._post('/auth/register', body).then(data => {
-			if (!data.user_id) {
-				throw "No user_id returned.";
-			}
-			this._userId = data.user_id;
-			return data;
-		});
 	}
 }
 
