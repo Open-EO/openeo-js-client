@@ -1,3 +1,187 @@
+class openEO {
+	constructor() {
+	}
+
+	connect(url, auth_type = null, auth_options = null) {
+	}
+
+	version() {
+	}
+}
+
+
+class Connection {
+	constructor() {
+	}
+
+	capabilities() {
+	}
+
+	listFileTypes() {
+	}
+
+	listServiceTypes() {
+	}
+
+	listCollections() {
+	}
+
+	describeCollection(name) {
+	}
+
+	listProcesses() {
+	}
+
+	autenticateOIDC(options = null) {
+	}
+
+	authenticateBasic(username, password) {
+	}
+
+	describeAccount() {
+	}
+
+	listFiles(user_id = null) {  // user_id defaults to authenticated user
+	}
+
+	createFile(path, user_id = null) {  // user_id defaults to authenticated user
+	}
+
+	validateProcessGraph(process_graph) {
+	}
+
+	listProcessGraphs() {
+	}
+
+	execute(process_graph, output_format, output_parameters = null, budget = null) {
+	}
+
+	listJobs() {
+	}
+
+	createJob(process_graph, output_format, output_parameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+	}
+
+	listServices() {
+	}
+
+	createService(process_graph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+	}
+}
+
+
+class Capabilities {
+	constructor() {
+	}
+
+	version() {
+	}
+
+	listFeatures() {
+	}
+
+	hasFeature(method_name) {
+	}
+
+	currency() {
+	}
+
+	listPlans() {
+	}
+}
+
+
+class File {
+	constructor(user_id, path) {
+		this.user_id = user_id;
+		this.path = path;
+	}
+
+	downloadFile(target) {
+	}
+
+	uploadFile(source) {
+	}
+
+	deleteFile() {
+	}
+}
+
+
+class Job {
+	constructor(job_id) {
+		this.job_id = job_id;
+	}
+
+	describeJob() {
+	}
+
+	updateJob(process_graph = null, output_format = null, output_parameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+	}
+
+	deleteJob() {
+	}
+
+	estimateJob() {
+	}
+
+	startJob() {
+	}
+
+	stopJob() {
+	}
+
+	listResults(type = 'json') {
+	}
+
+	downloadResults(target) {
+	}
+}
+
+
+class ProcessGraph {
+	constructor(pg_id) {
+		this.pg_id = pg_id;
+	}
+
+	describeProcessGraph() {
+	}
+
+	updateProcessGraph(process_graph = null, title = null, description = null) {
+	}
+
+	deleteProcessGraph() {
+	}
+}
+
+
+class Service {
+	constructor(service_id) {
+		this.service_id = service_id;
+	}
+
+	describeService() {
+	}
+
+	updateService(process_graph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+	}
+
+	deleteService() {
+	}
+}
+
+
+
+// ########################################################################################################
+// ########################################################################################################
+// ########################################################################################################
+// ########################################################################################################
+// ########################################################################################################
+
+
+
+/*
+
 //// PROCESS GRAPH CREATION ////
 class ProcessGraphNode {
 	constructor() { }
@@ -878,3 +1062,5 @@ else {
 		}
 	}
 }
+
+*/
