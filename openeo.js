@@ -33,7 +33,7 @@ class Connection {
 
 	capabilities() {
 		this._get('/')
-			.then(data => data)
+			.then(data => new Capabilities(data))
 			.catch(error => { throw error; });
 	}
 
@@ -230,22 +230,77 @@ class Connection {
 
 
 class Capabilities {
-	constructor() {
+	constructor(data) {
+		if(!data || !data.version || !data.endpoints) {
+			throw "Data is not a valid Capabilities response"
+		}
+		this.data = data;
 	}
 
 	version() {
+		return this.data.version;
 	}
 
 	listFeatures() {
+		return this.data.endpoints;
 	}
 
 	hasFeature(methodName) {
+		const clientMethodNameToAPIRequestMap = {
+			capabilities: 'GET /',
+			listFileTypes: 'GET /output_formats',
+			listServiceTypes: 'GET /service_types',
+			listCollections: 'GET /collections',
+			describeCollection: 'GET /collections/{name}',
+			listProcesses: 'GET /processes',
+			authenticateOIDC: 'GET /credentials/oidc',
+			authenticateBasic: 'GET /credentials/basic',
+			describeAccount: 'GET /me',
+			listFiles: 'GET /files/{user_id}',
+			validateProcessGraph: 'POST /validate',
+			listProcessGraphs: 'GET /process_graphs',
+			execute: 'POST /preview',
+			listJobs: 'GET /jobs',
+			createJob: 'POST /jobs',
+			listServices: 'GET /services',
+			createService: 'POST /services',
+			downloadFile: 'GET /files/{user_id}/{path}',
+			uploadFile: 'PUT /files/{user_id}/{path}',
+			deleteFile: 'DELETE /files/{user_id}/{path}',
+			describeJob: 'GET /jobs/{job_id}',
+			updateJob: 'PATCH /jobs/{job_id}',
+			deleteJob: 'DELETE /jobs/{job_id}',
+			estimateJob: 'GET /jobs/{job_id}/estimate',
+			startJob: 'POST /jobs/{job_id}/results',
+			stopJob: 'DELETE /jobs/{job_id}/results',
+			listResults: 'GET /jobs/{job_id}/results',
+			downloadResults: 'GET /jobs/{job_id}/results',
+			describeProcessGraph: 'GET /process_graphs/{process_graph_id}',
+			updateProcessGraph: 'PATCH /process_graphs/{process_graph_id}',
+			deleteProcessGraph: 'DELETE /process_graphs/{process_graph_id}',
+			describeService: 'GET /services/{service_id}',
+			updateService: 'PATCH /services/{service_id}',
+			deleteService: 'DELETE /services/{service_id}'
+		};
+
+		if (methodName === 'createFile') {
+			return true;   // Of course it's always possible to create "a (virtual) file".
+			// But maybe it would be smarter to return the value of hasFeature('uploadFile') instead, because that's what the user most likely wants to do
+		} else {
+			return this.data.endpoints
+				.map((e) => e.methods.map((method) => method + ' ' + e.path))
+				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
+				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
+				.some((e) => e === clientMethodNameToAPIRequestMap[methodName]);
+		}
 	}
 
 	currency() {
+		return (this.data.billing ? this.data.billing.currency : undefined);
 	}
 
 	listPlans() {
+		return (this.data.billing ? this.data.billing.plans : undefined);
 	}
 }
 
