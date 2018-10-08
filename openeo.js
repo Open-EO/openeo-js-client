@@ -33,37 +33,37 @@ class Connection {
 
 	capabilities() {
 		this._get('/')
-			.then(data => new Capabilities(data))
+			.then(response => new Capabilities(response.data))
 			.catch(error => { throw error; });
 	}
 
 	listFileTypes() {
 		this._get('/output_formats')
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listServiceTypes() {
 		this._get('/service_types')
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listCollections() {
 		this._get('/collections')
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	describeCollection(name) {
 		this._get('/collections' + name)
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listProcesses() {
 		this._get('/processes')
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
@@ -77,16 +77,16 @@ class Connection {
 			responseType: 'json',
 			url: '/credentials/basic',
 			headers: {'Authorization': 'Basic ' + btoa(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
-		}).then(data => {
-			if (!data.user_id) {
+		}).then(response => {
+			if (!response.data.user_id) {
 				throw "No user_id returned.";
 			}
-			if (!data.access_token) {
+			if (!response.data.access_token) {
 				throw "No access_token returned.";
 			}
-			this._userId = data.user_id;
-			this._token = data.access_token;
-			return data;
+			this._userId = response.data.user_id;
+			this._token = response.data.access_token;
+			return response.data;
 		}).catch(error => {
 			this._resetAuth();
 			throw error;
@@ -95,7 +95,7 @@ class Connection {
 
 	describeAccount() {
 		this._get('/me')
-			.then(data => data)
+			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
@@ -206,7 +206,7 @@ class Connection {
 		*/
 
 		return axios(options)
-			.then(data => data.data)
+			.then(reponse => response)
 			.catch(error => {
 				if (error.response) {
 					throw error.response.status;
