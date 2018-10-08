@@ -56,13 +56,9 @@ class Connection {
 	}
 
 	describeCollection(name) {
-		if(/^[A-Za-z0-9_\-\.~\/]+$/.test(name)) {
-			this._get('/collections' + name)
-				.then(data => data)
-				.catch(error => { throw error; });
-		} else {
-			throw "Invalid name for collection";
-		}
+		this._get('/collections' + name)
+			.then(data => data)
+			.catch(error => { throw error; });
 	}
 
 	listProcesses() {
