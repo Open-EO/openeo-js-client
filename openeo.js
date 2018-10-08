@@ -112,6 +112,9 @@ class Connection {
 	validateProcessGraph(processGraph) {
 	}
 
+	createProcessGraph(processGraph, title = null, description = null) {
+	}
+
 	listProcessGraphs() {
 	}
 
@@ -258,6 +261,7 @@ class Capabilities {
 			describeAccount: 'GET /me',
 			listFiles: 'GET /files/{user_id}',
 			validateProcessGraph: 'POST /validate',
+			createProcessGraph: 'POST /process_graphs',
 			listProcessGraphs: 'GET /process_graphs',
 			execute: 'POST /preview',
 			listJobs: 'GET /jobs',
