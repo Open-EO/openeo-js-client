@@ -124,15 +124,34 @@ class Connection {
 	}
 
 	validateProcessGraph(processGraph) {
+		return this._post('/validate', processGraph)
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	createProcessGraph(processGraph, title = null, description = null) {
+		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier']))
+			.catch(error => { throw error; });
 	}
 
 	listProcessGraphs() {
+		return this._get('/process_graphs')
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)))
+			.catch(error => { throw error; });
 	}
 
 	execute(processGraph, outputFormat, outputParameters = null, budget = null) {
+		return this._post('/preview', {
+			process_graph: processGraph,
+			output: {
+				format: outputFormat,
+				parameters: outputParameters
+			},
+			budget: budget
+		})
+			.then(response => response.data)
+			.catch(error => { throw error; });
 	}
 
 	listJobs() {
@@ -397,17 +416,31 @@ class Job {
 
 
 class ProcessGraph {
-	constructor(pgId) {
+	constructor(connection, pgId) {
+		this.connection = connection;
 		this.pgId = pgId;
 	}
 
 	describeProcessGraph() {
+		return this.connection._get('/process_graphs/' + this.pgId)
+		.then(response => response.data)
+		.catch(error => { throw error; });
 	}
 
 	updateProcessGraph(processGraph = null, title = null, description = null) {
+		return this.connection._patch('/process_graphs/' + this.pgId, {
+			title: title,
+			description: description,
+			process_graph: processGraph
+		})
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 
 	deleteProcessGraph() {
+		return this.connection._delete('/process_graphs/' + this.pgId)
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 }
 
