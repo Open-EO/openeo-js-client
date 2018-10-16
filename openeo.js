@@ -100,9 +100,27 @@ class Connection {
 	}
 
 	listFiles(userId = null) {  // userId defaults to authenticated user
+		if(userId === null) {
+			if(this._userId === null) {
+				throw "userId not specified and no default value available because user is not logged in"
+			} else {
+				userId = this._userId;
+			}
+		}
+		return this._get('/files/' + userId)
+			.then(response => response.data.files.map((f) => new File(this, userId, f.name)))
+			.catch(error => { throw error; });
 	}
 
 	createFile(path, userId = null) {  // userId defaults to authenticated user
+		if(userId === null) {
+			if(this._userId === null) {
+				throw "userId not specified and no default value available because user is not logged in"
+			} else {
+				userId = this._userId;
+			}
+		}
+		return new File(this, userId, path);
 	}
 
 	validateProcessGraph(processGraph) {
@@ -306,18 +324,43 @@ class Capabilities {
 
 
 class File {
-	constructor(userId, path) {
+	constructor(connection, userId, path) {
+		this.connection = connection;
 		this.userId = userId;
 		this.path = path;
 	}
 
 	downloadFile(target) {
+		this.connection._download(this.userId + this.path, target)
+			.then(response => this._saveToFile(response.data, target))
+			.catch(error => { throw error; });
+	}
+
+	_saveToFile(data, filename) {
+		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+		var blob = new Blob([data], {type: 'application/octet-stream'});
+		var blobURL = window.URL.createObjectURL(blob);
+		var tempLink = document.createElement('a');
+		tempLink.style.display = 'none';
+		tempLink.href = blobURL;
+		tempLink.setAttribute('download', filename); 
+		
+		if (typeof tempLink.download === 'undefined') {
+			tempLink.setAttribute('target', '_blank');
+		}
+		
+		document.body.appendChild(tempLink);
+		tempLink.click();
+		document.body.removeChild(tempLink);
+		window.URL.revokeObjectURL(blobURL);
 	}
 
 	uploadFile(source) {
+		this.connection._put(this.userId + this.path, source);
 	}
 
 	deleteFile() {
+		this.connection._delete(this.userId + this.path);
 	}
 }
 
