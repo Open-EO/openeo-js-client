@@ -155,9 +155,26 @@ class Connection {
 	}
 
 	listJobs() {
+		return this._get('/jobs')
+			.then(response => response.data.jobs.map((j) => new Job(this, j.job_id)))
+			.catch(error => { throw error; });
 	}
 
 	createJob(processGraph, outputFormat, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+		const jobObject = Object.assign(additional, {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			output: {
+				format: outputFormat,
+				parameters: outputParameters
+			},
+			plan: plan,
+			budget: budget
+		});
+		return this._post('/jobs', jobObject)
+			.then(response => new Job(this, response.headers['OpenEO-Identifier']))
+			.catch(error => { throw error; });
 	}
 
 	listServices() {
@@ -385,32 +402,70 @@ class File {
 
 
 class Job {
-	constructor(jobId) {
+	constructor(connection, jobId) {
+		this.connection = connection;
 		this.jobId = jobId;
 	}
 
 	describeJob() {
+		return this.connection._get('/jobs/' + this.jobId)
+		.then(response => response.data)
+		.catch(error => { throw error; });
 	}
 
 	updateJob(processGraph = null, outputFormat = null, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+		const jobObject = Object.assign(additional, {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			output: {
+				format: outputFormat,
+				parameters: outputParameters
+			},
+			plan: plan,
+			budget: budget
+		});
+
+		return this.connection._patch('/jobs/' + this.jobId, jobObject)
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 
 	deleteJob() {
+		return this.connection._delete('/jobs/' + this.jobId)
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 
 	estimateJob() {
+		return this.connection._get('/jobs/' + this.jobId + '/estimate')
+		.then(response => response.data)
+		.catch(error => { throw error; });
 	}
 
 	startJob() {
+		return this.connection._post('/jobs/' + this.jobId + '/results', {})
+		.then(response => response.status == 202)
+		.catch(error => { throw error; });
 	}
 
 	stopJob() {
+		return this.connection._delete('/jobs/' + this.jobId + '/results')
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 
 	listResults(type = 'json') {
+		if(type == 'metalink') {
+			throw "Metalink is not supported in the JS client, please use JSON.";
+		}
+		return this.connection._get('/jobs/' + this.jobId + '/results')
+		.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
+		.catch(error => { throw error; });
 	}
 
 	downloadResults(target) {
+		throw "downloadResults is not supported in the JS client.";
 	}
 }
 
