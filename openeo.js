@@ -487,19 +487,19 @@ class Job {
 
 
 class ProcessGraph {
-	constructor(connection, pgId) {
+	constructor(connection, processGraphId) {
 		this.connection = connection;
-		this.pgId = pgId;
+		this.processGraphId = processGraphId;
 	}
 
 	describeProcessGraph() {
-		return this.connection._get('/process_graphs/' + this.pgId)
+		return this.connection._get('/process_graphs/' + this.processGraphId)
 		.then(response => response.data)
 		.catch(error => { throw error; });
 	}
 
 	updateProcessGraph(processGraph = null, title = null, description = null) {
-		return this.connection._patch('/process_graphs/' + this.pgId, {
+		return this.connection._patch('/process_graphs/' + this.processGraphId, {
 			title: title,
 			description: description,
 			process_graph: processGraph
@@ -509,7 +509,7 @@ class ProcessGraph {
 	}
 
 	deleteProcessGraph() {
-		return this.connection._delete('/process_graphs/' + this.pgId)
+		return this.connection._delete('/process_graphs/' + this.processGraphId)
 		.then(response => response.status == 204)
 		.catch(error => { throw error; });
 	}
