@@ -108,7 +108,7 @@ class Connection {
 			}
 		}
 		return this._get('/files/' + userId)
-			.then(response => response.data.files.map((f) => new File(this, userId, f.name)))
+			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)))
 			.catch(error => { throw error; });
 	}
 
@@ -131,13 +131,13 @@ class Connection {
 
 	createProcessGraph(processGraph, title = null, description = null) {
 		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier']))
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
 			.catch(error => { throw error; });
 	}
 
 	listProcessGraphs() {
 		return this._get('/process_graphs')
-			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)))
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)))
 			.catch(error => { throw error; });
 	}
 
@@ -156,7 +156,7 @@ class Connection {
 
 	listJobs() {
 		return this._get('/jobs')
-			.then(response => response.data.jobs.map((j) => new Job(this, j.job_id)))
+			.then(response => response.data.jobs.map((j) => new Job(this, j.job_id)._addMetadata(j)))
 			.catch(error => { throw error; });
 	}
 
@@ -173,13 +173,13 @@ class Connection {
 			budget: budget
 		});
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['OpenEO-Identifier']))
+			.then(response => new Job(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
 			.catch(error => { throw error; });
 	}
 
 	listServices() {
 		return this._get('/services')
-			.then(response => response.data.services.map((s) => new Service(this, s.service_id)))
+			.then(response => response.data.services.map((s) => new Service(this, s.service_id)._addMetadata(s)))
 			.catch(error => { throw error; });
 	}
 
@@ -195,7 +195,7 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['OpenEO-Identifier']))
+			.then(response => new Service(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
 			.catch(error => { throw error; });
 	}
 
@@ -382,6 +382,21 @@ class File {
 		this.path = path;
 	}
 
+	_addMetadata(metadata) {
+		// Metadata for files can be "size", "modified", or ANY (!) custom field name.
+		// To prevent overwriting of already existing data we therefore have to delete keys that already
+		// exist in "this" scope from the metadata object (if they exist)
+		delete metadata.connection;
+		delete metadata.userId;
+		delete metadata.path;
+
+		for(md in metadata) {
+			this[md] = metadata[md];
+		}
+
+		return this;
+	}
+
 	downloadFile(target) {
 		this.connection._download(this.userId + this.path, target)
 			.then(response => this._saveToFile(response.data, target))
@@ -421,6 +436,18 @@ class Job {
 	constructor(connection, jobId) {
 		this.connection = connection;
 		this.jobId = jobId;
+	}
+
+	_addMetadata(metadata) {		
+		this.title       = metadata.title;
+		this.description = metadata.description;
+		this.status      = metadata.status;
+		this.submitted   = metadata.submitted;
+		this.updated     = metadata.updated;
+		this.plan        = metadata.plan;
+		this.costs       = metadata.costs;
+		this.budget      = metadata.budget;
+		return this;
 	}
 
 	describeJob() {
@@ -492,6 +519,12 @@ class ProcessGraph {
 		this.processGraphId = processGraphId;
 	}
 
+	_addMetadata(metadata) {
+		this.title = metadata.title;
+		this.description = metadata.description;
+		return this;
+	}
+
 	describeProcessGraph() {
 		return this.connection._get('/process_graphs/' + this.processGraphId)
 		.then(response => response.data)
@@ -520,6 +553,19 @@ class Service {
 	constructor(connection, serviceId) {
 		this.connection = connection;
 		this.serviceId = serviceId;
+	}
+
+	_addMetadata(metadata) {
+		this.title       = metadata.title;
+		this.description = metadata.description;
+		this.url         = metadata.url;
+		this.type        = metadata.type;
+		this.enabled     = metadata.enabled;
+		this.submitted   = metadata.submitted;
+		this.plan        = metadata.plan;
+		this.costs       = metadata.costs;
+		this.budget      = metadata.budget;
+		return this;
 	}
 
 	describeService() {
