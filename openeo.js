@@ -129,15 +129,15 @@ class Connection {
 			.catch(error => { throw error; });
 	}
 
-	createProcessGraph(processGraph, title = null, description = null) {
-		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
-			.catch(error => { throw error; });
-	}
-
 	listProcessGraphs() {
 		return this._get('/process_graphs')
 			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)))
+			.catch(error => { throw error; });
+	}
+
+	createProcessGraph(processGraph, title = null, description = null) {
+		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
 			.catch(error => { throw error; });
 	}
 
