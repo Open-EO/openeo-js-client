@@ -178,9 +178,25 @@ class Connection {
 	}
 
 	listServices() {
+		return this._get('/services')
+			.then(response => response.data.services.map((s) => new Service(this, s.service_id)))
+			.catch(error => { throw error; });
 	}
 
 	createService(processGraph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+		const serviceObject = {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			type: type,
+			enabled: enabled,
+			parameters: parameters,
+			plan: plan,
+			budget: budget
+		};
+		return this._post('/services', serviceObject)
+			.then(response => new Service(this, response.headers['OpenEO-Identifier']))
+			.catch(error => { throw error; });
 	}
 
 	_get(path, query, responseType) {
@@ -501,17 +517,36 @@ class ProcessGraph {
 
 
 class Service {
-	constructor(serviceId) {
+	constructor(connection, serviceId) {
+		this.connection = connection;
 		this.serviceId = serviceId;
 	}
 
 	describeService() {
+		return this.connection._get('/services/' + this.serviceId)
+		.then(response => response.data)
+		.catch(error => { throw error; });
 	}
 
 	updateService(processGraph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+		const serviceObject = {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			enabled: enabled,
+			parameters: parameters,
+			plan: plan,
+			budget: budget
+		};
+		return this.connection._patch('/services/' + this.serviceId, serviceObject)
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 
 	deleteService() {
+		return this.connection._delete('/services/' + this.serviceId)
+		.then(response => response.status == 204)
+		.catch(error => { throw error; });
 	}
 }
 
