@@ -1322,13 +1322,13 @@ var OpenEO = {
 	}
 
 };
-
+*/
 // ToDo: Export classes etc
 let toExport = {
-	OpenEO: OpenEO,
-	Capabilities: Capabilities
+	OpenEO: OpenEO
 };
 
+// explanation: https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }
@@ -1344,5 +1344,3 @@ else {
 		}
 	}
 }
-
-*/
