@@ -32,37 +32,37 @@ class Connection {
 	}
 
 	capabilities() {
-		this._get('/')
+		return this._get('/')
 			.then(response => new Capabilities(response.data))
 			.catch(error => { throw error; });
 	}
 
 	listFileTypes() {
-		this._get('/output_formats')
+		return this._get('/output_formats')
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listServiceTypes() {
-		this._get('/service_types')
+		return this._get('/service_types')
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listCollections() {
-		this._get('/collections')
+		return this._get('/collections')
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	describeCollection(name) {
-		this._get('/collections' + name)
+		return this._get('/collections' + name)
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
 
 	listProcesses() {
-		this._get('/processes')
+		return this._get('/processes')
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
@@ -94,7 +94,7 @@ class Connection {
 	}
 
 	describeAccount() {
-		this._get('/me')
+		return this._get('/me')
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
@@ -276,14 +276,9 @@ class Connection {
 		*/
 
 		return axios(options)
-			.then(reponse => response)
+			.then(response => response)
 			.catch(error => {
-				if (error.response) {
-					throw error.response.status;
-				}
-				else {
-					throw 0;
-				}
+				throw error;
 			});
 	}
 
@@ -394,11 +389,11 @@ class File {
 			this[md] = metadata[md];
 		}
 
-		return this;
+		return this;  // for chaining
 	}
 
 	downloadFile(target) {
-		this.connection._download(this.userId + this.path, target)
+		return this.connection._download(this.userId + this.path, target)
 			.then(response => this._saveToFile(response.data, target))
 			.catch(error => { throw error; });
 	}
@@ -423,11 +418,11 @@ class File {
 	}
 
 	uploadFile(source) {
-		this.connection._put(this.userId + this.path, source);
+		return this.connection._put(this.userId + this.path, source);
 	}
 
 	deleteFile() {
-		this.connection._delete(this.userId + this.path);
+		return this.connection._delete(this.userId + this.path);
 	}
 }
 
@@ -447,13 +442,13 @@ class Job {
 		this.plan        = metadata.plan;
 		this.costs       = metadata.costs;
 		this.budget      = metadata.budget;
-		return this;
+		return this;  // for chaining
 	}
 
 	describeJob() {
 		return this.connection._get('/jobs/' + this.jobId)
-		.then(response => response.data)
-		.catch(error => { throw error; });
+			.then(response => response.data)
+			.catch(error => { throw error; });
 	}
 
 	updateJob(processGraph = null, outputFormat = null, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
@@ -470,32 +465,32 @@ class Job {
 		});
 
 		return this.connection._patch('/jobs/' + this.jobId, jobObject)
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	deleteJob() {
 		return this.connection._delete('/jobs/' + this.jobId)
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	estimateJob() {
 		return this.connection._get('/jobs/' + this.jobId + '/estimate')
-		.then(response => response.data)
-		.catch(error => { throw error; });
+			.then(response => response.data)
+			.catch(error => { throw error; });
 	}
 
 	startJob() {
 		return this.connection._post('/jobs/' + this.jobId + '/results', {})
-		.then(response => response.status == 202)
-		.catch(error => { throw error; });
+			.then(response => response.status == 202)
+			.catch(error => { throw error; });
 	}
 
 	stopJob() {
 		return this.connection._delete('/jobs/' + this.jobId + '/results')
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	listResults(type = 'json') {
@@ -503,8 +498,8 @@ class Job {
 			throw "Metalink is not supported in the JS client, please use JSON.";
 		}
 		return this.connection._get('/jobs/' + this.jobId + '/results')
-		.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
-		.catch(error => { throw error; });
+			.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
+			.catch(error => { throw error; });
 	}
 
 	downloadResults(target) {
@@ -522,13 +517,13 @@ class ProcessGraph {
 	_addMetadata(metadata) {
 		this.title = metadata.title;
 		this.description = metadata.description;
-		return this;
+		return this;  // for chaining
 	}
 
 	describeProcessGraph() {
 		return this.connection._get('/process_graphs/' + this.processGraphId)
-		.then(response => response.data)
-		.catch(error => { throw error; });
+			.then(response => response.data)
+			.catch(error => { throw error; });
 	}
 
 	updateProcessGraph(processGraph = null, title = null, description = null) {
@@ -537,14 +532,14 @@ class ProcessGraph {
 			description: description,
 			process_graph: processGraph
 		})
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	deleteProcessGraph() {
 		return this.connection._delete('/process_graphs/' + this.processGraphId)
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 }
 
@@ -565,13 +560,13 @@ class Service {
 		this.plan        = metadata.plan;
 		this.costs       = metadata.costs;
 		this.budget      = metadata.budget;
-		return this;
+		return this;  // for chaining
 	}
 
 	describeService() {
 		return this.connection._get('/services/' + this.serviceId)
-		.then(response => response.data)
-		.catch(error => { throw error; });
+			.then(response => response.data)
+			.catch(error => { throw error; });
 	}
 
 	updateService(processGraph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
@@ -585,14 +580,14 @@ class Service {
 			budget: budget
 		};
 		return this.connection._patch('/services/' + this.serviceId, serviceObject)
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 
 	deleteService() {
 		return this.connection._delete('/services/' + this.serviceId)
-		.then(response => response.status == 204)
-		.catch(error => { throw error; });
+			.then(response => response.status == 204)
+			.catch(error => { throw error; });
 	}
 }
 
