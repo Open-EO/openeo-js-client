@@ -31,6 +31,10 @@ class Connection {
 		}
 	}
 
+	getBaseUrl() {
+		return this._baseUrl;
+	}
+
 	capabilities() {
 		return this._get('/')
 			.then(response => new Capabilities(response.data))
@@ -298,15 +302,15 @@ class Capabilities {
 		if(!data || !data.version || !data.endpoints) {
 			throw "Data is not a valid Capabilities response"
 		}
-		this.data = data;
+		this._data = data;
 	}
 
 	version() {
-		return this.data.version;
+		return this._data.version;
 	}
 
 	listFeatures() {
-		return this.data.endpoints;
+		return this._data.endpoints;
 	}
 
 	hasFeature(methodName) {
@@ -352,7 +356,7 @@ class Capabilities {
 			return true;   // Of course it's always possible to create "a (virtual) file".
 			// But maybe it would be smarter to return the value of hasFeature('uploadFile') instead, because that's what the user most likely wants to do
 		} else {
-			return this.data.endpoints
+			return this._data.endpoints
 				.map((e) => e.methods.map((method) => method + ' ' + e.path))
 				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
 				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
@@ -361,11 +365,11 @@ class Capabilities {
 	}
 
 	currency() {
-		return (this.data.billing ? this.data.billing.currency : undefined);
+		return (this._data.billing ? this._data.billing.currency : undefined);
 	}
 
 	listPlans() {
-		return (this.data.billing ? this.data.billing.plans : undefined);
+		return (this._data.billing ? this._data.billing.plans : undefined);
 	}
 }
 
