@@ -16,6 +16,8 @@ class Connection {
 		this._baseUrl = baseUrl;
 		this._userId = null;
 		this._token = null;
+		this._subscriptionSocket = null;
+		this._subscriptionListeners = new Map();
 
 		if(authType !== null) {
 			switch(authType) {
@@ -297,6 +299,121 @@ class Connection {
 
 	_isLoggedIn() {
 		return (this._token !== null);
+	}
+
+	subscribe(topic, parameters, callback) {
+		console.warn('Subscriptions are not fully implemented yet.');
+
+		if(!parameters) {
+			parameters = {};
+		}
+
+		if (callback) {
+			if(!this._subscriptionListeners.has(topic)) {
+				this._subscriptionListeners.set(topic, new Map());
+			}
+			this._subscriptionListeners.get(topic).set(JSON.stringify(parameters), callback);
+		}
+
+		this._sendSubscription('subscribe', topic, parameters);
+	}
+
+	unsubscribe(topic, parameters) {
+		// get all listeners for the topic
+		const topicListeners = this._subscriptionListeners.get(topic);
+		
+		if(!parameters) {
+			parameters = {};
+		}
+
+		// remove the applicable sub-callback
+		if(topicListeners instanceof Map) {
+			topicListeners.delete(JSON.stringify(parameters));
+		} else {
+			throw Error("this._subscriptionListeners must be a Map of Maps");
+		}
+
+		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
+		if(topicListeners.size === 0) {
+			this._subscriptionListeners.delete(topic);
+		}
+
+		// now send the command to the server (NOT earlier, because the command manipulates `parameters`)
+		this._sendSubscription('unsubscribe', topic, parameters);
+
+		// Close subscription socket if there is no subscription left (use .size, NOT .length!)
+		if (this._subscriptionSocket !== null && this._subscriptionListeners.size === 0) {
+			console.log('Closing connection because there is no subscription left');
+			this._subscriptionSocket.close();
+		}
+	}
+
+	_createWebSocket() {
+		if (this._subscriptionSocket === null || this._subscriptionSocket.readyState === this._subscriptionSocket.CLOSING || this._subscriptionSocket.readyState === this._subscriptionSocket.CLOSED) {
+			var url = OpenEO.API.baseUrl + '/subscription?authorization=' + OpenEO.Auth.token;
+			this._subscriptionSocket = new WebSocket(url.replace('http', 'ws'), "openeo-v0.3");
+			this._subscriptionSocket.addEventListener('error', () => {
+				this._subscriptionSocket = null;
+			});
+			this._subscriptionSocket.addEventListener('close', () => {
+				this._subscriptionSocket = null;
+			});
+			this._subscriptionSocket.addEventListener('message', event => {
+				// ToDo: Add error handling
+				var json = JSON.parse(event.data);
+				if (json.message.topic == 'openeo.welcome') {
+					console.log("Supported topics: " + json.payload.topics);
+				}
+				else {
+					// get listeners for topic
+					var topicListeners = this._subscriptionListeners.get(json.message.topic);
+					// we should now have a Map in which to look for the correct listener
+					if (topicListeners && topicListeners instanceof Map) {
+						callback = topicListeners.get('{}')   // default: without parameters
+								|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
+								// more parameter checks possible
+					}
+					// if we now have a function, we can call it with the information
+					if (typeof callback === 'function') {
+						callback(json.payload, json.message);
+					} else {
+						throw Error("No listener found to handle incoming message");
+					}
+				}
+			});
+			
+		}
+		return this._subscriptionSocket;
+	}
+
+	_sendSubscription(action, topic, parameters) {
+		this._createWebSocket();
+
+		if (!parameters || typeof parameters != 'object') {  // caution: typeof null == 'object', but null==false
+			parameters = {};
+		}
+
+		var callback = () => {
+			parameters.topic = topic;
+			this._subscriptionSocket.send(JSON.stringify({
+				message: {
+					topic: 'openeo.' + action,
+					issued: (new Date()).toISOString()
+				},
+				payload: {
+					topics: [parameters]
+				}
+			}));
+		};
+
+		if(this._subscriptionSocket.readyState === this._subscriptionSocket.CONNECTING){
+			this._subscriptionSocket.addEventListener('open', event => {
+				callback();
+			});
+		}
+		else if(this._subscriptionSocket.readyState === this._subscriptionSocket.OPEN){
+			callback();
+		}
 	}
 }
 
@@ -1071,9 +1188,6 @@ var OpenEO = {
 		// Currently this is only to work around specific behaviour of backends
 		// during development phase.
 		driver: null,
-		// Subscriptions
-		subscriptionSocket: null,
-		subscriptionListeners: new Map(),
 	
 		getCapabilities() {
 			return OpenEO.HTTP.get('/capabilities').then(data => new Capabilities(data));
@@ -1082,121 +1196,6 @@ var OpenEO = {
 		getOutputFormats() {
 			return OpenEO.HTTP.get('/capabilities/output_formats');
 		},
-
-		subscribe(topic, parameters, callback) {
-			console.warn('Subscriptions are not fully implemented yet.');
-
-			if(!parameters) {
-				parameters = {};
-			}
-
-			if (callback) {
-				if(!this.subscriptionListeners.has(topic)) {
-					this.subscriptionListeners.set(topic, new Map());
-				}
-				this.subscriptionListeners.get(topic).set(JSON.stringify(parameters), callback);
-			}
-
-			this._sendSubscription('subscribe', topic, parameters);
-		},
-
-		unsubscribe(topic, parameters) {
-			// get all listeners for the topic
-			const topicListeners = this.subscriptionListeners.get(topic);
-			
-			if(!parameters) {
-				parameters = {};
-			}
-
-			// remove the applicable sub-callback
-			if(topicListeners instanceof Map) {
-				topicListeners.delete(JSON.stringify(parameters));
-			} else {
-				throw Error("this.subscriptionListeners must be a Map of Maps");
-			}
-
-			// Remove entire topic from subscriptionListeners if no topic-specific listener is left
-			if(topicListeners.size === 0) {
-				this.subscriptionListeners.delete(topic);
-			}
-
-			// now send the command to the server (NOT earlier, because the command manipulates `parameters`)
-			this._sendSubscription('unsubscribe', topic, parameters);
-
-			// Close subscription socket if there is no subscription left (use .size, NOT .length!)
-			if (this.subscriptionSocket !== null && this.subscriptionListeners.size === 0) {
-				console.log('Closing connection because there is no subscription left');
-				this.subscriptionSocket.close();
-			}
-		},
-
-		_createWebSocket() {
-			if (this.subscriptionSocket === null || this.subscriptionSocket.readyState === this.subscriptionSocket.CLOSING || this.subscriptionSocket.readyState === this.subscriptionSocket.CLOSED) {
-				var url = OpenEO.API.baseUrl + '/subscription?authorization=' + OpenEO.Auth.token;
-				this.subscriptionSocket = new WebSocket(url.replace('http', 'ws'), "openeo-v0.3");
-				this.subscriptionSocket.addEventListener('error', () => {
-					this.subscriptionSocket = null;
-				});
-				this.subscriptionSocket.addEventListener('close', () => {
-					this.subscriptionSocket = null;
-				});
-				this.subscriptionSocket.addEventListener('message', event => {
-					// ToDo: Add error handling
-					var json = JSON.parse(event.data);
-					if (json.message.topic == 'openeo.welcome') {
-						console.log("Supported topics: " + json.payload.topics);
-					}
-					else {
-						// get listeners for topic
-						var topicListeners = this.subscriptionListeners.get(json.message.topic);
-						// we should now have a Map in which to look for the correct listener
-						if (topicListeners && topicListeners instanceof Map) {
-							callback = topicListeners.get('{}')   // default: without parameters
-									|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
-									// more parameter checks possible
-						}
-						// if we now have a function, we can call it with the information
-						if (typeof callback === 'function') {
-							callback(json.payload, json.message);
-						} else {
-							throw Error("No listener found to handle incoming message");
-						}
-					}
-				});
-				
-			}
-			return this.subscriptionSocket;
-		},
-
-		_sendSubscription(action, topic, parameters) {
-			this._createWebSocket();
-
-			if (!parameters || typeof parameters != 'object') {  // caution: typeof null == 'object', but null==false
-				parameters = {};
-			}
-
-			var callback = () => {
-				parameters.topic = topic;
-				this.subscriptionSocket.send(JSON.stringify({
-					message: {
-						topic: 'openeo.' + action,
-						issued: (new Date()).toISOString()
-					},
-					payload: {
-						topics: [parameters]
-					}
-				}));
-			};
-
-			if(this.subscriptionSocket.readyState === this.subscriptionSocket.CONNECTING){
-				this.subscriptionSocket.addEventListener('open', event => {
-					callback();
-				});
-			}
-			else if(this.subscriptionSocket.readyState === this.subscriptionSocket.OPEN){
-				callback();
-			}
-		}
 
 	},
 
