@@ -35,6 +35,10 @@ class Connection {
 		return this._baseUrl;
 	}
 
+	getUserId() {
+		return this._userId;
+	}
+
 	capabilities() {
 		return this._get('/')
 			.then(response => new Capabilities(response.data))
@@ -60,7 +64,7 @@ class Connection {
 	}
 
 	describeCollection(name) {
-		return this._get('/collections' + name)
+		return this._get('/collections/' + name)
 			.then(response => response.data)
 			.catch(error => { throw error; });
 	}
@@ -247,7 +251,7 @@ class Connection {
 	// authorize = true: Always authorize
 	// authorize = false: Never authorize
 	// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
-	_download(url, authorize = null) {
+	download(url, authorize = null) {
 		if (authorize === null) {
 			authorize = (url.toLowerCase().indexOf(this._baseUrl.toLowerCase()) === 0);
 		}
@@ -500,10 +504,13 @@ class Job {
 	listResults(type = 'json') {
 		if(type == 'metalink') {
 			throw "Metalink is not supported in the JS client, please use JSON.";
+		} else if(type != 'json') {
+			throw "Only JSON is supported by the JS client";
+		} else {
+			return this.connection._get('/jobs/' + this.jobId + '/results')
+				.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
+				.catch(error => { throw error; });
 		}
-		return this.connection._get('/jobs/' + this.jobId + '/results')
-			.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
-			.catch(error => { throw error; });
 	}
 
 	downloadResults(target) {
