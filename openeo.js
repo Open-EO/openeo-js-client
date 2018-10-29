@@ -1,4 +1,4 @@
-class openEO {
+class OpenEO {
 	constructor() {
 	}
 
@@ -170,7 +170,7 @@ class Connection {
 			.catch(error => { throw error; });
 	}
 
-	createJob(processGraph, outputFormat, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
+	createJob(processGraph, outputFormat, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = {}) {
 		const jobObject = Object.assign(additional, {
 			title: title,
 			description: description,
