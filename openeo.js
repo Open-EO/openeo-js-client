@@ -472,6 +472,11 @@ class Capabilities {
 			updateService: 'PATCH /services/{service_id}',
 			deleteService: 'DELETE /services/{service_id}'
 		};
+		
+		// regex-ify to allow custom parameter names
+		for (var key in clientMethodNameToAPIRequestMap) {
+			clientMethodNameToAPIRequestMap[key] = clientMethodNameToAPIRequestMap[key].replace(/{[^}]+}/, '{[^}]+}');
+		}
 
 		if (methodName === 'createFile') {
 			return true;   // Of course it's always possible to create "a (virtual) file".
@@ -481,7 +486,7 @@ class Capabilities {
 				.map((e) => e.methods.map((method) => method + ' ' + e.path))
 				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
 				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
-				.some((e) => e === clientMethodNameToAPIRequestMap[methodName]);
+				.some((e) => e.match(new RegExp('^'+clientMethodNameToAPIRequestMap[methodName]+'$')) != null);
 		}
 	}
 
