@@ -16,8 +16,6 @@ To use it in a browser environment simply add the following code to your HTML fi
 
 To install it with npm: `npm install @openeo/js-client`
 
-See [examples/](examples/) for usage examples. 
-
 Dependencies required to run the openEO JS client:
 * [axios](https://github.com/axios/axios)
 

@@ -1,6 +1,7 @@
-const OpenEO = require('../openeo.js');
+const { OpenEO } = require('../openeo.js');
 
-test('Checks for credentials', () => {
-//	OpenEO.Auth.login("test", "test");
-//	expect(OpenEO.Auth.isLoggedIn()).toBe(true);
+test('Check version number', () => {
+	var obj = new OpenEO();
+	obj.version();
+	expect(obj.version()).toBe("0.3.0");
 });

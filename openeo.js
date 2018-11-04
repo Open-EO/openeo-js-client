@@ -7,6 +7,7 @@ class OpenEO {
 	}
 
 	version() {
+		return "0.3.0";
 	}
 }
 
@@ -28,7 +29,7 @@ class Connection {
 					this.authenticateOIDC(authOptions);
 					break;
 				default:
-					throw "Unknown authentication type";
+					throw "Unknown authentication type.";
 			}
 		}
 	}
@@ -43,42 +44,36 @@ class Connection {
 
 	capabilities() {
 		return this._get('/')
-			.then(response => new Capabilities(response.data))
-			.catch(error => { throw error; });
+			.then(response => new Capabilities(response.data));
 	}
 
 	listFileTypes() {
 		return this._get('/output_formats')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	listServiceTypes() {
 		return this._get('/service_types')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	listCollections() {
 		return this._get('/collections')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	describeCollection(name) {
 		return this._get('/collections/' + name)
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	listProcesses() {
 		return this._get('/processes')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	authenticateOIDC(options = null) {
-		throw "Not implemented (yet)";
+		throw "Not implemented yet.";
 	}
 
 	authenticateBasic(username, password) {
@@ -105,27 +100,25 @@ class Connection {
 
 	describeAccount() {
 		return this._get('/me')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	listFiles(userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw "userId not specified and no default value available because user is not logged in"
+				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
 			} else {
 				userId = this._userId;
 			}
 		}
 		return this._get('/files/' + userId)
-			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)))
-			.catch(error => { throw error; });
+			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)));
 	}
 
 	createFile(path, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw "userId not specified and no default value available because user is not logged in"
+				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
 			} else {
 				userId = this._userId;
 			}
@@ -135,65 +128,64 @@ class Connection {
 
 	validateProcessGraph(processGraph) {
 		return this._post('/validate', processGraph)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+			.then(response => response.status == 204);
 	}
 
 	listProcessGraphs() {
 		return this._get('/process_graphs')
-			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)))
-			.catch(error => { throw error; });
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)));
 	}
 
 	createProcessGraph(processGraph, title = null, description = null) {
 		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
-			.catch(error => { throw error; });
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
 	}
 
-	execute(processGraph, outputFormat, outputParameters = null, budget = null) {
-		return this._post('/preview', {
+	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
+		var requestBody = {
 			process_graph: processGraph,
-			output: {
+			budget: budget
+		};
+		if (outputFormat !== null) {
+			requestBody.output = {
 				format: outputFormat,
 				parameters: outputParameters
-			},
-			budget: budget
-		})
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			};
+		}
+
+		return this._post('/preview', requestBody)
+			.then(response => response.data);
 	}
 
 	listJobs() {
 		return this._get('/jobs')
-			.then(response => response.data.jobs.map((j) => new Job(this, j.job_id)._addMetadata(j)))
-			.catch(error => { throw error; });
+			.then(response => response.data.jobs.map(j => new Job(this, j.job_id)._addMetadata(j)));
 	}
 
-	createJob(processGraph, outputFormat, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = {}) {
+	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
 		const jobObject = Object.assign(additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
-			output: {
-				format: outputFormat,
-				parameters: outputParameters
-			},
 			plan: plan,
 			budget: budget
 		});
+		if (outputFormat !== null) {
+			jobObject.output = {
+				format: outputFormat,
+				parameters: outputParameters
+			};
+		}
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
-			.catch(error => { throw error; });
+			.then(response => new Job(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	listServices() {
 		return this._get('/services')
-			.then(response => response.data.services.map((s) => new Service(this, s.service_id)._addMetadata(s)))
-			.catch(error => { throw error; });
+			.then(response => response.data.services.map((s) => new Service(this, s.service_id)._addMetadata(s)));
 	}
 
-	createService(processGraph, type, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
+	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
 		const serviceObject = {
 			title: title,
 			description: description,
@@ -205,8 +197,7 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}))
-			.catch(error => { throw error; });
+			.then(response => new Service(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	_get(path, query, responseType) {
@@ -267,7 +258,7 @@ class Connection {
 
 	_send(options) {
 		options.baseURL = this._baseUrl;
-		if (this._isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
+		if (this.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
 			options.withCredentials = true;
 			if (!options.headers) {
 				options.headers = {};
@@ -278,18 +269,7 @@ class Connection {
 			options.responseType = 'json';
 		}
 
-		/*
-		// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-		if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users|execute)$/)) {
-			options.url += '/';
-		}
-		*/
-
-		return axios(options)
-			.then(response => response)
-			.catch(error => {
-				throw error;
-			});
+		return axios(options);
 	}
 
 	_resetAuth() {
@@ -297,7 +277,7 @@ class Connection {
 		this._token = null;
 	}
 
-	_isLoggedIn() {
+	isLoggedIn() {
 		return (this._token !== null);
 	}
 
@@ -577,50 +557,32 @@ class Job {
 
 	describeJob() {
 		return this.connection._get('/jobs/' + this.jobId)
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
-	updateJob(processGraph = null, outputFormat = null, outputParameters = null, title = null, description = null, plan = null, budget = null, additional = null) {
-		const jobObject = Object.assign(additional, {
-			title: title,
-			description: description,
-			process_graph: processGraph,
-			output: {
-				format: outputFormat,
-				parameters: outputParameters
-			},
-			plan: plan,
-			budget: budget
-		});
-
-		return this.connection._patch('/jobs/' + this.jobId, jobObject)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+	updateJob(parameters) {
+		return this.connection._patch('/jobs/' + this.jobId, parameters)
+			.then(response => response.status == 204);
 	}
 
 	deleteJob() {
 		return this.connection._delete('/jobs/' + this.jobId)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+			.then(response => response.status == 204);
 	}
 
 	estimateJob() {
 		return this.connection._get('/jobs/' + this.jobId + '/estimate')
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
 	startJob() {
 		return this.connection._post('/jobs/' + this.jobId + '/results', {})
-			.then(response => response.status == 202)
-			.catch(error => { throw error; });
+			.then(response => response.status == 202);
 	}
 
 	stopJob() {
 		return this.connection._delete('/jobs/' + this.jobId + '/results')
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+			.then(response => response.status == 204);
 	}
 
 	listResults(type = 'json') {
@@ -630,8 +592,7 @@ class Job {
 			throw "Only JSON is supported by the JS client";
 		} else {
 			return this.connection._get('/jobs/' + this.jobId + '/results')
-				.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data))
-				.catch(error => { throw error; });
+				.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data));
 		}
 	}
 
@@ -655,24 +616,17 @@ class ProcessGraph {
 
 	describeProcessGraph() {
 		return this.connection._get('/process_graphs/' + this.processGraphId)
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
-	updateProcessGraph(processGraph = null, title = null, description = null) {
-		return this.connection._patch('/process_graphs/' + this.processGraphId, {
-			title: title,
-			description: description,
-			process_graph: processGraph
-		})
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+	updateProcessGraph(parameters) {
+		return this.connection._patch('/process_graphs/' + this.processGraphId, parameters)
+			.then(response => response.status == 204);
 	}
 
 	deleteProcessGraph() {
 		return this.connection._delete('/process_graphs/' + this.processGraphId)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+			.then(response => response.status == 204);
 	}
 }
 
@@ -698,29 +652,17 @@ class Service {
 
 	describeService() {
 		return this.connection._get('/services/' + this.serviceId)
-			.then(response => response.data)
-			.catch(error => { throw error; });
+			.then(response => response.data);
 	}
 
-	updateService(processGraph = null, title = null, description = null, enabled = null, parameters = null, plan = null, budget = null) {
-		const serviceObject = {
-			title: title,
-			description: description,
-			process_graph: processGraph,
-			enabled: enabled,
-			parameters: parameters,
-			plan: plan,
-			budget: budget
-		};
-		return this.connection._patch('/services/' + this.serviceId, serviceObject)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+	updateService(parameters) {
+		return this.connection._patch('/services/' + this.serviceId, parameters)
+			.then(response => response.status == 204);
 	}
 
 	deleteService() {
 		return this.connection._delete('/services/' + this.serviceId)
-			.then(response => response.status == 204)
-			.catch(error => { throw error; });
+			.then(response => response.status == 204);
 	}
 }
 
