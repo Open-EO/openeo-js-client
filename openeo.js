@@ -1,4 +1,4 @@
-if (typeof global.axios === 'undefined' && typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+if (typeof axios === 'undefined' && typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	var axios = require("axios");
 }
 
