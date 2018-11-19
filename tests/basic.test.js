@@ -484,7 +484,7 @@ describe('With earth-engine-driver', () => {
 		con = await connectWithBasicAuth();
 		await con.listProcessGraphs().then(list => list.forEach(async pg => await pg.deleteProcessGraph()));
 		await con.listJobs().then(list => list.forEach(async j => await j.deleteJob()));
-		await con.listServices().then(list => list.forEach(async s => await s.delteService()));
+		await con.listServices().then(list => list.forEach(async s => await s.deleteService()));
 		await con.listFiles().then(list => list.forEach(async f => await f.deleteFile()));
 		done();
 	});
