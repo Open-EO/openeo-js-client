@@ -28,6 +28,6 @@
     "axios": "^0.18.0"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage"
   }
 }
