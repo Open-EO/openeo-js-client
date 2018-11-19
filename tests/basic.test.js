@@ -300,4 +300,182 @@ describe('With earth-engine-driver', () => {
 			expect(pgs[0].processGraphId).toBe(pg1.processGraphId);
 		});
 	});
+
+	describe('CRUD jobs', async () => {
+		var con;
+		beforeAll(async (done) => {
+			con = await connectWithBasicAuth();
+			done();
+		});
+
+		test('List jobs in general', async () => {
+			var jobs = await con.listJobs();
+			expect(jobs).not.toBeNull();
+		});
+
+		test('Make sure there are no jobs', async () => {
+			var jobs = await con.listJobs();
+			expect(jobs).toHaveLength(0);
+		});
+
+		var job;
+		test('Add minimal job', async () => {
+			job = await con.createJob(TESTPROCESSGGRAPH);
+			expect(Object.getPrototypeOf(job).constructor.name).toBe('Job');
+			expect(job.jobId).not.toBeNull();
+			expect(job.jobId).not.toBeUndefined();
+			var jobs = await con.listJobs();
+			expect(jobs).toHaveLength(1);
+			expect(Object.getPrototypeOf(jobs[0]).constructor.name).toBe('Job');
+			expect(jobs[0].jobId).toBe(job.jobId);
+		});
+
+		test('Describe job', async () => {
+			var jobdetails = await job.describeJob();
+			expect(jobdetails).not.toBeNull();
+			expect(jobdetails).not.toBeUndefined();
+			expect(jobdetails.job_id).toBe(job.jobId);
+			expect(jobdetails.title).toBeNull();
+			expect(typeof jobdetails.submitted).toBe('string');
+		})
+
+		test('Update job', async () => {
+			var success = await job.updateJob({title: 'Test job'});
+			expect(success).toBeTruthy();
+			var jobdetails = await job.describeJob();
+			expect(jobdetails).not.toBeNull();
+			expect(jobdetails).not.toBeUndefined();
+			expect(jobdetails.job_id).toBe(job.jobId);
+			expect(jobdetails.title).toBe('Test job');
+			expect(typeof jobdetails.submitted).toBe('string');
+		});
+
+		test('Delete job', async () => {
+			var success = await job.deleteJob();
+			expect(success).toBeTruthy();
+			var jobs = await con.listJobs();
+			expect(jobs).toHaveLength(0);
+		});
+	});
+
+	describe('CRUD services', async () => {
+		var con;
+		beforeAll(async (done) => {
+			con = await connectWithBasicAuth();
+			done();
+		});
+
+		test('List services in general', async () => {
+			var svcs = await con.listServices();
+			expect(svcs).not.toBeNull();
+		});
+
+		test('Make sure there are no services', async () => {
+			var svcs = await con.listServices();
+			expect(svcs).toHaveLength(0);
+		});
+
+		var svc;
+		test('Add minimal service', async () => {
+			svc = await con.createService(TESTPROCESSGGRAPH, 'xyz');
+			expect(Object.getPrototypeOf(svc).constructor.name).toBe('Service');
+			expect(svc.serviceId).not.toBeNull();
+			expect(svc.serviceId).not.toBeUndefined();
+			var svcs = await con.listServices();
+			expect(svcs).toHaveLength(1);
+			expect(Object.getPrototypeOf(svcs[0]).constructor.name).toBe('Service');
+			expect(svcs[0].serviceId).toBe(svc.serviceId);
+		});
+
+		test('Describe service', async () => {
+			var svcdetails = await svc.describeService();
+			expect(svcdetails).not.toBeNull();
+			expect(svcdetails).not.toBeUndefined();
+			expect(svcdetails.service_id).toBe(svc.serviceId);
+			expect(svcdetails.title).toBeNull();
+			expect(typeof svcdetails.url).toBe('string');
+		})
+
+		test('Update service', async () => {
+			var success = await svc.updateService({title: 'Test service'});
+			expect(success).toBeTruthy();
+			var svcdetails = await svc.describeService();
+			expect(svcdetails).not.toBeNull();
+			expect(svcdetails).not.toBeUndefined();
+			expect(svcdetails.service_id).toBe(svc.serviceId);
+			expect(svcdetails.title).toBe('Test service');
+			expect(typeof svcdetails.url).toBe('string');
+		});
+
+		test('Delete service', async () => {
+			var success = await svc.deleteService();
+			expect(success).toBeTruthy();
+			var svcs = await con.listServices();
+			expect(svcs).toHaveLength(0);
+		});
+	});
+
+	describe('CRUD files', async () => {
+		var con;
+		beforeAll(async (done) => {
+			con = await connectWithBasicAuth();
+			done();
+		});
+
+		test('List files in general', async () => {
+			var files = await con.listFiles();
+			expect(files).not.toBeNull();
+		});
+
+		test('Make sure there are no files', async () => {
+			var files = await con.listFiles();
+			expect(files).toHaveLength(0);
+		});
+
+		var f;
+		test('Upload file', async () => {
+			f = await con.createFile('test.txt');
+			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
+			expect(f.path).toBe('/test.txt');  // SIC! With slash!
+			expect(f.userId).toBe('group5');
+			var files = await con.listFiles();
+			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
+			await f.uploadFile('Lorem ipsum');
+			var files = await con.listFiles();
+			expect(files).toHaveLength(1); // now it should be there
+			expect(Object.getPrototypeOf(files[0]).constructor.name).toBe('File');
+			expect(files[0].path).toBe(f.path);
+		});
+
+		test('Download file', async (done) => {  // use `done` to wait for the event
+			var blob = await f.downloadFile(undefined);
+			
+			var reader = new FileReader();
+			reader.addEventListener("loadend", () => {
+				// expect(...) can throw itself, so we have to wrap this assertion in try/catch.
+				// Otherwise it could happen that done() is never called!
+				try {
+					expect(reader.result).toBe('Lorem ipsum');
+					done();  // all good
+				}
+				catch(error) {
+					console.log(error);  // it's not being printed by expect itself
+					done.fail();  // explicitly fail the test (we're in a catch block and that's no good)
+				}
+			 });
+			 reader.readAsText(blob);
+		})
+
+		test('Update file being not supported', async () => {
+			expect(f.updateFile).toBeUndefined();
+			expect(f.replaceFile).toBeUndefined();
+		});
+
+		test('Delete file', async () => {
+			var success = await f.deleteFile();
+			expect(success).toBeTruthy();
+			var files = await con.listFiles();
+			expect(files).toHaveLength(0);
+		});
+	});
 });
