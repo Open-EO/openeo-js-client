@@ -30,6 +30,7 @@ describe('With earth-engine-driver', () => {
 		test('Connect without credentials', async () => {
 			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
 			});
@@ -38,6 +39,7 @@ describe('With earth-engine-driver', () => {
 		test('Connect with Basic Auth credentials', async () => {
 			await connectWithBasicAuth().then(con => {
 				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeTruthy();
 				expect(con.getUserId()).toBe('group5');
 			});
@@ -46,10 +48,12 @@ describe('With earth-engine-driver', () => {
 		test('Manually connect with Basic Auth credentials', async () => {
 			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
 				var login = await con.authenticateBasic('group5', 'test123');
 				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeTruthy();
 				expect(con.getUserId()).toBe('group5');
 				expect(login).toHaveProperty('user_id');
@@ -60,6 +64,7 @@ describe('With earth-engine-driver', () => {
 		test('Auth via OIDC is not implemented yet', async () => {
 			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
 				expect(con.authenticateOIDC).toThrowError('Not implemented yet.');
@@ -85,6 +90,7 @@ describe('With earth-engine-driver', () => {
 		test('Capabilities', async () => {
 			var caps = await con.capabilities();
 			expect(caps).not.toBeNull();
+			expect(Object.getPrototypeOf(caps).constructor.name).toBe('Capabilities');
 			expect(caps._data).toEqual(TESTCAPABILITIES);
 			expect(caps.version()).toBe('0.3.1');
 			expect(caps.listFeatures()).toEqual(TESTCAPABILITIES.endpoints);
@@ -164,6 +170,12 @@ describe('With earth-engine-driver', () => {
 			var ss = await con.listServices();
 			expect(ss).not.toBeNull();
 			expect(ss).toHaveLength(0);
+		});
+
+		test('List files', async () => {
+			var fs = await con.listFiles();
+			expect(fs).not.toBeNull();
+			expect(fs).toHaveLength(0);
 		});
 	});
 });
