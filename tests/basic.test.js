@@ -18,9 +18,17 @@ describe('With earth-engine-driver', () => {
 	const TESTPROCESS = JSON.parse('{"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}}');
 	var obj = new OpenEO();
 
+	async function connectWithoutAuth() {
+		return obj.connect(TESTBACKEND);
+	}
+
+	async function connectWithBasicAuth() {
+		return obj.connect(TESTBACKEND, 'basic', {username: 'group5', password: 'test123'});
+	}
+
 	describe('Connecting', () => {	
 		test('Connect without credentials', async () => {
-			await obj.connect(TESTBACKEND).then(async con => {
+			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
@@ -28,7 +36,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Connect with Basic Auth credentials', async () => {
-			await obj.connect(TESTBACKEND, 'basic', {username: 'group5', password: 'test123'}).then(con => {
+			await connectWithBasicAuth().then(con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeTruthy();
 				expect(con.getUserId()).toBe('group5');
@@ -36,7 +44,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Manually connect with Basic Auth credentials', async () => {
-			await obj.connect(TESTBACKEND).then(async con => {
+			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
@@ -50,7 +58,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Auth via OIDC is not implemented yet', async () => {
-			await obj.connect(TESTBACKEND).then(async con => {
+			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
@@ -61,7 +69,7 @@ describe('With earth-engine-driver', () => {
 	
 	describe('Getters', () => {
 		test('Get baseurl', async () => {
-			await obj.connect(TESTBACKEND).then(con => {
+			await connectWithoutAuth().then(con => {
 				expect(con.getBaseUrl()).toBe(TESTBACKEND);
 			});
 		});
@@ -70,7 +78,7 @@ describe('With earth-engine-driver', () => {
 	describe('Discovery', () => {
 		var con;
 		beforeAll(async (done) => {
-			con = await obj.connect(TESTBACKEND);
+			con = await connectWithoutAuth();
 			done();
 		});
 		
@@ -130,7 +138,7 @@ describe('With earth-engine-driver', () => {
 	describe('Getting empty user-specific data', async () => {
 		var con;
 		beforeAll(async (done) => {
-			con = await obj.connect(TESTBACKEND, 'basic', {username: 'group5', password: 'test123'});
+			con = await connectWithBasicAuth();
 			done();
 		});
 
