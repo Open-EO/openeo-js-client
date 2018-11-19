@@ -23,7 +23,7 @@ describe('With earth-engine-driver', () => {
 			await obj.connect(TESTBACKEND).then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull;
+				expect(con.getUserId()).toBeNull();
 			});
 		});
 
@@ -39,7 +39,7 @@ describe('With earth-engine-driver', () => {
 			await obj.connect(TESTBACKEND).then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull;
+				expect(con.getUserId()).toBeNull();
 				var login = await con.authenticateBasic('group5', 'test123');
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeTruthy();
@@ -53,7 +53,7 @@ describe('With earth-engine-driver', () => {
 			await obj.connect(TESTBACKEND).then(async con => {
 				expect(con).not.toBeNull();
 				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull;
+				expect(con.getUserId()).toBeNull();
 				expect(con.authenticateOIDC).toThrowError('Not implemented yet.');
 			});
 		});
