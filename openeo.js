@@ -124,7 +124,7 @@ class Connection {
 				userId = this._userId;
 			}
 		}
-		return new File(this, userId, path);
+		return Promise.resolve(new File(this, userId, name));
 	}
 
 	validateProcessGraph(processGraph) {
@@ -227,11 +227,12 @@ class Connection {
 		});
 	}
 
-	_put(path, body) {
+	_put(path, body, contenttype = undefined) {
 		return this._send({
 			method: 'put',
 			url: path,
-			data: body
+			data: body,
+			headers: (contenttype == undefined ? {} : { 'content-type': contenttype })
 		});
 	}
 
@@ -551,9 +552,9 @@ class File {
 		return this;  // for chaining
 	}
 
-	downloadFile(target) {
-			.then(response => this._saveToFile(response.data, target))
-		return this.connection._download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name, target)
+	downloadFile(target = undefined) {
+		return this.connection.download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name)
+			.then(response => (target == undefined ? response.data : this._saveToFile(response.data, target)))
 			.catch(error => { throw error; });
 	}
 
@@ -577,7 +578,7 @@ class File {
 	}
 
 	uploadFile(source) {
-		return this.connection._put('/files/' + this.userId + '/' + this.name, source);
+		return this.connection._put('/files/' + this.userId + '/' + this.name, source, 'application/octet-stream');
 	}
 
 	deleteFile() {
