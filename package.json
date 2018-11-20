@@ -22,12 +22,15 @@
   },
   "main": "openeo.js",
   "devDependencies": {
-    "jest": "^23.5.0"
+    "jest": "^23.5.0",
+    "jest-html-reporter": "^2.4.2"
   },
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "ws": "^6.1.2"
   },
   "scripts": {
-    "test": "jest --coverage"
+    "test": "jest --env=jsdom",
+    "test_node": "jest --env=node"
   }
 }
