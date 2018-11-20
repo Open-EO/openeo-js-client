@@ -180,7 +180,7 @@ class Connection {
 	}
 
 	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
-		const jobObject = Object.assign(additional, {
+		var jobObject = Object.assign(additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -203,7 +203,7 @@ class Connection {
 	}
 
 	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
-		const serviceObject = {
+		var serviceObject = {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -338,7 +338,7 @@ class Subscriptions {
 
 	unsubscribe(topic, parameters) {
 		// get all listeners for the topic
-		const topicListeners = this.listeners.get(topic);
+		var topicListeners = this.listeners.get(topic);
 		
 		if(!parameters) {
 			parameters = {};
@@ -372,7 +372,7 @@ class Subscriptions {
 			var url = this.httpConnection._baseUrl.replace('http', 'ws') + '/subscription';
 
 			if (isNode) {
-				const WebSocket = require('ws');
+				var WebSocket = require('ws');
 				this.socket = new WebSocket(url, this.websocketProtocol);
 			}
 			else {
@@ -490,7 +490,7 @@ class Capabilities {
 	}
 
 	hasFeature(methodName) {
-		const clientMethodNameToAPIRequestMap = {
+		var clientMethodNameToAPIRequestMap = {
 			capabilities: 'GET /',
 			listFileTypes: 'GET /output_formats',
 			listServiceTypes: 'GET /service_types',
@@ -606,15 +606,18 @@ class File {
 	_saveToFileNode(data, filename) {
 		var fs = require('fs');
 		return new Promise((resolve, reject) => {
-			fs.writeFile(filename, data, (err) => {
+			var writeStream = fs.createWriteStream(filename);
+			writeStream.on('close', function (err) {
 				if (err) {
 					return reject(err);
 				}
 				resolve();
 			});
+			data.pipe(writeStream);
 		});
 	}
 
+	/* istanbul ignore next */
 	_saveToFileBrowser(data, filename) {
 		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 		var blob = new Blob([data], {type: 'application/octet-stream'});
