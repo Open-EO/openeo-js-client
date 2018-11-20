@@ -417,7 +417,8 @@ describe('With earth-engine-driver', () => {
 		test('Get file contents', async (done) => {
 			var resource = await f.downloadFile();
 			expect(resource).not.toBeNull();
-			if (typeof Blob !== 'undefined' && resource instanceof Blob) { // Browser environment
+			if (typeof Blob !== 'undefined') { // Browser environment
+				expect(resource).toBeInstanceOf(Blob);
 				var reader = new FileReader();
 				reader.addEventListener("loadend", () => {
 					// expect(...) can throw itself, so we have to wrap this assertion in try/catch.
@@ -450,7 +451,7 @@ describe('With earth-engine-driver', () => {
 
 		test('Download/Save file', async () => {
 			var target = "downloaded_file.txt";
-			if (typeof Blob !== 'undefined' && resource instanceof Blob) { 
+			if (typeof Blob !== 'undefined') { 
 				// Browser environment
 				// Hard to test a browser download, ignore
 				return;
