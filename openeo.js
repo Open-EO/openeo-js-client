@@ -128,8 +128,9 @@ class Connection {
 	}
 
 	validateProcessGraph(processGraph) {
-		return this._post('/validate', processGraph)
-			.then(response => response.status == 204);
+		return this._post('/validation', processGraph)
+			.then(response => response.status == 204)
+			.catch(response => false);
 	}
 
 	listProcessGraphs() {
@@ -139,7 +140,7 @@ class Connection {
 
 	createProcessGraph(processGraph, title = null, description = null) {
 		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
@@ -178,7 +179,7 @@ class Connection {
 			};
 		}
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Job(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	listServices() {
@@ -198,7 +199,7 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Service(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	_get(path, query, responseType) {
@@ -642,7 +643,7 @@ class Job {
 			throw "Only JSON is supported by the JS client";
 		} else {
 			return this.connection._get('/jobs/' + this.jobId + '/results')
-				.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data));
+				.then(response => Object.assign({costs: response.headers['OpenEO-Costs'] || response.headers['openeo-costs']}, response.data));
 		}
 	}
 
