@@ -116,7 +116,7 @@ class Connection {
 			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)));
 	}
 
-	createFile(path, userId = null) {  // userId defaults to authenticated user
+	createFile(name, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
 				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
@@ -530,10 +530,10 @@ class Capabilities {
 
 
 class File {
-	constructor(connection, userId, path) {
+	constructor(connection, userId, name) {
 		this.connection = connection;
 		this.userId = userId;
-		this.path = path;
+		this.name = name;
 	}
 
 	_addMetadata(metadata) {
@@ -542,9 +542,9 @@ class File {
 		// exist in "this" scope from the metadata object (if they exist)
 		delete metadata.connection;
 		delete metadata.userId;
-		delete metadata.path;
+		delete metadata.name;
 
-		for(md in metadata) {
+		for(var md in metadata) {
 			this[md] = metadata[md];
 		}
 
@@ -552,8 +552,8 @@ class File {
 	}
 
 	downloadFile(target) {
-		return this.connection._download(this.userId + this.path, target)
 			.then(response => this._saveToFile(response.data, target))
+		return this.connection._download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name, target)
 			.catch(error => { throw error; });
 	}
 
@@ -577,11 +577,11 @@ class File {
 	}
 
 	uploadFile(source) {
-		return this.connection._put(this.userId + this.path, source);
+		return this.connection._put('/files/' + this.userId + '/' + this.name, source);
 	}
 
 	deleteFile() {
-		return this.connection._delete(this.userId + this.path);
+		return this.connection._delete('/files/' + this.userId + '/' + this.name);
 	}
 }
 
