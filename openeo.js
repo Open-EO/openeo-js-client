@@ -116,7 +116,7 @@ class Connection {
 			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)));
 	}
 
-	createFile(path, userId = null) {  // userId defaults to authenticated user
+	createFile(name, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
 				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
@@ -124,12 +124,13 @@ class Connection {
 				userId = this._userId;
 			}
 		}
-		return new File(this, userId, path);
+		return Promise.resolve(new File(this, userId, name));
 	}
 
 	validateProcessGraph(processGraph) {
-		return this._post('/validate', processGraph)
-			.then(response => response.status == 204);
+		return this._post('/validation', processGraph)
+			.then(response => response.status == 204)
+			.catch(response => false);
 	}
 
 	listProcessGraphs() {
@@ -139,7 +140,7 @@ class Connection {
 
 	createProcessGraph(processGraph, title = null, description = null) {
 		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
@@ -178,7 +179,7 @@ class Connection {
 			};
 		}
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Job(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	listServices() {
@@ -198,7 +199,7 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['OpenEO-Identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Service(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
 	}
 
 	_get(path, query, responseType) {
@@ -227,11 +228,12 @@ class Connection {
 		});
 	}
 
-	_put(path, body) {
+	_put(path, body, contenttype = undefined) {
 		return this._send({
 			method: 'put',
 			url: path,
-			data: body
+			data: body,
+			headers: (contenttype == undefined ? {} : { 'content-type': contenttype })
 		});
 	}
 
@@ -530,10 +532,10 @@ class Capabilities {
 
 
 class File {
-	constructor(connection, userId, path) {
+	constructor(connection, userId, name) {
 		this.connection = connection;
 		this.userId = userId;
-		this.path = path;
+		this.name = name;
 	}
 
 	_addMetadata(metadata) {
@@ -542,18 +544,18 @@ class File {
 		// exist in "this" scope from the metadata object (if they exist)
 		delete metadata.connection;
 		delete metadata.userId;
-		delete metadata.path;
+		delete metadata.name;
 
-		for(md in metadata) {
+		for(var md in metadata) {
 			this[md] = metadata[md];
 		}
 
 		return this;  // for chaining
 	}
 
-	downloadFile(target) {
-		return this.connection._download(this.userId + this.path, target)
-			.then(response => this._saveToFile(response.data, target))
+	downloadFile(target = undefined) {
+		return this.connection.download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name)
+			.then(response => (target == undefined ? response.data : this._saveToFile(response.data, target)))
 			.catch(error => { throw error; });
 	}
 
@@ -577,11 +579,11 @@ class File {
 	}
 
 	uploadFile(source) {
-		return this.connection._put(this.userId + this.path, source);
+		return this.connection._put('/files/' + this.userId + '/' + this.name, source, 'application/octet-stream');
 	}
 
 	deleteFile() {
-		return this.connection._delete(this.userId + this.path);
+		return this.connection._delete('/files/' + this.userId + '/' + this.name);
 	}
 }
 
@@ -641,7 +643,7 @@ class Job {
 			throw "Only JSON is supported by the JS client";
 		} else {
 			return this.connection._get('/jobs/' + this.jobId + '/results')
-				.then(response => Object.assign({costs: response.headers['OpenEO-Costs']}, response.data));
+				.then(response => Object.assign({costs: response.headers['OpenEO-Costs'] || response.headers['openeo-costs']}, response.data));
 		}
 	}
 
