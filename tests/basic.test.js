@@ -436,7 +436,7 @@ describe('With earth-engine-driver', () => {
 		test('Upload file', async () => {
 			f = await con.createFile('test.txt');
 			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
-			expect(f.path).toBe('/test.txt');  // SIC! With slash!
+			expect(f.name).toBe('test.txt');
 			expect(f.userId).toBe('group5');
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
@@ -444,7 +444,7 @@ describe('With earth-engine-driver', () => {
 			var files = await con.listFiles();
 			expect(files).toHaveLength(1); // now it should be there
 			expect(Object.getPrototypeOf(files[0]).constructor.name).toBe('File');
-			expect(files[0].path).toBe(f.path);
+			expect(files[0].name).toBe(f.name);
 		});
 
 		test('Download file', async (done) => {  // use `done` to wait for the event
