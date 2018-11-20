@@ -90,6 +90,7 @@ describe('With earth-engine-driver', () => {
 			expect(caps.listPlans()).toEqual(TESTCAPABILITIES.billing.plans);
 			expect(caps.currency()).toEqual(TESTCAPABILITIES.billing.currency);
 			expect(caps.hasFeature('startJob')).toBeTruthy();
+			expect(caps.hasFeature('createFile')).toBeTruthy();
 			expect(caps.hasFeature('somethingThatIsntSupported')).toBeFalsy();
 		});
 
@@ -413,7 +414,7 @@ describe('With earth-engine-driver', () => {
 			expect(files[0].name).toBe(f.name);
 		});
 
-		test('Download file', async (done) => {  // use `done` to wait for the event
+		test('Get file contents', async (done) => {
 			var resource = await f.downloadFile();
 			expect(resource).not.toBeNull();
 			if (typeof Blob !== 'undefined' && resource instanceof Blob) { // Browser environment
@@ -444,6 +445,28 @@ describe('With earth-engine-driver', () => {
 					expect(Buffer.concat(chunks).toString()).toBe(fileContent);
 					done();
 				});
+			}
+		})
+
+		test('Download/Save file', async () => {
+			var target = "downloaded_file.txt";
+			if (typeof Blob !== 'undefined' && resource instanceof Blob) { 
+				// Browser environment
+				// Hard to test a browser download, ignore
+				return;
+			}
+			else {
+				// Node environment
+				const fs = require('fs');
+				// Make sure no old file exists
+				if (fs.existsSync(target)) {
+					fs.unlinkSync(target);
+				}
+				expect(fs.existsSync(target)).toBeFalsy();
+				// Download file
+				var resource = await f.downloadFile(target);
+				expect(fs.existsSync(target)).toBeTruthy();
+				expect(fs.readFileSync(target).toString()).toBe(fileContent);
 			}
 		})
 
