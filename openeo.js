@@ -331,7 +331,7 @@ class Subscriptions {
 		if(topicListeners instanceof Map) {
 			topicListeners.delete(JSON.stringify(parameters));
 		} else {
-			throw Error("this.listeners must be a Map of Maps");
+			throw new Error("this.listeners must be a Map of Maps");
 		}
 
 		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
@@ -381,7 +381,7 @@ class Subscriptions {
 					if (typeof callback === 'function') {
 						callback(json.payload, json.message);
 					} else {
-						throw Error("No listener found to handle incoming message");
+						console.log("No listener found to handle incoming message of type: " + json.message.topic);
 					}
 				}
 			});
@@ -648,7 +648,7 @@ class Job {
 	}
 
 	downloadResults(target) {
-		throw "downloadResults is not supported in the JS client.";
+		throw new Error("downloadResults is not supported in the JS client.");
 	}
 }
 
@@ -727,6 +727,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }
 else {
+	/* istanbul ignore next */
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
 			return toExport;

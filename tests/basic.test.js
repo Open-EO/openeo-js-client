@@ -1,6 +1,6 @@
 const { OpenEO } = require('../openeo.js');
 
-describe('Basic standalone', () => {
+describe('Basic client tests', () => {
 	var obj = new OpenEO();
 	test('Check that import worked', () => {
 		expect(obj).not.toBeNull();
@@ -12,10 +12,12 @@ describe('Basic standalone', () => {
 });
 
 describe('With earth-engine-driver', () => {
-	const TESTBACKEND = 'http://earthengine.openeo.org:8080/v0.3';
-	const TESTCAPABILITIES = JSON.parse('{"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST","DELETE"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}}');
-	const TESTCOLLECTION = JSON.parse(`{"name":"USGS/GTOPO30","title":"GTOPO30: Global 30 Arc-Second Elevation","description":"GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). The DEM was derived from several raster and vector sources of topographic information.  Completed in late 1996, GTOPO30 was developed over a three-year period through a collaborative effort led by the U.S. Geological Survey's Center for Earth Resources Observation and Science (EROS). The following organizations  participated by contributing funding or source data:  the National Aeronautics  and Space Administration (NASA), the United Nations Environment Programme/Global Resource Information Database (UNEP/GRID), the U.S. Agency for International Development (USAID), the Instituto Nacional de Estadistica Geografica e Informatica (INEGI) of Mexico, the Geographical Survey Institute  (GSI) of Japan, Manaaki Whenua Landcare Research of New Zealand, and the  Scientific Committee on Antarctic Research (SCAR).","license":"proprietary","extent":{"spatial":[-180,-90,180,90],"temporal":["1996-01-01T00:00:00Z","1996-01-01T00:00:00Z"]},"links":[{"rel":"self","href":"https://earthengine.openeo.org/v0.3/collections/USGS/GTOPO30"},{"rel":"parent","href":"https://earthengine.openeo.org/v0.3/collections"},{"rel":"root","href":"https://earthengine.openeo.org/v0.3/collections"}]}`);
-	const TESTPROCESS = JSON.parse('{"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}}');
+	const TESTBACKEND = 'http://earthengine.openeo.org/v0.3';
+	const TESTUSERNAME = 'group5';
+	const TESTPASSWORD = 'test123';
+	const TESTCAPABILITIES = {"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST","DELETE"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}};
+	const TESTCOLLECTION = {"name":"USGS/GTOPO30","title":"GTOPO30: Global 30 Arc-Second Elevation","description":"GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). The DEM was derived from several raster and vector sources of topographic information.  Completed in late 1996, GTOPO30 was developed over a three-year period through a collaborative effort led by the U.S. Geological Survey's Center for Earth Resources Observation and Science (EROS). The following organizations  participated by contributing funding or source data:  the National Aeronautics  and Space Administration (NASA), the United Nations Environment Programme/Global Resource Information Database (UNEP/GRID), the U.S. Agency for International Development (USAID), the Instituto Nacional de Estadistica Geografica e Informatica (INEGI) of Mexico, the Geographical Survey Institute  (GSI) of Japan, Manaaki Whenua Landcare Research of New Zealand, and the  Scientific Committee on Antarctic Research (SCAR).","license":"proprietary","extent":{"spatial":[-180,-90,180,90],"temporal":["1996-01-01T00:00:00Z","1996-01-01T00:00:00Z"]}};
+	const TESTPROCESS = {"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}};
 	const TESTPROCESSGGRAPH = {"process_id": "stretch_colors","imagery": {"process_id": "min_time","imagery": {"process_id": "NDVI","imagery": {"process_id": "filter_daterange","imagery": {"process_id": "get_collection","name": "COPERNICUS/S2"},"extent": ["2018-01-01T00:00:00Z","2018-01-31T23:59:59Z"]},"red": "B4","nir": "B8"}},"min": -1,"max": 1};
 	var obj = new OpenEO();
 
@@ -24,7 +26,7 @@ describe('With earth-engine-driver', () => {
 	}
 
 	async function connectWithBasicAuth() {
-		return obj.connect(TESTBACKEND, 'basic', {username: 'group5', password: 'test123'});
+		return obj.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
 	}
 
 	describe('Connecting', () => {	
@@ -42,7 +44,7 @@ describe('With earth-engine-driver', () => {
 				expect(con).not.toBeNull();
 				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeTruthy();
-				expect(con.getUserId()).toBe('group5');
+				expect(con.getUserId()).toBe(TESTUSERNAME);
 			});
 		});
 
@@ -52,11 +54,11 @@ describe('With earth-engine-driver', () => {
 				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
-				var login = await con.authenticateBasic('group5', 'test123');
+				var login = await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
 				expect(con).not.toBeNull();
 				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeTruthy();
-				expect(con.getUserId()).toBe('group5');
+				expect(con.getUserId()).toBe(TESTUSERNAME);
 				expect(login).toHaveProperty('user_id');
 				expect(login).toHaveProperty('access_token');
 			});
@@ -105,17 +107,22 @@ describe('With earth-engine-driver', () => {
 			var colls = await con.listCollections();
 			expect(colls).not.toBeNull();
 			expect(colls).toHaveProperty('collections');
-			expect(colls.collections.length).toBeGreaterThan(400);
-			expect(colls.collections).toContainEqual(TESTCOLLECTION);
+			expect(colls).toHaveProperty('links');
+			expect(Array.isArray(colls.collections)).toBe(true);
+			expect(colls.collections.length).toBeGreaterThan(100);
+			expect(colls.collections[0]).toHaveProperty("description");
+			expect(colls.collections[0]).toHaveProperty("license");
+			expect(colls.collections[0]).toHaveProperty("extent");
+			expect(colls.collections[0]).toHaveProperty("links");
 		});
 
 		test('Collections in detail', async () => {
 			var coll = await con.describeCollection(TESTCOLLECTION.name);
 			expect(coll).not.toBeNull();
-			expect(coll).toHaveProperty('name');
 			expect(coll).toHaveProperty('description');
 			expect(coll).toHaveProperty('license');
 			expect(coll).toHaveProperty('extent');
+			expect(coll).toHaveProperty('links');
 			expect(coll.name).toBe(TESTCOLLECTION.name);
 		});
 
@@ -142,7 +149,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Getting empty user-specific data', async () => {
+	describe('Getting user-specific data', async () => {
 		var con;
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
@@ -152,48 +159,22 @@ describe('With earth-engine-driver', () => {
 		test('Describe account', async () => {
 			var acc = await con.describeAccount();
 			expect(acc).not.toBeNull();
-			expect(acc.user_id).toBe('group5');
-		});
-
-		test('List process graphs', async () => {
-			var pgs = await con.listProcessGraphs();
-			expect(pgs).not.toBeNull();
-			expect(pgs).toHaveLength(0);
-		});
-
-		test('List jobs', async () => {
-			var js = await con.listJobs();
-			expect(js).not.toBeNull();
-			expect(js).toHaveLength(0);
-		});
-
-		test('List services', async () => {
-			var ss = await con.listServices();
-			expect(ss).not.toBeNull();
-			expect(ss).toHaveLength(0);
-		});
-
-		test('List files', async () => {
-			var fs = await con.listFiles();
-			expect(fs).not.toBeNull();
-			expect(fs).toHaveLength(0);
+			expect(acc.user_id).toBe(TESTUSERNAME);
 		});
 	});
 
 	describe('CRUD process graphs', async () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
+			// clean up
+			var list = await con.listProcessGraphs();
+			await Promise.all(list.map(pg => pg.deleteProcessGraph()));
 		});
 
 		test('List process graphs', async () => {
 			var pgs = await con.listProcessGraphs();
 			expect(pgs).not.toBeNull();
-		});
-
-		test('Make sure there are no process graphs', async () => {
-			var pgs = await con.listProcessGraphs();
 			expect(pgs).toHaveLength(0);
 		});
 
@@ -303,18 +284,16 @@ describe('With earth-engine-driver', () => {
 
 	describe('CRUD jobs', async () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
+			// clean up
+			var list = await con.listJobs();
+			await Promise.all(list.map(j => j.deleteJob()));
 		});
 
 		test('List jobs in general', async () => {
 			var jobs = await con.listJobs();
 			expect(jobs).not.toBeNull();
-		});
-
-		test('Make sure there are no jobs', async () => {
-			var jobs = await con.listJobs();
 			expect(jobs).toHaveLength(0);
 		});
 
@@ -360,18 +339,16 @@ describe('With earth-engine-driver', () => {
 
 	describe('CRUD services', async () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
+			// clean up
+			var list = await con.listServices();
+			await Promise.all(list.map(s => s.deleteService()));
 		});
 
 		test('List services in general', async () => {
 			var svcs = await con.listServices();
 			expect(svcs).not.toBeNull();
-		});
-
-		test('Make sure there are no services', async () => {
-			var svcs = await con.listServices();
 			expect(svcs).toHaveLength(0);
 		});
 
@@ -416,19 +393,17 @@ describe('With earth-engine-driver', () => {
 	});
 
 	describe('CRUD files', async () => {
-		var con;
-		beforeAll(async (done) => {
+		var con, f;
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
+			// clean up
+			var list = await con.listFiles();
+			await Promise.all(list.map(f => f.deleteFile()));
 		});
 
 		test('List files in general', async () => {
 			var files = await con.listFiles();
 			expect(files).not.toBeNull();
-		});
-
-		test('Make sure there are no files', async () => {
-			var files = await con.listFiles();
 			expect(files).toHaveLength(0);
 		});
 
@@ -437,7 +412,7 @@ describe('With earth-engine-driver', () => {
 			f = await con.createFile('test.txt');
 			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
 			expect(f.name).toBe('test.txt');
-			expect(f.userId).toBe('group5');
+			expect(f.userId).toBe(TESTUSERNAME);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
 			await f.uploadFile('Lorem ipsum');
@@ -479,13 +454,35 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	afterAll(async (done) => {
-		// clean up all the stuff created during CRUD testing
-		con = await connectWithBasicAuth();
-		await con.listProcessGraphs().then(list => list.forEach(async pg => await pg.deleteProcessGraph()));
-		await con.listJobs().then(list => list.forEach(async j => await j.deleteJob()));
-		await con.listServices().then(list => list.forEach(async s => await s.deleteService()));
-		await con.listFiles().then(list => list.forEach(async f => await f.deleteFile()));
-		done();
+	describe('Subscriptions', async () => {
+		var con, f, iid;
+		beforeAll(async (done) => {
+			con = await connectWithBasicAuth();
+			f = await con.createFile('randomnumber.txt');
+			await f.uploadFile(Math.random());
+			done();
+		});
+
+		test('Subscribe to openeo.files', async (done) => {
+			con.subscribe('openeo.files', {}, (payload, message) => {
+				clearInterval(iid); // Stop uploading files
+				con.unsubscribe('openeo.files', {}); // Unsubscribe to avoid receiving the file delete message
+//				expect(message.issued).toBe(... an ISO datetime string);
+				expect(message.topic).toBe('openeo.files');
+				expect(payload.user_id).toBe(TESTUSERNAME);
+				expect(payload.path).toBe('randomnumber.txt');
+				expect(payload.action).toBe('updated');
+				done();
+			});
+			// Upload files every second to ensure a message is sent by the server during the test.
+			iid = setInterval(async () => {
+				await f.uploadFile(Math.random());
+			}, 1000);
+		});
+
+		afterAll(async (done) => {
+			await f.deleteFile();
+			done();
+		});
 	});
 });
