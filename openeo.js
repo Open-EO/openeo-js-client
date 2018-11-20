@@ -372,7 +372,7 @@ class Subscriptions {
 			var url = this.httpConnection._baseUrl.replace('http', 'ws') + '/subscription';
 
 			if (isNode) {
-				var WebSocket = require('ws');
+				const WebSocket = require('ws');
 				this.socket = new WebSocket(url, this.websocketProtocol);
 			}
 			else {
