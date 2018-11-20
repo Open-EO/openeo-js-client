@@ -1,7 +1,12 @@
 const { OpenEO } = require('../openeo.js');
 
-test('Check version number', () => {
+describe('Check version number', () => {
 	var obj = new OpenEO();
-	obj.version();
-	expect(obj.version()).toBe("0.3.0");
+	test('Check that import worked', () => {
+		expect(obj).not.toBeNull();
+		expect(obj).toBeInstanceOf(OpenEO);
+	});
+	test('Check version number', () => {
+		expect(obj.version()).toBe("0.3.0");
+	});
 });

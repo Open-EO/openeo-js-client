@@ -1,6 +1,11 @@
-if (typeof axios === 'undefined' && typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+if (typeof axios === 'undefined') {
 	var axios = require("axios");
 }
+
+var isNode = false;
+try {
+	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
+} catch(e) {}
 
 class OpenEO {
 	constructor() {
@@ -15,7 +20,7 @@ class OpenEO {
 				case 'oidc':
 					return connection.authenticateOIDC(authOptions).then(_ => connection);
 				default:
-					throw "Unknown authentication type.";
+					throw new Error("Unknown authentication type.");
 			}
 		}
 		return Promise.resolve(connection);
@@ -74,7 +79,17 @@ class Connection {
 	}
 
 	authenticateOIDC(options = null) {
-		throw "Not implemented yet.";
+		throw new Error("Not implemented yet.");
+	}
+
+	_base64encode(str) {
+		var buffer;
+		if (str instanceof Buffer) {
+			buffer = str;
+		} else {
+			buffer = Buffer.from(str.toString(), 'binary');
+		}
+		return buffer.toString('base64');
 	}
 
 	authenticateBasic(username, password) {
@@ -82,13 +97,13 @@ class Connection {
 			method: 'get',
 			responseType: 'json',
 			url: '/credentials/basic',
-			headers: {'Authorization': 'Basic ' + btoa(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
+			headers: {'Authorization': 'Basic ' + this._base64encode(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
 		}).then(response => {
 			if (!response.data.user_id) {
-				throw "No user_id returned.";
+				throw new Error("No user_id returned.");
 			}
 			if (!response.data.access_token) {
-				throw "No access_token returned.";
+				throw new Error("No access_token returned.");
 			}
 			this._userId = response.data.user_id;
 			this._token = response.data.access_token;
@@ -107,7 +122,7 @@ class Connection {
 	listFiles(userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
+				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
 			} else {
 				userId = this._userId;
 			}
@@ -119,7 +134,7 @@ class Connection {
 	createFile(name, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw "Parameter 'userId' not specified and no default value available because user is not logged in."
+				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
 			} else {
 				userId = this._userId;
 			}
@@ -247,13 +262,14 @@ class Connection {
 	// authorize = true: Always authorize
 	// authorize = false: Never authorize
 	// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
+	// Returns promise with data as stream in node environment, blob in browser.
 	download(url, authorize = null) {
 		if (authorize === null) {
 			authorize = (url.toLowerCase().indexOf(this._baseUrl.toLowerCase()) === 0);
 		}
 		return this._send({
 			method: 'get',
-			responseType: 'blob',
+			responseType: isNode ? 'stream' : 'blob',
 			url: url,
 			withCredentials: (authorize === true)
 		});
@@ -302,6 +318,7 @@ class Subscriptions {
 		this.listeners = new Map();
 		this.supportedTopics = [];
 		this.messageQueue = [];
+		this.websocketProtocol = "openeo-v0.3";
 	}
 
 	subscribe(topic, parameters, callback) {
@@ -331,7 +348,7 @@ class Subscriptions {
 		if(topicListeners instanceof Map) {
 			topicListeners.delete(JSON.stringify(parameters));
 		} else {
-			throw Error("this.listeners must be a Map of Maps");
+			throw new Error("this.listeners must be a Map of Maps");
 		}
 
 		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
@@ -351,40 +368,22 @@ class Subscriptions {
 
 	_createWebSocket() {
 		if (this.socket === null || this.socket.readyState === this.socket.CLOSING || this.socket.readyState === this.socket.CLOSED) {
-			var url = this.httpConnection._baseUrl + '/subscription';
-
 			this.messageQueue = [];
-			this.socket = new WebSocket(url.replace('http', 'ws'), "openeo-v0.3");
+			var url = this.httpConnection._baseUrl.replace('http', 'ws') + '/subscription';
+
+			if (isNode) {
+				const WebSocket = require('ws');
+				this.socket = new WebSocket(url, this.websocketProtocol);
+			}
+			else {
+				this.socket = new WebSocket(url, this.websocketProtocol);
+			}
+
 			this._sendAuthorize();
 
-			this.socket.addEventListener('open', () => {
-				this._flushQueue();
-			});
+			this.socket.addEventListener('open', () => this._flushQueue());
 
-			this.socket.addEventListener('message', event => {
-				// ToDo: Add error handling
-				var json = JSON.parse(event.data);
-				if (json.message.topic == 'openeo.welcome') {
-					this.supportedTopics = json.payload.topics;
-				}
-				else {
-					// get listeners for topic
-					var topicListeners = this.listeners.get(json.message.topic);
-					var callback;
-					// we should now have a Map in which to look for the correct listener
-					if (topicListeners && topicListeners instanceof Map) {
-						callback = topicListeners.get('{}')   // default: without parameters
-								|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
-								// more parameter checks possible
-					}
-					// if we now have a function, we can call it with the information
-					if (typeof callback === 'function') {
-						callback(json.payload, json.message);
-					} else {
-						throw Error("No listener found to handle incoming message");
-					}
-				}
-			});
+			this.socket.addEventListener('message', event => this._receiveMessage(event));
 
 			this.socket.addEventListener('error', () => {
 				this.socket = null;
@@ -395,6 +394,31 @@ class Subscriptions {
 			});
 		}
 		return this.socket;
+	}
+
+	_receiveMessage(event) {
+		// ToDo: Add error handling
+		var json = JSON.parse(event.data);
+		if (json.message.topic == 'openeo.welcome') {
+			this.supportedTopics = json.payload.topics;
+		}
+		else {
+			// get listeners for topic
+			var topicListeners = this.listeners.get(json.message.topic);
+			var callback;
+			// we should now have a Map in which to look for the correct listener
+			if (topicListeners && topicListeners instanceof Map) {
+				callback = topicListeners.get('{}')   // default: without parameters
+						|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
+						// more parameter checks possible
+			}
+			// if we now have a function, we can call it with the information
+			if (typeof callback === 'function') {
+				callback(json.payload, json.message);
+			} else {
+				console.log("No listener found to handle incoming message of type: " + json.message.topic);
+			}
+		}
 	}
 
 	_flushQueue() {
@@ -452,7 +476,7 @@ class Subscriptions {
 class Capabilities {
 	constructor(data) {
 		if(!data || !data.version || !data.endpoints) {
-			throw "Data is not a valid Capabilities response"
+			throw new Error("Data is not a valid Capabilities response");
 		}
 		this._data = data;
 	}
@@ -553,13 +577,45 @@ class File {
 		return this;  // for chaining
 	}
 
-	downloadFile(target = undefined) {
+	// If target is null, returns promise with data as stream in node environment, blob in browser.
+	// Otherwise writes downloaded file to target.
+	downloadFile(target = null) {
 		return this.connection.download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name)
-			.then(response => (target == undefined ? response.data : this._saveToFile(response.data, target)))
-			.catch(error => { throw error; });
+			.then(response => {
+				if (target === null) {
+					return Promise.resolve(response.data);
+				}
+				else {
+					return this._saveToFile(response.data, target);
+				}
+			})
+			.catch(error => {
+				throw error;
+			});
 	}
 
 	_saveToFile(data, filename) {
+		if (isNode) {
+			return this._saveToFileNode(data, filename);
+		}
+		else {
+			return this._saveToFileBrowser(data, filename);
+		}
+	}
+
+	_saveToFileNode(data, filename) {
+		var fs = require('fs');
+		return new Promise((resolve, reject) => {
+			fs.writeFile(filename, data, (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+		});
+	}
+
+	_saveToFileBrowser(data, filename) {
 		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 		var blob = new Blob([data], {type: 'application/octet-stream'});
 		var blobURL = window.URL.createObjectURL(blob);
@@ -576,6 +632,7 @@ class File {
 		tempLink.click();
 		document.body.removeChild(tempLink);
 		window.URL.revokeObjectURL(blobURL);
+		return Promise.resolve();
 	}
 
 	uploadFile(source) {
@@ -638,9 +695,9 @@ class Job {
 
 	listResults(type = 'json') {
 		if(type == 'metalink') {
-			throw "Metalink is not supported in the JS client, please use JSON.";
+			throw new Error("Metalink is not supported in the JS client, please use JSON.");
 		} else if(type != 'json') {
-			throw "Only JSON is supported by the JS client";
+			throw new Error("Only JSON is supported by the JS client");
 		} else {
 			return this.connection._get('/jobs/' + this.jobId + '/results')
 				.then(response => Object.assign({costs: response.headers['OpenEO-Costs'] || response.headers['openeo-costs']}, response.data));
@@ -648,7 +705,7 @@ class Job {
 	}
 
 	downloadResults(target) {
-		throw "downloadResults is not supported in the JS client.";
+		throw new Error("downloadResults is not supported in the JS client.");
 	}
 }
 
