@@ -13,17 +13,25 @@ class OpenEO {
 
 	connect(url, authType = null, authOptions = null) {
 		var connection = new Connection(url);
-		if(authType !== null) {
-			switch(authType) {
-				case 'basic':
-					return connection.authenticateBasic(authOptions.username, authOptions.password).then(_ => connection);
-				case 'oidc':
-					return connection.authenticateOIDC(authOptions).then(_ => connection);
-				default:
-					throw new Error("Unknown authentication type.");
+		return connection.capabilities().then(capabilities => {
+			// Check whether back-end is accessible and supports a correct version.
+			if (capabilities.version().startsWith("0.3")) {
+				if(authType !== null) {
+					switch(authType) {
+						case 'basic':
+							return connection.authenticateBasic(authOptions.username, authOptions.password).then(_ => connection);
+						case 'oidc':
+							return connection.authenticateOIDC(authOptions).then(_ => connection);
+						default:
+							throw new Error("Unknown authentication type.");
+					}
+				}
+				return Promise.resolve(connection);
 			}
-		}
-		return Promise.resolve(connection);
+			else {
+				throw new Error("Server doesn't support API version 0.3.x.");
+			}
+		});
 	}
 
 	version() {
@@ -38,6 +46,7 @@ class Connection {
 		this._userId = null;
 		this._token = null;
 		this._subscriptions = new Subscriptions(this);
+		this._capabilitiesCache = null;
 	}
 
 	getBaseUrl() {
@@ -49,8 +58,15 @@ class Connection {
 	}
 
 	capabilities() {
-		return this._get('/')
-			.then(response => new Capabilities(response.data));
+		if (this._capabilitiesCache === null) {
+			return this._get('/').then(response => {
+				this._capabilitiesCache = new Capabilities(response.data);
+				return this._capabilitiesCache;
+			});
+		}
+		else {
+			return Promise.resolve(this._capabilitiesCache);
+		}
 	}
 
 	listFileTypes() {
@@ -79,7 +95,7 @@ class Connection {
 	}
 
 	authenticateOIDC(options = null) {
-		throw new Error("Not implemented yet.");
+		return Promise.reject(new Error("Not implemented yet."));
 	}
 
 	_base64encode(str) {
@@ -122,7 +138,7 @@ class Connection {
 	listFiles(userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
+				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
 			} else {
 				userId = this._userId;
 			}
@@ -134,7 +150,7 @@ class Connection {
 	createFile(name, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
 			if(this._userId === null) {
-				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
+				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
 			} else {
 				userId = this._userId;
 			}
@@ -143,9 +159,9 @@ class Connection {
 	}
 
 	validateProcessGraph(processGraph) {
-		return this._post('/validation', processGraph)
-			.then(response => response.status == 204)
-			.catch(response => false);
+		return this._post('/validation', {process_graph: processGraph})
+			.then(_ => [true, {}]) // Accepts other status codes than 204, which is not strictly following the spec
+			.catch(error => [false, error.response.data]);
 	}
 
 	listProcessGraphs() {
@@ -170,8 +186,7 @@ class Connection {
 			};
 		}
 
-		return this._post('/preview', requestBody)
-			.then(response => response.data);
+		return this._post('/preview', requestBody, 'stream').then(response => response.data);
 	}
 
 	listJobs() {
@@ -222,6 +237,9 @@ class Connection {
 			method: 'get',
 			responseType: responseType,
 			url: path,
+			// Timeout for capabilities requests as they are used for a quick first discovery to check whether the server is a openEO back-end.
+			// Without timeout connecting with a wrong server url may take forever.
+			timeout: path === '/' ? 3000 : 0,
 			params: query
 		});
 	}
@@ -261,17 +279,13 @@ class Connection {
 
 	// authorize = true: Always authorize
 	// authorize = false: Never authorize
-	// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
 	// Returns promise with data as stream in node environment, blob in browser.
-	download(url, authorize = null) {
-		if (authorize === null) {
-			authorize = (url.toLowerCase().indexOf(this._baseUrl.toLowerCase()) === 0);
-		}
+	download(url, authorize) {
 		return this._send({
 			method: 'get',
-			responseType: isNode ? 'stream' : 'blob',
+			responseType: 'stream',
 			url: url,
-			withCredentials: (authorize === true)
+			withCredentials: authorize
 		});
 	}
 
@@ -283,6 +297,9 @@ class Connection {
 				options.headers = {};
 			}
 			options.headers['Authorization'] = 'Bearer ' + this._token;
+		}
+		if (options.responseType == 'stream' && !isNode) {
+			options.responseType = 'blob';
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';
@@ -306,6 +323,41 @@ class Connection {
 
 	unsubscribe(topic, parameters, callback) {
 		return this._subscriptions.unsubscribe(topic, parameters, callback);
+	}
+
+	_saveToFileNode(data, filename) {
+		var fs = require('fs');
+		return new Promise((resolve, reject) => {
+			var writeStream = fs.createWriteStream(filename);
+			writeStream.on('close', (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+			data.pipe(writeStream);
+		});
+	}
+
+	/* istanbul ignore next */
+	_saveToFileBrowser(data, filename) {
+		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+		var blob = new Blob([data], {type: 'application/octet-stream'});
+		var blobURL = window.URL.createObjectURL(blob);
+		var tempLink = document.createElement('a');
+		tempLink.style.display = 'none';
+		tempLink.href = blobURL;
+		tempLink.setAttribute('download', filename); 
+		
+		if (typeof tempLink.download === 'undefined') {
+			tempLink.setAttribute('target', '_blank');
+		}
+		
+		document.body.appendChild(tempLink);
+		tempLink.click();
+		document.body.removeChild(tempLink);
+		window.URL.revokeObjectURL(blobURL);
+		return Promise.resolve();
 	}
 }
 
@@ -348,7 +400,7 @@ class Subscriptions {
 		if(topicListeners instanceof Map) {
 			topicListeners.delete(JSON.stringify(parameters));
 		} else {
-			throw new Error("this.listeners must be a Map of Maps");
+			return Promise.reject(new Error("this.listeners must be a Map of Maps"));
 		}
 
 		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
@@ -580,7 +632,7 @@ class File {
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
 	// Otherwise writes downloaded file to target.
 	downloadFile(target = null) {
-		return this.connection.download(this.connection._baseUrl + '/files/' + this.userId + '/' + this.name)
+		return this.connection.download('/files/' + this.userId + '/' + this.name, true)
 			.then(response => {
 				if (target === null) {
 					return Promise.resolve(response.data);
@@ -588,54 +640,17 @@ class File {
 				else {
 					return this._saveToFile(response.data, target);
 				}
-			})
-			.catch(error => {
-				throw error;
 			});
 	}
 
 	_saveToFile(data, filename) {
 		if (isNode) {
-			return this._saveToFileNode(data, filename);
+			return this.connection._saveToFileNode(data, filename);
 		}
 		else {
-			return this._saveToFileBrowser(data, filename);
+			/* istanbul ignore next */
+			return this.connection._saveToFileBrowser(data, filename);
 		}
-	}
-
-	_saveToFileNode(data, filename) {
-		var fs = require('fs');
-		return new Promise((resolve, reject) => {
-			var writeStream = fs.createWriteStream(filename);
-			writeStream.on('close', function (err) {
-				if (err) {
-					return reject(err);
-				}
-				resolve();
-			});
-			data.pipe(writeStream);
-		});
-	}
-
-	/* istanbul ignore next */
-	_saveToFileBrowser(data, filename) {
-		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
-		var blob = new Blob([data], {type: 'application/octet-stream'});
-		var blobURL = window.URL.createObjectURL(blob);
-		var tempLink = document.createElement('a');
-		tempLink.style.display = 'none';
-		tempLink.href = blobURL;
-		tempLink.setAttribute('download', filename); 
-		
-		if (typeof tempLink.download === 'undefined') {
-			tempLink.setAttribute('target', '_blank');
-		}
-		
-		document.body.appendChild(tempLink);
-		tempLink.click();
-		document.body.removeChild(tempLink);
-		window.URL.revokeObjectURL(blobURL);
-		return Promise.resolve();
 	}
 
 	uploadFile(source) {
@@ -697,18 +712,47 @@ class Job {
 	}
 
 	listResults(type = 'json') {
-		if(type == 'metalink') {
-			throw new Error("Metalink is not supported in the JS client, please use JSON.");
-		} else if(type != 'json') {
-			throw new Error("Only JSON is supported by the JS client");
+		type = type.toLowerCase();
+		if (type != 'json') {
+			return Promise.reject(new Error("'"+type+"' is not supported by the client, please use JSON."));
 		} else {
-			return this.connection._get('/jobs/' + this.jobId + '/results')
-				.then(response => Object.assign({costs: response.headers['OpenEO-Costs'] || response.headers['openeo-costs']}, response.data));
+			return this.connection._get('/jobs/' + this.jobId + '/results').then(response => {
+				// Returning null for missing headers is not strictly following the spec
+				var headerData = {
+					costs: response.headers['openeo-costs'] || null,
+					expires: response.headers['expires'] || null
+				};
+				return Object.assign(headerData, response.data);
+			});
 		}
 	}
 
-	downloadResults(target) {
-		throw new Error("downloadResults is not supported in the JS client.");
+	// Note: targetFolder must exist!
+	downloadResults(targetFolder) {
+		if (isNode) {
+			return this.listResults().then(list => {
+				var url = require("url");
+				var path = require("path");
+
+				var promises = [];
+				var files = [];
+				for(var i in list.links) {
+					var link = list.links[i].href;
+					var parsedUrl = url.parse(link);
+					var targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+					var p = this.connection.download(link, false)
+						.then(response => this.connection._saveToFileNode(response.data, targetPath))
+						.then(() => files.push(targetPath));
+					promises.push(p);
+				}
+
+				return Promise.all(promises).then(() => files);
+			});
+		}
+		else {
+			/* istanbul ignore next */
+			return Promise.reject(new Error("downloadResults is not supported in a browser environment."));
+		}
 	}
 }
 
