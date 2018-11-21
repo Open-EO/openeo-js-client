@@ -1,71 +1,53 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>JS Client Test</title>
+        <title>openEO JS client - Discovery example</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 		<script src="../openeo.js"></script>
-		<script src="examples.js"></script>
-        <script type="text/javascript">
+		<script type="text/javascript">
+			var url = "https://earthengine.openeo.org/v0.3"; // Insert the openEO server URL here
+			var connection = null;
+
 			window.onload = function () {
-				OpenEO.API.baseUrl = "http://localhost/api";
-				OpenEO.API.driver = 'openeo-r-backend';
-				
-				OpenEO.API.getCapabilities().then(obj => {
-					replaceWithList("capabilities", obj.rawData);
-				});
+				document.getElementById('url').innerText = url;
 
-				OpenEO.Data.get()
-					.then(data => {
-						replaceWithList("data", data);
-					}).catch(function(errorCode) {
-						replace("data", "Request returned error " + errorCode);
-					});
+				var client = new OpenEO();
+				document.getElementById('clientVersion').innerText = client.version();
 
-				OpenEO.Data.getById('landsat7_ndvi')
-					.then(data => {
-						replaceWithList("data_id", data);
-					}).catch(errorCode => {
-						replace("data_id", "Request returned error " + errorCode);
-					});
-
-				OpenEO.Processes.get("ndvi")
-					.then(data => {
-						replaceWithList("processes", data);
-					}).catch(errorCode => {
-						replace("processes", "Request returned error " + errorCode);
-					});
-
-				OpenEO.Processes.getById('calculate_ndvi')
-					.then(data => {
-						replaceWithList("processes_id", data);
-					}).catch(errorCode => {
-						replace("processes_id", "Request returned error " + errorCode);
-					});
+				client.connect(url)
+				.then(c => {
+					connection = c;
+					return connection.capabilities();
+				})
+				.then(capabilities => {
+					document.getElementById('serverVersion').innerText = capabilities.version();
+					return connection.listCollections();
+				})
+				.then(collections => {
+					document.getElementById('collectionCount').innerText = collections.collections.length;
+					return connection.listProcesses();
+				})
+				.then(processes => {
+					document.getElementById('processCount').innerText = processes.processes.length;
+					return;
+				})
+				.catch(err => alert(err.message));;
 			};
         </script>
     </head>
     <body>
-		<h2>Capabilities</h2>
-		<div id="capabilities">
-			Loading data...
-		</div>
-		<h2>Data</h2>
-		<div id="data">
-			Loading data...
-		</div>
-		<h2>Data: Landsat NDVI</h2>
-		<div id="data_id">
-			Loading data...
-		</div>
-		<h2>Processes (containing ndvi)</h2>
-		<div id="processes">
-			Loading data...
-		</div>
-		<h2>Processes: calculate_ndvi</h2>
-		<div id="processes_id">
-			Loading data...
-		</div>
+		<h1>Server information</h1>
+		<p>URL: <span id="url"></span></p>
+		<h2>Versions</h2>
+		<ul>
+			<li>Client Version: <span id="clientVersion">Loading...</span></li>
+			<li>Server Version: <span id="serverVersion">Loading...</span></li>
+		</ul>
+		<h2>EO Data Discovery</h2>
+		<p>Number of supported collections: <span id="collectionCount">Loading...</span></p>
+		<h2>Process Discovery</h2>
+		<p>Number of supported processes: <span id="processCount">Loading...</span></p>
     </body>
 </html>

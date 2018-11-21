@@ -1,750 +1,832 @@
-//// PROCESS GRAPH CREATION ////
-class ProcessGraphNode {
-	constructor() { }
-
-	filter_daterange(startT, endT, imagery = null) {
-		return new ProcessNode('filter_daterange', {
-			imagery: (imagery ? imagery : this),
-			from: startT,
-			to: endT
-		});
-	}
-
-	filter_bbox(left, top, right, bottom, crs = 'EPSG:4326', imagery = null) {
-		imagery = imagery ? imagery : this;
-		return new ProcessNode('filter_bbox', {
-			imagery: (imagery ? imagery : this),
-			srs: crs,
-			left: left,
-			right: right,
-			top: top,
-			bottom: bottom
-		});
-	}
-
-	filter_bands(bands, imagery = null) {
-		return new ProcessNode('filter_bands', {
-			imagery: (imagery ? imagery : this),
-			bands: bands
-		});
-		// ToDo: add band names and wavelength filters
-	}
-
-	NDVI(red, nir, imagery = null) {
-		return new ProcessNode('NDVI', {
-			imagery: (imagery ? imagery : this),
-			red: red,
-			nir: nir
-		});
-	}
-
-	min_time(imagery = null) {
-		return new ProcessNode('min_time', {
-			imagery: (imagery ? imagery : this)
-		});
-	}
-
-	max_time(imagery = null) {
-		return new ProcessNode('max_time', {
-			imagery: (imagery ? imagery : this)
-		});
-	}
-	
-	udf(language, process_id, script, imagery = null) {
-		return new UdfProcessNode(language, process_id, script, imagery);
-	}
-	
-	zonal_statistics(regionsPath, func, imagery = null) {
-		return new ProcessNode('zonal_statistics', {
-			imagery: (imagery ? imagery : this),
-			regions: regionsPath,
-			func: func
-		});
-	}
-	
-	processImg(process_id, args = {}) {
-		// ToDo: Improve? Doesn't seem very tidy (changing an object from outer scope).
-		// Should be solved with the new API version though
-		args['imagery'] = this;
-		return new ProcessNode(process_id, args);
-	}
-	
-	process(process_id, args, processParameterName, imagery = null) {
-		// ToDo: Improve? Doesn't seem very tidy (changing an object from outer scope).
-		// Should be solved with the new API version though
-		if (processParameterName) {
-			args[processParameterName] = (imagery ? imagery : this);
-		}
-		return new ProcessNode(process_id, args);
-	}
-	
-	execute(output_format, output_args = {}) {
-		return OpenEO.Jobs.executeSync(this, output_format, output_args);
-	}
-	
+if (typeof axios === 'undefined') {
+	var axios = require("axios");
 }
 
-class ProcessNode extends ProcessGraphNode {
-	constructor(process_id, args) {
-		super();
-		this.process_id = process_id;
-		this.args = args;
-	}
-}
+var isNode = false;
+try {
+	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
+} catch(e) {}
 
-class UdfProcessNode extends ProcessNode {
-	constructor(language, process_id, script, imagery = null) {
-		super('udf/' + language + '/' + process_id, {
-			imagery: (imagery ? imagery : this),
-			script: script
-		});
+class OpenEO {
+	constructor() {
 	}
-	
-}
 
-class ImageCollectionNode extends ProcessGraphNode {
-	constructor(srcId) {
-		super();
-		this.product_id = srcId;
-	}
-}
-
-//// API SUB-COMPONENTS ////
-class UserAPI {
-	
-	constructor(user_id) {
-		this.user_id = user_id;
-	}
-	
-	getProcessGraphs() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/process_graphs');
-	}
-	
-	createProcessGraph(process_graph) {
-		return OpenEO.HTTP.post('/users/' + encodeURIComponent(this.user_id) + '/process_graphs', process_graph);
-	}
-	
-	getProcessGraphObject(process_graph_id) {
-		return new UserProcessGraphAPI(this.user_id, process_graph_id);
-	}
-	
-	getFiles() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/files');
-	}
-	
-	getFileObject(path) {
-		return new UserFileAPI(this.user_id, path);
-	}
-	
-	getJobs() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/jobs');
-	}
-	
-	getServices() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/services');
-	}
-	
-	getCredits() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/credits');
-	}
-	
-}
-
-class UserProcessGraphAPI {
-	
-	constructor(user_id, process_graph_id) {
-		this.user_id = user_id;
-		this.process_graph_id = process_graph_id;
-	}
-	
-	get() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
-	}
-	
-	replace(process_graph) {
-		return OpenEO.HTTP.put('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id), process_graph);
-	}
-	
-	delete() {
-		return OpenEO.HTTP.delete('/users/' + encodeURIComponent(this.user_id) + '/process_graphs/' + encodeURIComponent(this.process_graph_id));
-	}
-	
-}
-
-class UserFileAPI {
-	
-	constructor(user_id, path) {
-		this.user_id = user_id;
-		this.path = path;
-	}
-	
-	get() {
-		return OpenEO.HTTP.get('/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path), null, 'blob');
-	}
-	
-	replace(fileData, statusCallback = null) {
-		var options = {
-			method: 'put',
-			url: '/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path),
-			data: fileData,
-			headers: {
-				'Content-Type': 'application/octet-stream'
+	connect(url, authType = null, authOptions = null) {
+		var connection = new Connection(url);
+		return connection.capabilities().then(capabilities => {
+			// Check whether back-end is accessible and supports a correct version.
+			if (capabilities.version().startsWith("0.3")) {
+				if(authType !== null) {
+					switch(authType) {
+						case 'basic':
+							return connection.authenticateBasic(authOptions.username, authOptions.password).then(_ => connection);
+						case 'oidc':
+							return connection.authenticateOIDC(authOptions).then(_ => connection);
+						default:
+							throw new Error("Unknown authentication type.");
+					}
+				}
+				return Promise.resolve(connection);
 			}
-		};
-		if (typeof statusCallback === 'function') {
-			options.onUploadProgress = function(progressEvent) {
-				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
-				statusCallback(percentCompleted);
-			};
-		}
-		return OpenEO.HTTP.send(options);
-	}
-	
-	delete() {
-		return OpenEO.HTTP.delete('/users/' + encodeURIComponent(this.user_id) + '/files/' + this._encodePath(this.path));
-	}
-
-	_encodePath(path) {
-		// ToDo: Remove later
-		if (OpenEO.API.driver === 'openeo-r-backend') {
-			path = path.replace(/\./g, '_');
-		}
-		return encodeURIComponent(path);
-	}
-	
-}
-
-class JobAPI {
-	
-	constructor(job_id) {
-		this.job_id = job_id;
-	}
-	
-	modify(processGraph, output) {
-		throw new Error('Not implemented');
-	}
-	
-	get() {
-		return OpenEO.HTTP.get('/jobs/' + encodeURIComponent(this.job_id));
-	}
-	
-	subscribe() {
-		throw new Error('Not implemented');
-	}
-	
-	queue() {
-		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/queue');
-	}
-	
-	pause() {
-		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/pause');
-	}
-	
-	cancel() {
-		return OpenEO.HTTP.patch('/jobs/' + encodeURIComponent(this.job_id) + '/cancel');
-	}
-	
-	download(output_format = null) {
-		var query = {};
-		if (typeof output_format === 'string' && output_format.length > 0) {
-			query.format = output_format;
-		}
-		return OpenEO.HTTP.get('/jobs/' + encodeURIComponent(this.job_id) + '/download', query, 'blob');
-	}
-	
-}
-
-class ServiceAPI {
-	
-	constructor(service_id) {
-		this.service_id = service_id;
-	}
-	
-	modify(service_args) {
-		return OpenEO.HTTP.patch('/services/' + encodeURIComponent(this.service_id), {
-			service_args: service_args
+			else {
+				throw new Error("Server doesn't support API version 0.3.x.");
+			}
 		});
 	}
-	
-	get() {
-		return OpenEO.HTTP.get('/services/' + encodeURIComponent(this.service_id));
+
+	version() {
+		return "0.3.0";
 	}
-	
-	delete() {
-		return OpenEO.HTTP.delete('/services/' + encodeURIComponent(this.service_id));
-	}
-	
 }
 
-class Capabilities {
-	
-	constructor(response) {
-		if (Array.isArray(response) && response.length > 0) {
-			this.rawData = response.map(elem => elem.toLowerCase());
+
+class Connection {
+	constructor(baseUrl) {
+		this._baseUrl = baseUrl;
+		this._userId = null;
+		this._token = null;
+		this._subscriptions = new Subscriptions(this);
+		this._capabilitiesCache = null;
+	}
+
+	getBaseUrl() {
+		return this._baseUrl;
+	}
+
+	getUserId() {
+		return this._userId;
+	}
+
+	capabilities() {
+		if (this._capabilitiesCache === null) {
+			return this._get('/').then(response => {
+				this._capabilitiesCache = new Capabilities(response.data);
+				return this._capabilitiesCache;
+			});
 		}
 		else {
-			this.rawData = [];
+			return Promise.resolve(this._capabilitiesCache);
 		}
 	}
-	
-	outputFormatCapabilities() {
-		return this.capable('/capabilities/output_formats');
-	}
-	
-	serviceCapabilities() {
-		return this.capable('/capabilities/services');
-	}
-	
-	data() {
-		return this.capable('/data');
-	}
-	
-	dataByOpenSearch() {
-		return this.capable('/data/opensearch');
-	}
-	
-	dataInfo() {
-		return this.capable('/data/{product_id}');
-	}
-	
-	processes() {
-		return this.capable('/processes');
-	}
-	
-	processesByOpenSearch() {
-		return this.capable('/processes/opensearch');
-	}
-	
-	processInfo() {
-		return this.capable('/processes/{process_id}');
-	}
-	
-	udfRuntimes() {
-		return this.capable('/udf_runtimes');
-	}
-	
-	udfRuntimeDescriptions() {
-		return this.capable('/udf_runtimes/{lang}/{udf_type}');
-	}
-	
-	userProcessGraphs() {
-		return this.capable('/users/{user_id}/process_graphs');
-	}
-	
-	createUserProcessGraph() {
-		return this.capable('/users/{user_id}/process_graphs', 'post');
-	}
-	
-	userProcessGraphInfo() {
-		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}');
-	}
-	
-	updateUserProcessGraph() {
-		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}', 'put');
-	}
-	
-	deleteUserProcessGraph() {
-		return this.capable('/users/{user_id}/process_graphs/{process_graph_id}', 'delete');
-	}
-	
-	userFiles() {
-		return this.capable('/users/{user_id}/files');
-	}
-	
-	downloadUserFile() {
-		return this.capable('/users/{user_id}/files/{path}');
-	}
-	
-	uploadUserFile() {
-		return this.capable('/users/{user_id}/files/{path}', 'put');
-	}
-	
-	deleteUserFile() {
-		return this.capable('/users/{user_id}/files/{path}', 'delete');
-	}
-	
-	userJobs() {
-		return this.capable('/users/{user_id}/jobs');
-	}
-	
-	userServices() {
-		return this.capable('/users/{user_id}/services');
-	}
-	
-	userCredits() {
-		return this.capable('/users/{user_id}/credits');
-	}
-	
-	userLogin() {
-		return this.capable('/auth/login');
-	}
-	
-	userRegister() {
-		return this.capable('/auth/register', 'post');
-	}
-	
-	executeJob() {
-		return this.capable('/execute');
-	}
-	
-	createJob() {
-		return this.capable('/jobs', 'post');
-	}
-	
-	jobInfo() {
-		return this.capable('/jobs/{job_id}');
-	}
-	
-	updateJob() {
-		return this.capable('/jobs/{job_id}', 'patch');
-	}
-	
-	queueJob() {
-		return this.capable('/jobs/{job_id}/queue', 'patch');
-	}
-	
-	pauseJob() {
-		return this.capable('/jobs/{job_id}/pause', 'patch');
-	}
-	
-	cancelJob() {
-		return this.capable('/jobs/{job_id}/cancel', 'patch');
-	}
-	
-	downloadJob() {
-		return this.capable('/jobs/{job_id}/download');
-	}
-	
-	createService() {
-		return this.capable('/services', 'post');
+
+	listFileTypes() {
+		return this._get('/output_formats')
+			.then(response => response.data);
 	}
 
-	serviceInfo() {
-		return this.capable('/services/{service_id}');
+	listServiceTypes() {
+		return this._get('/service_types')
+			.then(response => response.data);
 	}
 
-	updateService() {
-		return this.capable('/services/{service_id}', 'patch');
+	listCollections() {
+		return this._get('/collections')
+			.then(response => response.data);
+	}
+
+	describeCollection(name) {
+		return this._get('/collections/' + name)
+			.then(response => response.data);
+	}
+
+	listProcesses() {
+		return this._get('/processes')
+			.then(response => response.data);
+	}
+
+	authenticateOIDC(options = null) {
+		return Promise.reject(new Error("Not implemented yet."));
+	}
+
+	_base64encode(str) {
+		var buffer;
+		if (str instanceof Buffer) {
+			buffer = str;
+		} else {
+			buffer = Buffer.from(str.toString(), 'binary');
+		}
+		return buffer.toString('base64');
+	}
+
+	authenticateBasic(username, password) {
+		return this._send({
+			method: 'get',
+			responseType: 'json',
+			url: '/credentials/basic',
+			headers: {'Authorization': 'Basic ' + this._base64encode(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
+		}).then(response => {
+			if (!response.data.user_id) {
+				throw new Error("No user_id returned.");
+			}
+			if (!response.data.access_token) {
+				throw new Error("No access_token returned.");
+			}
+			this._userId = response.data.user_id;
+			this._token = response.data.access_token;
+			return response.data;
+		}).catch(error => {
+			this._resetAuth();
+			throw error;
+		});
+	}
+
+	describeAccount() {
+		return this._get('/me')
+			.then(response => response.data);
+	}
+
+	listFiles(userId = null) {  // userId defaults to authenticated user
+		if(userId === null) {
+			if(this._userId === null) {
+				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
+			} else {
+				userId = this._userId;
+			}
+		}
+		return this._get('/files/' + userId)
+			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)));
+	}
+
+	createFile(name, userId = null) {  // userId defaults to authenticated user
+		if(userId === null) {
+			if(this._userId === null) {
+				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
+			} else {
+				userId = this._userId;
+			}
+		}
+		return Promise.resolve(new File(this, userId, name));
+	}
+
+	validateProcessGraph(processGraph) {
+		return this._post('/validation', {process_graph: processGraph})
+			.then(_ => [true, {}]) // Accepts other status codes than 204, which is not strictly following the spec
+			.catch(error => [false, error.response.data]);
+	}
+
+	listProcessGraphs() {
+		return this._get('/process_graphs')
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)));
+	}
+
+	createProcessGraph(processGraph, title = null, description = null) {
+		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
+			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+	}
+
+	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
+		var requestBody = {
+			process_graph: processGraph,
+			budget: budget
+		};
+		if (outputFormat !== null) {
+			requestBody.output = {
+				format: outputFormat,
+				parameters: outputParameters
+			};
+		}
+
+		return this._post('/preview', requestBody, 'stream').then(response => response.data);
+	}
+
+	listJobs() {
+		return this._get('/jobs')
+			.then(response => response.data.jobs.map(j => new Job(this, j.job_id)._addMetadata(j)));
+	}
+
+	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
+		var jobObject = Object.assign(additional, {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			plan: plan,
+			budget: budget
+		});
+		if (outputFormat !== null) {
+			jobObject.output = {
+				format: outputFormat,
+				parameters: outputParameters
+			};
+		}
+		return this._post('/jobs', jobObject)
+			.then(response => new Job(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+	}
+
+	listServices() {
+		return this._get('/services')
+			.then(response => response.data.services.map((s) => new Service(this, s.service_id)._addMetadata(s)));
+	}
+
+	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
+		var serviceObject = {
+			title: title,
+			description: description,
+			process_graph: processGraph,
+			type: type,
+			enabled: enabled,
+			parameters: parameters,
+			plan: plan,
+			budget: budget
+		};
+		return this._post('/services', serviceObject)
+			.then(response => new Service(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+	}
+
+	_get(path, query, responseType) {
+		return this._send({
+			method: 'get',
+			responseType: responseType,
+			url: path,
+			// Timeout for capabilities requests as they are used for a quick first discovery to check whether the server is a openEO back-end.
+			// Without timeout connecting with a wrong server url may take forever.
+			timeout: path === '/' ? 3000 : 0,
+			params: query
+		});
+	}
+
+	_post(path, body, responseType) {
+		return this._send({
+			method: 'post',
+			responseType: responseType,
+			url: path,
+			data: body
+		});
+	}
+
+	_patch(path, body) {
+		return this._send({
+			method: 'patch',
+			url: path,
+			data: body
+		});
+	}
+
+	_put(path, body, contenttype = undefined) {
+		return this._send({
+			method: 'put',
+			url: path,
+			data: body,
+			headers: (contenttype == undefined ? {} : { 'content-type': contenttype })
+		});
+	}
+
+	_delete(path) {
+		return this._send({
+			method: 'delete',
+			url: path
+		});
+	}
+
+	// authorize = true: Always authorize
+	// authorize = false: Never authorize
+	// Returns promise with data as stream in node environment, blob in browser.
+	download(url, authorize) {
+		return this._send({
+			method: 'get',
+			responseType: 'stream',
+			url: url,
+			withCredentials: authorize
+		});
+	}
+
+	_send(options) {
+		options.baseURL = this._baseUrl;
+		if (this.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
+			options.withCredentials = true;
+			if (!options.headers) {
+				options.headers = {};
+			}
+			options.headers['Authorization'] = 'Bearer ' + this._token;
+		}
+		if (options.responseType == 'stream' && !isNode) {
+			options.responseType = 'blob';
+		}
+		if (!options.responseType) {
+			options.responseType = 'json';
+		}
+
+		return axios(options);
+	}
+
+	_resetAuth() {
+		this._userId = null;
+		this._token = null;
+	}
+
+	isLoggedIn() {
+		return (this._token !== null);
+	}
+
+	subscribe(topic, parameters, callback) {
+		return this._subscriptions.subscribe(topic, parameters, callback);
+	}
+
+	unsubscribe(topic, parameters, callback) {
+		return this._subscriptions.unsubscribe(topic, parameters, callback);
+	}
+
+	_saveToFileNode(data, filename) {
+		var fs = require('fs');
+		return new Promise((resolve, reject) => {
+			var writeStream = fs.createWriteStream(filename);
+			writeStream.on('close', (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+			data.pipe(writeStream);
+		});
+	}
+
+	/* istanbul ignore next */
+	_saveToFileBrowser(data, filename) {
+		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+		var blob = new Blob([data], {type: 'application/octet-stream'});
+		var blobURL = window.URL.createObjectURL(blob);
+		var tempLink = document.createElement('a');
+		tempLink.style.display = 'none';
+		tempLink.href = blobURL;
+		tempLink.setAttribute('download', filename); 
+		
+		if (typeof tempLink.download === 'undefined') {
+			tempLink.setAttribute('target', '_blank');
+		}
+		
+		document.body.appendChild(tempLink);
+		tempLink.click();
+		document.body.removeChild(tempLink);
+		window.URL.revokeObjectURL(blobURL);
+		return Promise.resolve();
+	}
+}
+
+
+class Subscriptions {
+
+	constructor(httpConnection) {
+		this.httpConnection = httpConnection;
+		this.socket = null;
+		this.listeners = new Map();
+		this.supportedTopics = [];
+		this.messageQueue = [];
+		this.websocketProtocol = "openeo-v0.3";
+	}
+
+	subscribe(topic, parameters, callback) {
+		if(!parameters) {
+			parameters = {};
+		}
+
+		if (callback) {
+			if(!this.listeners.has(topic)) {
+				this.listeners.set(topic, new Map());
+			}
+			this.listeners.get(topic).set(JSON.stringify(parameters), callback);
+		}
+
+		this._sendSubscription('subscribe', topic, parameters);
+	}
+
+	unsubscribe(topic, parameters) {
+		// get all listeners for the topic
+		var topicListeners = this.listeners.get(topic);
+		
+		if(!parameters) {
+			parameters = {};
+		}
+
+		// remove the applicable sub-callback
+		if(topicListeners instanceof Map) {
+			topicListeners.delete(JSON.stringify(parameters));
+		} else {
+			return Promise.reject(new Error("this.listeners must be a Map of Maps"));
+		}
+
+		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
+		if(topicListeners.size === 0) {
+			this.listeners.delete(topic);
+		}
+
+		// now send the command to the server
+		this._sendSubscription('unsubscribe', topic, parameters);
+
+		// Close subscription socket if there is no subscription left (use .size, NOT .length!)
+		if (this.socket !== null && this.listeners.size === 0) {
+			console.log('Closing connection because there is no subscription left');
+			this.socket.close();
+		}
+	}
+
+	_createWebSocket() {
+		if (this.socket === null || this.socket.readyState === this.socket.CLOSING || this.socket.readyState === this.socket.CLOSED) {
+			this.messageQueue = [];
+			var url = this.httpConnection._baseUrl.replace('http', 'ws') + '/subscription';
+
+			if (isNode) {
+				const WebSocket = require('ws');
+				this.socket = new WebSocket(url, this.websocketProtocol);
+			}
+			else {
+				this.socket = new WebSocket(url, this.websocketProtocol);
+			}
+
+			this._sendAuthorize();
+
+			this.socket.addEventListener('open', () => this._flushQueue());
+
+			this.socket.addEventListener('message', event => this._receiveMessage(event));
+
+			this.socket.addEventListener('error', () => {
+				this.socket = null;
+			});
+
+			this.socket.addEventListener('close', () => {
+				this.socket = null;
+			});
+		}
+		return this.socket;
+	}
+
+	_receiveMessage(event) {
+		// ToDo: Add error handling
+		var json = JSON.parse(event.data);
+		if (json.message.topic == 'openeo.welcome') {
+			this.supportedTopics = json.payload.topics;
+		}
+		else {
+			// get listeners for topic
+			var topicListeners = this.listeners.get(json.message.topic);
+			var callback;
+			// we should now have a Map in which to look for the correct listener
+			if (topicListeners && topicListeners instanceof Map) {
+				callback = topicListeners.get('{}')   // default: without parameters
+						|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
+						// more parameter checks possible
+			}
+			// if we now have a function, we can call it with the information
+			if (typeof callback === 'function') {
+				callback(json.payload, json.message);
+			} else {
+				console.log("No listener found to handle incoming message of type: " + json.message.topic);
+			}
+		}
+	}
+
+	_flushQueue() {
+		if(this.socket.readyState === this.socket.OPEN) {
+			for(var i in this.messageQueue) {
+				this.socket.send(JSON.stringify(this.messageQueue[i]));
+			}
+
+			this.messageQueue = [];
+		}
+	}
+
+	_sendMessage(topic, payload = null, priority = false) {
+		var obj = {
+			authorization: "Bearer " + this.httpConnection._token,
+			message: {
+				topic: "openeo." + topic,
+				issued: (new Date()).toISOString()
+			}
+
+		};
+		if (payload !== null) {
+			obj.payload = payload;
+		}
+		if (priority) {
+			this.messageQueue.splice(0, 0, obj);
+		}
+		else {
+			this.messageQueue.push(obj);
+		}
+		this._flushQueue();
+	}
+
+	_sendAuthorize() {
+		this._sendMessage('authorize', null, true);
+	}
+
+	_sendSubscription(action, topic, parameters) {
+		this._createWebSocket();
+
+		if (!parameters || typeof parameters != 'object') {  // caution: typeof null == 'object', but null==false
+			parameters = {};
+		}
+
+		var payloadParameters = Object.assign(parameters, { topic: topic });
+
+		this._sendMessage(action, {
+			topics: [payloadParameters]
+		});
+	}
+
+}
+
+
+class Capabilities {
+	constructor(data) {
+		if(!data || !data.version || !data.endpoints) {
+			throw new Error("Data is not a valid Capabilities response");
+		}
+		this._data = data;
+	}
+
+	version() {
+		return this._data.version;
+	}
+
+	listFeatures() {
+		return this._data.endpoints;
+	}
+
+	hasFeature(methodName) {
+		var clientMethodNameToAPIRequestMap = {
+			capabilities: 'GET /',
+			listFileTypes: 'GET /output_formats',
+			listServiceTypes: 'GET /service_types',
+			listCollections: 'GET /collections',
+			describeCollection: 'GET /collections/{name}',
+			listProcesses: 'GET /processes',
+			authenticateOIDC: 'GET /credentials/oidc',
+			authenticateBasic: 'GET /credentials/basic',
+			describeAccount: 'GET /me',
+			listFiles: 'GET /files/{user_id}',
+			validateProcessGraph: 'POST /validate',
+			createProcessGraph: 'POST /process_graphs',
+			listProcessGraphs: 'GET /process_graphs',
+			execute: 'POST /preview',
+			listJobs: 'GET /jobs',
+			createJob: 'POST /jobs',
+			listServices: 'GET /services',
+			createService: 'POST /services',
+			downloadFile: 'GET /files/{user_id}/{path}',
+			uploadFile: 'PUT /files/{user_id}/{path}',
+			deleteFile: 'DELETE /files/{user_id}/{path}',
+			describeJob: 'GET /jobs/{job_id}',
+			updateJob: 'PATCH /jobs/{job_id}',
+			deleteJob: 'DELETE /jobs/{job_id}',
+			estimateJob: 'GET /jobs/{job_id}/estimate',
+			startJob: 'POST /jobs/{job_id}/results',
+			stopJob: 'DELETE /jobs/{job_id}/results',
+			listResults: 'GET /jobs/{job_id}/results',
+			downloadResults: 'GET /jobs/{job_id}/results',
+			describeProcessGraph: 'GET /process_graphs/{process_graph_id}',
+			updateProcessGraph: 'PATCH /process_graphs/{process_graph_id}',
+			deleteProcessGraph: 'DELETE /process_graphs/{process_graph_id}',
+			describeService: 'GET /services/{service_id}',
+			updateService: 'PATCH /services/{service_id}',
+			deleteService: 'DELETE /services/{service_id}'
+		};
+		
+		// regex-ify to allow custom parameter names
+		for (var key in clientMethodNameToAPIRequestMap) {
+			clientMethodNameToAPIRequestMap[key] = clientMethodNameToAPIRequestMap[key].replace(/{[^}]+}/, '{[^}]+}');
+		}
+
+		if (methodName === 'createFile') {
+			return true;   // Of course it's always possible to create "a (virtual) file".
+			// But maybe it would be smarter to return the value of hasFeature('uploadFile') instead, because that's what the user most likely wants to do
+		} else {
+			return this._data.endpoints
+				.map((e) => e.methods.map((method) => method + ' ' + e.path))
+				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
+				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
+				.some((e) => e.match(new RegExp('^'+clientMethodNameToAPIRequestMap[methodName]+'$')) != null);
+		}
+	}
+
+	currency() {
+		return (this._data.billing ? this._data.billing.currency : undefined);
+	}
+
+	listPlans() {
+		return (this._data.billing ? this._data.billing.plans : undefined);
+	}
+}
+
+
+class File {
+	constructor(connection, userId, name) {
+		this.connection = connection;
+		this.userId = userId;
+		this.name = name;
+	}
+
+	_addMetadata(metadata) {
+		// Metadata for files can be "size", "modified", or ANY (!) custom field name.
+		// To prevent overwriting of already existing data we therefore have to delete keys that already
+		// exist in "this" scope from the metadata object (if they exist)
+		delete metadata.connection;
+		delete metadata.userId;
+		delete metadata.name;
+
+		for(var md in metadata) {
+			this[md] = metadata[md];
+		}
+
+		return this;  // for chaining
+	}
+
+	// If target is null, returns promise with data as stream in node environment, blob in browser.
+	// Otherwise writes downloaded file to target.
+	downloadFile(target = null) {
+		return this.connection.download('/files/' + this.userId + '/' + this.name, true)
+			.then(response => {
+				if (target === null) {
+					return Promise.resolve(response.data);
+				}
+				else {
+					return this._saveToFile(response.data, target);
+				}
+			});
+	}
+
+	_saveToFile(data, filename) {
+		if (isNode) {
+			return this.connection._saveToFileNode(data, filename);
+		}
+		else {
+			/* istanbul ignore next */
+			return this.connection._saveToFileBrowser(data, filename);
+		}
+	}
+
+	uploadFile(source) {
+		return this.connection._put('/files/' + this.userId + '/' + this.name, source, 'application/octet-stream');
+	}
+
+	deleteFile() {
+		return this.connection._delete('/files/' + this.userId + '/' + this.name);
+	}
+}
+
+
+class Job {
+	constructor(connection, jobId) {
+		this.connection = connection;
+		this.jobId = jobId;
+	}
+
+	_addMetadata(metadata) {		
+		this.title       = metadata.title;
+		this.description = metadata.description;
+		this.status      = metadata.status;
+		this.submitted   = metadata.submitted;
+		this.updated     = metadata.updated;
+		this.plan        = metadata.plan;
+		this.costs       = metadata.costs;
+		this.budget      = metadata.budget;
+		return this;  // for chaining
+	}
+
+	describeJob() {
+		return this.connection._get('/jobs/' + this.jobId)
+			.then(response => response.data);
+	}
+
+	updateJob(parameters) {
+		return this.connection._patch('/jobs/' + this.jobId, parameters)
+			.then(response => response.status == 204);
+	}
+
+	deleteJob() {
+		return this.connection._delete('/jobs/' + this.jobId)
+			.then(response => response.status == 204);
+	}
+
+	estimateJob() {
+		return this.connection._get('/jobs/' + this.jobId + '/estimate')
+			.then(response => response.data);
+	}
+
+	startJob() {
+		return this.connection._post('/jobs/' + this.jobId + '/results', {})
+			.then(response => response.status == 202);
+	}
+
+	stopJob() {
+		return this.connection._delete('/jobs/' + this.jobId + '/results')
+			.then(response => response.status == 204);
+	}
+
+	listResults(type = 'json') {
+		type = type.toLowerCase();
+		if (type != 'json') {
+			return Promise.reject(new Error("'"+type+"' is not supported by the client, please use JSON."));
+		} else {
+			return this.connection._get('/jobs/' + this.jobId + '/results').then(response => {
+				// Returning null for missing headers is not strictly following the spec
+				var headerData = {
+					costs: response.headers['openeo-costs'] || null,
+					expires: response.headers['expires'] || null
+				};
+				return Object.assign(headerData, response.data);
+			});
+		}
+	}
+
+	// Note: targetFolder must exist!
+	downloadResults(targetFolder) {
+		if (isNode) {
+			return this.listResults().then(list => {
+				var url = require("url");
+				var path = require("path");
+
+				var promises = [];
+				var files = [];
+				for(var i in list.links) {
+					var link = list.links[i].href;
+					var parsedUrl = url.parse(link);
+					var targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+					var p = this.connection.download(link, false)
+						.then(response => this.connection._saveToFileNode(response.data, targetPath))
+						.then(() => files.push(targetPath));
+					promises.push(p);
+				}
+
+				return Promise.all(promises).then(() => files);
+			});
+		}
+		else {
+			/* istanbul ignore next */
+			return Promise.reject(new Error("downloadResults is not supported in a browser environment."));
+		}
+	}
+}
+
+
+class ProcessGraph {
+	constructor(connection, processGraphId) {
+		this.connection = connection;
+		this.processGraphId = processGraphId;
+	}
+
+	_addMetadata(metadata) {
+		this.title = metadata.title;
+		this.description = metadata.description;
+		return this;  // for chaining
+	}
+
+	describeProcessGraph() {
+		return this.connection._get('/process_graphs/' + this.processGraphId)
+			.then(response => response.data);
+	}
+
+	updateProcessGraph(parameters) {
+		return this.connection._patch('/process_graphs/' + this.processGraphId, parameters)
+			.then(response => response.status == 204);
+	}
+
+	deleteProcessGraph() {
+		return this.connection._delete('/process_graphs/' + this.processGraphId)
+			.then(response => response.status == 204);
+	}
+}
+
+
+class Service {
+	constructor(connection, serviceId) {
+		this.connection = connection;
+		this.serviceId = serviceId;
+	}
+
+	_addMetadata(metadata) {
+		this.title       = metadata.title;
+		this.description = metadata.description;
+		this.url         = metadata.url;
+		this.type        = metadata.type;
+		this.enabled     = metadata.enabled;
+		this.submitted   = metadata.submitted;
+		this.plan        = metadata.plan;
+		this.costs       = metadata.costs;
+		this.budget      = metadata.budget;
+		return this;  // for chaining
+	}
+
+	describeService() {
+		return this.connection._get('/services/' + this.serviceId)
+			.then(response => response.data);
+	}
+
+	updateService(parameters) {
+		return this.connection._patch('/services/' + this.serviceId, parameters)
+			.then(response => response.status == 204);
 	}
 
 	deleteService() {
-		return this.capable('/services/{service_id}', 'delete');
+		return this.connection._delete('/services/' + this.serviceId)
+			.then(response => response.status == 204);
 	}
-
-	capable(path, method = 'get') {
-		var path = path.replace('/', '\\/').replace(/\{\w+\}/ig, '\\{[^\\/\\{\\}]+\\}');
-		var regexp = new RegExp('^' + path + '\\/?$', 'i');
-		for(var i in this.rawData) {
-			if (this.rawData[i].match(regexp) !== null) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 }
 
-//// API ////
-var OpenEO = {
 
-	API: {
-
-		// The URL of the server to query for information.
-		baseUrl: 'http://localhost/api/v0',
-		// The driver expected to respond on the server, e.g. 'openeo-sentinelhub-driver'.
-		// Currently this is only to work around specific behaviour of backends
-		// during development phase.
-		driver: null,
-	
-		getCapabilities() {
-			return OpenEO.HTTP.get('/capabilities').then(data => new Capabilities(data));
-		},
-		
-		getOutputFormats() {
-			return OpenEO.HTTP.get('/capabilities/output_formats');
-		}
-
-	},
-	
-	HTTP: {
-
-		get(path, query, responseType) {
-			return this.send({
-				method: 'get',
-				responseType: responseType,
-				url: path,
-				params: query
-			});
-		},
-
-		post(path, body, responseType) {
-			return this.send({
-				method: 'post',
-				responseType: responseType,
-				url: path,
-				data: body
-			});
-		},
-
-		patch(path, body) {
-			return this.send({
-				method: 'patch',
-				url: path,
-				data: body
-			});
-		},
-
-		put(path, body) {
-			return this.send({
-				method: 'put',
-				url: path,
-				data: body
-			});
-		},
-
-		delete(path) {
-			return this.send({
-				method: 'delete',
-				url: path
-			});
-		},
-
-		// authorize = true: Always authorize
-		// authorize = false: Never authorize
-		// authorize = null: Auto detect auhorization (authorize when url is beginning with baseUrl)
-		download(url, authorize = null) {
-			if (authorize === null) {
-				authorize = (url.toLowerCase().indexOf(OpenEO.API.baseUrl.toLowerCase()) === 0);
-			}
-			return this.send({
-				method: 'get',
-				responseType: 'blob',
-				url: url,
-				withCredentials: (authorize === true)
-			});
-		},
-
-		send(options) {
-			options.baseURL = OpenEO.API.baseUrl;
-			if (OpenEO.Auth.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
-				options.withCredentials = true;
-				if (!options.headers) {
-					options.headers = {};
-				}
-				options.headers['Authorization'] = 'Bearer ' + OpenEO.Auth.token;
-			}
-			if (!options.responseType) {
-				options.responseType = 'json';
-			}
-
-			// ToDo: Remove this, it's just for the R backend for now, might need to be extended
-			if (OpenEO.API.driver === 'openeo-r-backend' && options.url.match(/^\/(processes|data|jobs|services|udf_runtimes|users|execute)$/)) {
-				options.url += '/';
-			}
-			return axios(options)
-				.then(data => data.data)
-				.catch(error => {
-					if (error.response) {
-						throw error.response.status;
-					}
-					else {
-						throw 0;
-					}
-				});
-		}
-
-	},
-
-	ImageCollection: {
-
-		create(collId) {
-			return new ImageCollectionNode(collId);
-		}
-
-	},
-
-	Auth: {
-
-		userId: null,
-		token: null,
-		
-		reset() {
-			this.userId = null;
-			this.token = null;
-		},
-
-		isLoggedIn() {
-			return (this.token !== null);
-		},
-
-		login(username, password) {
-			var options = {
-				method: 'get',
-				url: '/auth/login',
-				withCredentials: true,
-				auth: {
-					username: username,
-					password: password
-				}
-			};
-			return OpenEO.HTTP.send(options).then(data => {
-				if (!data.user_id) {
-					throw "No user_id returned.";
-				}
-				if (!data.token) {
-					throw "No token returned.";
-				}
-				this.userId = data.user_id;
-				this.token = data.token;
-				return data;
-			}).catch(error => {
-				this.reset();
-				throw error;
-			});
-		},
-
-		register(password) {
-			var body = {
-				password: password
-			};
-			return OpenEO.HTTP.post('/auth/register', body).then(data => {
-				if (!data.user_id) {
-					throw "No user_id returned.";
-				}
-				this.userId = data.user_id;
-				return data;
-			});
-		}
-
-	},
-
-	Data: {
-
-		DefaultQueryOptions: {
-			qname: null,
-			qgeom: null,
-			qstartdate: null,
-			qenddate: null
-		},
-
-		get(options) {
-			var opts = options || this.DefaultQueryOptions;
-			return OpenEO.HTTP.get('/data', opts);
-		},
-
-		getById(id) {
-			return OpenEO.HTTP.get('/data/' + encodeURIComponent(id));
-		}
-
-	},
-
-	Processes: {
-
-		get(name) {
-			var query = {};
-			if (name) {
-				query.qname = name;
-			}
-			return OpenEO.HTTP.get('/processes', query);
-		},
-
-		getById(id) {
-			return OpenEO.HTTP.get('/processes/' + encodeURIComponent(id));
-		}
-
-	},
-	
-	UDFRuntimes: {
-		
-		get() {
-			return OpenEO.HTTP.get('/udf_runtimes');
-		},
-		
-		getProcess(lang, udf_type) {
-			return OpenEO.HTTP.get('/udf_runtimes/' + encodeURIComponent(lang) + '/' + encodeURIComponent(udf_type));
-		}
-		
-	},
-
-	Jobs: {
-
-		create(processGraph, output_format = null, output_args = {}) {
-			var body = {
-				process_graph: processGraph
-			};
-			if (typeof output_format === 'string' && output_format.length > 0) {
-				body.output = {
-					format: output_format,
-					args: output_args
-				};
-			}
-			return OpenEO.HTTP.post('/jobs', body);
-		},
-		
-		getObject(job_id) {
-			return new JobAPI(job_id);
-		},
-	
-		executeSync (process_graph, output_format, output_args = {}) {
-			return OpenEO.HTTP.send({
-				method: 'post',
-				responseType: 'blob',
-				url: '/execute',
-				data: {
-					process_graph: process_graph,
-					output: {
-						format: output_format,
-						args: output_args
-					}
-				}
-			});
-		}
-
-	},
-	
-	Services: {
-		
-		create(job_id, service_type, service_args = {}) {
-			return OpenEO.HTTP.post('/services', {
-				job_id: job_id,
-				service_type: service_type,
-				service_args: service_args
-			});
-		},
-		
-		getCapabilities() {
-			return OpenEO.HTTP.get('/capabilities/services').then((data) => {
-				if (Array.isArray(data)) {
-					return data.map(elem => elem.toLowerCase());
-				}
-				else {
-					return [];
-				}
-			});
-		},
-		
-		getObject(service_id) {
-			return new ServiceAPI(service_id);
-		}
-		
-	},
-	
-	Users: {
-		
-		getObject(user_id) {
-			return new UserAPI(user_id);
-		}
-		
-	}
-
-};
-
-// ToDo: Export classes etc
 let toExport = {
-	OpenEO: OpenEO,
-	Capabilities: Capabilities
+	OpenEO: OpenEO
 };
 
+// explanation: https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }

@@ -1,19 +1,16 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "openEO Consortium",
   "contributors": [
     {
       "name": "Matthias Mohr"
     },
     {
-      "name": "Gustav Jv Rensburg"
-    },
-    {
-      "name": "Miha Kadunc"
+      "name": "Christoph Friedrich"
     }
   ],
-  "description": "JavaScript client for the openEO API (proof-of-concept).",
+  "description": "JavaScript client for the openEO API.",
   "license": "Apache-2.0",
   "homepage": "http://openeo.org",
   "bugs": {
@@ -25,12 +22,15 @@
   },
   "main": "openeo.js",
   "devDependencies": {
-    "jest": "^22.1.4"
+    "jest": "^23.5.0",
+    "jest-html-reporter": "^2.4.2"
   },
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "ws": "^6.1.2"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest --env=jsdom",
+    "test_node": "jest --env=node"
   }
 }
