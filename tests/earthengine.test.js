@@ -1,5 +1,7 @@
 const { OpenEO } = require('../openeo.js');
 
+jest.setTimeout(30000); // Give Google some time to process data
+
 describe('With earth-engine-driver', () => {
 	const TESTBACKEND = 'http://earthengine.openeo.org/v0.3';
 	const TESTUSERNAME = 'group5';
@@ -7,8 +9,9 @@ describe('With earth-engine-driver', () => {
 	const TESTCAPABILITIES = {"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST","DELETE"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}};
 	const TESTCOLLECTION = {"name":"USGS/GTOPO30","title":"GTOPO30: Global 30 Arc-Second Elevation","description":"GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). The DEM was derived from several raster and vector sources of topographic information.  Completed in late 1996, GTOPO30 was developed over a three-year period through a collaborative effort led by the U.S. Geological Survey's Center for Earth Resources Observation and Science (EROS). The following organizations  participated by contributing funding or source data:  the National Aeronautics  and Space Administration (NASA), the United Nations Environment Programme/Global Resource Information Database (UNEP/GRID), the U.S. Agency for International Development (USAID), the Instituto Nacional de Estadistica Geografica e Informatica (INEGI) of Mexico, the Geographical Survey Institute  (GSI) of Japan, Manaaki Whenua Landcare Research of New Zealand, and the  Scientific Committee on Antarctic Research (SCAR).","license":"proprietary","extent":{"spatial":[-180,-90,180,90],"temporal":["1996-01-01T00:00:00Z","1996-01-01T00:00:00Z"]}};
 	const TESTPROCESS = {"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}};
-	const TESTPROCESSGGRAPH = {"process_id": "stretch_colors","imagery": {"process_id": "min_time","imagery": {"process_id": "NDVI","imagery": {"process_id": "filter_daterange","imagery": {"process_id": "get_collection","name": "COPERNICUS/S2"},"extent": ["2018-01-01T00:00:00Z","2018-01-31T23:59:59Z"]},"red": "B4","nir": "B8"}},"min": -1,"max": 1};
+	const TESTPROCESSGGRAPH = {"process_id":"stretch_colors","imagery":{"process_id":"min_time","imagery":{"process_id":"NDVI","imagery":{"process_id":"filter_bbox","imagery":{"process_id":"filter_daterange","imagery":{"process_id":"get_collection","name":"COPERNICUS/S2"},"extent":["2018-01-01T00:00:00Z","2018-01-31T23:59:59Z"]},"extent":{"west":16.1,"south":47.2,"east":16.6,"north":48.6}},"red":"B4","nir":"B8"}},"min":-1,"max":1};
 	var obj = new OpenEO();
+	var isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
 		return obj.connect(TESTBACKEND);
@@ -18,13 +21,14 @@ describe('With earth-engine-driver', () => {
 		return obj.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
 	}
 
-	describe('Connecting', () => {	
+	describe('Connecting', () => {
 		test('Connect without credentials', async () => {
 			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
 				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
+				expect(con.getBaseUrl()).toBe(TESTBACKEND);
 			});
 		});
 
@@ -38,6 +42,14 @@ describe('With earth-engine-driver', () => {
 			});
 		});
 
+		test('Connect with wrong Server URL', async () => {
+			await expect(obj.connect("http://localhost:12345")).rejects.toThrow();
+		});
+
+		test('Connect with wrong Basic Auth credentials', async () => {
+			await expect(obj.connect(TESTBACKEND, 'basic', {username: "foo", password: "bar"})).rejects.toThrow();
+		});
+
 		test('Manually connect with Basic Auth credentials', async () => {
 			await connectWithoutAuth().then(async con => {
 				expect(con).not.toBeNull();
@@ -45,10 +57,9 @@ describe('With earth-engine-driver', () => {
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
 				var login = await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeTruthy();
 				expect(con.getUserId()).toBe(TESTUSERNAME);
+				expect(con.getBaseUrl()).toBe(TESTBACKEND);
 				expect(login).toHaveProperty('user_id');
 				expect(login).toHaveProperty('access_token');
 			});
@@ -60,16 +71,30 @@ describe('With earth-engine-driver', () => {
 				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 				expect(con.isLoggedIn()).toBeFalsy();
 				expect(con.getUserId()).toBeNull();
-				expect(con.authenticateOIDC).toThrowError('Not implemented yet.');
+				expect(con.getBaseUrl()).toBe(TESTBACKEND);
+				expect(con.authenticateOIDC({})).rejects.toThrow(new Error('Not implemented yet.'));
 			});
 		});
-	});
-	
-	describe('Getters', () => {
-		test('Get baseurl', async () => {
-			await connectWithoutAuth().then(con => {
+
+		test('Manually connect with wrong Basic Auth credentials', async () => {
+			await connectWithoutAuth().then(async con => {
+				expect(con).not.toBeNull();
+				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+				expect(con.isLoggedIn()).toBeFalsy();
+				expect(con.getUserId()).toBeNull();
+				await expect(con.authenticateBasic("foo", "bar")).rejects.toThrow();
+				expect(con.isLoggedIn()).toBeFalsy();
+				expect(con.getUserId()).toBeNull();
 				expect(con.getBaseUrl()).toBe(TESTBACKEND);
 			});
+		});
+
+		test('Connect via OIDC is not implemented yet', async () => {
+			await expect(obj.connect(TESTBACKEND, 'oidc', {})).rejects.toThrow(new Error('Not implemented yet.'));
+		});
+
+		test('Connect via unknown should throw an error', async () => {
+			await expect(obj.connect(TESTBACKEND, 'unknown', {})).rejects.toThrow(new Error("Unknown authentication type."));
 		});
 	});
 	
@@ -154,7 +179,34 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('CRUD process graphs', async () => {
+	describe('Process graph validation', async () => {
+		var con;
+		beforeAll(async (done) => {
+			con = await connectWithBasicAuth();
+			done();
+		});
+
+		test('Valid process graph', async () => {
+			var result = await con.validateProcessGraph({
+				process_id: "get_collection",
+				name: "COPERNICUS/S2"
+			});
+			expect(result[0]).toBeTruthy();
+			expect(result[1]).toEqual({});
+		});
+
+		test('Invalid process graph', async () => {
+			var result = await con.validateProcessGraph({
+				process_id: "unknown_process"
+			});
+			expect(result[0]).toBeFalsy();
+			expect(typeof result[1]).toBe('object');
+			expect(result[1]).toHaveProperty('code');
+			expect(result[1]).toHaveProperty('message');
+		});
+	});
+
+	describe('Stored process graphs management', async () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -273,7 +325,31 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('CRUD jobs', async () => {
+	describe('Previews', async () => {
+		var con;
+		beforeAll(async () => {
+			con = await connectWithBasicAuth();
+			// clean up
+			var list = await con.listJobs();
+			await Promise.all(list.map(j => j.deleteJob()));
+		});
+
+		test('Preview a process graph result', async () => {
+			var resource = await con.execute(TESTPROCESSGGRAPH, 'jpeg');
+			expect(resource).not.toBeNull();
+			if (isBrowserEnv) { // Browser environment
+				expect(resource).toBeInstanceOf(Blob);
+				// ToDo: Check blob content
+			}
+			else { // Node environment
+				const stream = require('stream');
+				expect(resource).toBeInstanceOf(stream.Readable);
+				// ToDo: Check blob content
+			}
+		});
+	});
+
+	describe('Job management', async () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -290,7 +366,7 @@ describe('With earth-engine-driver', () => {
 
 		var job;
 		test('Add minimal job', async () => {
-			job = await con.createJob(TESTPROCESSGGRAPH);
+			job = await con.createJob(TESTPROCESSGGRAPH, 'jpeg');
 			expect(Object.getPrototypeOf(job).constructor.name).toBe('Job');
 			expect(job.jobId).not.toBeNull();
 			expect(job.jobId).not.toBeUndefined();
@@ -306,8 +382,9 @@ describe('With earth-engine-driver', () => {
 			expect(jobdetails).not.toBeUndefined();
 			expect(jobdetails.job_id).toBe(job.jobId);
 			expect(jobdetails.title).toBeNull();
+			expect(jobdetails.status).toBe('submitted');
 			expect(typeof jobdetails.submitted).toBe('string');
-		})
+		});
 
 		test('Update job', async () => {
 			var success = await job.updateJob({title: 'Test job'});
@@ -320,15 +397,95 @@ describe('With earth-engine-driver', () => {
 			expect(typeof jobdetails.submitted).toBe('string');
 		});
 
+		test('Estimate job', async () => {
+			// Not implemented by GEE back-end
+			await expect(job.estimateJob()).rejects.toThrow();
+		});
+
+		// Starting, Stopping, and working with results as implemented here only works as GEE computes on the fly.
+		// Other back-ends need more time and therefore we would need to wait here until the started job finished.
+		// Also, stopping jobs may discard results and therefore working with the results may fail.
+		test('Start job', async () => {
+			await expect(job.startJob()).resolves.toBeTruthy();
+			var jobdetails = await job.describeJob();
+			expect(jobdetails.status).toBe('finished');
+		});
+
+		test('List metalink Results', async () => {
+			var jobdetails = await job.describeJob();
+			expect(jobdetails.status).toBe('finished');
+			await expect(job.listResults("metalink")).rejects.toThrow();
+		});
+
+		test('List json Results', async () => {
+			var jobdetails = await job.describeJob();
+			expect(jobdetails.status).toBe('finished');
+			var res = await job.listResults();
+			expect(res).not.toBeNull();
+			expect(res).toHaveProperty("costs");
+			expect(res).toHaveProperty("expires");
+			expect(res).toHaveProperty("links");
+			expect(res.links.length).toBeGreaterThan(0);
+			expect(res.links[0]).toHaveProperty("href");
+		});
+
+		var targetFolder = Math.random().toString(36);
+		test('Download results', async () => {
+			var jobdetails = await job.describeJob();
+			expect(jobdetails.status).toBe('finished');
+			if (isBrowserEnv) {
+				// Browser environment
+				await expect(job.downloadResults()).rejects.toThrow();
+			}
+			else {
+				// Node environment
+				// Create folder
+				const fs = require('fs');
+				expect(fs.existsSync(targetFolder)).toBeFalsy();
+				fs.mkdirSync(targetFolder);
+				expect(fs.existsSync(targetFolder)).toBeTruthy();
+				// Get links to check against
+				var res = await job.listResults();
+				expect(res).not.toBeNull();
+				expect(res).toHaveProperty("links");
+				expect(res.links.length).toBeGreaterThan(0);
+				// Download files
+				var files = await job.downloadResults(targetFolder);
+				expect(files.length).toBe(res.links.length);
+				for(var i in files) {
+					expect(fs.existsSync(files[i])).toBeTruthy();
+				}
+			}
+		});
+
+		test('Stop job', async () => {
+			await expect(job.stopJob()).resolves.toBeTruthy();
+			var jobdetails = await job.describeJob();
+			expect(jobdetails.status).toBe('canceled');
+		});
+
 		test('Delete job', async () => {
 			var success = await job.deleteJob();
 			expect(success).toBeTruthy();
 			var jobs = await con.listJobs();
 			expect(jobs).toHaveLength(0);
 		});
+
+		afterAll(async () => {
+			if (!isBrowserEnv) {
+				// clean up
+				const fs = require('fs');
+				const path = require('path');
+				var files = fs.readdirSync(targetFolder);
+				files.map(file => {
+					fs.unlinkSync(path.join(targetFolder, file));
+				});
+				fs.unlinkSync(targetFolder);
+			}
+		});
 	});
 
-	describe('CRUD services', async () => {
+	describe('Secondary Services management', async () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -383,7 +540,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('CRUD files', async () => {
+	describe('File management', async () => {
 		var con, f;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -417,7 +574,7 @@ describe('With earth-engine-driver', () => {
 		test('Get file contents', async (done) => {
 			var resource = await f.downloadFile();
 			expect(resource).not.toBeNull();
-			if (typeof Blob !== 'undefined') { // Browser environment
+			if (isBrowserEnv) { // Browser environment
 				expect(resource).toBeInstanceOf(Blob);
 				var reader = new FileReader();
 				reader.addEventListener("loadend", () => {
@@ -447,11 +604,11 @@ describe('With earth-engine-driver', () => {
 					done();
 				});
 			}
-		})
+		});
 
 		test('Download/Save file', async () => {
 			var target = "downloaded_file.txt";
-			if (typeof Blob !== 'undefined') { 
+			if (isBrowserEnv) { 
 				// Browser environment
 				// Hard to test a browser download, ignore
 				return;
@@ -465,7 +622,7 @@ describe('With earth-engine-driver', () => {
 				}
 				expect(fs.existsSync(target)).toBeFalsy();
 				// Download file
-				var resource = await f.downloadFile(target);
+				await f.downloadFile(target);
 				expect(fs.existsSync(target)).toBeTruthy();
 				expect(fs.readFileSync(target).toString()).toBe(fileContent);
 			}
@@ -515,4 +672,14 @@ describe('With earth-engine-driver', () => {
 			done();
 		});
 	});
+	
+	describe('Other tests', () => {
+		test('Base64 encoder', async () => {
+			await connectWithoutAuth().then(con => {
+				expect(con._base64encode(Buffer.from("test"))).toBe("dGVzdA==");
+				expect(con._base64encode("test")).toBe("dGVzdA==");
+			});
+		});
+	});
+
 });
