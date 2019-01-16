@@ -683,7 +683,7 @@ class Job {
 
 	describeJob() {
 		return this.connection._get('/jobs/' + this.jobId)
-			.then(response => response.data);
+			.then(response => this._addMetadata(response.data));
 	}
 
 	updateJob(parameters) {
@@ -771,7 +771,7 @@ class ProcessGraph {
 
 	describeProcessGraph() {
 		return this.connection._get('/process_graphs/' + this.processGraphId)
-			.then(response => response.data);
+			.then(response => this._addMetadata(response.data));
 	}
 
 	updateProcessGraph(parameters) {
@@ -807,7 +807,7 @@ class Service {
 
 	describeService() {
 		return this.connection._get('/services/' + this.serviceId)
-			.then(response => response.data);
+			.then(response => this._addMetadata(response.data));
 	}
 
 	updateService(parameters) {
