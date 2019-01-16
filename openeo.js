@@ -144,7 +144,7 @@ class Connection {
 			}
 		}
 		return this._get('/files/' + userId)
-			.then(response => response.data.files.map((f) => new File(this, userId, f.name)._addMetadata(f)));
+			.then(response => response.data.files.map((f) => new File(this, userId, f.name).setAll(f)));
 	}
 
 	createFile(name, userId = null) {  // userId defaults to authenticated user
@@ -160,18 +160,26 @@ class Connection {
 
 	validateProcessGraph(processGraph) {
 		return this._post('/validation', {process_graph: processGraph})
-			.then(_ => [true, {}]) // Accepts other status codes than 204, which is not strictly following the spec
+			.then(() => [true, {}]) // Accepts other status codes than 204, which is not strictly following the spec
 			.catch(error => [false, error.response.data]);
 	}
 
 	listProcessGraphs() {
 		return this._get('/process_graphs')
-			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id)._addMetadata(pg)));
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id).setAll(pg)));
 	}
 
 	createProcessGraph(processGraph, title = null, description = null) {
 		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new ProcessGraph(this, response.headers['openeo-identifier']).setAll({title: title, description: description}))
+			.then(pg => {
+				if (this._capabilitiesCache.hasFeature('describeService')) {
+					return pg.describeProcessGraph();
+				}
+				else {
+					return Promise.resolve(pg);
+				}
+			});
 	}
 
 	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
@@ -191,7 +199,7 @@ class Connection {
 
 	listJobs() {
 		return this._get('/jobs')
-			.then(response => response.data.jobs.map(j => new Job(this, j.job_id)._addMetadata(j)));
+			.then(response => response.data.jobs.map(j => new Job(this, j.job_id).setAll(j)));
 	}
 
 	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
@@ -209,12 +217,12 @@ class Connection {
 			};
 		}
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Job(this, response.headers['openeo-identifier']).setAll({title: title, description: description}));
 	}
 
 	listServices() {
 		return this._get('/services')
-			.then(response => response.data.services.map((s) => new Service(this, s.service_id)._addMetadata(s)));
+			.then(response => response.data.services.map((s) => new Service(this, s.service_id).setAll(s)));
 	}
 
 	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
@@ -229,7 +237,7 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['OpenEO-Identifier'] || response.headers['openeo-identifier'])._addMetadata({title: title, description: description}));
+			.then(response => new Service(this, response.headers['openeo-identifier']).setAll({title: title, description: description}));
 	}
 
 	_get(path, query, responseType) {
@@ -303,6 +311,13 @@ class Connection {
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';
+		}
+		switch(options.method) {
+			case 'put':
+			case 'patch':
+			case 'delete':
+				options.validateStatus = status => status == 204;
+				break;
 		}
 
 		return axios(options);
@@ -607,14 +622,65 @@ class Capabilities {
 }
 
 
-class File {
-	constructor(connection, userId, name) {
+class BaseEntity {
+
+	constructor(connection, properties = []) {
 		this.connection = connection;
+		this.clientNames = {};
+		this.extra = {};
+		for(var i in properties) {
+			var backend, client;
+			if (Array.isArray(properties[i])) {
+				backend = properties[i][0];
+				client = properties[i][1];
+			}
+			else {
+				backend = properties[i];
+				client = properties[i];
+			}
+			this.clientNames[backend] = client;
+			if (typeof this[client] === 'undefined') {
+				this[client] = null;
+			}
+		}
+	}
+
+	setAll(metadata) {
+		for (var name in metadata) {
+			if (typeof this.clientNames[name] === 'undefined') {
+				this.extra[name] = metadata[name];
+			}
+			else {
+				this[this.clientNames[name]] = metadata[name];
+			}
+		}
+		return this;
+	}
+
+	getAll() {
+		var obj = {};
+		for (var backend in this.clientNames) {
+			var client = this.clientNames[backend];
+			obj[client] = this[client];
+		}
+		return Object.assign(obj, this.extra);
+	}
+
+	get(name) {
+		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
+	}
+
+}
+
+
+class File extends BaseEntity {
+	constructor(connection, userId, name) {
+		super(connection, ["name", "size", "modified"]);
 		this.userId = userId;
 		this.name = name;
 	}
 
-	_addMetadata(metadata) {
+	setAll(metadata) {
 		// Metadata for files can be "size", "modified", or ANY (!) custom field name.
 		// To prevent overwriting of already existing data we therefore have to delete keys that already
 		// exist in "this" scope from the metadata object (if they exist)
@@ -663,37 +729,32 @@ class File {
 }
 
 
-class Job {
+class Job extends BaseEntity {
 	constructor(connection, jobId) {
-		this.connection = connection;
+		super(connection, [["job_id", "jobId"], "title", "description", "status", "submitted", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
-	}
-
-	_addMetadata(metadata) {		
-		this.title       = metadata.title;
-		this.description = metadata.description;
-		this.status      = metadata.status;
-		this.submitted   = metadata.submitted;
-		this.updated     = metadata.updated;
-		this.plan        = metadata.plan;
-		this.costs       = metadata.costs;
-		this.budget      = metadata.budget;
-		return this;  // for chaining
 	}
 
 	describeJob() {
 		return this.connection._get('/jobs/' + this.jobId)
-			.then(response => this._addMetadata(response.data));
+			.then(response => this.setAll(response.data));
 	}
 
 	updateJob(parameters) {
 		return this.connection._patch('/jobs/' + this.jobId, parameters)
-			.then(response => response.status == 204);
+			.then(() => {
+				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+					return this.describeJob();
+				}
+				else {
+					this.setAll(parameters);
+					return Promise.resolve(this);
+				}
+			});
 	}
 
 	deleteJob() {
-		return this.connection._delete('/jobs/' + this.jobId)
-			.then(response => response.status == 204);
+		return this.connection._delete('/jobs/' + this.jobId);
 	}
 
 	estimateJob() {
@@ -703,12 +764,26 @@ class Job {
 
 	startJob() {
 		return this.connection._post('/jobs/' + this.jobId + '/results', {})
-			.then(response => response.status == 202);
+			.then(() => {
+				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+					return this.describeJob();
+				}
+				else {
+					return Promise.resolve(this);
+				}
+			});
 	}
 
 	stopJob() {
 		return this.connection._delete('/jobs/' + this.jobId + '/results')
-			.then(response => response.status == 204);
+			.then(() => {
+				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+					return this.describeJob();
+				}
+				else {
+					return Promise.resolve(this);
+				}
+			});
 	}
 
 	listResults(type = 'json') {
@@ -757,67 +832,63 @@ class Job {
 }
 
 
-class ProcessGraph {
+class ProcessGraph extends BaseEntity {
 	constructor(connection, processGraphId) {
+		super(connection, [["process_graph_id", "processGraphId"], "title", "description", "process_graph"]);
 		this.connection = connection;
 		this.processGraphId = processGraphId;
 	}
 
-	_addMetadata(metadata) {
-		this.title = metadata.title;
-		this.description = metadata.description;
-		return this;  // for chaining
-	}
-
 	describeProcessGraph() {
 		return this.connection._get('/process_graphs/' + this.processGraphId)
-			.then(response => this._addMetadata(response.data));
+			.then(response => this.setAll(response.data));
 	}
 
 	updateProcessGraph(parameters) {
 		return this.connection._patch('/process_graphs/' + this.processGraphId, parameters)
-			.then(response => response.status == 204);
+			.then(() => {
+				if (this.connection._capabilitiesCache.hasFeature('describeProcessGraph')) {
+					return this.describeProcessGraph();
+				}
+				else {
+					this.setAll(parameters);
+					return Promise.resolve(this);
+				}
+			});
 	}
 
 	deleteProcessGraph() {
-		return this.connection._delete('/process_graphs/' + this.processGraphId)
-			.then(response => response.status == 204);
+		return this.connection._delete('/process_graphs/' + this.processGraphId);
 	}
 }
 
 
-class Service {
+class Service extends BaseEntity {
 	constructor(connection, serviceId) {
-		this.connection = connection;
+		super(connection, [["service_id", "serviceId"], "title", "description", "url", "type", "enabled", "submitted", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
-	}
-
-	_addMetadata(metadata) {
-		this.title       = metadata.title;
-		this.description = metadata.description;
-		this.url         = metadata.url;
-		this.type        = metadata.type;
-		this.enabled     = metadata.enabled;
-		this.submitted   = metadata.submitted;
-		this.plan        = metadata.plan;
-		this.costs       = metadata.costs;
-		this.budget      = metadata.budget;
-		return this;  // for chaining
 	}
 
 	describeService() {
 		return this.connection._get('/services/' + this.serviceId)
-			.then(response => this._addMetadata(response.data));
+			.then(response => this.setAll(response.data));
 	}
 
 	updateService(parameters) {
 		return this.connection._patch('/services/' + this.serviceId, parameters)
-			.then(response => response.status == 204);
+			.then(() => {
+				if (this.connection._capabilitiesCache.hasFeature('describeService')) {
+					return this.describeService()
+				}
+				else {
+					this.setAll(parameters);
+					return Promise.resolve(this);
+				}
+			});
 	}
 
 	deleteService() {
-		return this.connection._delete('/services/' + this.serviceId)
-			.then(response => response.status == 204);
+		return this.connection._delete('/services/' + this.serviceId);
 	}
 }
 
