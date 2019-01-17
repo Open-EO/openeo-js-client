@@ -42,30 +42,30 @@ class OpenEO {
 
 class Connection {
 	constructor(baseUrl) {
-		this._baseUrl = baseUrl;
-		this._userId = null;
-		this._token = null;
-		this._subscriptions = new Subscriptions(this);
-		this._capabilitiesCache = null;
+		this.baseUrl = baseUrl;
+		this.userId = null;
+		this.bearerToken = null;
+		this.subscriptionsObject = new Subscriptions(this);
+		this.capabilitiesObject = null;
 	}
 
 	getBaseUrl() {
-		return this._baseUrl;
+		return this.baseUrl;
 	}
 
 	getUserId() {
-		return this._userId;
+		return this.userId;
 	}
 
 	capabilities() {
-		if (this._capabilitiesCache === null) {
+		if (this.capabilitiesObject === null) {
 			return this._get('/').then(response => {
-				this._capabilitiesCache = new Capabilities(response.data);
-				return this._capabilitiesCache;
+				this.capabilitiesObject = new Capabilities(response.data);
+				return this.capabilitiesObject;
 			});
 		}
 		else {
-			return Promise.resolve(this._capabilitiesCache);
+			return Promise.resolve(this.capabilitiesObject);
 		}
 	}
 
@@ -121,8 +121,8 @@ class Connection {
 			if (!response.data.access_token) {
 				throw new Error("No access_token returned.");
 			}
-			this._userId = response.data.user_id;
-			this._token = response.data.access_token;
+			this.userId = response.data.user_id;
+			this.bearerToken = response.data.access_token;
 			return response.data;
 		}).catch(error => {
 			this._resetAuth();
@@ -137,10 +137,10 @@ class Connection {
 
 	listFiles(userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
-			if(this._userId === null) {
+			if(this.userId === null) {
 				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
 			} else {
-				userId = this._userId;
+				userId = this.userId;
 			}
 		}
 		return this._get('/files/' + userId)
@@ -149,10 +149,10 @@ class Connection {
 
 	createFile(name, userId = null) {  // userId defaults to authenticated user
 		if(userId === null) {
-			if(this._userId === null) {
+			if(this.userId === null) {
 				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
 			} else {
-				userId = this._userId;
+				userId = this.userId;
 			}
 		}
 		return Promise.resolve(new File(this, userId, name));
@@ -170,10 +170,11 @@ class Connection {
 	}
 
 	createProcessGraph(processGraph, title = null, description = null) {
-		return this._post('/process_graphs', {title: title, description: description, process_graph: processGraph})
-			.then(response => new ProcessGraph(this, response.headers['openeo-identifier']).setAll({title: title, description: description}))
+		var pgObject = {title: title, description: description, process_graph: processGraph};
+		return this._post('/process_graphs', pgObject)
+			.then(response => new ProcessGraph(this, response.headers['openeo-identifier']).setAll(pgObject))
 			.then(pg => {
-				if (this._capabilitiesCache.hasFeature('describeService')) {
+				if (this.capabilitiesObject.hasFeature('describeProcessGraph')) {
 					return pg.describeProcessGraph();
 				}
 				else {
@@ -217,7 +218,15 @@ class Connection {
 			};
 		}
 		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['openeo-identifier']).setAll({title: title, description: description}));
+			.then(response => new Job(this, response.headers['openeo-identifier']).setAll(jobObject))
+			.then(job => {
+				if (this.capabilitiesObject.hasFeature('describeJob')) {
+					return job.describeJob();
+				}
+				else {
+					return Promise.resolve(job);
+				}
+			});
 	}
 
 	listServices() {
@@ -237,7 +246,15 @@ class Connection {
 			budget: budget
 		};
 		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['openeo-identifier']).setAll({title: title, description: description}));
+			.then(response => new Service(this, response.headers['openeo-identifier']).setAll(serviceObject))
+			.then(service => {
+				if (this.capabilitiesObject.hasFeature('describeService')) {
+					return service.describeService();
+				}
+				else {
+					return Promise.resolve(service);
+				}
+			});
 	}
 
 	_get(path, query, responseType) {
@@ -269,15 +286,6 @@ class Connection {
 		});
 	}
 
-	_put(path, body, contenttype = undefined) {
-		return this._send({
-			method: 'put',
-			url: path,
-			data: body,
-			headers: (contenttype == undefined ? {} : { 'content-type': contenttype })
-		});
-	}
-
 	_delete(path) {
 		return this._send({
 			method: 'delete',
@@ -298,13 +306,13 @@ class Connection {
 	}
 
 	_send(options) {
-		options.baseURL = this._baseUrl;
+		options.baseURL = this.baseUrl;
 		if (this.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
 			options.withCredentials = true;
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers['Authorization'] = 'Bearer ' + this._token;
+			options.headers['Authorization'] = 'Bearer ' + this.bearerToken;
 		}
 		if (options.responseType == 'stream' && !isNode) {
 			options.responseType = 'blob';
@@ -324,20 +332,20 @@ class Connection {
 	}
 
 	_resetAuth() {
-		this._userId = null;
-		this._token = null;
+		this.userId = null;
+		this.bearerToken = null;
 	}
 
 	isLoggedIn() {
-		return (this._token !== null);
+		return (this.bearerToken !== null);
 	}
 
 	subscribe(topic, parameters, callback) {
-		return this._subscriptions.subscribe(topic, parameters, callback);
+		return this.subscriptionsObject.subscribe(topic, parameters, callback);
 	}
 
 	unsubscribe(topic, parameters, callback) {
-		return this._subscriptions.unsubscribe(topic, parameters, callback);
+		return this.subscriptionsObject.unsubscribe(topic, parameters, callback);
 	}
 
 	_saveToFileNode(data, filename) {
@@ -568,7 +576,7 @@ class Capabilities {
 			authenticateBasic: 'GET /credentials/basic',
 			describeAccount: 'GET /me',
 			listFiles: 'GET /files/{user_id}',
-			validateProcessGraph: 'POST /validate',
+			validateProcessGraph: 'POST /validation',
 			createProcessGraph: 'POST /process_graphs',
 			listProcessGraphs: 'GET /process_graphs',
 			execute: 'POST /preview',
@@ -592,7 +600,9 @@ class Capabilities {
 			deleteProcessGraph: 'DELETE /process_graphs/{process_graph_id}',
 			describeService: 'GET /services/{service_id}',
 			updateService: 'PATCH /services/{service_id}',
-			deleteService: 'DELETE /services/{service_id}'
+			deleteService: 'DELETE /services/{service_id}',
+			subscribe: 'GET /subscription',
+			unsubscribe: 'GET /subscription'
 		};
 		
 		// regex-ify to allow custom parameter names
@@ -601,8 +611,7 @@ class Capabilities {
 		}
 
 		if (methodName === 'createFile') {
-			return true;   // Of course it's always possible to create "a (virtual) file".
-			// But maybe it would be smarter to return the value of hasFeature('uploadFile') instead, because that's what the user most likely wants to do
+			return this.hasFeature('uploadFile'); // createFile is always available, map it to uploadFile as it is more meaningful.
 		} else {
 			return this._data.endpoints
 				.map((e) => e.methods.map((method) => method + ' ' + e.path))
@@ -613,11 +622,11 @@ class Capabilities {
 	}
 
 	currency() {
-		return (this._data.billing ? this._data.billing.currency : undefined);
+		return (this._data.billing ? this._data.billing.currency : null);
 	}
 
 	listPlans() {
-		return (this._data.billing ? this._data.billing.plans : undefined);
+		return (this._data.billing ? this._data.billing.plans : null);
 	}
 }
 
@@ -677,22 +686,6 @@ class File extends BaseEntity {
 	constructor(connection, userId, name) {
 		super(connection, ["name", "size", "modified"]);
 		this.userId = userId;
-		this.name = name;
-	}
-
-	setAll(metadata) {
-		// Metadata for files can be "size", "modified", or ANY (!) custom field name.
-		// To prevent overwriting of already existing data we therefore have to delete keys that already
-		// exist in "this" scope from the metadata object (if they exist)
-		delete metadata.connection;
-		delete metadata.userId;
-		delete metadata.name;
-
-		for(var md in metadata) {
-			this[md] = metadata[md];
-		}
-
-		return this;  // for chaining
 	}
 
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
@@ -719,8 +712,37 @@ class File extends BaseEntity {
 		}
 	}
 
-	uploadFile(source) {
-		return this.connection._put('/files/' + this.userId + '/' + this.name, source, 'application/octet-stream');
+	uploadFile(source, statusCallback = null) {
+		var options = {
+			method: 'put',
+			url: '/files/' + this.userId + '/' + this.name,
+			data: source,
+			headers: {
+				'Content-Type': 'application/octet-stream'
+			}
+		};
+		if (typeof statusCallback === 'function') {
+			options.onUploadProgress = function(progressEvent) {
+				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+				statusCallback(percentCompleted);
+			};
+		}
+
+		return this.connection._send(options).then(() => {
+			// ToDo: This should not be self generated, but the API gives no information
+			var size = null;
+			if (typeof source.size === 'number') {
+				size =  source.size;
+			}
+			else if (typeof source.length === 'number') {
+				size =  source.length;
+			}
+			return this.setAll({
+				name: this.name,
+				size: size,
+				modified: (new Date()).toISOString()
+			});
+		});
 	}
 
 	deleteFile() {
@@ -743,7 +765,7 @@ class Job extends BaseEntity {
 	updateJob(parameters) {
 		return this.connection._patch('/jobs/' + this.jobId, parameters)
 			.then(() => {
-				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
 					return this.describeJob();
 				}
 				else {
@@ -765,7 +787,7 @@ class Job extends BaseEntity {
 	startJob() {
 		return this.connection._post('/jobs/' + this.jobId + '/results', {})
 			.then(() => {
-				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
 					return this.describeJob();
 				}
 				else {
@@ -777,7 +799,7 @@ class Job extends BaseEntity {
 	stopJob() {
 		return this.connection._delete('/jobs/' + this.jobId + '/results')
 			.then(() => {
-				if (this.connection._capabilitiesCache.hasFeature('describeJob')) {
+				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
 					return this.describeJob();
 				}
 				else {
@@ -847,7 +869,7 @@ class ProcessGraph extends BaseEntity {
 	updateProcessGraph(parameters) {
 		return this.connection._patch('/process_graphs/' + this.processGraphId, parameters)
 			.then(() => {
-				if (this.connection._capabilitiesCache.hasFeature('describeProcessGraph')) {
+				if (this.connection.capabilitiesObject.hasFeature('describeProcessGraph')) {
 					return this.describeProcessGraph();
 				}
 				else {
@@ -877,12 +899,11 @@ class Service extends BaseEntity {
 	updateService(parameters) {
 		return this.connection._patch('/services/' + this.serviceId, parameters)
 			.then(() => {
-				if (this.connection._capabilitiesCache.hasFeature('describeService')) {
-					return this.describeService()
+				if (this.connection.capabilitiesObject.hasFeature('describeService')) {
+					return this.describeService();
 				}
 				else {
-					this.setAll(parameters);
-					return Promise.resolve(this);
+					return Promise.resolve(this.setAll(parameters));
 				}
 			});
 	}
