@@ -44,9 +44,9 @@ class Connection {
 	constructor(baseUrl) {
 		this.baseUrl = baseUrl;
 		this.userId = null;
-		this.bearerToken = null;
-		this.subscriptionsObject = new Subscriptions(this);
+		this.accessToken = null;
 		this.capabilitiesObject = null;
+		this.subscriptionsObject = new Subscriptions(this);
 	}
 
 	getBaseUrl() {
@@ -122,7 +122,7 @@ class Connection {
 				throw new Error("No access_token returned.");
 			}
 			this.userId = response.data.user_id;
-			this.bearerToken = response.data.access_token;
+			this.accessToken = response.data.access_token;
 			return response.data;
 		}).catch(error => {
 			this._resetAuth();
@@ -312,7 +312,7 @@ class Connection {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers['Authorization'] = 'Bearer ' + this.bearerToken;
+			options.headers['Authorization'] = 'Bearer ' + this.accessToken;
 		}
 		if (options.responseType == 'stream' && !isNode) {
 			options.responseType = 'blob';
@@ -333,11 +333,11 @@ class Connection {
 
 	_resetAuth() {
 		this.userId = null;
-		this.bearerToken = null;
+		this.accessToken = null;
 	}
 
 	isLoggedIn() {
-		return (this.bearerToken !== null);
+		return (this.accessToken !== null);
 	}
 
 	subscribe(topic, parameters, callback) {
@@ -444,7 +444,7 @@ class Subscriptions {
 	_createWebSocket() {
 		if (this.socket === null || this.socket.readyState === this.socket.CLOSING || this.socket.readyState === this.socket.CLOSED) {
 			this.messageQueue = [];
-			var url = this.httpConnection._baseUrl.replace('http', 'ws') + '/subscription';
+			var url = this.httpConnection.getBaseUrl().replace('http', 'ws') + '/subscription';
 
 			if (isNode) {
 				const WebSocket = require('ws');
@@ -508,7 +508,7 @@ class Subscriptions {
 
 	_sendMessage(topic, payload = null, priority = false) {
 		var obj = {
-			authorization: "Bearer " + this.httpConnection._token,
+			authorization: "Bearer " + this.httpConnection.accessToken,
 			message: {
 				topic: "openeo." + topic,
 				issued: (new Date()).toISOString()
@@ -686,6 +686,7 @@ class File extends BaseEntity {
 	constructor(connection, userId, name) {
 		super(connection, ["name", "size", "modified"]);
 		this.userId = userId;
+		this.name = name;
 	}
 
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
@@ -715,9 +716,6 @@ class File extends BaseEntity {
 	_readFromFileNode(path) {
 		var fs = require('fs');
 		return fs.createReadStream(path);
-	}
-
-	_uploadFile(source, statusCallback) {
 	}
 
 	// source for node must be a path to a file as string
@@ -758,7 +756,7 @@ class File extends BaseEntity {
 
 class Job extends BaseEntity {
 	constructor(connection, jobId) {
-		super(connection, [["job_id", "jobId"], "title", "description", "status", "submitted", "updated", "plan", "costs", "budget"]);
+		super(connection, [["job_id", "jobId"], "title", "description", ["process_graph", "processGraph"], "output", "status", "submitted", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
@@ -861,7 +859,7 @@ class Job extends BaseEntity {
 
 class ProcessGraph extends BaseEntity {
 	constructor(connection, processGraphId) {
-		super(connection, [["process_graph_id", "processGraphId"], "title", "description", "process_graph"]);
+		super(connection, [["process_graph_id", "processGraphId"], "title", "description", ["process_graph", "processGraph"]]);
 		this.connection = connection;
 		this.processGraphId = processGraphId;
 	}
@@ -892,7 +890,7 @@ class ProcessGraph extends BaseEntity {
 
 class Service extends BaseEntity {
 	constructor(connection, serviceId) {
-		super(connection, [["service_id", "serviceId"], "title", "description", "url", "type", "enabled", "submitted", "plan", "costs", "budget"]);
+		super(connection, [["service_id", "serviceId"], "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
