@@ -536,11 +536,17 @@ describe('With earth-engine-driver', () => {
 
 	describe('File management', async () => {
 		var con, f;
+		var fileContent = "Lorem ipsum";
+		var fileName = "lorem.txt";
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
 			// clean up
 			var list = await con.listFiles();
 			await Promise.all(list.map(f => f.deleteFile()));
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.writeFileSync(fileName, fileContent);
+			}
 		});
 
 		test('List files in general', async () => {
@@ -550,15 +556,14 @@ describe('With earth-engine-driver', () => {
 		});
 
 		var f;
-		var fileContent = "Lorem ipsum";
 		test('Upload file', async () => {
-			f = await con.createFile('test.txt');
+			f = await con.createFile(fileName);
 			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
-			expect(f.name).toBe('test.txt');
+			expect(f.name).toBe(fileName);
 			expect(f.userId).toBe(TESTUSERNAME);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
-			await f.uploadFile(fileContent);
+			await f.uploadFile(isBrowserEnv ? fileContent : fileName);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(1); // now it should be there
 			expect(Object.getPrototypeOf(files[0]).constructor.name).toBe('File');
@@ -636,11 +641,25 @@ describe('With earth-engine-driver', () => {
 	});
 
 	describe('Subscriptions', async () => {
+		var fileName = 'randomnumber.txt';
+		var prepareFile = async (f) => {
+			var content = Math.random().toString(36);
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.writeFileSync(fileName, content);
+				await f.uploadFile(fileName);
+			}
+			else {
+				await f.uploadFile(content);
+			}
+			return content;
+		}
 		var con, f, iid;
+
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
-			f = await con.createFile('randomnumber.txt');
-			await f.uploadFile(Math.random().toString(36));
+			f = await con.createFile(fileName);
+			await prepareFile(f);
 			done();
 		});
 
@@ -651,13 +670,13 @@ describe('With earth-engine-driver', () => {
 //				expect(message.issued).toBe(... an ISO datetime string);
 				expect(message.topic).toBe('openeo.files');
 				expect(payload.user_id).toBe(TESTUSERNAME);
-				expect(payload.path).toBe('randomnumber.txt');
+				expect(payload.path).toBe(fileName);
 				expect(payload.action).toBe('updated');
 				done();
 			});
 			// Upload files every second to ensure a message is sent by the server during the test.
 			iid = setInterval(async () => {
-				await f.uploadFile(Math.random().toString(36));
+				await prepareFile(f);
 			}, 1000);
 		});
 
