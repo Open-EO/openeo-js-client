@@ -233,6 +233,7 @@ describe('With earth-engine-driver', () => {
 			expect(pg.processGraphId).not.toBeUndefined();
 			expect(pg.title).toBeNull();
 			expect(pg.description).toBeNull();
+			expect(pg.processGraph).toEqual(TESTPROCESSGGRAPH);
 			pg1 = pg;
 		});
 
@@ -246,7 +247,6 @@ describe('With earth-engine-driver', () => {
 			expect(pgs[0].processGraphId).toBe(pg1.processGraphId);
 			expect(pgs[0].title).toBeNull();
 			expect(pgs[0].description).toBeNull();
-			expect(pgs[0]).toEqual(pg1);
 		});
 
 		test('Add process graph with metadata', async () => {
@@ -259,6 +259,7 @@ describe('With earth-engine-driver', () => {
 			expect(pg.processGraphId).not.toBe(pg1.processGraphId);
 			expect(pg.title).toBe('Test title');
 			expect(pg.description).toBe('Test description');
+			expect(pg.processGraph).toEqual(TESTPROCESSGGRAPH);
 			pg2 = pg;
 		});
 
@@ -274,13 +275,6 @@ describe('With earth-engine-driver', () => {
 			expect(pg.processGraphId).toBe(pg2.processGraphId);
 			expect(pg.title).toBe('Test title')
 			expect(pg.description).toBe('Test description');
-			if(pgs[0].processGraphId == pg1.processGraphId) {
-				expect(pgs[0]).toEqual(pg1);
-				expect(pgs[1]).toEqual(pg2);
-			} else {
-				expect(pgs[0]).toEqual(pg2);
-				expect(pgs[1]).toEqual(pg1);
-			}
 			
 		});
 
@@ -288,8 +282,8 @@ describe('With earth-engine-driver', () => {
 			var pg = await pg1.describeProcessGraph();
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
-			expect(pg.process_graph_id).not.toBeNull();
-			expect(pg.process_graph_id).toBe(pg1.processGraphId);
+			expect(pg.processGraphId).not.toBeNull();
+			expect(pg.processGraphId).toBe(pg1.processGraphId);
 			expect(pg.title).toBeNull();
 			expect(pg.description).toBeNull();
 		});
@@ -298,8 +292,8 @@ describe('With earth-engine-driver', () => {
 			var pg = await pg2.describeProcessGraph();
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
-			expect(pg.process_graph_id).not.toBeNull();
-			expect(pg.process_graph_id).toBe(pg2.processGraphId);
+			expect(pg.processGraphId).not.toBeNull();
+			expect(pg.processGraphId).toBe(pg2.processGraphId);
 			expect(pg.title).toBe('Test title');
 			expect(pg.description).toBe('Test description');
 		});
@@ -309,8 +303,8 @@ describe('With earth-engine-driver', () => {
 			var pg = await pg1.describeProcessGraph();
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
-			expect(pg.process_graph_id).not.toBeNull();
-			expect(pg.process_graph_id).toBe(pg1.processGraphId);
+			expect(pg.processGraphId).not.toBeNull();
+			expect(pg.processGraphId).toBe(pg1.processGraphId);
 			expect(pg.title).toBe('Test title 2');
 			expect(pg.description).toBeNull();
 		});
@@ -380,7 +374,7 @@ describe('With earth-engine-driver', () => {
 			var jobdetails = await job.describeJob();
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
-			expect(jobdetails.job_id).toBe(job.jobId);
+			expect(jobdetails.jobId).toBe(job.jobId);
 			expect(jobdetails.title).toBeNull();
 			expect(jobdetails.status).toBe('submitted');
 			expect(typeof jobdetails.submitted).toBe('string');
@@ -392,7 +386,7 @@ describe('With earth-engine-driver', () => {
 			var jobdetails = await job.describeJob();
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
-			expect(jobdetails.job_id).toBe(job.jobId);
+			expect(jobdetails.jobId).toBe(job.jobId);
 			expect(jobdetails.title).toBe('Test job');
 			expect(typeof jobdetails.submitted).toBe('string');
 		});
@@ -516,7 +510,7 @@ describe('With earth-engine-driver', () => {
 			var svcdetails = await svc.describeService();
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
-			expect(svcdetails.service_id).toBe(svc.serviceId);
+			expect(svcdetails.serviceId).toBe(svc.serviceId);
 			expect(svcdetails.title).toBeNull();
 			expect(typeof svcdetails.url).toBe('string');
 		})
@@ -527,7 +521,7 @@ describe('With earth-engine-driver', () => {
 			var svcdetails = await svc.describeService();
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
-			expect(svcdetails.service_id).toBe(svc.serviceId);
+			expect(svcdetails.serviceId).toBe(svc.serviceId);
 			expect(svcdetails.title).toBe('Test service');
 			expect(typeof svcdetails.url).toBe('string');
 		});
