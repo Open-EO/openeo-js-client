@@ -712,7 +712,23 @@ class File extends BaseEntity {
 		}
 	}
 
+	_readFromFileNode(path) {
+		var fs = require('fs');
+		return fs.createReadStream(path);
+	}
+
+	_uploadFile(source, statusCallback) {
+	}
+
+	// source for node must be a path to a file as string
+	// source for browsers must be an object from a file upload form
 	uploadFile(source, statusCallback = null) {
+		if (isNode) {
+			// Use a file stream for node
+			source = this._readFromFileNode(source);
+		}
+		// else: Just use the file object from the browser
+
 		var options = {
 			method: 'put',
 			url: '/files/' + this.userId + '/' + this.name,
@@ -728,20 +744,9 @@ class File extends BaseEntity {
 			};
 		}
 
+		// ToDo: We should set metadata here for convenience as in createJob etc., but the API gives no information.
 		return this.connection._send(options).then(() => {
-			// ToDo: This should not be self generated, but the API gives no information
-			var size = null;
-			if (typeof source.size === 'number') {
-				size =  source.size;
-			}
-			else if (typeof source.length === 'number') {
-				size =  source.length;
-			}
-			return this.setAll({
-				name: this.name,
-				size: size,
-				modified: (new Date()).toISOString()
-			});
+			return this;
 		});
 	}
 
