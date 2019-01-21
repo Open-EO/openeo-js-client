@@ -1,6 +1,6 @@
 const { OpenEO } = require('../openeo.js');
 
-describe('Check version number', () => {
+describe('Basic client tests', () => {
 	var obj = new OpenEO();
 	test('Check that import worked', () => {
 		expect(obj).not.toBeNull();

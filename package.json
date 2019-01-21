@@ -30,7 +30,8 @@
     "ws": "^6.1.2"
   },
   "scripts": {
-    "test": "jest --env=jsdom",
-    "test_node": "jest --env=node"
+    "test": "jest basic.test.js --env=jsdom",
+    "test_node": "jest basic.test.js --env=node",
+    "test_gee": "jest earthengine.test.js --env=node"
   }
 }

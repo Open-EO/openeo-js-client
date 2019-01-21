@@ -926,6 +926,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }
 else {
+	/* istanbul ignore next */
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
 			return toExport;
