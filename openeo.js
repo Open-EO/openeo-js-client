@@ -94,6 +94,21 @@ class Connection {
 			.then(response => response.data);
 	}
 
+	buildProcessGraph() {
+		return this.listProcesses()
+			.then(data => {
+				var builder = {};
+				for(let i in data.processes) {
+					let process = data.processes[i];
+					builder[process.name] = (options) => {
+						options.process_id = process.name;
+						return options;
+					}
+				}
+				return builder;
+			});
+	}
+
 	authenticateOIDC(options = null) {
 		return Promise.reject(new Error("Not implemented yet."));
 	}
@@ -498,7 +513,7 @@ class Subscriptions {
 
 	_flushQueue() {
 		if(this.socket.readyState === this.socket.OPEN) {
-			for(var i in this.messageQueue) {
+			for(let i in this.messageQueue) {
 				this.socket.send(JSON.stringify(this.messageQueue[i]));
 			}
 
@@ -606,7 +621,7 @@ class Capabilities {
 		};
 		
 		// regex-ify to allow custom parameter names
-		for (var key in clientMethodNameToAPIRequestMap) {
+		for(let key in clientMethodNameToAPIRequestMap) {
 			clientMethodNameToAPIRequestMap[key] = clientMethodNameToAPIRequestMap[key].replace(/{[^}]+}/, '{[^}]+}');
 		}
 
@@ -637,8 +652,8 @@ class BaseEntity {
 		this.connection = connection;
 		this.clientNames = {};
 		this.extra = {};
-		for(var i in properties) {
-			var backend, client;
+		for(let i in properties) {
+			let backend, client;
 			if (Array.isArray(properties[i])) {
 				backend = properties[i][0];
 				client = properties[i][1];
@@ -655,7 +670,7 @@ class BaseEntity {
 	}
 
 	setAll(metadata) {
-		for (var name in metadata) {
+		for(let name in metadata) {
 			if (typeof this.clientNames[name] === 'undefined') {
 				this.extra[name] = metadata[name];
 			}
@@ -668,8 +683,8 @@ class BaseEntity {
 
 	getAll() {
 		var obj = {};
-		for (var backend in this.clientNames) {
-			var client = this.clientNames[backend];
+		for(let backend in this.clientNames) {
+			let client = this.clientNames[backend];
 			obj[client] = this[client];
 		}
 		return Object.assign(obj, this.extra);
@@ -836,11 +851,11 @@ class Job extends BaseEntity {
 
 				var promises = [];
 				var files = [];
-				for(var i in list.links) {
-					var link = list.links[i].href;
-					var parsedUrl = url.parse(link);
-					var targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-					var p = this.connection.download(link, false)
+				for(let i in list.links) {
+					let link = list.links[i].href;
+					let parsedUrl = url.parse(link);
+					let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+					let p = this.connection.download(link, false)
 						.then(response => this.connection._saveToFileNode(response.data, targetPath))
 						.then(() => files.push(targetPath));
 					promises.push(p);
@@ -933,7 +948,7 @@ else {
 		});
 	}
 	else {
-		for (let exportObjName in toExport) {
+		for(let exportObjName in toExport) {
 			window[exportObjName] = toExport[exportObjName];
 		}
 	}
