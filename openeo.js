@@ -35,7 +35,7 @@ class OpenEO {
 	}
 
 	version() {
-		return "0.3.0";
+		return "0.3.2";
 	}
 }
 
@@ -568,15 +568,19 @@ class Capabilities {
 		if(!data || !data.version || !data.endpoints) {
 			throw new Error("Data is not a valid Capabilities response");
 		}
-		this._data = data;
+		this.data = data;
+	}
+
+	toPlainObject() {
+		return this.data;
 	}
 
 	version() {
-		return this._data.version;
+		return this.data.version;
 	}
 
 	listFeatures() {
-		return this._data.endpoints;
+		return this.data.endpoints;
 	}
 
 	hasFeature(methodName) {
@@ -628,7 +632,7 @@ class Capabilities {
 		if (methodName === 'createFile') {
 			return this.hasFeature('uploadFile'); // createFile is always available, map it to uploadFile as it is more meaningful.
 		} else {
-			return this._data.endpoints
+			return this.data.endpoints
 				.map((e) => e.methods.map((method) => method + ' ' + e.path))
 				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
 				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
@@ -637,11 +641,11 @@ class Capabilities {
 	}
 
 	currency() {
-		return (this._data.billing ? this._data.billing.currency : null);
+		return (this.data.billing ? this.data.billing.currency : null);
 	}
 
 	listPlans() {
-		return (this._data.billing ? this._data.billing.plans : null);
+		return (this.data.billing ? this.data.billing.plans : null);
 	}
 }
 

@@ -1,4 +1,5 @@
 const { OpenEO } = require('../openeo.js');
+const packageInfo = require('../package.json');
 
 describe('Basic client tests', () => {
 	var obj = new OpenEO();
@@ -7,6 +8,6 @@ describe('Basic client tests', () => {
 		expect(obj).toBeInstanceOf(OpenEO);
 	});
 	test('Check version number', () => {
-		expect(obj.version()).toBe("0.3.0");
+		expect(obj.version()).toBe(packageInfo.version);
 	});
 });

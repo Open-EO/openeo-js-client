@@ -11,8 +11,8 @@ This library can run in a recent browser supporting ECMAScript 2015 or node.js.
 
 To use it in a browser environment simply add the following code to your HTML file:
 ```
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/@openeo/js-client/openeo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client/openeo.js"></script>
 ```
 
 To install it with npm: `npm install @openeo/js-client`
