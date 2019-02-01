@@ -219,7 +219,7 @@ class Connection {
 	}
 
 	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
-		var jobObject = Object.assign(additional, {
+		var jobObject = Object.assign({}, additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -553,7 +553,7 @@ class Subscriptions {
 			parameters = {};
 		}
 
-		var payloadParameters = Object.assign(parameters, { topic: topic });
+		var payloadParameters = Object.assign({}, parameters, { topic: topic });
 
 		this._sendMessage(action, {
 			topics: [payloadParameters]
