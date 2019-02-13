@@ -343,7 +343,48 @@ class Connection {
 				break;
 		}
 
-		return axios(options);
+		return axios(options).catch(error => {
+			return new Promise((resolve, reject) => {
+				if (error.response !== null && typeof error.response === 'object' && error.response.data !== null && typeof error.response.data === 'object' && typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) {
+					// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
+					// See: https://github.com/axios/axios/issues/815
+					try {
+						switch(options.responseType) {
+							case 'blob':
+								const fileReader = new FileReader();
+								fileReader.onerror = () => {
+									fileReader.abort();
+									reject(error);
+								};
+								fileReader.onload = () => {
+									reject(JSON.parse(fileReader.result));
+								};
+								fileReader.readAsText(error.response.data);
+								break;
+							case 'stream':
+								const chunks = "";
+								error.response.data.on("data", chunk => {
+									chunks.push(chunk);
+								});
+								readStream.on("error", () =>  {
+									reject(error);
+								});
+								readStream.on("end", () => {
+									reject(JSON.parse(Buffer.concat(chunks).toString()));
+								});
+								break;
+							default:
+								reject(error);
+						}
+					} catch (exception) {
+						reject(error);
+					}
+				}
+				else {
+					reject(error);
+				}
+			});
+		});
 	}
 
 	_resetAuth() {
@@ -755,7 +796,7 @@ class File extends BaseEntity {
 			}
 		};
 		if (typeof statusCallback === 'function') {
-			options.onUploadProgress = function(progressEvent) {
+			options.onUploadProgress = (progressEvent) => {
 				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
 				statusCallback(percentCompleted);
 			};
