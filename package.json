@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -30,7 +30,8 @@
     "ws": "^6.1.2"
   },
   "scripts": {
-    "test": "jest --env=jsdom",
-    "test_node": "jest --env=node"
+    "test": "jest basic.test.js --env=jsdom",
+    "test_node": "jest basic.test.js --env=node",
+    "test_gee": "jest earthengine.test.js --env=node"
   }
 }

@@ -35,7 +35,7 @@ class OpenEO {
 	}
 
 	version() {
-		return "0.3.0";
+		return "0.3.2";
 	}
 }
 
@@ -92,6 +92,21 @@ class Connection {
 	listProcesses() {
 		return this._get('/processes')
 			.then(response => response.data);
+	}
+
+	buildProcessGraph() {
+		return this.listProcesses()
+			.then(data => {
+				var builder = {};
+				for(let i in data.processes) {
+					let process = data.processes[i];
+					builder[process.name] = (options) => {
+						options.process_id = process.name;
+						return options;
+					}
+				}
+				return builder;
+			});
 	}
 
 	authenticateOIDC(options = null) {
@@ -204,7 +219,7 @@ class Connection {
 	}
 
 	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
-		var jobObject = Object.assign(additional, {
+		var jobObject = Object.assign({}, additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -328,7 +343,48 @@ class Connection {
 				break;
 		}
 
-		return axios(options);
+		return axios(options).catch(error => {
+			return new Promise((resolve, reject) => {
+				if (error.response !== null && typeof error.response === 'object' && error.response.data !== null && typeof error.response.data === 'object' && typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) {
+					// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
+					// See: https://github.com/axios/axios/issues/815
+					try {
+						switch(options.responseType) {
+							case 'blob':
+								const fileReader = new FileReader();
+								fileReader.onerror = () => {
+									fileReader.abort();
+									reject(error);
+								};
+								fileReader.onload = () => {
+									reject(JSON.parse(fileReader.result));
+								};
+								fileReader.readAsText(error.response.data);
+								break;
+							case 'stream':
+								const chunks = "";
+								error.response.data.on("data", chunk => {
+									chunks.push(chunk);
+								});
+								readStream.on("error", () =>  {
+									reject(error);
+								});
+								readStream.on("end", () => {
+									reject(JSON.parse(Buffer.concat(chunks).toString()));
+								});
+								break;
+							default:
+								reject(error);
+						}
+					} catch (exception) {
+						reject(error);
+					}
+				}
+				else {
+					reject(error);
+				}
+			});
+		});
 	}
 
 	_resetAuth() {
@@ -498,7 +554,7 @@ class Subscriptions {
 
 	_flushQueue() {
 		if(this.socket.readyState === this.socket.OPEN) {
-			for(var i in this.messageQueue) {
+			for(let i in this.messageQueue) {
 				this.socket.send(JSON.stringify(this.messageQueue[i]));
 			}
 
@@ -538,7 +594,7 @@ class Subscriptions {
 			parameters = {};
 		}
 
-		var payloadParameters = Object.assign(parameters, { topic: topic });
+		var payloadParameters = Object.assign({}, parameters, { topic: topic });
 
 		this._sendMessage(action, {
 			topics: [payloadParameters]
@@ -553,15 +609,19 @@ class Capabilities {
 		if(!data || !data.version || !data.endpoints) {
 			throw new Error("Data is not a valid Capabilities response");
 		}
-		this._data = data;
+		this.data = data;
+	}
+
+	toPlainObject() {
+		return this.data;
 	}
 
 	version() {
-		return this._data.version;
+		return this.data.version;
 	}
 
 	listFeatures() {
-		return this._data.endpoints;
+		return this.data.endpoints;
 	}
 
 	hasFeature(methodName) {
@@ -606,14 +666,14 @@ class Capabilities {
 		};
 		
 		// regex-ify to allow custom parameter names
-		for (var key in clientMethodNameToAPIRequestMap) {
+		for(let key in clientMethodNameToAPIRequestMap) {
 			clientMethodNameToAPIRequestMap[key] = clientMethodNameToAPIRequestMap[key].replace(/{[^}]+}/, '{[^}]+}');
 		}
 
 		if (methodName === 'createFile') {
 			return this.hasFeature('uploadFile'); // createFile is always available, map it to uploadFile as it is more meaningful.
 		} else {
-			return this._data.endpoints
+			return this.data.endpoints
 				.map((e) => e.methods.map((method) => method + ' ' + e.path))
 				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
 				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
@@ -622,11 +682,11 @@ class Capabilities {
 	}
 
 	currency() {
-		return (this._data.billing ? this._data.billing.currency : null);
+		return (this.data.billing ? this.data.billing.currency : null);
 	}
 
 	listPlans() {
-		return (this._data.billing ? this._data.billing.plans : null);
+		return (this.data.billing ? this.data.billing.plans : null);
 	}
 }
 
@@ -637,8 +697,8 @@ class BaseEntity {
 		this.connection = connection;
 		this.clientNames = {};
 		this.extra = {};
-		for(var i in properties) {
-			var backend, client;
+		for(let i in properties) {
+			let backend, client;
 			if (Array.isArray(properties[i])) {
 				backend = properties[i][0];
 				client = properties[i][1];
@@ -655,7 +715,7 @@ class BaseEntity {
 	}
 
 	setAll(metadata) {
-		for (var name in metadata) {
+		for(let name in metadata) {
 			if (typeof this.clientNames[name] === 'undefined') {
 				this.extra[name] = metadata[name];
 			}
@@ -668,8 +728,8 @@ class BaseEntity {
 
 	getAll() {
 		var obj = {};
-		for (var backend in this.clientNames) {
-			var client = this.clientNames[backend];
+		for(let backend in this.clientNames) {
+			let client = this.clientNames[backend];
 			obj[client] = this[client];
 		}
 		return Object.assign(obj, this.extra);
@@ -736,7 +796,7 @@ class File extends BaseEntity {
 			}
 		};
 		if (typeof statusCallback === 'function') {
-			options.onUploadProgress = function(progressEvent) {
+			options.onUploadProgress = (progressEvent) => {
 				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
 				statusCallback(percentCompleted);
 			};
@@ -836,11 +896,11 @@ class Job extends BaseEntity {
 
 				var promises = [];
 				var files = [];
-				for(var i in list.links) {
-					var link = list.links[i].href;
-					var parsedUrl = url.parse(link);
-					var targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-					var p = this.connection.download(link, false)
+				for(let i in list.links) {
+					let link = list.links[i].href;
+					let parsedUrl = url.parse(link);
+					let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+					let p = this.connection.download(link, false)
 						.then(response => this.connection._saveToFileNode(response.data, targetPath))
 						.then(() => files.push(targetPath));
 					promises.push(p);
@@ -926,13 +986,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }
 else {
+	/* istanbul ignore next */
 	if (typeof define === 'function' && define.amd) {
 		define([], function () {
 			return toExport;
 		});
 	}
 	else {
-		for (let exportObjName in toExport) {
+		for(let exportObjName in toExport) {
 			window[exportObjName] = toExport[exportObjName];
 		}
 	}
