@@ -6,7 +6,7 @@ describe('With earth-engine-driver', () => {
 	const TESTBACKEND = 'http://earthengine.openeo.org/v0.3';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
-	const TESTCAPABILITIES = {"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST","DELETE"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}};
+	const TESTCAPABILITIES = {"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/storage/{job_id}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}};
 	const TESTCOLLECTION = {"name":"USGS/GTOPO30","title":"GTOPO30: Global 30 Arc-Second Elevation","description":"GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). The DEM was derived from several raster and vector sources of topographic information.  Completed in late 1996, GTOPO30 was developed over a three-year period through a collaborative effort led by the U.S. Geological Survey's Center for Earth Resources Observation and Science (EROS). The following organizations  participated by contributing funding or source data:  the National Aeronautics  and Space Administration (NASA), the United Nations Environment Programme/Global Resource Information Database (UNEP/GRID), the U.S. Agency for International Development (USAID), the Instituto Nacional de Estadistica Geografica e Informatica (INEGI) of Mexico, the Geographical Survey Institute  (GSI) of Japan, Manaaki Whenua Landcare Research of New Zealand, and the  Scientific Committee on Antarctic Research (SCAR).","license":"proprietary","extent":{"spatial":[-180,-90,180,90],"temporal":["1996-01-01T00:00:00Z","1996-01-01T00:00:00Z"]}};
 	const TESTPROCESS = {"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}};
 	const TESTPROCESSGGRAPH = {"process_id":"stretch_colors","imagery":{"process_id":"min_time","imagery":{"process_id":"NDVI","imagery":{"process_id":"filter_bbox","imagery":{"process_id":"filter_daterange","imagery":{"process_id":"get_collection","name":"COPERNICUS/S2"},"extent":["2018-01-01T00:00:00Z","2018-01-31T23:59:59Z"]},"extent":{"west":16.1,"south":47.2,"east":16.6,"north":48.6}},"red":"B4","nir":"B8"}},"min":-1,"max":1};
@@ -109,7 +109,7 @@ describe('With earth-engine-driver', () => {
 			var caps = await con.capabilities();
 			expect(caps).not.toBeNull();
 			expect(Object.getPrototypeOf(caps).constructor.name).toBe('Capabilities');
-			expect(caps._data).toEqual(TESTCAPABILITIES);
+			expect(caps.data).toEqual(TESTCAPABILITIES);
 			expect(caps.version()).toBe('0.3.1');
 			expect(caps.listFeatures()).toEqual(TESTCAPABILITIES.endpoints);
 			expect(caps.listPlans()).toEqual(TESTCAPABILITIES.billing.plans);
@@ -396,66 +396,58 @@ describe('With earth-engine-driver', () => {
 			await expect(job.estimateJob()).rejects.toThrow();
 		});
 
-		// Starting, Stopping, and working with results as implemented here only works as GEE computes on the fly.
-		// Other back-ends need more time and therefore we would need to wait here until the started job finished.
-		// Also, stopping jobs may discard results and therefore working with the results may fail.
-		test('Start job', async () => {
+		var targetFolder = Math.random().toString(36);
+		test('Job Results', async (done) => {
+			// Start job
 			await expect(job.startJob()).resolves.toBeTruthy();
 			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('finished');
-		});
+			expect(jobdetails.status).toBe('queued');
 
-		test('List metalink Results', async () => {
-			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('finished');
-			await expect(job.listResults("metalink")).rejects.toThrow();
-		});
+			var interval = setInterval(async () => {
+				var jobdetails = await job.describeJob();
+				if (jobdetails.status !== 'finished') {
+					return; // Wait until finished
+				}
 
-		test('List json Results', async () => {
-			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('finished');
-			var res = await job.listResults();
-			expect(res).not.toBeNull();
-			expect(res).toHaveProperty("costs");
-			expect(res).toHaveProperty("expires");
-			expect(res).toHaveProperty("links");
-			expect(res.links.length).toBeGreaterThan(0);
-			expect(res.links[0]).toHaveProperty("href");
-		});
+				clearInterval(interval);
+				var jobdetails = await job.describeJob();
+				expect(jobdetails.status).toBe('finished');
 
-		var targetFolder = Math.random().toString(36);
-		test('Download results', async () => {
-			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('finished');
-			if (isBrowserEnv) {
-				// Browser environment
-				await expect(job.downloadResults()).rejects.toThrow();
-			}
-			else {
-				// Node environment
-				// Create folder
-				const fs = require('fs');
-				expect(fs.existsSync(targetFolder)).toBeFalsy();
-				fs.mkdirSync(targetFolder);
-				expect(fs.existsSync(targetFolder)).toBeTruthy();
-				// Get links to check against
+				// Get result list
 				var res = await job.listResults();
 				expect(res).not.toBeNull();
+				expect(res).toHaveProperty("costs");
+				expect(res).toHaveProperty("expires");
 				expect(res).toHaveProperty("links");
 				expect(res.links.length).toBeGreaterThan(0);
-				// Download files
-				var files = await job.downloadResults(targetFolder);
-				expect(files.length).toBe(res.links.length);
-				for(var i in files) {
-					expect(fs.existsSync(files[i])).toBeTruthy();
-				}
-			}
-		});
+				expect(res.links[0]).toHaveProperty("href");
 
-		test('Stop job', async () => {
-			await expect(job.stopJob()).resolves.toBeTruthy();
-			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('canceled');
+				// Download results
+				if (isBrowserEnv) {
+					// Browser environment
+					await expect(job.downloadResults()).rejects.toThrow();
+				}
+				else {
+					// Node environment
+					// Create folder
+					const fs = require('fs');
+					expect(fs.existsSync(targetFolder)).toBeFalsy();
+					fs.mkdirSync(targetFolder);
+					expect(fs.existsSync(targetFolder)).toBeTruthy();
+					// Get links to check against
+					var res = await job.listResults();
+					expect(res).not.toBeNull();
+					expect(res).toHaveProperty("links");
+					expect(res.links.length).toBeGreaterThan(0);
+					// Download files
+					var files = await job.downloadResults(targetFolder);
+					expect(files.length).toBe(res.links.length);
+					for(var i in files) {
+						expect(fs.existsSync(files[i])).toBeTruthy();
+					}
+				}
+				done();
+			}, 1000);
 		});
 
 		test('Delete job', async () => {
