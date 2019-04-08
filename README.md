@@ -4,7 +4,7 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-This client is in **version 0.3.3** and supports **openEO API versions 0.3.0 and 0.3.1**. Legacy versions are available as releases.
+This client is in **version 0.4.0** and supports **openEO API versions 0.4.x**. Legacy versions are available as releases.
 
 ## Usage
 This library can run in a recent browser supporting ECMAScript 2015 or node.js.
@@ -23,21 +23,20 @@ To install it with npm run: `npm install @openeo/js-client`
 // Import the library if running in a nodeJS environment
 // const { OpenEO } = require('@openeo/js-client');
 
-var obj = new OpenEO();
 // Show the client version
-console.log("Client Version: " +obj.version());
+console.log("Client Version: " + OpenEO.clientVersion());
 
 try {
   // Connect to the back-end
-  var con = await obj.connect("https://earthengine.openeo.org/v0.3", "basic", {username: "group1", password: "test123"});
+  var con = await OpenEO.connect("https://earthengine.openeo.org", "basic", {username: "group1", password: "test123"});
 
   // Show implemented API version of the back-end
   var capabilities = await con.capabilities();
-  console.log("Server API version: " +capabilities.version());
+  console.log("Server API version: " + capabilities.apiVersion());
 
   // List collection names
   var collections = await con.listCollections();
-  console.log("Collections: " +collections.collections.map(c => c.name));
+  console.log("Collections: " + collections.collections.map(c => c.name));
 
   // List process ids
   var processes = await con.listProcesses();

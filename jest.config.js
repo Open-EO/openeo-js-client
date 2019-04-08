@@ -13,7 +13,8 @@ module.exports = {
   "reporters": [
     "default",
     ["./node_modules/jest-html-reporter", {
-      "pageTitle": "Test Report for openeo-js-client"
+      "pageTitle": "Test Report for openeo-js-client",
+      "outputPath": "./coverage/test-report.html"
     }]
   ]
 

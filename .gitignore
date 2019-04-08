@@ -6,4 +6,7 @@ node_modules/
 .vscode
 
 coverage/
-/test-report.html
+
+/lorem.txt
+/randomnumber.txt
+/downloaded_file.txt

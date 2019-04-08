@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "wait-for-expect": "^1.1.1",
     "ws": "^6.2.1"
   },
   "scripts": {

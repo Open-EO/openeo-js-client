@@ -8,35 +8,53 @@ try {
 } catch(e) {}
 
 class OpenEO {
-	constructor() {
-	}
 
-	connect(url, authType = null, authOptions = null) {
-		var connection = new Connection(url);
-		return connection.capabilities().then(capabilities => {
-			// Check whether back-end is accessible and supports a correct version.
-			if (capabilities.version().startsWith("0.3.")) {
-				if(authType !== null) {
-					switch(authType) {
-						case 'basic':
-							return connection.authenticateBasic(authOptions.username, authOptions.password).then(_ => connection);
-						case 'oidc':
-							return connection.authenticateOIDC(authOptions).then(_ => connection);
-						default:
-							throw new Error("Unknown authentication type.");
-					}
+	static connect(url, authType = null, authOptions = null) {
+		let wellKnownUrl = url.replace(/\/$/i, "") + '/.well-known/openeo';
+		return axios.get(wellKnownUrl)
+			.then(response => {
+				if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
+					throw new Error("Well-Known Document doesn't list any version.");
 				}
-				return Promise.resolve(connection);
-			}
-			else {
-				throw new Error("Server doesn't support API version 0.3.x.");
-			}
-		});
+				let compatibility = Util.mostCompatible(response.data.versions);
+				if (compatibility.length > 0) {
+					return compatibility[0].url;
+				}
+				throw new Error("Server doesn't support API version 0.4.x.");
+			})
+			.catch(() => url)
+			.then(versionedUrl => OpenEO.connectDirect(versionedUrl, authType, authOptions));
 	}
 
-	version() {
-		return "0.3.3";
+	static connectDirect(versionedUrl, authType = null, authOptions = null) {
+		var connection = new Connection(versionedUrl);
+		return connection.capabilities()
+			.then(capabilities => {
+				// Check whether back-end is accessible and supports a correct version.
+				if (capabilities.apiVersion().startsWith("0.4.")) {
+					if(authType !== null) {
+						switch(authType) {
+							case 'basic':
+								return connection.authenticateBasic(authOptions.username, authOptions.password);
+							case 'oidc':
+								return connection.authenticateOIDC(authOptions);
+							default:
+								throw new Error("Unknown authentication type.");
+						}
+					}
+					return Promise.resolve();
+				}
+				else {
+					throw new Error("Server instance doesn't support API version 0.4.x.");
+				}
+			})
+			.then(_ => connection);
 	}
+
+	static clientVersion() {
+		return "0.4.0";
+	}
+
 }
 
 
@@ -97,7 +115,7 @@ class Connection {
 	buildProcessGraph() {
 		return this.listProcesses()
 			.then(data => {
-				var builder = {};
+				let builder = {};
 				for(let i in data.processes) {
 					let process = data.processes[i];
 					builder[process.name] = (options) => {
@@ -165,17 +183,23 @@ class Connection {
 
 	validateProcessGraph(processGraph) {
 		return this._post('/validation', {process_graph: processGraph})
-			.then(() => [true, {}]) // Accepts other status codes than 204, which is not strictly following the spec
-			.catch(error => [false, error.response.data]);
+			.then(response => {
+				if (Array.isArray(response.data.errors)) {
+					return response.data.errors;
+				}
+				else {
+					throw new Error("Invalid validation response received.");
+				}
+			});
 	}
 
 	listProcessGraphs() {
 		return this._get('/process_graphs')
-			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.process_graph_id).setAll(pg)));
+			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.id).setAll(pg)));
 	}
 
 	createProcessGraph(processGraph, title = null, description = null) {
-		var pgObject = {title: title, description: description, process_graph: processGraph};
+		let pgObject = {title: title, description: description, process_graph: processGraph};
 		return this._post('/process_graphs', pgObject)
 			.then(response => new ProcessGraph(this, response.headers['openeo-identifier']).setAll(pgObject))
 			.then(pg => {
@@ -188,8 +212,8 @@ class Connection {
 			});
 	}
 
-	execute(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
-		var requestBody = {
+	computeResult(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
+		let requestBody = {
 			process_graph: processGraph,
 			budget: budget
 		};
@@ -200,16 +224,16 @@ class Connection {
 			};
 		}
 
-		return this._post('/preview', requestBody, 'stream').then(response => response.data);
+		return this._post('/result', requestBody, 'stream').then(response => response.data);
 	}
 
 	listJobs() {
 		return this._get('/jobs')
-			.then(response => response.data.jobs.map(j => new Job(this, j.job_id).setAll(j)));
+			.then(response => response.data.jobs.map(j => new Job(this, j.id).setAll(j)));
 	}
 
 	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
-		var jobObject = Object.assign({}, additional, {
+		let jobObject = Object.assign({}, additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -236,11 +260,11 @@ class Connection {
 
 	listServices() {
 		return this._get('/services')
-			.then(response => response.data.services.map((s) => new Service(this, s.service_id).setAll(s)));
+			.then(response => response.data.services.map((s) => new Service(this, s.id).setAll(s)));
 	}
 
 	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
-		var serviceObject = {
+		let serviceObject = {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -325,13 +349,6 @@ class Connection {
 		if (!options.responseType) {
 			options.responseType = 'json';
 		}
-		switch(options.method) {
-			case 'put':
-			case 'patch':
-			case 'delete':
-				options.validateStatus = status => status == 204;
-				break;
-		}
 
 		return axios(options).catch(error => {
 			return new Promise((resolve, reject) => {
@@ -341,7 +358,7 @@ class Connection {
 					try {
 						switch(options.responseType) {
 							case 'blob':
-								const fileReader = new FileReader();
+								var fileReader = new FileReader();
 								fileReader.onerror = () => {
 									fileReader.abort();
 									reject(error);
@@ -352,7 +369,7 @@ class Connection {
 								fileReader.readAsText(error.response.data);
 								break;
 							case 'stream':
-								const chunks = "";
+								var chunks = "";
 								error.response.data.on("data", chunk => {
 									chunks.push(chunk);
 								});
@@ -404,7 +421,7 @@ class Subscriptions {
 		this.listeners = new Map();
 		this.supportedTopics = [];
 		this.messageQueue = [];
-		this.websocketProtocol = "openeo-v0.3";
+		this.websocketProtocol = "openeo-v0.4";
 	}
 
 	subscribe(topic, parameters, callback) {
@@ -424,7 +441,7 @@ class Subscriptions {
 
 	unsubscribe(topic, parameters) {
 		// get all listeners for the topic
-		var topicListeners = this.listeners.get(topic);
+		let topicListeners = this.listeners.get(topic);
 		
 		if(!parameters) {
 			parameters = {};
@@ -455,10 +472,10 @@ class Subscriptions {
 	_createWebSocket() {
 		if (this.socket === null || this.socket.readyState === this.socket.CLOSING || this.socket.readyState === this.socket.CLOSED) {
 			this.messageQueue = [];
-			var url = this.httpConnection.getBaseUrl().replace('http', 'ws') + '/subscription';
+			let url = this.httpConnection.getBaseUrl().replace('http', 'ws') + '/subscription';
 
 			if (isNode) {
-				const WebSocket = require('ws');
+				var WebSocket = require('ws');
 				this.socket = new WebSocket(url, this.websocketProtocol);
 			}
 			else {
@@ -484,14 +501,14 @@ class Subscriptions {
 
 	_receiveMessage(event) {
 		// ToDo: Add error handling
-		var json = JSON.parse(event.data);
+		let json = JSON.parse(event.data);
 		if (json.message.topic == 'openeo.welcome') {
 			this.supportedTopics = json.payload.topics;
 		}
 		else {
 			// get listeners for topic
-			var topicListeners = this.listeners.get(json.message.topic);
-			var callback;
+			let topicListeners = this.listeners.get(json.message.topic);
+			let callback;
 			// we should now have a Map in which to look for the correct listener
 			if (topicListeners && topicListeners instanceof Map) {
 				callback = topicListeners.get(Util.hash({}))   // default: without parameters
@@ -518,7 +535,7 @@ class Subscriptions {
 	}
 
 	_sendMessage(topic, payload = null, priority = false) {
-		var obj = {
+		let obj = {
 			authorization: "Bearer " + this.httpConnection.accessToken,
 			message: {
 				topic: "openeo." + topic,
@@ -549,7 +566,7 @@ class Subscriptions {
 			parameters = {};
 		}
 
-		var payloadParameters = Object.assign({}, parameters, { topic: topic });
+		let payloadParameters = Object.assign({}, parameters, { topic: topic });
 
 		this._sendMessage(action, {
 			topics: [payloadParameters]
@@ -561,9 +578,16 @@ class Subscriptions {
 
 class Capabilities {
 	constructor(data) {
-		if(!data || !data.version || !data.endpoints) {
-			throw new Error("Data is not a valid Capabilities response");
+		if(!data || typeof data !== 'object') {
+			throw new Error("No capabilities retrieved.");
 		}
+		if(!data.api_version) {
+			throw new Error("Invalid capabilities: No API version retrieved");
+		}
+		if(!Array.isArray(data.endpoints)) {
+			throw new Error("Invalid capabilities: No endpoints retrieved");
+		}
+
 		this.data = data;
 	}
 
@@ -571,8 +595,20 @@ class Capabilities {
 		return this.data;
 	}
 
-	version() {
-		return this.data.version;
+	apiVersion() {
+		return this.data.api_version;
+	}
+
+	backendVersion() {
+		return this.data.backend_version;
+	}
+
+	title() {
+		return this.data.title;
+	}
+
+	description() {
+		return this.data.description;
 	}
 
 	listFeatures() {
@@ -580,7 +616,7 @@ class Capabilities {
 	}
 
 	hasFeature(methodName) {
-		var clientMethodNameToAPIRequestMap = {
+		const clientMethodNameToAPIRequestMap = {
 			capabilities: 'GET /',
 			listFileTypes: 'GET /output_formats',
 			listServiceTypes: 'GET /service_types',
@@ -594,7 +630,7 @@ class Capabilities {
 			validateProcessGraph: 'POST /validation',
 			createProcessGraph: 'POST /process_graphs',
 			listProcessGraphs: 'GET /process_graphs',
-			execute: 'POST /preview',
+			computeResult: 'POST /result',
 			listJobs: 'GET /jobs',
 			createJob: 'POST /jobs',
 			listServices: 'GET /services',
@@ -682,7 +718,7 @@ class BaseEntity {
 	}
 
 	getAll() {
-		var obj = {};
+		let obj = {};
 		for(let backend in this.clientNames) {
 			let client = this.clientNames[backend];
 			obj[client] = this[client];
@@ -698,16 +734,16 @@ class BaseEntity {
 
 
 class File extends BaseEntity {
-	constructor(connection, userId, name) {
-		super(connection, ["name", "size", "modified"]);
+	constructor(connection, userId, path) {
+		super(connection, ["path", "size", "modified"]);
 		this.userId = userId;
-		this.name = name;
+		this.path = path;
 	}
 
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
 	// Otherwise writes downloaded file to target.
 	downloadFile(target = null) {
-		return this.connection.download('/files/' + this.userId + '/' + this.name, true)
+		return this.connection.download('/files/' + this.userId + '/' + this.path, true)
 			.then(response => {
 				if (target === null) {
 					return Promise.resolve(response.data);
@@ -742,9 +778,9 @@ class File extends BaseEntity {
 		}
 		// else: Just use the file object from the browser
 
-		var options = {
+		let options = {
 			method: 'put',
-			url: '/files/' + this.userId + '/' + this.name,
+			url: '/files/' + this.userId + '/' + this.path,
 			data: source,
 			headers: {
 				'Content-Type': 'application/octet-stream'
@@ -752,7 +788,7 @@ class File extends BaseEntity {
 		};
 		if (typeof statusCallback === 'function') {
 			options.onUploadProgress = (progressEvent) => {
-				var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+				let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
 				statusCallback(percentCompleted);
 			};
 		}
@@ -764,14 +800,14 @@ class File extends BaseEntity {
 	}
 
 	deleteFile() {
-		return this.connection._delete('/files/' + this.userId + '/' + this.name);
+		return this.connection._delete('/files/' + this.userId + '/' + this.path);
 	}
 }
 
 
 class Job extends BaseEntity {
 	constructor(connection, jobId) {
-		super(connection, [["job_id", "jobId"], "title", "description", ["process_graph", "processGraph"], "output", "status", "submitted", "updated", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "submitted", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
@@ -833,7 +869,7 @@ class Job extends BaseEntity {
 		} else {
 			return this.connection._get('/jobs/' + this.jobId + '/results').then(response => {
 				// Returning null for missing headers is not strictly following the spec
-				var headerData = {
+				let headerData = {
 					costs: response.headers['openeo-costs'] || null,
 					expires: response.headers['expires'] || null
 				};
@@ -849,8 +885,8 @@ class Job extends BaseEntity {
 				var url = require("url");
 				var path = require("path");
 
-				var promises = [];
-				var files = [];
+				let promises = [];
+				let files = [];
 				for(let i in list.links) {
 					let link = list.links[i].href;
 					let parsedUrl = url.parse(link);
@@ -874,7 +910,7 @@ class Job extends BaseEntity {
 
 class ProcessGraph extends BaseEntity {
 	constructor(connection, processGraphId) {
-		super(connection, [["process_graph_id", "processGraphId"], "title", "description", ["process_graph", "processGraph"]]);
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"]]);
 		this.connection = connection;
 		this.processGraphId = processGraphId;
 	}
@@ -905,7 +941,7 @@ class ProcessGraph extends BaseEntity {
 
 class Service extends BaseEntity {
 	constructor(connection, serviceId) {
-		super(connection, [["service_id", "serviceId"], "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
@@ -939,7 +975,7 @@ class Util {
 			return btoa(str);
 		}
 		else {
-			var buffer;
+			let buffer;
 			if (str instanceof Buffer) {
 				buffer = str;
 			} else {
@@ -972,21 +1008,21 @@ class Util {
 
 	// See: https://en.wikipedia.org/wiki/Jenkins_hash_function
 	static hashString(b) {
-		for(var a=0,c=b.length;c--;) {
-			a+=b.charCodeAt(c);
-			a+=a<<10;
-			a^=a>>6;
+		for(var a = 0, c = b.length; c--; ) {
+			a += b.charCodeAt(c);
+			a += a<<10;
+			a ^= a>>6;
 		}
-		a+=a<<3;
-		a^=a>>11;
-		a+=a<<15;
+		a += a<<3;
+		a ^= a>>11;
+		a += a<<15;
 		return ((a&4294967295)>>>0).toString(16);
 	}
 
 	static saveToFileNode(data, filename) {
 		var fs = require('fs');
 		return new Promise((resolve, reject) => {
-			var writeStream = fs.createWriteStream(filename);
+			let writeStream = fs.createWriteStream(filename);
 			writeStream.on('close', (err) => {
 				if (err) {
 					return reject(err);
@@ -1000,9 +1036,9 @@ class Util {
 	/* istanbul ignore next */
 	static saveToFileBrowser(data, filename) {
 		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
-		var blob = new Blob([data], {type: 'application/octet-stream'});
-		var blobURL = window.URL.createObjectURL(blob);
-		var tempLink = document.createElement('a');
+		let blob = new Blob([data], {type: 'application/octet-stream'});
+		let blobURL = window.URL.createObjectURL(blob);
+		let tempLink = document.createElement('a');
 		tempLink.style.display = 'none';
 		tempLink.href = blobURL;
 		tempLink.setAttribute('download', filename); 
@@ -1016,6 +1052,47 @@ class Util {
 		document.body.removeChild(tempLink);
 		window.URL.revokeObjectURL(blobURL);
 		return Promise.resolve();
+	}
+
+	static mostCompatible(versions) {
+		if (!Array.isArray(versions)) {
+			return [];
+		}
+
+		let compatible = versions.filter(c => typeof c.url === 'string' && typeof c.api_version === 'string' && c.api_version.startsWith("0.4."));
+		if (compatible.length === 0) {
+			return compatible;
+		}
+
+		return compatible.sort(Util.compatibility);
+	}
+
+	static compatibility(c1, c2) {
+		// This is a quite dumb sorting algorithm for version numbers
+		let v1 = Number.parseInt(c1.api_version.substr(4));
+		let v2 = Number.parseInt(c2.api_version.substr(4));
+		let p1 = c1.production !== false;
+		let p2 = c2.production !== false;
+		if (p1 === p2) {
+			if (v1 > v2) {
+				return -1;
+			}
+			else if (v1 < v2) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+		else if (p1) {
+			return -1;
+		}
+		else if (p2) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	}
 }
 
