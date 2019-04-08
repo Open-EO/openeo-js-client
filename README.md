@@ -74,15 +74,13 @@ try {
       },
       "process_id": "max_time"
     };
-  	var preview = await con.execute(processGraph, "png");
-  	// This returns a Blob object with data you could further process or show.
+    var preview = await con.execute(processGraph, "png");
+    // This returns a Blob object containing a binary PNG file you could further process or show.
   }
 } catch(e) {
   console.log(e);
 }
 ```
-
-
 
 ## Interactive JS Editor
 
