@@ -165,7 +165,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Getting user-specific data', async () => {
+	describe('Getting user-specific data', () => {
 		var con;
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
@@ -179,7 +179,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Process graph validation', async () => {
+	describe('Process graph validation', () => {
 		var con;
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
@@ -206,7 +206,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Stored process graphs management', async () => {
+	describe('Stored process graphs management', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -319,7 +319,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Previews', async () => {
+	describe('Previews', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -343,7 +343,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Job management', async () => {
+	describe('Job management', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -471,7 +471,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Secondary Services management', async () => {
+	describe('Secondary Services management', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -526,7 +526,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('File management', async () => {
+	describe('File management', () => {
 		var con, f;
 		var fileContent = "Lorem ipsum";
 		var fileName = "lorem.txt";
@@ -632,7 +632,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Subscriptions', async () => {
+	describe('Subscriptions', () => {
 		var fileName = 'randomnumber.txt';
 		var prepareFile = async (f) => {
 			var content = Math.random().toString(36);
@@ -675,15 +675,6 @@ describe('With earth-engine-driver', () => {
 		afterAll(async (done) => {
 			await f.deleteFile();
 			done();
-		});
-	});
-	
-	describe('Other tests', () => {
-		test('Base64 encoder', async () => {
-			await connectWithoutAuth().then(con => {
-				expect(con._base64encode(Buffer.from("test"))).toBe("dGVzdA==");
-				expect(con._base64encode("test")).toBe("dGVzdA==");
-			});
 		});
 	});
 
