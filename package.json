@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -22,12 +22,12 @@
   },
   "main": "openeo.js",
   "devDependencies": {
-    "jest": "^23.5.0",
+    "jest": "^24.7.1",
     "jest-html-reporter": "^2.4.2"
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "ws": "^6.1.2"
+    "ws": "^6.2.1"
   },
   "scripts": {
     "test": "jest basic.test.js --env=jsdom",

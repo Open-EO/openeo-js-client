@@ -15,7 +15,7 @@ class OpenEO {
 		var connection = new Connection(url);
 		return connection.capabilities().then(capabilities => {
 			// Check whether back-end is accessible and supports a correct version.
-			if (capabilities.version().startsWith("0.3")) {
+			if (capabilities.version().startsWith("0.3.")) {
 				if(authType !== null) {
 					switch(authType) {
 						case 'basic':
@@ -35,7 +35,7 @@ class OpenEO {
 	}
 
 	version() {
-		return "0.3.2";
+		return "0.3.3";
 	}
 }
 
@@ -113,22 +113,12 @@ class Connection {
 		return Promise.reject(new Error("Not implemented yet."));
 	}
 
-	_base64encode(str) {
-		var buffer;
-		if (str instanceof Buffer) {
-			buffer = str;
-		} else {
-			buffer = Buffer.from(str.toString(), 'binary');
-		}
-		return buffer.toString('base64');
-	}
-
 	authenticateBasic(username, password) {
 		return this._send({
 			method: 'get',
 			responseType: 'json',
 			url: '/credentials/basic',
-			headers: {'Authorization': 'Basic ' + this._base64encode(username + ':' + password)}  // btoa is JS's ugly name for encodeBase64
+			headers: {'Authorization': 'Basic ' + Util.base64encode(username + ':' + password)}
 		}).then(response => {
 			if (!response.data.user_id) {
 				throw new Error("No user_id returned.");
@@ -403,41 +393,6 @@ class Connection {
 	unsubscribe(topic, parameters, callback) {
 		return this.subscriptionsObject.unsubscribe(topic, parameters, callback);
 	}
-
-	_saveToFileNode(data, filename) {
-		var fs = require('fs');
-		return new Promise((resolve, reject) => {
-			var writeStream = fs.createWriteStream(filename);
-			writeStream.on('close', (err) => {
-				if (err) {
-					return reject(err);
-				}
-				resolve();
-			});
-			data.pipe(writeStream);
-		});
-	}
-
-	/* istanbul ignore next */
-	_saveToFileBrowser(data, filename) {
-		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
-		var blob = new Blob([data], {type: 'application/octet-stream'});
-		var blobURL = window.URL.createObjectURL(blob);
-		var tempLink = document.createElement('a');
-		tempLink.style.display = 'none';
-		tempLink.href = blobURL;
-		tempLink.setAttribute('download', filename); 
-		
-		if (typeof tempLink.download === 'undefined') {
-			tempLink.setAttribute('target', '_blank');
-		}
-		
-		document.body.appendChild(tempLink);
-		tempLink.click();
-		document.body.removeChild(tempLink);
-		window.URL.revokeObjectURL(blobURL);
-		return Promise.resolve();
-	}
 }
 
 
@@ -461,7 +416,7 @@ class Subscriptions {
 			if(!this.listeners.has(topic)) {
 				this.listeners.set(topic, new Map());
 			}
-			this.listeners.get(topic).set(JSON.stringify(parameters), callback);
+			this.listeners.get(topic).set(Util.hash(parameters), callback);
 		}
 
 		this._sendSubscription('subscribe', topic, parameters);
@@ -477,7 +432,7 @@ class Subscriptions {
 
 		// remove the applicable sub-callback
 		if(topicListeners instanceof Map) {
-			topicListeners.delete(JSON.stringify(parameters));
+			topicListeners.delete(Util.hash(parameters));
 		} else {
 			return Promise.reject(new Error("this.listeners must be a Map of Maps"));
 		}
@@ -539,8 +494,8 @@ class Subscriptions {
 			var callback;
 			// we should now have a Map in which to look for the correct listener
 			if (topicListeners && topicListeners instanceof Map) {
-				callback = topicListeners.get('{}')   // default: without parameters
-						|| topicListeners.get('{"job_id":"' + json.payload.job_id + '"}');
+				callback = topicListeners.get(Util.hash({}))   // default: without parameters
+						|| topicListeners.get(Util.hash({job_id: json.payload.job_id}));
 						// more parameter checks possible
 			}
 			// if we now have a function, we can call it with the information
@@ -765,11 +720,11 @@ class File extends BaseEntity {
 
 	_saveToFile(data, filename) {
 		if (isNode) {
-			return this.connection._saveToFileNode(data, filename);
+			return Util.saveToFileNode(data, filename);
 		}
 		else {
 			/* istanbul ignore next */
-			return this.connection._saveToFileBrowser(data, filename);
+			return Util.saveToFileBrowser(data, filename);
 		}
 	}
 
@@ -901,7 +856,7 @@ class Job extends BaseEntity {
 					let parsedUrl = url.parse(link);
 					let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
 					let p = this.connection.download(link, false)
-						.then(response => this.connection._saveToFileNode(response.data, targetPath))
+						.then(response => Util.saveToFileNode(response.data, targetPath))
 						.then(() => files.push(targetPath));
 					promises.push(p);
 				}
@@ -976,9 +931,97 @@ class Service extends BaseEntity {
 	}
 }
 
+class Util {
+
+	static base64encode(str) {
+		if (typeof btoa === 'function') {
+			// btoa is JS's ugly name for encodeBase64
+			return btoa(str);
+		}
+		else {
+			var buffer;
+			if (str instanceof Buffer) {
+				buffer = str;
+			} else {
+				buffer = Buffer.from(str.toString(), 'binary');
+			}
+			return buffer.toString('base64');
+		}
+	}
+
+	// Non-crypthographic / unsafe hashing for objects
+	static hash(o) {
+		switch(typeof o) {
+			case 'boolean':
+				return Util.hashString("b:" + o.toString());
+			case 'number':
+				return Util.hashString("n:" + o.toString());
+			case 'string':
+				return Util.hashString("s:" + o);
+			case 'object':
+				if (o === null) {
+					return Util.hashString("n:");
+				}
+				else {
+					return Util.hashString(Object.keys(o).sort().map(k => "o:" + k + ":" + Util.hash(o[k])).join("::"));
+				}
+			default:
+				return Util.hashString(typeof o);
+		}
+	}
+
+	// See: https://en.wikipedia.org/wiki/Jenkins_hash_function
+	static hashString(b) {
+		for(var a=0,c=b.length;c--;) {
+			a+=b.charCodeAt(c);
+			a+=a<<10;
+			a^=a>>6;
+		}
+		a+=a<<3;
+		a^=a>>11;
+		a+=a<<15;
+		return ((a&4294967295)>>>0).toString(16);
+	}
+
+	static saveToFileNode(data, filename) {
+		var fs = require('fs');
+		return new Promise((resolve, reject) => {
+			var writeStream = fs.createWriteStream(filename);
+			writeStream.on('close', (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+			data.pipe(writeStream);
+		});
+	}
+
+	/* istanbul ignore next */
+	static saveToFileBrowser(data, filename) {
+		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+		var blob = new Blob([data], {type: 'application/octet-stream'});
+		var blobURL = window.URL.createObjectURL(blob);
+		var tempLink = document.createElement('a');
+		tempLink.style.display = 'none';
+		tempLink.href = blobURL;
+		tempLink.setAttribute('download', filename); 
+		
+		if (typeof tempLink.download === 'undefined') {
+			tempLink.setAttribute('target', '_blank');
+		}
+		
+		document.body.appendChild(tempLink);
+		tempLink.click();
+		document.body.removeChild(tempLink);
+		window.URL.revokeObjectURL(blobURL);
+		return Promise.resolve();
+	}
+}
 
 let toExport = {
-	OpenEO: OpenEO
+	OpenEO: OpenEO,
+	Util: Util
 };
 
 // explanation: https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
