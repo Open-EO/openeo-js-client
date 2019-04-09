@@ -644,7 +644,7 @@ describe('With earth-engine-driver', () => {
 			}
 			return content;
 		}
-		var con, f, iid;
+		var con, f;
 
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
@@ -655,7 +655,6 @@ describe('With earth-engine-driver', () => {
 
 		test('Subscribe to openeo.files', async (done) => {
 			con.subscribe('openeo.files', {}, (payload, message) => {
-				clearInterval(iid); // Stop uploading files
 				con.unsubscribe('openeo.files', {}); // Unsubscribe to avoid receiving the file delete message
 //				expect(message.issued).toBe(... an ISO datetime string);
 				expect(message.topic).toBe('openeo.files');
@@ -667,7 +666,7 @@ describe('With earth-engine-driver', () => {
 			// Upload files every second to ensure a message is sent by the server during the test.
 			await waitForExpect(async () => {
 				await prepareFile(f);
-			}, 10000, 1000);
+			}, 50000, 2000);
 		});
 
 		afterAll(async (done) => {
