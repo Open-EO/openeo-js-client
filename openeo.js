@@ -2,63 +2,121 @@ if (typeof axios === 'undefined') {
 	var axios = require("axios");
 }
 
+/**
+ * Flag that indicated whether we are nunning in a NodeJS environment (`true`) or not (`false`).
+ * 
+ * @var {boolean}
+ */
 var isNode = false;
 try {
 	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
 } catch(e) {}
 
+/**
+ * Main class to start with openEO. Allows to connect to a server.
+ * 
+ * @class
+ * @hideconstructor
+ */
 class OpenEO {
 
-	static connect(url, authType = null, authOptions = null) {
-		let wellKnownUrl = url.replace(/\/$/i, "") + '/.well-known/openeo';
-		return axios.get(wellKnownUrl)
-			.then(response => {
-				if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
-					throw new Error("Well-Known Document doesn't list any version.");
-				}
-				let compatibility = Util.mostCompatible(response.data.versions);
-				if (compatibility.length > 0) {
-					return compatibility[0].url;
-				}
-				throw new Error("Server doesn't support API version 0.4.x.");
-			})
-			.catch(() => url)
-			.then(versionedUrl => OpenEO.connectDirect(versionedUrl, authType, authOptions));
+	/**
+	 * Connect to a back-end with version discovery (recommended).
+	 * 
+	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
+	 * Requests the capabilities and authenticates where required.
+	 * 
+	 * @async
+	 * @param {string} url - The server URL to connect to.
+	 * @param {string} [authType=null] - 
+	 * @param {object} [authOptions={}] - 
+	 * @param {string} [authOptions.username] - HTTP Basic only: Username
+	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @returns {Connection}
+	 * @throws {Error}
+	 * @static
+	 */
+	static async connect(url, authType = null, authOptions = {}) {
+		let wellKnownUrl = url.replace(/\/$/, "") + '/.well-known/openeo';
+		let response = await axios.get(wellKnownUrl);
+		if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
+			throw new Error("Well-Known Document doesn't list any version.");
+		}
+
+		let compatibility = Util.mostCompatible(response.data.versions);
+		if (compatibility.length > 0) {
+			url = compatibility[0].url;
+		}
+		else {
+			throw new Error("Server doesn't support API version 0.4.x.");
+		}
+
+		return OpenEO.connectDirect(url, authType, authOptions);
 	}
 
-	static connectDirect(versionedUrl, authType = null, authOptions = null) {
-		var connection = new Connection(versionedUrl);
-		return connection.capabilities()
-			.then(capabilities => {
-				// Check whether back-end is accessible and supports a correct version.
-				if (capabilities.apiVersion().startsWith("0.4.")) {
-					if(authType !== null) {
-						switch(authType) {
-							case 'basic':
-								return connection.authenticateBasic(authOptions.username, authOptions.password);
-							case 'oidc':
-								return connection.authenticateOIDC(authOptions);
-							default:
-								throw new Error("Unknown authentication type.");
-						}
-					}
-					return Promise.resolve();
-				}
-				else {
-					throw new Error("Server instance doesn't support API version 0.4.x.");
-				}
-			})
-			.then(_ => connection);
+	/**
+	 * Connects directly to a back-end instance, without version discovery (NOT recommended).
+	 * 
+	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
+	 * 
+	 * @async
+	 * @param {string} url - The server URL to connect to.
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect or `null` to disable authentication.
+	 * @param {object} [authOptions={}] - Object with authentication options.
+	 * @param {string} [authOptions.username] - HTTP Basic only: Username
+	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @returns {Connection}
+	 * @throws {Error}
+	 * @static
+	 */
+	static async connectDirect(versionedUrl, authType = null, authOptions = {}) {
+		let connection = new Connection(versionedUrl);
+
+		// Check whether back-end is accessible and supports a compatible version.
+		let capabilities = await connection.init();
+		if (!capabilities.apiVersion().startsWith("0.4.")) {
+			throw new Error("Server instance doesn't support API version 0.4.x.");
+		}
+
+		if(authType !== null) {
+			switch(authType) {
+				case 'basic':
+					return await connection.authenticateBasic(authOptions.username, authOptions.password);
+				case 'oidc':
+					return await connection.authenticateOIDC(authOptions);
+				default:
+					throw new Error("Unknown authentication type.");
+			}
+		}
+
+		return connection;
 	}
 
+	/**
+	 * Returns the version number of the client.
+	 * 
+	 * Not to confuse with the API version(s) supported by the client.
+	 * 
+	 * @returns {string} Version number (according to SemVer).
+	 */
 	static clientVersion() {
 		return "0.4.0";
 	}
 
 }
 
-
+/**
+ * A connection to a back-end.
+ * 
+ * @class
+ */
 class Connection {
+
+	/**
+	 * Creates a new Connection.
+	 * 
+	 * @param {string} baseUrl - URL to the back-end
+	 */
 	constructor(baseUrl) {
 		this.baseUrl = baseUrl;
 		this.userId = null;
@@ -67,204 +125,377 @@ class Connection {
 		this.subscriptionsObject = new Subscriptions(this);
 	}
 
+	/**
+	 * Initializes the connection by requesting the capabilities.
+	 * 
+	 * @async
+	 * @returns {Capabilities} Capabilities
+	 */
+	async init() {
+		let response = await this._get('/');
+		this.capabilitiesObject = new Capabilities(response.data);
+		return this.capabilitiesObject;
+	}
+
+	/**
+	 * Returns the URL of the back-end currently connected to.
+	 * 
+	 * @returns {string} The URL or the back-end.
+	 */
 	getBaseUrl() {
 		return this.baseUrl;
 	}
 
+	/**
+	 * Returns the identifier of the user that is currently authenticated at the back-end.
+	 * 
+	 * @returns {string} ID of the authenticated user.
+	 */
 	getUserId() {
 		return this.userId;
 	}
 
+	/**
+	 * Returns the capabilities of the back-end.
+	 * 
+	 * @returns {Capabilities} Capabilities
+	 */
 	capabilities() {
-		if (this.capabilitiesObject === null) {
-			return this._get('/').then(response => {
-				this.capabilitiesObject = new Capabilities(response.data);
-				return this.capabilitiesObject;
-			});
-		}
-		else {
-			return Promise.resolve(this.capabilitiesObject);
-		}
+		return this.capabilitiesObject;
 	}
 
-	listFileTypes() {
-		return this._get('/output_formats')
-			.then(response => response.data);
+	/**
+	 * List the supported output file formats.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listFileTypes() {
+		let response = await this._get('/output_formats');
+		return response.data;
 	}
 
-	listServiceTypes() {
-		return this._get('/service_types')
-			.then(response => response.data);
+	/**
+	 * List the supported secondary service types.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listServiceTypes() {
+		let response = await this._get('/service_types');
+		return response.data;
 	}
 
-	listCollections() {
-		return this._get('/collections')
-			.then(response => response.data);
+	/**
+	 * List the supported UDF runtimes.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listUdfRuntimes() {
+		let response = await this._get('/udf_runtimes');
+		return response.data;
 	}
 
-	describeCollection(name) {
-		return this._get('/collections/' + name)
-			.then(response => response.data);
+	/**
+	 * List all collections available on the back-end.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listCollections() {
+		let response = await this._get('/collections');
+		return response.data;
 	}
 
-	listProcesses() {
-		return this._get('/processes')
-			.then(response => response.data);
+	/**
+	 * Get further information about a single collection.
+	 * 
+	 * @async
+	 * @param {string} collection_id - Collection ID to request further metadata for.
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async describeCollection(collection_id) {
+		let response = await this._get('/collections/' + collection_id);
+		return response.data;
 	}
 
-	buildProcessGraph() {
-		return this.listProcesses()
-			.then(data => {
-				let builder = {};
-				for(let i in data.processes) {
-					let process = data.processes[i];
-					builder[process.name] = (options) => {
-						options.process_id = process.name;
-						return options;
-					}
-				}
-				return builder;
-			});
+	/**
+	 * List all processes available on the back-end.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listProcesses() {
+		let response = await this._get('/processes');
+		return response.data;
 	}
 
-	authenticateOIDC(options = null) {
-		return Promise.reject(new Error("Not implemented yet."));
+	/**
+	 * Authenticate with OpenID Connect (OIDC).
+	 * 
+	 * Not required to be called explicitly if specified in `OpenEO.connect`.
+	 * 
+	 * @param {object} options - Options for OIDC authentication.
+	 * @returns {object}
+	 * @throws {Error}
+	 * @todo Implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
+	 */
+	async authenticateOIDC(options = null) {
+		throw new Error("Not implemented yet.");
 	}
 
-	authenticateBasic(username, password) {
-		return this._send({
+	/**
+	 * Authenticate with HTTP Basic.
+	 * 
+	 * Not required to be called explicitly if specified in `OpenEO.connect`.
+	 * 
+	 * @async
+	 * @param {object} options - Options for Basic authentication.
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async authenticateBasic(username, password) {
+		let response = await this._send({
 			method: 'get',
 			responseType: 'json',
 			url: '/credentials/basic',
 			headers: {'Authorization': 'Basic ' + Util.base64encode(username + ':' + password)}
-		}).then(response => {
-			if (!response.data.user_id) {
-				throw new Error("No user_id returned.");
-			}
-			if (!response.data.access_token) {
-				throw new Error("No access_token returned.");
-			}
-			this.userId = response.data.user_id;
-			this.accessToken = response.data.access_token;
-			return response.data;
-		}).catch(error => {
-			this._resetAuth();
-			throw error;
 		});
-	}
-
-	describeAccount() {
-		return this._get('/me')
-			.then(response => response.data);
-	}
-
-	listFiles(userId = null) {  // userId defaults to authenticated user
-		if(userId === null) {
-			if(this.userId === null) {
-				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
-			} else {
-				userId = this.userId;
-			}
+		if (!response.data.user_id) {
+			throw new Error("No user_id returned.");
 		}
-		return this._get('/files/' + userId)
-			.then(response => response.data.files.map((f) => new File(this, userId, f.name).setAll(f)));
-	}
-
-	createFile(name, userId = null) {  // userId defaults to authenticated user
-		if(userId === null) {
-			if(this.userId === null) {
-				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
-			} else {
-				userId = this.userId;
-			}
+		if (!response.data.access_token) {
+			throw new Error("No access_token returned.");
 		}
-		return Promise.resolve(new File(this, userId, name));
+		this.userId = response.data.user_id;
+		this.accessToken = response.data.access_token;
+		return response.data;
 	}
 
-	validateProcessGraph(processGraph) {
-		return this._post('/validation', {process_graph: processGraph})
-			.then(response => {
-				if (Array.isArray(response.data.errors)) {
-					return response.data.errors;
-				}
-				else {
-					throw new Error("Invalid validation response received.");
-				}
-			});
+	/**
+	 * Get information about the authenticated user.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async describeAccount() {
+		let response = await this._get('/me');
+		return response.data;
 	}
 
-	listProcessGraphs() {
-		return this._get('/process_graphs')
-			.then(response => response.data.process_graphs.map((pg) => new ProcessGraph(this, pg.id).setAll(pg)));
+	/**
+	 * Lists all files from the user workspace. 
+	 * 
+	 * @async
+	 * @param {string} [userId=null] - User ID, defaults to authenticated user.
+	 * @returns {File[]} A list of files.
+	 * @throws {Error}
+	 */
+	async listFiles(userId = null) {
+		userId = this._resolveUserId(userId);
+		let response = await this._get('/files/' + userId);
+		return response.data.files.map(
+			f => new File(this, userId, f.path).setAll(f)
+		);
 	}
 
-	createProcessGraph(processGraph, title = null, description = null) {
-		let pgObject = {title: title, description: description, process_graph: processGraph};
-		return this._post('/process_graphs', pgObject)
-			.then(response => new ProcessGraph(this, response.headers['openeo-identifier']).setAll(pgObject))
-			.then(pg => {
-				if (this.capabilitiesObject.hasFeature('describeProcessGraph')) {
-					return pg.describeProcessGraph();
-				}
-				else {
-					return Promise.resolve(pg);
-				}
-			});
+	/**
+	 * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end. 
+	 * 
+	 * @param {string} path - Path to the file, relative to the user workspace.
+	 * @param {string} [userId=null] - User ID, defaults to authenticated user.
+	 * @returns {File} A file.
+	 * @throws {Error}
+	 */
+	openFile(path, userId = null) {
+		return new File(this, this._resolveUserId(userId), path);
 	}
 
-	computeResult(processGraph, outputFormat = null, outputParameters = {}, budget = null) {
+	/**
+	 * Validates a process graph at the back-end.
+	 * 
+	 * @async
+	 * @param {object} processGraph - Process graph to validate.
+	 * @retrurns {Object[]} errors - A list of API compatible error objects. A valid process graph returns an empty list.
+	 * @throws {Error}
+	 */
+	async validateProcessGraph(processGraph) {
+		let response = await this._post('/validation', {process_graph: processGraph});
+		if (Array.isArray(response.data.errors)) {
+			return response.data.errors;
+		}
+		else {
+			throw new Error("Invalid validation response received.");
+		}
+	}
+
+	/**
+	 * Lists all process graphs of the authenticated user.
+	 * 
+	 * @async
+	 * @returns {ProcessGraph[]} A list of stored process graphs.
+	 * @throws {Error}
+	 */
+	async listProcessGraphs() {
+		let response = await this._get('/process_graphs');
+		return response.data.process_graphs.map(
+			pg => new ProcessGraph(this, pg.id).setAll(pg)
+		);
+	}
+
+	/**
+	 * Creates a new stored process graph at the back-end.
+	 * 
+	 * @async
+	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {string} [title=null] - A title for the stored process graph.
+	 * @param {string} [description=null] - A description for the stored process graph.
+	 * @returns {ProcessGraph} The new stored process graph.
+	 * @throws {Error}
+	 */
+	async createProcessGraph(processGraph, title = null, description = null) {
+		let requestBody = {title: title, description: description, process_graph: processGraph};
+		var response = await this._post('/process_graphs', requestBody);
+		var obj = new ProcessGraph(this, response.headers['openeo-identifier']).setAll(requestBody);
+		if (await this.capabilitiesObject.hasFeature('describeProcessGraph')) {
+			return obj.describeProcessGraph();
+		}
+		else {
+			return obj;
+		}
+	}
+
+	/**
+	 * Get all information about a stored process graph.
+	 * 
+	 * @async
+	 * @param {string} id - Process graph ID. 
+	 * @returns {ProcessGraph} The stored process graph.
+	 * @throws {Error}
+	 */
+	async getProcessGraphById(id) {
+		let pg = new ProcessGraph(this, id);
+		return await pg.describeJob();
+	}
+
+	/**
+	 * Executes a process graph synchronously and returns the result as the response.
+	 * 
+	 * Please note that requests can take a very long time of several minutes or even hours.
+	 * 
+	 * @async
+	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {string} [plan=null] - The billing plan to use for this computation.
+	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers (see `isNode`).
+	 */
+	async computeResult(processGraph, plan = null, budget = null) {
 		let requestBody = {
 			process_graph: processGraph,
+			plan: plan,
 			budget: budget
 		};
-		if (outputFormat !== null) {
-			requestBody.output = {
-				format: outputFormat,
-				parameters: outputParameters
-			};
-		}
-
-		return this._post('/result', requestBody, 'stream').then(response => response.data);
+		let response = await this._post('/result', requestBody, 'stream');
+		return response.data;
 	}
 
-	listJobs() {
-		return this._get('/jobs')
-			.then(response => response.data.jobs.map(j => new Job(this, j.id).setAll(j)));
+	/**
+	 * Lists all batch jobs of the authenticated user.
+	 * 
+	 * @async
+	 * @returns {Job[]} A list of jobs.
+	 * @throws {Error}
+	 */
+	async listJobs() {
+		var response = await this._get('/jobs');
+		return response.data.jobs.map(
+			j => new Job(this, j.id).setAll(j)
+		);
 	}
 
-	createJob(processGraph, outputFormat = null, outputParameters = {}, title = null, description = null, plan = null, budget = null, additional = {}) {
-		let jobObject = Object.assign({}, additional, {
+	/**
+	 * Creates a new batch job at the back-end.
+	 * 
+	 * @async
+	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {string} [title=null] - A title for the batch job.
+	 * @param {string} [description=null] - A description for the batch job.
+	 * @param {string} [plan=null] - The billing plan to use for this batch job.
+	 * @param {number} [budget=null] - The maximum budget allowed to spend for this batch job.
+	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @returns {Job} The stored batch job.
+	 * @throws {Error}
+	 */
+	async createJob(processGraph, title = null, description = null, plan = null, budget = null, additional = {}) {
+		let requestBody = Object.assign({}, additional, {
 			title: title,
 			description: description,
 			process_graph: processGraph,
 			plan: plan,
 			budget: budget
 		});
-		if (outputFormat !== null) {
-			jobObject.output = {
-				format: outputFormat,
-				parameters: outputParameters
-			};
+		let response = await this._post('/jobs', requestBody);
+		var job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
+		if (this.capabilitiesObject.hasFeature('describeJob')) {
+			return await job.describeJob();
 		}
-		return this._post('/jobs', jobObject)
-			.then(response => new Job(this, response.headers['openeo-identifier']).setAll(jobObject))
-			.then(job => {
-				if (this.capabilitiesObject.hasFeature('describeJob')) {
-					return job.describeJob();
-				}
-				else {
-					return Promise.resolve(job);
-				}
-			});
+		else {
+			return job;
+		}
 	}
 
-	listServices() {
-		return this._get('/services')
-			.then(response => response.data.services.map((s) => new Service(this, s.id).setAll(s)));
+	/**
+	 * Get all information about a batch job.
+	 * 
+	 * @async
+	 * @param {string} id - Batch Job ID. 
+	 * @returns {Job} The batch job.
+	 * @throws {Error}
+	 */
+	async getJobById(id) {
+		let job = new Job(this, id);
+		return await job.describeJob();
 	}
 
-	createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
-		let serviceObject = {
+	/**
+	 * Lists all secondary web services of the authenticated user.
+	 * 
+	 * @async
+	 * @returns {Job[]} A list of services.
+	 * @throws {Error}
+	 */
+	async listServices() {
+		var response = await this._get('/services');
+		return response.data.services.map(
+			s => new Service(this, s.id).setAll(s)
+		);
+	}
+
+	/**
+	 * Creates a new secondary web service at the back-end. 
+	 * 
+	 * @async
+	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
+	 * @param {string} [title=null] - A title for the service.
+	 * @param {string} [description=null] - A description for the service.
+	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
+	 * @param {object} [parameters={}] - Parameters to pass to the service.
+	 * @param {string} [plan=null] - The billing plan to use for this service.
+	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
+	 * @returns {Service} The stored service.
+	 * @throws {Error}
+	 */
+	async createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
+		let requestBody = {
 			title: title,
 			description: description,
 			process_graph: processGraph,
@@ -274,20 +505,31 @@ class Connection {
 			plan: plan,
 			budget: budget
 		};
-		return this._post('/services', serviceObject)
-			.then(response => new Service(this, response.headers['openeo-identifier']).setAll(serviceObject))
-			.then(service => {
-				if (this.capabilitiesObject.hasFeature('describeService')) {
-					return service.describeService();
-				}
-				else {
-					return Promise.resolve(service);
-				}
-			});
+		let response = await this._post('/services', requestBody);
+		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
+		if (this.capabilitiesObject.hasFeature('describeService')) {
+			return service.describeService();
+		}
+		else {
+			return service;
+		}
 	}
 
-	_get(path, query, responseType) {
-		return this._send({
+	/**
+	 * Get all information about a secondary web service.
+	 * 
+	 * @async
+	 * @param {string} id - Service ID. 
+	 * @returns {Job} The service.
+	 * @throws {Error}
+	 */
+	async getServiceById(id) {
+		let service = new Service(this, id);
+		return await service.describeJob();
+	}
+
+	async _get(path, query, responseType) {
+		return await this._send({
 			method: 'get',
 			responseType: responseType,
 			url: path,
@@ -298,8 +540,8 @@ class Connection {
 		});
 	}
 
-	_post(path, body, responseType) {
-		return this._send({
+	async _post(path, body, responseType) {
+		return await this._send({
 			method: 'post',
 			responseType: responseType,
 			url: path,
@@ -307,26 +549,33 @@ class Connection {
 		});
 	}
 
-	_patch(path, body) {
-		return this._send({
+	async _patch(path, body) {
+		return await this._send({
 			method: 'patch',
 			url: path,
 			data: body
 		});
 	}
 
-	_delete(path) {
-		return this._send({
+	async _delete(path) {
+		return await this._send({
 			method: 'delete',
 			url: path
 		});
 	}
 
-	// authorize = true: Always authorize
-	// authorize = false: Never authorize
-	// Returns promise with data as stream in node environment, blob in browser.
-	download(url, authorize) {
-		return this._send({
+	// 
+	/**
+	 * Downloads data from a URL.
+	 * 
+	 * May include authorization details where required.
+	 * 
+	 * @param {string} url - An absolute or relative URL to download data from.
+	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
+	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers (see `isNode`).
+	 */
+	async download(url, authorize) {
+		return await this._send({
 			method: 'get',
 			responseType: 'stream',
 			url: url,
@@ -334,7 +583,7 @@ class Connection {
 		});
 	}
 
-	_send(options) {
+	async _send(options) {
 		options.baseURL = this.baseUrl;
 		if (this.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
 			options.withCredentials = true;
@@ -350,71 +599,100 @@ class Connection {
 			options.responseType = 'json';
 		}
 
-		return axios(options).catch(error => {
-			return new Promise((resolve, reject) => {
-				if (error.response !== null && typeof error.response === 'object' && error.response.data !== null && typeof error.response.data === 'object' && typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) {
-					// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
-					// See: https://github.com/axios/axios/issues/815
-					try {
-						switch(options.responseType) {
-							case 'blob':
-								var fileReader = new FileReader();
-								fileReader.onerror = () => {
-									fileReader.abort();
-									reject(error);
-								};
-								fileReader.onload = () => {
-									reject(JSON.parse(fileReader.result));
-								};
-								fileReader.readAsText(error.response.data);
-								break;
-							case 'stream':
-								var chunks = "";
-								error.response.data.on("data", chunk => {
-									chunks.push(chunk);
-								});
-								readStream.on("error", () =>  {
-									reject(error);
-								});
-								readStream.on("end", () => {
-									reject(JSON.parse(Buffer.concat(chunks).toString()));
-								});
-								break;
-							default:
+		try {
+			return await axios(options);
+		} catch(error) {
+			if (error.response !== null && typeof error.response === 'object' && error.response.data !== null && typeof error.response.data === 'object' && typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) {
+				// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
+				// See: https://github.com/axios/axios/issues/815
+				switch(options.responseType) {
+					case 'blob':
+						return new Promise((_, reject) => {
+							var fileReader = new FileReader();
+							fileReader.onerror = () => {
+								fileReader.abort();
 								reject(error);
-						}
-					} catch (exception) {
-						reject(error);
-					}
+							};
+							fileReader.onload = () => reject(JSON.parse(fileReader.result));
+							fileReader.readAsText(error.response.data);
+						});
+					case 'stream':
+						return new Promise((_, reject) => {
+							var chunks = "";
+							error.response.data.on("data", chunk => chunks.push(chunk));
+							readStream.on("error", () => reject(error));
+							readStream.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
+						});
 				}
-				else {
-					reject(error);
-				}
-			});
-		});
+				// Re-throw error if it was not handled yet.
+				throw error;
+			}
+		}
 	}
 
-	_resetAuth() {
-		this.userId = null;
-		this.accessToken = null;
+	_resolveUserId(userId = null) {
+		if(userId === null) {
+			if(this.userId === null) {
+				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
+			}
+			else {
+				userId = this.userId;
+			}
+		}
+		return userId;
 	}
 
+	/**
+	 * Returns whether the user is authenticated (logged in) at the back-end or not.
+	 * 
+	 * @returns {boolean} `true` if authenticated, `false` if not.
+	 */
 	isLoggedIn() {
 		return (this.accessToken !== null);
 	}
 
-	subscribe(topic, parameters, callback) {
-		return this.subscriptionsObject.subscribe(topic, parameters, callback);
+	/**
+	 * Subscribes to a topic.
+	 * 
+	 * @param {string} topic - The topic to subscribe to.
+	 * @param {incomingMessageCallback} callback - A callback that is executed when a message for the topic is received.
+	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
+	 * @throws {Error}
+	 * @see Subscriptions.subscribe()
+	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * 
+	 */
+	subscribe(topic, callback, parameters = {}) {
+		this.subscriptionsObject.subscribe(topic, parameters, callback);
 	}
 
-	unsubscribe(topic, parameters, callback) {
-		return this.subscriptionsObject.unsubscribe(topic, parameters, callback);
+	/**
+	 * Unsubscribes from a topic.
+	 * 
+	 * @param {string} topic - The topic to unsubscribe from.
+	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
+	 * @throws {Error}
+	 * @see Subscriptions.unsubscribe()
+	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * 
+	 */
+	unsubscribe(topic, parameters = {}) {
+		this.subscriptionsObject.unsubscribe(topic, parameters);
 	}
 }
 
-
+/**
+ * Web-Socket-based Subscriptions.
+ * 
+ * @class
+ */
 class Subscriptions {
 
+	/**
+	 * Creates a new object that handles the subscriptions.
+	 * 
+	 * @param {Connection} httpConnection 
+	 */
 	constructor(httpConnection) {
 		this.httpConnection = httpConnection;
 		this.socket = null;
@@ -424,36 +702,57 @@ class Subscriptions {
 		this.websocketProtocol = "openeo-v0.4";
 	}
 
-	subscribe(topic, parameters, callback) {
-		if(!parameters) {
-			parameters = {};
+	/**
+	 * A callback that is executed when a message for the corresponding topic is received by the client.
+	 * 
+	 * @callback incomingMessageCallback
+	 * @param {object} payload
+	 * @param {string} payload.issued - Date and time when the message was sent, formatted as a RFC 3339 date-time. 
+	 * @param {string} payload.topic - The type of the topic, e.g. `openeo.jobs.debug`
+	 * @param {object} message - A message, usually an object with some properties. Depends on the topic.
+	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 */
+
+	/**
+	 * Subscribes to a topic.
+	 * 
+	 * @param {string} topic - The topic to subscribe to.
+	 * @param {incomingMessageCallback} callback - A callback that is executed when a message for the topic is received.
+	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
+	 * @throws {Error}
+	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 */
+	subscribe(topic, callback, parameters = {}) {
+		if (typeof callback !== 'function') {
+			throw new Error("No valid callback specified.");
 		}
 
-		if (callback) {
-			if(!this.listeners.has(topic)) {
-				this.listeners.set(topic, new Map());
-			}
-			this.listeners.get(topic).set(Util.hash(parameters), callback);
+		if(!this.listeners.has(topic)) {
+			this.listeners.set(topic, new Map());
 		}
+		this.listeners.get(topic).set(Util.hash(parameters), callback);
 
 		this._sendSubscription('subscribe', topic, parameters);
 	}
 
-	unsubscribe(topic, parameters) {
+	/**
+	 * Unsubscribes from a topic.
+	 * 
+	 * @param {string} topic - The topic to unsubscribe from.
+	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
+	 * @throws {Error}
+	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 */
+	unsubscribe(topic, parameters = {}) {
 		// get all listeners for the topic
 		let topicListeners = this.listeners.get(topic);
-		
-		if(!parameters) {
-			parameters = {};
-		}
 
 		// remove the applicable sub-callback
-		if(topicListeners instanceof Map) {
-			topicListeners.delete(Util.hash(parameters));
-		} else {
-			return Promise.reject(new Error("this.listeners must be a Map of Maps"));
+		if(!(topicListeners instanceof Map)) {
+			throw new Error("this.listeners must be a Map of Maps");
 		}
 
+		topicListeners.delete(Util.hash(parameters));
 		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
 		if(topicListeners.size === 0) {
 			this.listeners.delete(topic);
@@ -500,7 +799,7 @@ class Subscriptions {
 	}
 
 	_receiveMessage(event) {
-		// ToDo: Add error handling
+		// @todo Add error handling
 		let json = JSON.parse(event.data);
 		if (json.message.topic == 'openeo.welcome') {
 			this.supportedTopics = json.payload.topics;
@@ -510,6 +809,7 @@ class Subscriptions {
 			let topicListeners = this.listeners.get(json.message.topic);
 			let callback;
 			// we should now have a Map in which to look for the correct listener
+			// @todo It is not very elegant to check for hard-coded parameters.
 			if (topicListeners && topicListeners instanceof Map) {
 				callback = topicListeners.get(Util.hash({}))   // default: without parameters
 						|| topicListeners.get(Util.hash({job_id: json.payload.job_id}));
@@ -575,8 +875,13 @@ class Subscriptions {
 
 }
 
-
+/**
+ * Capabilities of a back-end.
+ * 
+ * @class
+ */
 class Capabilities {
+
 	constructor(data) {
 		if(!data || typeof data !== 'object') {
 			throw new Error("No capabilities retrieved.");
@@ -616,12 +921,13 @@ class Capabilities {
 	}
 
 	hasFeature(methodName) {
-		const clientMethodNameToAPIRequestMap = {
+		const featureMap = {
 			capabilities: 'GET /',
 			listFileTypes: 'GET /output_formats',
 			listServiceTypes: 'GET /service_types',
+			listUdfRuntimes: `Get /udf_runtimes`,
 			listCollections: 'GET /collections',
-			describeCollection: 'GET /collections/{name}',
+			describeCollection: 'GET /collections/{collection_id}',
 			listProcesses: 'GET /processes',
 			authenticateOIDC: 'GET /credentials/oidc',
 			authenticateBasic: 'GET /credentials/basic',
@@ -636,8 +942,10 @@ class Capabilities {
 			listServices: 'GET /services',
 			createService: 'POST /services',
 			downloadFile: 'GET /files/{user_id}/{path}',
+			openFile: 'PUT /files/{user_id}/{path}',
 			uploadFile: 'PUT /files/{user_id}/{path}',
 			deleteFile: 'DELETE /files/{user_id}/{path}',
+			getJobById: 'GET /jobs/{job_id}',
 			describeJob: 'GET /jobs/{job_id}',
 			updateJob: 'PATCH /jobs/{job_id}',
 			deleteJob: 'DELETE /jobs/{job_id}',
@@ -647,9 +955,11 @@ class Capabilities {
 			listResults: 'GET /jobs/{job_id}/results',
 			downloadResults: 'GET /jobs/{job_id}/results',
 			describeProcessGraph: 'GET /process_graphs/{process_graph_id}',
+			getProcessGraphById: 'GET /process_graphs/{process_graph_id}',
 			updateProcessGraph: 'PATCH /process_graphs/{process_graph_id}',
 			deleteProcessGraph: 'DELETE /process_graphs/{process_graph_id}',
 			describeService: 'GET /services/{service_id}',
+			getServiceById: 'GET /services/{service_id}',
 			updateService: 'PATCH /services/{service_id}',
 			deleteService: 'DELETE /services/{service_id}',
 			subscribe: 'GET /subscription',
@@ -657,19 +967,15 @@ class Capabilities {
 		};
 		
 		// regex-ify to allow custom parameter names
-		for(let key in clientMethodNameToAPIRequestMap) {
-			clientMethodNameToAPIRequestMap[key] = clientMethodNameToAPIRequestMap[key].replace(/{[^}]+}/, '{[^}]+}');
+		for(let key in featureMap) {
+			featureMap[key] = featureMap[key].replace(/{[^}]+}/, '{[^}]+}');
 		}
 
-		if (methodName === 'createFile') {
-			return this.hasFeature('uploadFile'); // createFile is always available, map it to uploadFile as it is more meaningful.
-		} else {
-			return this.data.endpoints
-				.map((e) => e.methods.map((method) => method + ' ' + e.path))
-				// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
-				.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
-				.some((e) => e.match(new RegExp('^'+clientMethodNameToAPIRequestMap[methodName]+'$')) != null);
-		}
+		return this.data.endpoints
+			.map((e) => e.methods.map((method) => method + ' ' + e.path))
+			// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
+			.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
+			.some((e) => (e.toUpperCase() === featureMap[methodName].toUpperCase()));
 	}
 
 	currency() {
@@ -682,6 +988,12 @@ class Capabilities {
 }
 
 
+/**
+ * The base class for entities such as Job, Process Graph, Service etc.
+ * 
+ * @class
+ * @abstract
+ */
 class BaseEntity {
 
 	constructor(connection, properties = []) {
@@ -730,10 +1042,20 @@ class BaseEntity {
 		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
 	}
 
+	_supports(feature) {
+		return this.connection.capabilities().hasFeature(feature);
+	}
+
 }
 
-
+/**
+ * A File on the user workspace.
+ * 
+ * @class
+ * @extends BaseEntity
+ */
 class File extends BaseEntity {
+
 	constructor(connection, userId, path) {
 		super(connection, ["path", "size", "modified"]);
 		this.userId = userId;
@@ -742,21 +1064,19 @@ class File extends BaseEntity {
 
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
 	// Otherwise writes downloaded file to target.
-	downloadFile(target = null) {
-		return this.connection.download('/files/' + this.userId + '/' + this.path, true)
-			.then(response => {
-				if (target === null) {
-					return Promise.resolve(response.data);
-				}
-				else {
-					return this._saveToFile(response.data, target);
-				}
-			});
+	async downloadFile(target = null) {
+		let response = await this.connection.download('/files/' + this.userId + '/' + this.path, true);
+		if (target === null) {
+			return response.data;
+		}
+		else {
+			return await this._saveToFile(response.data, target);
+		}
 	}
 
-	_saveToFile(data, filename) {
+	async _saveToFile(data, filename) {
 		if (isNode) {
-			return Util.saveToFileNode(data, filename);
+			return await Util.saveToFileNode(data, filename);
 		}
 		else {
 			/* istanbul ignore next */
@@ -771,7 +1091,7 @@ class File extends BaseEntity {
 
 	// source for node must be a path to a file as string
 	// source for browsers must be an object from a file upload form
-	uploadFile(source, statusCallback = null) {
+	async uploadFile(source, statusCallback = null) {
 		if (isNode) {
 			// Use a file stream for node
 			source = this._readFromFileNode(source);
@@ -793,121 +1113,116 @@ class File extends BaseEntity {
 			};
 		}
 
-		// ToDo: We should set metadata here for convenience as in createJob etc., but the API gives no information.
-		return this.connection._send(options).then(() => {
-			return this;
-		});
+		let response = await this.connection._send(options);
+		return this.setAll(response.data);
 	}
 
-	deleteFile() {
-		return this.connection._delete('/files/' + this.userId + '/' + this.path);
+	async deleteFile() {
+		return await this.connection._delete('/files/' + this.userId + '/' + this.path);
 	}
 }
 
-
+/**
+ * A Batch Job.
+ * 
+ * @class
+ * @extends BaseEntity
+ */
 class Job extends BaseEntity {
 	constructor(connection, jobId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "submitted", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
-	describeJob() {
-		return this.connection._get('/jobs/' + this.jobId)
-			.then(response => this.setAll(response.data));
+	async describeJob() {
+		let response = await this.connection._get('/jobs/' + this.jobId);
+		return this.setAll(response.data);
 	}
 
-	updateJob(parameters) {
-		return this.connection._patch('/jobs/' + this.jobId, parameters)
-			.then(() => {
-				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
-					return this.describeJob();
-				}
-				else {
-					this.setAll(parameters);
-					return Promise.resolve(this);
-				}
-			});
-	}
-
-	deleteJob() {
-		return this.connection._delete('/jobs/' + this.jobId);
-	}
-
-	estimateJob() {
-		return this.connection._get('/jobs/' + this.jobId + '/estimate')
-			.then(response => response.data);
-	}
-
-	startJob() {
-		return this.connection._post('/jobs/' + this.jobId + '/results', {})
-			.then(() => {
-				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
-					return this.describeJob();
-				}
-				else {
-					return Promise.resolve(this);
-				}
-			});
-	}
-
-	stopJob() {
-		return this.connection._delete('/jobs/' + this.jobId + '/results')
-			.then(() => {
-				if (this.connection.capabilitiesObject.hasFeature('describeJob')) {
-					return this.describeJob();
-				}
-				else {
-					return Promise.resolve(this);
-				}
-			});
-	}
-
-	listResults(type = 'json') {
-		type = type.toLowerCase();
-		if (type != 'json') {
-			return Promise.reject(new Error("'"+type+"' is not supported by the client, please use JSON."));
-		} else {
-			return this.connection._get('/jobs/' + this.jobId + '/results').then(response => {
-				// Returning null for missing headers is not strictly following the spec
-				let headerData = {
-					costs: response.headers['openeo-costs'] || null,
-					expires: response.headers['expires'] || null
-				};
-				return Object.assign(headerData, response.data);
-			});
+	async updateJob(parameters) {
+		await this.connection._patch('/jobs/' + this.jobId, parameters);
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
 		}
+		else {
+			return this.setAll(parameters);
+		}
+	}
+
+	async deleteJob() {
+		return await this.connection._delete('/jobs/' + this.jobId);
+	}
+
+	async estimateJob() {
+		let response = await this.connection._get('/jobs/' + this.jobId + '/estimate');
+		return response.data;
+	}
+
+	async startJob() {
+		await this.connection._post('/jobs/' + this.jobId + '/results', {});
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
+		}
+		return this;
+	}
+
+	async stopJob() {
+		await this.connection._delete('/jobs/' + this.jobId + '/results');
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
+		}
+		return this;
+	}
+
+	async listResults(type = 'json') {
+		if (type.toLowerCase() != 'json') {
+			throw new Error("'"+type+"' is not supported by the client, please use JSON.");
+		}
+
+		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
+		// Returning null for missing headers is not strictly following the spec
+		let headerData = {
+			costs: response.headers['openeo-costs'] || null,
+			expires: response.headers['expires'] || null
+		};
+		return Object.assign(headerData, response.data);
 	}
 
 	// Note: targetFolder must exist!
-	downloadResults(targetFolder) {
+	async downloadResults(targetFolder) {
 		if (isNode) {
-			return this.listResults().then(list => {
-				var url = require("url");
-				var path = require("path");
+			let list = await this.listResults();
+			var url = require("url");
+			var path = require("path");
 
-				let promises = [];
-				let files = [];
-				for(let i in list.links) {
-					let link = list.links[i].href;
-					let parsedUrl = url.parse(link);
-					let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-					let p = this.connection.download(link, false)
-						.then(response => Util.saveToFileNode(response.data, targetPath))
-						.then(() => files.push(targetPath));
-					promises.push(p);
-				}
+			let promises = [];
+			let files = [];
+			for(let i in list.links) {
+				let link = list.links[i].href;
+				let parsedUrl = url.parse(link);
+				let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+				let p = this.connection.download(link, false)
+					.then(response => Util.saveToFileNode(response.data, targetPath))
+					.then(() => files.push(targetPath));
+				promises.push(p);
+			}
 
-				return Promise.all(promises).then(() => files);
-			});
+			await Promise.all(promises);
+			return files;
 		}
 		else {
 			/* istanbul ignore next */
-			return Promise.reject(new Error("downloadResults is not supported in a browser environment."));
+			throw new Error("downloadResults is not supported in a browser environment.");
 		}
 	}
 }
 
-
+/**
+ * A Stored Process Graph.
+ * 
+ * @class
+ * @extends BaseEntity
+ */
 class ProcessGraph extends BaseEntity {
 	constructor(connection, processGraphId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"]]);
@@ -915,58 +1230,65 @@ class ProcessGraph extends BaseEntity {
 		this.processGraphId = processGraphId;
 	}
 
-	describeProcessGraph() {
-		return this.connection._get('/process_graphs/' + this.processGraphId)
-			.then(response => this.setAll(response.data));
+	async describeProcessGraph() {
+		let response = await this.connection._get('/process_graphs/' + this.processGraphId);
+		return this.setAll(response.data);
 	}
 
-	updateProcessGraph(parameters) {
-		return this.connection._patch('/process_graphs/' + this.processGraphId, parameters)
-			.then(() => {
-				if (this.connection.capabilitiesObject.hasFeature('describeProcessGraph')) {
-					return this.describeProcessGraph();
-				}
-				else {
-					this.setAll(parameters);
-					return Promise.resolve(this);
-				}
-			});
+	async updateProcessGraph(parameters) {
+		await this.connection._patch('/process_graphs/' + this.processGraphId, parameters);
+		if (this._supports('describeProcessGraph')) {
+			return this.describeProcessGraph();
+		}
+		else {
+			return this.setAll(parameters);
+		}
 	}
 
-	deleteProcessGraph() {
-		return this.connection._delete('/process_graphs/' + this.processGraphId);
+	async deleteProcessGraph() {
+		return await this.connection._delete('/process_graphs/' + this.processGraphId);
 	}
 }
 
-
+/**
+ * A Secondary Web Service.
+ * 
+ * @class
+ * @extends BaseEntity
+ */
 class Service extends BaseEntity {
+
 	constructor(connection, serviceId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
-	describeService() {
-		return this.connection._get('/services/' + this.serviceId)
-			.then(response => this.setAll(response.data));
+	async describeService() {
+		let response = await this.connection._get('/services/' + this.serviceId);
+		return this.setAll(response.data);
 	}
 
-	updateService(parameters) {
-		return this.connection._patch('/services/' + this.serviceId, parameters)
-			.then(() => {
-				if (this.connection.capabilitiesObject.hasFeature('describeService')) {
-					return this.describeService();
-				}
-				else {
-					return Promise.resolve(this.setAll(parameters));
-				}
-			});
+	async updateService(parameters) {
+		await this.connection._patch('/services/' + this.serviceId, parameters);
+		if (this._supports('describeService')) {
+			return await this.describeService();
+		}
+		else {
+			return this.setAll(parameters);
+		}
 	}
 
-	deleteService() {
-		return this.connection._delete('/services/' + this.serviceId);
+	async deleteService() {
+		return await this.connection._delete('/services/' + this.serviceId);
 	}
 }
 
+/**
+ * Utilities for the openEO JS Client.
+ * 
+ * @class
+ * @hideconstructor
+ */
 class Util {
 
 	static base64encode(str) {
@@ -1006,7 +1328,11 @@ class Util {
 		}
 	}
 
-	// See: https://en.wikipedia.org/wiki/Jenkins_hash_function
+	/**
+	 * 
+	 * @param {*} b
+	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
+	 */
 	static hashString(b) {
 		for(var a = 0, c = b.length; c--; ) {
 			a += b.charCodeAt(c);
@@ -1019,7 +1345,7 @@ class Util {
 		return ((a&4294967295)>>>0).toString(16);
 	}
 
-	static saveToFileNode(data, filename) {
+	static async saveToFileNode(data, filename) {
 		var fs = require('fs');
 		return new Promise((resolve, reject) => {
 			let writeStream = fs.createWriteStream(filename);
@@ -1034,8 +1360,13 @@ class Util {
 	}
 
 	/* istanbul ignore next */
+	/**
+	 * 
+	 * @param {*} data 
+	 * @param {*} filename 
+	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+	 */
 	static saveToFileBrowser(data, filename) {
-		// based on: https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 		let blob = new Blob([data], {type: 'application/octet-stream'});
 		let blobURL = window.URL.createObjectURL(blob);
 		let tempLink = document.createElement('a');
@@ -1051,7 +1382,6 @@ class Util {
 		tempLink.click();
 		document.body.removeChild(tempLink);
 		window.URL.revokeObjectURL(blobURL);
-		return Promise.resolve();
 	}
 
 	static mostCompatible(versions) {
@@ -1068,7 +1398,7 @@ class Util {
 	}
 
 	static compatibility(c1, c2) {
-		// This is a quite dumb sorting algorithm for version numbers
+		// @todo This is a quite dumb sorting algorithm for version numbers, improve!
 		let v1 = Number.parseInt(c1.api_version.substr(4));
 		let v2 = Number.parseInt(c2.api_version.substr(4));
 		let p1 = c1.production !== false;
@@ -1096,12 +1426,15 @@ class Util {
 	}
 }
 
+/** @module OpenEO */
 let toExport = {
 	OpenEO: OpenEO,
 	Util: Util
 };
 
-// explanation: https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
+/*
+ * @see https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
+ */
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = toExport;
 }
