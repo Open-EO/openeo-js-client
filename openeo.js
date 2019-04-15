@@ -38,20 +38,32 @@ class OpenEO {
 	 */
 	static async connect(url, authType = null, authOptions = {}) {
 		let wellKnownUrl = url.replace(/\/$/, "") + '/.well-known/openeo';
-		let response = await axios.get(wellKnownUrl);
-		if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
-			throw new Error("Well-Known Document doesn't list any version.");
+		let response;
+		try {
+			response = await axios.get(wellKnownUrl);
+
+			if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
+				throw new Error("Well-Known Document doesn't list any version.");
+			}
+	
+			let compatibility = Util.mostCompatible(response.data.versions);
+			if (compatibility.length > 0) {
+				url = compatibility[0].url;
+			}
+			else {
+				throw new Error("Server doesn't support API version 0.4.x.");
+			}
+		} catch(error) {
+			// @todo We should replace the fallback in a 1.0 or so. 
+			if (error.response && [403,404,405,501].includes(error.response.status)) {
+				console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.");
+			}
+			else {
+				throw error;
+			}
 		}
 
-		let compatibility = Util.mostCompatible(response.data.versions);
-		if (compatibility.length > 0) {
-			url = compatibility[0].url;
-		}
-		else {
-			throw new Error("Server doesn't support API version 0.4.x.");
-		}
-
-		return OpenEO.connectDirect(url, authType, authOptions);
+		return await OpenEO.connectDirect(url, authType, authOptions);
 	}
 
 	/**
@@ -81,9 +93,11 @@ class OpenEO {
 		if(authType !== null) {
 			switch(authType) {
 				case 'basic':
-					return await connection.authenticateBasic(authOptions.username, authOptions.password);
+					await connection.authenticateBasic(authOptions.username, authOptions.password);
+					break;
 				case 'oidc':
-					return await connection.authenticateOIDC(authOptions);
+					await connection.authenticateOIDC(authOptions);
+					break;
 				default:
 					throw new Error("Unknown authentication type.");
 			}
@@ -100,7 +114,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.0";
+		return "0.4.0-beta.1";
 	}
 
 }
@@ -116,6 +130,7 @@ class Connection {
 	 * Creates a new Connection.
 	 * 
 	 * @param {string} baseUrl - URL to the back-end
+	 * @constructor
 	 */
 	constructor(baseUrl) {
 		this.baseUrl = baseUrl;
@@ -624,16 +639,16 @@ class Connection {
 							readStream.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
 						});
 				}
-				// Re-throw error if it was not handled yet.
-				throw error;
 			}
+			// Re-throw error if it was not handled yet.
+			throw error;
 		}
 	}
 
 	_resolveUserId(userId = null) {
 		if(userId === null) {
 			if(this.userId === null) {
-				return Promise.reject(new Error("Parameter 'userId' not specified and no default value available because user is not logged in."));
+				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
 			}
 			else {
 				userId = this.userId;
@@ -691,7 +706,8 @@ class Subscriptions {
 	/**
 	 * Creates a new object that handles the subscriptions.
 	 * 
-	 * @param {Connection} httpConnection 
+	 * @param {Connection} httpConnection - A Connection object representing an established connection to an openEO back-end.
+	 * @constructor
 	 */
 	constructor(httpConnection) {
 		this.httpConnection = httpConnection;
@@ -882,6 +898,13 @@ class Subscriptions {
  */
 class Capabilities {
 
+	/**
+	 * Creates a new Capabilities object from an API-compatible JSON response.
+	 * 
+	 * @param {object} data - A capabilities response compatible to the API specification.
+	 * @throws {Error}
+	 * @constructor
+	 */
 	constructor(data) {
 		if(!data || typeof data !== 'object') {
 			throw new Error("No capabilities retrieved.");
@@ -894,96 +917,145 @@ class Capabilities {
 		}
 
 		this.data = data;
+
+		// Flatten features to be compatible with the feature map.
+		this.features = this.data.endpoints
+			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
+			// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
+			.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1);
+
+		this.featureMap = {
+			capabilities: 'get /',
+			listFileTypes: 'get /output_formats',
+			listServiceTypes: 'get /service_types',
+			listUdfRuntimes: 'get /udf_runtimes',
+			listCollections: 'get /collections',
+			describeCollection: 'get /collections/{collection_id}',
+			listProcesses: 'get /processes',
+			authenticateOIDC: 'get /credentials/oidc',
+			authenticateBasic: 'get /credentials/basic',
+			describeAccount: 'get /me',
+			listFiles: 'get /files/{user_id}',
+			validateProcessGraph: 'post /validation',
+			createProcessGraph: 'post /process_graphs',
+			listProcessGraphs: 'get /process_graphs',
+			computeResult: 'post /result',
+			listJobs: 'get /jobs',
+			createJob: 'post /jobs',
+			listServices: 'get /services',
+			createService: 'post /services',
+			downloadFile: 'get /files/{user_id}/{path}',
+			openFile: 'put /files/{user_id}/{path}',
+			uploadFile: 'put /files/{user_id}/{path}',
+			deleteFile: 'delete /files/{user_id}/{path}',
+			getJobById: 'get /jobs/{job_id}',
+			describeJob: 'get /jobs/{job_id}',
+			updateJob: 'patch /jobs/{job_id}',
+			deleteJob: 'delete /jobs/{job_id}',
+			estimateJob: 'get /jobs/{job_id}/estimate',
+			startJob: 'post /jobs/{job_id}/results',
+			stopJob: 'delete /jobs/{job_id}/results',
+			listResults: 'get /jobs/{job_id}/results',
+			downloadResults: 'get /jobs/{job_id}/results',
+			describeProcessGraph: 'get /process_graphs/{process_graph_id}',
+			getProcessGraphById: 'get /process_graphs/{process_graph_id}',
+			updateProcessGraph: 'patch /process_graphs/{process_graph_id}',
+			deleteProcessGraph: 'delete /process_graphs/{process_graph_id}',
+			describeService: 'get /services/{service_id}',
+			getServiceById: 'get /services/{service_id}',
+			updateService: 'patch /services/{service_id}',
+			deleteService: 'delete /services/{service_id}',
+			subscribe: 'get /subscription',
+			unsubscribe: 'get /subscription'
+		};
 	}
 
+	/**
+	 * Returns the capabilities response as a plain object.
+	 * 
+	 * @returns {object} - A reference to the capabilities response.
+	 */
 	toPlainObject() {
 		return this.data;
 	}
 
+	/**
+	 * Returns the openEO API version implemented by the back-end.
+	 * 
+	 * @returns {string} openEO API version number.
+	 */
 	apiVersion() {
 		return this.data.api_version;
 	}
 
+	/**
+	 * Returns the back-end version number.
+	 * 
+	 * @returns {string} openEO back-end version number.
+	 */
 	backendVersion() {
 		return this.data.backend_version;
 	}
 
+	/**
+	 * Returns the back-end title.
+	 * 
+	 * @returns {string} Title
+	 */
 	title() {
-		return this.data.title;
+		return this.data.title || "";
 	}
 
+	/**
+	 * Returns the back-end description.
+	 * 
+	 * @returns {string} Description
+	 */
 	description() {
-		return this.data.description;
+		return this.data.description || "";
 	}
 
+	/**
+	 * Lists all supported features.
+	 * 
+	 * @returns {string[]} An array of supported features.
+	 */
 	listFeatures() {
-		return this.data.endpoints;
-	}
-
-	hasFeature(methodName) {
-		const featureMap = {
-			capabilities: 'GET /',
-			listFileTypes: 'GET /output_formats',
-			listServiceTypes: 'GET /service_types',
-			listUdfRuntimes: `Get /udf_runtimes`,
-			listCollections: 'GET /collections',
-			describeCollection: 'GET /collections/{collection_id}',
-			listProcesses: 'GET /processes',
-			authenticateOIDC: 'GET /credentials/oidc',
-			authenticateBasic: 'GET /credentials/basic',
-			describeAccount: 'GET /me',
-			listFiles: 'GET /files/{user_id}',
-			validateProcessGraph: 'POST /validation',
-			createProcessGraph: 'POST /process_graphs',
-			listProcessGraphs: 'GET /process_graphs',
-			computeResult: 'POST /result',
-			listJobs: 'GET /jobs',
-			createJob: 'POST /jobs',
-			listServices: 'GET /services',
-			createService: 'POST /services',
-			downloadFile: 'GET /files/{user_id}/{path}',
-			openFile: 'PUT /files/{user_id}/{path}',
-			uploadFile: 'PUT /files/{user_id}/{path}',
-			deleteFile: 'DELETE /files/{user_id}/{path}',
-			getJobById: 'GET /jobs/{job_id}',
-			describeJob: 'GET /jobs/{job_id}',
-			updateJob: 'PATCH /jobs/{job_id}',
-			deleteJob: 'DELETE /jobs/{job_id}',
-			estimateJob: 'GET /jobs/{job_id}/estimate',
-			startJob: 'POST /jobs/{job_id}/results',
-			stopJob: 'DELETE /jobs/{job_id}/results',
-			listResults: 'GET /jobs/{job_id}/results',
-			downloadResults: 'GET /jobs/{job_id}/results',
-			describeProcessGraph: 'GET /process_graphs/{process_graph_id}',
-			getProcessGraphById: 'GET /process_graphs/{process_graph_id}',
-			updateProcessGraph: 'PATCH /process_graphs/{process_graph_id}',
-			deleteProcessGraph: 'DELETE /process_graphs/{process_graph_id}',
-			describeService: 'GET /services/{service_id}',
-			getServiceById: 'GET /services/{service_id}',
-			updateService: 'PATCH /services/{service_id}',
-			deleteService: 'DELETE /services/{service_id}',
-			subscribe: 'GET /subscription',
-			unsubscribe: 'GET /subscription'
-		};
-		
-		// regex-ify to allow custom parameter names
-		for(let key in featureMap) {
-			featureMap[key] = featureMap[key].replace(/{[^}]+}/, '{[^}]+}');
+		var features = [];
+		for(let feature in this.featureMap) {
+			if (this.features.includes(this.featureMap[feature])) {
+				features.push(feature);
+			}
 		}
-
-		return this.data.endpoints
-			.map((e) => e.methods.map((method) => method + ' ' + e.path))
-			// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
-			.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1)
-			.some((e) => (e.toUpperCase() === featureMap[methodName].toUpperCase()));
+		return features;
 	}
 
+	/**
+	 * Check whether a feature is supported by the back-end.
+	 * 
+	 * @param {string} methodName - A feature name (corresponds to the JS client method names, see also the feature map for allowed values).
+	 * @returns {boolean} `true` if the feature is supported, otherwise `false`.
+	 */
+	hasFeature(methodName) {
+		return this.features.some(e => e === this.featureMap[methodName]);
+	}
+
+	/**
+	 * Get the billing currency.
+	 * 
+	 * @returns {string|null} The billing currency or `null` if not available.
+	 */
 	currency() {
-		return (this.data.billing ? this.data.billing.currency : null);
+		return (this.data.billing && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);
 	}
 
+	/**
+	 * List all billing plans.
+	 * 
+	 * @returns {object[]} Billing plans
+	 */
 	listPlans() {
-		return (this.data.billing ? this.data.billing.plans : null);
+		return (this.data.billing && Array.isArray(this.data.billing.plans) ? this.data.billing.plans : []);
 	}
 }
 
@@ -996,6 +1068,13 @@ class Capabilities {
  */
 class BaseEntity {
 
+	/**
+	 * Creates an instance of this object.
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {object} properties 
+	 * @constructor
+	 */
 	constructor(connection, properties = []) {
 		this.connection = connection;
 		this.clientNames = {};
@@ -1017,6 +1096,11 @@ class BaseEntity {
 		}
 	}
 
+	/**
+	 * 
+	 * @param {*} metadata 
+	 * @returns {BaseEntity} Returns the object itself.
+	 */
 	setAll(metadata) {
 		for(let name in metadata) {
 			if (typeof this.clientNames[name] === 'undefined') {
@@ -1029,6 +1113,11 @@ class BaseEntity {
 		return this;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @returns {object}
+	 */
 	getAll() {
 		let obj = {};
 		for(let backend in this.clientNames) {
@@ -1038,6 +1127,12 @@ class BaseEntity {
 		return Object.assign(obj, this.extra);
 	}
 
+	/**
+	 * 
+	 * @param {string} name 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	get(name) {
 		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
 	}
@@ -1056,6 +1151,13 @@ class BaseEntity {
  */
 class File extends BaseEntity {
 
+	/**
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {*} userId 
+	 * @param {*} path 
+	 * @constructor
+	 */
 	constructor(connection, userId, path) {
 		super(connection, ["path", "size", "modified"]);
 		this.userId = userId;
@@ -1064,6 +1166,14 @@ class File extends BaseEntity {
 
 	// If target is null, returns promise with data as stream in node environment, blob in browser.
 	// Otherwise writes downloaded file to target.
+	/**
+	 * Downloads a file from the user workspace.
+	 * 
+	 * @async
+	 * @param {*} target 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async downloadFile(target = null) {
 		let response = await this.connection.download('/files/' + this.userId + '/' + this.path, true);
 		if (target === null) {
@@ -1091,6 +1201,15 @@ class File extends BaseEntity {
 
 	// source for node must be a path to a file as string
 	// source for browsers must be an object from a file upload form
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} source 
+	 * @param {*} statusCallback 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async uploadFile(source, statusCallback = null) {
 		if (isNode) {
 			// Use a file stream for node
@@ -1117,6 +1236,13 @@ class File extends BaseEntity {
 		return this.setAll(response.data);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async deleteFile() {
 		return await this.connection._delete('/files/' + this.userId + '/' + this.path);
 	}
@@ -1129,16 +1255,39 @@ class File extends BaseEntity {
  * @extends BaseEntity
  */
 class Job extends BaseEntity {
+
+	/**
+	 * 
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {*} jobId 
+	 * @constructor
+	 */
 	constructor(connection, jobId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "submitted", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async describeJob() {
 		let response = await this.connection._get('/jobs/' + this.jobId);
 		return this.setAll(response.data);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} parameters
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async updateJob(parameters) {
 		await this.connection._patch('/jobs/' + this.jobId, parameters);
 		if (this._supports('describeJob')) {
@@ -1149,15 +1298,36 @@ class Job extends BaseEntity {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async deleteJob() {
 		return await this.connection._delete('/jobs/' + this.jobId);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async estimateJob() {
 		let response = await this.connection._get('/jobs/' + this.jobId + '/estimate');
 		return response.data;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async startJob() {
 		await this.connection._post('/jobs/' + this.jobId + '/results', {});
 		if (this._supports('describeJob')) {
@@ -1166,6 +1336,13 @@ class Job extends BaseEntity {
 		return this;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async stopJob() {
 		await this.connection._delete('/jobs/' + this.jobId + '/results');
 		if (this._supports('describeJob')) {
@@ -1174,6 +1351,14 @@ class Job extends BaseEntity {
 		return this;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} type 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async listResults(type = 'json') {
 		if (type.toLowerCase() != 'json') {
 			throw new Error("'"+type+"' is not supported by the client, please use JSON.");
@@ -1189,6 +1374,14 @@ class Job extends BaseEntity {
 	}
 
 	// Note: targetFolder must exist!
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} targetFolder 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async downloadResults(targetFolder) {
 		if (isNode) {
 			let list = await this.listResults();
@@ -1224,17 +1417,39 @@ class Job extends BaseEntity {
  * @extends BaseEntity
  */
 class ProcessGraph extends BaseEntity {
+
+	/**
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {*} processGraphId 
+	 * @constructor
+	 */
 	constructor(connection, processGraphId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"]]);
 		this.connection = connection;
 		this.processGraphId = processGraphId;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async describeProcessGraph() {
 		let response = await this.connection._get('/process_graphs/' + this.processGraphId);
 		return this.setAll(response.data);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} parameters 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async updateProcessGraph(parameters) {
 		await this.connection._patch('/process_graphs/' + this.processGraphId, parameters);
 		if (this._supports('describeProcessGraph')) {
@@ -1245,6 +1460,13 @@ class ProcessGraph extends BaseEntity {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async deleteProcessGraph() {
 		return await this.connection._delete('/process_graphs/' + this.processGraphId);
 	}
@@ -1258,16 +1480,37 @@ class ProcessGraph extends BaseEntity {
  */
 class Service extends BaseEntity {
 
+	/**
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {*} serviceId 
+	 * @constructor
+	 */
 	constructor(connection, serviceId) {
 		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
+	/**
+	 *
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async describeService() {
 		let response = await this.connection._get('/services/' + this.serviceId);
 		return this.setAll(response.data);
 	}
 
+	/**
+	 *
+	 * 
+	 * @async
+	 * @param {*} parameters 
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async updateService(parameters) {
 		await this.connection._patch('/services/' + this.serviceId, parameters);
 		if (this._supports('describeService')) {
@@ -1278,6 +1521,13 @@ class Service extends BaseEntity {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @returns {*}
+	 * @throws {Error}
+	 */
 	async deleteService() {
 		return await this.connection._delete('/services/' + this.serviceId);
 	}
@@ -1291,6 +1541,11 @@ class Service extends BaseEntity {
  */
 class Util {
 
+	/**
+	 * 
+	 * @param {*} str 
+	 * @returns {*}
+	 */
 	static base64encode(str) {
 		if (typeof btoa === 'function') {
 			// btoa is JS's ugly name for encodeBase64
@@ -1308,6 +1563,11 @@ class Util {
 	}
 
 	// Non-crypthographic / unsafe hashing for objects
+	/**
+	 * 
+	 * @param {*} o 
+	 * @returns {*}
+	 */
 	static hash(o) {
 		switch(typeof o) {
 			case 'boolean':
@@ -1330,7 +1590,8 @@ class Util {
 
 	/**
 	 * 
-	 * @param {*} b
+	 * @param {*} 
+	 * @returns {*}
 	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
 	 */
 	static hashString(b) {
@@ -1345,6 +1606,14 @@ class Util {
 		return ((a&4294967295)>>>0).toString(16);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @async
+	 * @param {*} data 
+	 * @param {*} filename 
+	 * @throws {Error}
+	 */
 	static async saveToFileNode(data, filename) {
 		var fs = require('fs');
 		return new Promise((resolve, reject) => {
@@ -1359,13 +1628,13 @@ class Util {
 		});
 	}
 
-	/* istanbul ignore next */
 	/**
 	 * 
 	 * @param {*} data 
 	 * @param {*} filename 
 	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 	 */
+	/* istanbul ignore next */
 	static saveToFileBrowser(data, filename) {
 		let blob = new Blob([data], {type: 'application/octet-stream'});
 		let blobURL = window.URL.createObjectURL(blob);
@@ -1384,6 +1653,11 @@ class Util {
 		window.URL.revokeObjectURL(blobURL);
 	}
 
+	/**
+	 * 
+	 * @param {*} versions 
+	 * @returns {*}
+	 */
 	static mostCompatible(versions) {
 		if (!Array.isArray(versions)) {
 			return [];
@@ -1397,6 +1671,12 @@ class Util {
 		return compatible.sort(Util.compatibility);
 	}
 
+	/**
+	 * 
+	 * @param {*} c1 
+	 * @param {*} c2 
+	 * @returns {*}
+	 */
 	static compatibility(c1, c2) {
 		// @todo This is a quite dumb sorting algorithm for version numbers, improve!
 		let v1 = Number.parseInt(c1.api_version.substr(4));
@@ -1429,6 +1709,7 @@ class Util {
 /** @module OpenEO */
 let toExport = {
 	OpenEO: OpenEO,
+	Capabilities: Capabilities,
 	Util: Util
 };
 

@@ -4,25 +4,34 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-This client is in **version 0.4.0** and supports **openEO API versions 0.4.x**. Legacy versions are available as releases.
+This client is in **version 0.4.0-beta.1** and supports **openEO API versions 0.4.x**. Legacy versions are available as releases.
 
 ## Usage
 This library can run in a recent browser supporting ECMAScript 2015 or node.js.
 
+### Browser environment
+
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client/openeo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client/openeo.min.js"></script>
 ```
 
-To install it with npm run: `npm install @openeo/js-client`
+### NodeJS environment
+
+To install it in a NodeJS environment run: `npm install @openeo/js-client`
+
+Afterwards, you can import the package: `const { OpenEO } = require('@openeo/js-client');`
+
+### Advanced options
+
+Generate a minified build: `npm run build`
+
+Generate the documentation to the `docs/` folder: `npm run docs`
 
 ### Running a job
 
 ```js
-// Import the library if running in a nodeJS environment
-// const { OpenEO } = require('@openeo/js-client');
-
 // Show the client version
 console.log("Client Version: " + OpenEO.clientVersion());
 
@@ -52,34 +61,16 @@ try {
   
   // Request a preview synchronously for a process graph
   if (syncSupport) {
-    // Derives maximum NDVI measurements over pixel time series of Sentinel 2 imagery
-    var processGraph = {
-      "imagery": {
-        "red": "B4",
-        "nir": "B8",
-        "imagery": {
-          "extent": ["2018-12-01T00:00:00Z","2018-12-31T23:59:59Z"],
-          "imagery": {
-            "extent": {"west": 8.265169,"south": 52.453917,"east": 8.42035,"north": 52.576767},
-            "imagery": {
-              "process_id": "get_collection",
-              "name": "COPERNICUS/S2"
-            },
-            "process_id": "filter_bbox"
-          },
-          "process_id": "filter_daterange"
-        },
-        "process_id": "NDVI"
-      },
-      "process_id": "max_time"
-    };
-    var preview = await con.execute(processGraph, "png");
+    // Replace ... with your JSON process graph
+    var preview = await con.execute(..., "png");
     // This returns a Blob object containing a binary PNG file you could further process or show.
   }
 } catch(e) {
   console.log(e);
 }
 ```
+
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/development/).
 
 ## Interactive JS Editor
 

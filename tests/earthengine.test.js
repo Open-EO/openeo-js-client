@@ -15,16 +15,16 @@ describe('With earth-engine-driver', () => {
 	var isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
-		return OpenEO.connect(TESTBACKEND);
+		return await OpenEO.connect(TESTBACKEND);
 	}
 
 	async function connectWithBasicAuth() {
-		return OpenEO.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
+		return await OpenEO.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
 	}
 
 	describe('Connecting', () => {
 		test('Connect without credentials', async () => {
-			var con = await connectWithoutAuth();
+			var con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
 			expect(con).not.toBeNull();
 			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
 			expect(con.isLoggedIn()).toBeFalsy();
@@ -41,8 +41,12 @@ describe('With earth-engine-driver', () => {
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 		});
 
-		test('Connect directly to a known version', async () => {
+		test('Connect directly to a known version via connect', async () => {
 			await expect(OpenEO.connect(TESTBACKENDDIRECT)).resolves.not.toBeNull();
+		});
+
+		test('Connect directly to a known version via connectDirect', async () => {
+			await expect(OpenEO.connectDirect(TESTBACKENDDIRECT)).resolves.not.toBeNull();
 		});
 
 		test('Connect with wrong Server URL', async () => {
@@ -97,7 +101,7 @@ describe('With earth-engine-driver', () => {
 			await expect(OpenEO.connect(TESTBACKEND, 'unknown', {})).rejects.toThrow(new Error("Unknown authentication type."));
 		});
 	});
-	
+
 	describe('Discovery', () => {
 		var con;
 		beforeAll(async (done) => {
@@ -114,11 +118,50 @@ describe('With earth-engine-driver', () => {
 			expect(caps.backendVersion()).toBe(TESTCAPABILITIES.backend_version);
 			expect(caps.title()).toBe(TESTCAPABILITIES.title);
 			expect(caps.description()).toBe(TESTCAPABILITIES.description);
-			expect(caps.listFeatures()).toEqual(TESTCAPABILITIES.endpoints);
+			expect(caps.listFeatures()).toEqual([
+				"capabilities",
+				"listFileTypes",
+				"listServiceTypes",
+				"listCollections",
+				"describeCollection",
+				"listProcesses",
+				"authenticateBasic",
+				"describeAccount",
+				"listFiles",
+				"validateProcessGraph",
+				"createProcessGraph",
+				"listProcessGraphs",
+				"computeResult",
+				"listJobs",
+				"createJob",
+				"listServices",
+				"createService",
+				"downloadFile",
+				"openFile",
+				"uploadFile",
+				"deleteFile",
+				"getJobById",
+				"describeJob",
+				"updateJob",
+				"deleteJob",
+				"startJob",
+				"listResults",
+				"downloadResults",
+				"describeProcessGraph",
+				"getProcessGraphById",
+				"updateProcessGraph",
+				"deleteProcessGraph",
+				"describeService",
+				"getServiceById",
+				"updateService",
+				"deleteService",
+				"subscribe",
+				"unsubscribe"
+			]);
 			expect(caps.listPlans()).toEqual(TESTCAPABILITIES.billing.plans);
 			expect(caps.currency()).toEqual(TESTCAPABILITIES.billing.currency);
 			expect(caps.hasFeature('startJob')).toBeTruthy();
-			expect(caps.hasFeature('createFile')).toBeTruthy();
+			expect(caps.hasFeature('openFile')).toBeTruthy();
 			expect(caps.hasFeature('somethingThatIsntSupported')).toBeFalsy();
 		});
 
@@ -363,7 +406,7 @@ describe('With earth-engine-driver', () => {
 
 		var job;
 		test('Add minimal job', async () => {
-			job = await con.createJob(TESTPROCESSGGRAPH, 'jpeg');
+			job = await con.createJob(TESTPROCESSGGRAPH);
 			expect(Object.getPrototypeOf(job).constructor.name).toBe('Job');
 			expect(job.jobId).not.toBeNull();
 			expect(job.jobId).not.toBeUndefined();
@@ -547,12 +590,12 @@ describe('With earth-engine-driver', () => {
 
 		var f;
 		test('Upload file', async () => {
-			f = await con.createFile(fileName);
+			f = await con.openFile(fileName);
 			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
 			expect(f.path).toBe(fileName);
 			expect(f.userId).toBe(TESTUSERNAME);
 			var files = await con.listFiles();
-			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
+			expect(files).toHaveLength(0); // Zero => openFile doesn't create a file yet
 			await f.uploadFile(isBrowserEnv ? fileContent : fileName);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(1); // now it should be there
@@ -648,7 +691,7 @@ describe('With earth-engine-driver', () => {
 
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
-			f = await con.createFile(fileName);
+			f = await con.openFile(fileName);
 			await prepareFile(f);
 			done();
 		});
@@ -674,5 +717,4 @@ describe('With earth-engine-driver', () => {
 			done();
 		});
 	});
-
 });

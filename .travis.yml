@@ -10,5 +10,26 @@ cache:
     - "node_modules"
 
 script:
+# Run tests
   - npm run test
   - npm run test_node
+# - npm run test_gee
+# Build
+  - npm run build
+  - npm run docs
+# Deploy 
+  - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-js-client.git gh-pages
+  - cd gh-pages
+  - rm -rf $TRAVIS_BRANCH/
+  - mkdir -p $TRAVIS_BRANCH/
+  - cp -R ../docs/* $TRAVIS_BRANCH/
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  committer-from-gh: true
+  local-dir: gh-pages
+  on:
+    all_branches: true
