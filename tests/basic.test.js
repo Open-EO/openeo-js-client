@@ -49,10 +49,10 @@ describe('Utils', () => {
 			"api_version": "0.5.0"
 		};
 
-		expect(Util.compatibility(v0_4_0, v0_4_0)).toBe(0);
-		expect(Util.compatibility(v0_4_0, v0_4_1)).toBe(1);
-		expect(Util.compatibility(v0_4_0, v0_4_10)).toBe(-1);
-		expect(Util.compatibility(v0_4_10, v0_4_11)).toBe(1);
+		expect(Util.compatibilityComparator(v0_4_0, v0_4_0)).toBe(0);
+		expect(Util.compatibilityComparator(v0_4_0, v0_4_1)).toBe(1);
+		expect(Util.compatibilityComparator(v0_4_0, v0_4_10)).toBe(-1);
+		expect(Util.compatibilityComparator(v0_4_10, v0_4_11)).toBe(1);
 
 
 		expect(Util.mostCompatible([v_0_5_0, v0_4_0, v0_4_1, v0_4_10])).toEqual([v0_4_1, v0_4_0, v0_4_10]);

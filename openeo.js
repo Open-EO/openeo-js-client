@@ -1078,6 +1078,7 @@ class BaseEntity {
 	constructor(connection, properties = []) {
 		this.connection = connection;
 		this.clientNames = {};
+		this.backendNames = {};
 		this.extra = {};
 		for(let i in properties) {
 			let backend, client;
@@ -1090,6 +1091,7 @@ class BaseEntity {
 				client = properties[i];
 			}
 			this.clientNames[backend] = client;
+			this.backendNames[client] = backend;
 			if (typeof this[client] === 'undefined') {
 				this[client] = null;
 			}
@@ -1097,9 +1099,10 @@ class BaseEntity {
 	}
 
 	/**
+	 * Converts the data from an API response into data suitable for our JS client models.
 	 * 
-	 * @param {*} metadata 
-	 * @returns {BaseEntity} Returns the object itself.
+	 * @param {object} metadata - JSON object originating from an API response.
+	 * @returns {this} Returns the object itself.
 	 */
 	setAll(metadata) {
 		for(let name in metadata) {
@@ -1114,7 +1117,7 @@ class BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Returns all data in the model.
 	 * 
 	 * @returns {object}
 	 */
@@ -1128,13 +1131,26 @@ class BaseEntity {
 	}
 
 	/**
+	 * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
 	 * 
-	 * @param {string} name 
-	 * @returns {*}
-	 * @throws {Error}
+	 * @param {string} name - Name of the property.
+	 * @returns {*} The value, which could be of any type.
 	 */
 	get(name) {
 		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
+	}
+
+	_convertToRequest(parameters) {
+		var request = {};
+		for(var key in parameters) {
+			if (typeof this.backendNames[key] === 'undefined') {
+				request[key] = parameters[key];
+			}
+			else {
+				request[this.backendNames[key]] = parameters[key];
+			}
+		}
+		return request;
 	}
 
 	_supports(feature) {
@@ -1152,10 +1168,11 @@ class BaseEntity {
 class File extends BaseEntity {
 
 	/**
+	 * Creates an object representing a file on the user workspace.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {*} userId 
-	 * @param {*} path 
+	 * @param {string} userId - The user ID.
+	 * @param {string} path - The path to the file, relative to the user workspace and without user ID.
 	 * @constructor
 	 */
 	constructor(connection, userId, path) {
@@ -1164,14 +1181,17 @@ class File extends BaseEntity {
 		this.path = path;
 	}
 
-	// If target is null, returns promise with data as stream in node environment, blob in browser.
-	// Otherwise writes downloaded file to target.
 	/**
 	 * Downloads a file from the user workspace.
 	 * 
+	 * This method has different behaviour depending on the environment.
+	 * If the target is set to `null`, returns a stream in a NodeJS environment or a Blob in a browser environment.
+	 * If a target is specified, writes the downloaded file to the target location on the file system in a NodeJS environment.
+	 * In a browser environment offers the file for downloading using the specified name (paths not supported).
+	 * 
 	 * @async
-	 * @param {*} target 
-	 * @returns {*}
+	 * @param {string|null} target - The target, see method description for details.
+	 * @returns {Stream|Blob|void} - Return value depends on the target and environment, see method description for details.
 	 * @throws {Error}
 	 */
 	async downloadFile(target = null) {
@@ -1199,15 +1219,26 @@ class File extends BaseEntity {
 		return fs.createReadStream(path);
 	}
 
-	// source for node must be a path to a file as string
-	// source for browsers must be an object from a file upload form
+
 	/**
+	 * A callback that is executed on upload progress updates.
 	 * 
+	 * @callback uploadStatusCallback
+	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 */
+
+	/**
+	 * Uploads a file to the user workspace.
+	 * If a file with the name exists, overwrites it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a nodeJS environment the source must be a path to a file as string.
+	 * In a browser environment the source must be an object from a file upload form.
 	 * 
 	 * @async
-	 * @param {*} source 
-	 * @param {*} statusCallback 
-	 * @returns {*}
+	 * @param {string|object} source - The source, see method description for details.
+	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @returns {File}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {
@@ -1237,14 +1268,13 @@ class File extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Deletes the file from the user workspace.
 	 * 
 	 * @async
-	 * @returns {*}
 	 * @throws {Error}
 	 */
 	async deleteFile() {
-		return await this.connection._delete('/files/' + this.userId + '/' + this.path);
+		await this.connection._delete('/files/' + this.userId + '/' + this.path);
 	}
 }
 
@@ -1257,10 +1287,10 @@ class File extends BaseEntity {
 class Job extends BaseEntity {
 
 	/**
-	 * 
+	 * Creates an object representing a batch job stored at the back-end.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {*} jobId 
+	 * @param {string} jobId - The batch job ID.
 	 * @constructor
 	 */
 	constructor(connection, jobId) {
@@ -1269,10 +1299,10 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Updates the batch job data stored in this object by requesting the metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {Job} The update job object (this).
 	 * @throws {Error}
 	 */
 	async describeJob() {
@@ -1281,15 +1311,20 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Modifies the batch job at the back-end and afterwards updates this object, too.
 	 * 
 	 * @async
-	 * @param {*} parameters
-	 * @returns {*}
+	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
+	 * @param {object} parameters.processGraph - A new process graph.
+	 * @param {string} parameters.title - A new title.
+	 * @param {string} parameters.description - A new description.
+	 * @param {string} parameters.plan - A new plan.
+	 * @param {number} parameters.budget - A new budget.
+	 * @returns {Job} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
-		await this.connection._patch('/jobs/' + this.jobId, parameters);
+		await this.connection._patch('/jobs/' + this.jobId, this._convertToRequest(parameters));
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -1299,21 +1334,20 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Deletes the batch job from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
 	 * @throws {Error}
 	 */
 	async deleteJob() {
-		return await this.connection._delete('/jobs/' + this.jobId);
+		await this.connection._delete('/jobs/' + this.jobId);
 	}
 
 	/**
-	 * 
+	 * Calculate an estimate (potentially time/costs/volume) for a batch job.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {object} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async estimateJob() {
@@ -1322,10 +1356,10 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Starts / queues the batch job for processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {Job} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async startJob() {
@@ -1337,10 +1371,10 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Stops / cancels the batch job processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {Job} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async stopJob() {
@@ -1352,18 +1386,15 @@ class Job extends BaseEntity {
 	}
 
 	/**
+	 * Retrieves download links and additional information about the batch job.
 	 * 
+	 * NOTE: Requesting metalink XML files is currently not supported by the JS client.
 	 * 
 	 * @async
-	 * @param {*} type 
-	 * @returns {*}
+	 * @returns {object} The JSON-based response compatible to the API specification, but also including `costs` and `expires` properties as received in the headers (or `null` if not present).
 	 * @throws {Error}
 	 */
-	async listResults(type = 'json') {
-		if (type.toLowerCase() != 'json') {
-			throw new Error("'"+type+"' is not supported by the client, please use JSON.");
-		}
-
+	async listResults() {
 		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
 		// Returning null for missing headers is not strictly following the spec
 		let headerData = {
@@ -1373,13 +1404,14 @@ class Job extends BaseEntity {
 		return Object.assign(headerData, response.data);
 	}
 
-	// Note: targetFolder must exist!
 	/**
+	 * Downloads the results to the specified target folder. The specified target folder must already exist!
 	 * 
+	 * NOTE: This method is only supported in a NodeJS environment. In a browser environment this method throws an exception!
 	 * 
 	 * @async
-	 * @param {*} targetFolder 
-	 * @returns {*}
+	 * @param {string} targetFolder - A target folder to store the file to, which must already exist.
+	 * @returns {string[]} A list of file paths of the newly created files.
 	 * @throws {Error}
 	 */
 	async downloadResults(targetFolder) {
@@ -1419,6 +1451,7 @@ class Job extends BaseEntity {
 class ProcessGraph extends BaseEntity {
 
 	/**
+	 * Creates an object representing a process graph stored at the back-end.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {*} processGraphId 
@@ -1431,10 +1464,10 @@ class ProcessGraph extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Updates the data stored in this object by requesting the process graph metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {ProcessGraph} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async describeProcessGraph() {
@@ -1443,15 +1476,18 @@ class ProcessGraph extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Modifies the stored process graph at the back-end and afterwards updates this object, too.
 	 * 
 	 * @async
-	 * @param {*} parameters 
-	 * @returns {*}
+	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
+	 * @param {object} parameters.processGraph - A new process graph.
+	 * @param {string} parameters.title - A new title.
+	 * @param {string} parameters.description - A new description.
+	 * @returns {ProcessGraph} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async updateProcessGraph(parameters) {
-		await this.connection._patch('/process_graphs/' + this.processGraphId, parameters);
+		await this.connection._patch('/process_graphs/' + this.processGraphId, this._convertToRequest(parameters));
 		if (this._supports('describeProcessGraph')) {
 			return this.describeProcessGraph();
 		}
@@ -1461,14 +1497,13 @@ class ProcessGraph extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Deletes the stored process graph from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
 	 * @throws {Error}
 	 */
 	async deleteProcessGraph() {
-		return await this.connection._delete('/process_graphs/' + this.processGraphId);
+		await this.connection._delete('/process_graphs/' + this.processGraphId);
 	}
 }
 
@@ -1481,9 +1516,10 @@ class ProcessGraph extends BaseEntity {
 class Service extends BaseEntity {
 
 	/**
+	 * Creates an object representing a secondary web service stored at the back-end.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {*} serviceId 
+	 * @param {string} serviceId - The service ID.
 	 * @constructor
 	 */
 	constructor(connection, serviceId) {
@@ -1492,10 +1528,10 @@ class Service extends BaseEntity {
 	}
 
 	/**
-	 *
+	 * Updates the data stored in this object by requesting the secondary web service metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
+	 * @returns {Service} The updates service object (this).
 	 * @throws {Error}
 	 */
 	async describeService() {
@@ -1504,15 +1540,22 @@ class Service extends BaseEntity {
 	}
 
 	/**
-	 *
+	 * Modifies the secondary web service at the back-end and afterwards updates this object, too.
 	 * 
 	 * @async
-	 * @param {*} parameters 
-	 * @returns {*}
+	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
+	 * @param {object} parameters.processGraph - A new process graph.
+	 * @param {string} parameters.title - A new title.
+	 * @param {string} parameters.description - A new description.
+	 * @param {boolean} parameters.enabled - Enables (`true`) or disables (`false`) the service.
+	 * @param {object} parameters.parameters - A new set of parameters to set for the service.
+	 * @param {string} parameters.plan - A new plan.
+	 * @param {number} parameters.budget - A new budget.
+	 * @returns {Service} The updated service object (this).
 	 * @throws {Error}
 	 */
 	async updateService(parameters) {
-		await this.connection._patch('/services/' + this.serviceId, parameters);
+		await this.connection._patch('/services/' + this.serviceId, this._convertToRequest(parameters));
 		if (this._supports('describeService')) {
 			return await this.describeService();
 		}
@@ -1522,14 +1565,13 @@ class Service extends BaseEntity {
 	}
 
 	/**
-	 * 
+	 * Deletes the secondary web service from the back-end.
 	 * 
 	 * @async
-	 * @returns {*}
 	 * @throws {Error}
 	 */
 	async deleteService() {
-		return await this.connection._delete('/services/' + this.serviceId);
+		await this.connection._delete('/services/' + this.serviceId);
 	}
 }
 
@@ -1542,9 +1584,11 @@ class Service extends BaseEntity {
 class Util {
 
 	/**
+	 * Encodes a string into Base64 encoding.
 	 * 
-	 * @param {*} str 
-	 * @returns {*}
+	 * @static
+	 * @param {string} str - String to encode.
+	 * @returns {string} String encoded in Base64.
 	 */
 	static base64encode(str) {
 		if (typeof btoa === 'function') {
@@ -1562,11 +1606,15 @@ class Util {
 		}
 	}
 
-	// Non-crypthographic / unsafe hashing for objects
 	/**
+	 * Non-crypthographic (unsafe) hashing for objects.
 	 * 
-	 * @param {*} o 
-	 * @returns {*}
+	 * Internally uses Jenkins one_at_a_time hash function.
+	 * 
+	 * @static
+	 * @param {*} o - A value to encode. Only supported objects, arrays, strings, numbers and booleans. Can't encode functions or other data types.
+	 * @returns {string} The generated hash.
+	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
 	 */
 	static hash(o) {
 		switch(typeof o) {
@@ -1589,9 +1637,11 @@ class Util {
 	}
 
 	/**
+	 * Generates a hash for a string using Jenkins one_at_a_time hash function.
 	 * 
-	 * @param {*} 
-	 * @returns {*}
+	 * @static
+	 * @param {string} b - string to encode.
+	 * @returns {string} The generated hash.
 	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
 	 */
 	static hashString(b) {
@@ -1607,11 +1657,14 @@ class Util {
 	}
 
 	/**
+	 * Streams data into a file.
 	 * 
-	 * 
+	 * NOTE: Only supported in a NodeJS environment.
+	 *
+	 * @static
 	 * @async
-	 * @param {*} data 
-	 * @param {*} filename 
+	 * @param {Stream} data - Data stream to read from.
+	 * @param {string} filename - File path to store the data at.
 	 * @throws {Error}
 	 */
 	static async saveToFileNode(data, filename) {
@@ -1629,9 +1682,14 @@ class Util {
 	}
 
 	/**
+	 * Offers data to download in the browser.
 	 * 
-	 * @param {*} data 
-	 * @param {*} filename 
+	 * NOTE: Only supported in a browser environment.
+	 * This method may fail with overly big data.
+	 * 
+	 * @static
+	 * @param {*} data - Data to download.
+	 * @param {string} filename - File name that is suggested to the user.
 	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 	 */
 	/* istanbul ignore next */
@@ -1654,9 +1712,11 @@ class Util {
 	}
 
 	/**
+	 * Tries to guess the most suitable version from a well-known discovery document that this client is compatible to.
 	 * 
-	 * @param {*} versions 
-	 * @returns {*}
+	 * @static
+	 * @param {object} versions - A well-known discovery document compliant to the API specification.
+	 * @returns {object[]} - Gives a list that lists all compatible versions (as still API compliant objects) ordered from the most suitable to the least suitable.
 	 */
 	static mostCompatible(versions) {
 		if (!Array.isArray(versions)) {
@@ -1668,17 +1728,20 @@ class Util {
 			return compatible;
 		}
 
-		return compatible.sort(Util.compatibility);
+		return compatible.sort(Util.compatibilityComparator);
 	}
 
 	/**
+	 * Compares two version numbers (in a very dumb way).
 	 * 
+	 * @private
+	 * @static
 	 * @param {*} c1 
 	 * @param {*} c2 
 	 * @returns {*}
+	 * @todo This is a quite dumb sorting algorithm for version numbers, we still need to improve it!
 	 */
-	static compatibility(c1, c2) {
-		// @todo This is a quite dumb sorting algorithm for version numbers, improve!
+	static compatibilityComparator(c1, c2) {
 		let v1 = Number.parseInt(c1.api_version.substr(4));
 		let v2 = Number.parseInt(c2.api_version.substr(4));
 		let p1 = c1.production !== false;

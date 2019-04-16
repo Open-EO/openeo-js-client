@@ -4,7 +4,7 @@ const waitForExpect = require("wait-for-expect");
 jest.setTimeout(60000); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-	const TESTBACKEND = 'https://earthengine.openeo.org';
+	const TESTBACKEND = 'http://127.0.0.1:8080';
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v0.4';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
@@ -356,8 +356,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete the second process graph', async () => {
-			const success = await pg2.deleteProcessGraph();
-			expect(success).toBeTruthy();
+			await pg2.deleteProcessGraph();
 			
 			var pgs = await con.listProcessGraphs();
 			expect(pgs).toHaveLength(1);
@@ -491,8 +490,8 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete job', async () => {
-			var success = await job.deleteJob();
-			expect(success).toBeTruthy();
+			await job.deleteJob();
+
 			var jobs = await con.listJobs();
 			expect(jobs).toHaveLength(0);
 		});
@@ -559,8 +558,8 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete service', async () => {
-			var success = await svc.deleteService();
-			expect(success).toBeTruthy();
+			await svc.deleteService();
+
 			var svcs = await con.listServices();
 			expect(svcs).toHaveLength(0);
 		});
@@ -666,8 +665,8 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete file', async () => {
-			var success = await f.deleteFile();
-			expect(success).toBeTruthy();
+			await f.deleteFile();
+
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0);
 		});
