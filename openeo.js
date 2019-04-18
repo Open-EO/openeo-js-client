@@ -352,14 +352,14 @@ class Connection {
 								fileReader.readAsText(error.response.data);
 								break;
 							case 'stream':
-								const chunks = "";
+								const chunks = [];
 								error.response.data.on("data", chunk => {
 									chunks.push(chunk);
 								});
-								readStream.on("error", () =>  {
+								error.response.data.on("error", () =>  {
 									reject(error);
 								});
-								readStream.on("end", () => {
+								error.response.data.on("end", () => {
 									reject(JSON.parse(Buffer.concat(chunks).toString()));
 								});
 								break;
