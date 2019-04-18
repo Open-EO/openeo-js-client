@@ -1454,7 +1454,7 @@ class ProcessGraph extends BaseEntity {
 	 * Creates an object representing a process graph stored at the back-end.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {*} processGraphId 
+	 * @param {string} processGraphId - ID of a stored process graph.
 	 * @constructor
 	 */
 	constructor(connection, processGraphId) {

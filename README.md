@@ -40,7 +40,7 @@ try {
   var con = await OpenEO.connect("https://earthengine.openeo.org", "basic", {username: "group1", password: "test123"});
 
   // Show implemented API version of the back-end
-  var capabilities = await con.capabilities();
+  var capabilities = con.capabilities();
   console.log("Server API version: " + capabilities.apiVersion());
 
   // List collection names
@@ -56,13 +56,13 @@ try {
   console.log("Files types: " + Object.keys(fileTypes.formats));
   
   // Check whether synchronous previews are supported
-  var syncSupport = capabilities.hasFeature("execute");
+  var syncSupport = capabilities.hasFeature("computeResult");
   console.log("Synchronous previews: " + (syncSupport ? "supported" : "NOT supported"));
   
   // Request a preview synchronously for a process graph
   if (syncSupport) {
     // Replace ... with your JSON process graph
-    var preview = await con.execute(..., "png");
+    var preview = await con.computeResult(..., "png");
     // This returns a Blob object containing a binary PNG file you could further process or show.
   }
 } catch(e) {
@@ -70,7 +70,7 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/development/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.0-beta.1/).
 
 ## Interactive JS Editor
 

@@ -37,7 +37,7 @@
     "ws": "^6.2.1"
   },
   "scripts": {
-    "docs": "jsdoc openeo.js -d docs/",
+    "docs": "jsdoc openeo.js -d docs/ -P package.json -R README.md",
     "build": "minify openeo.js --out-file openeo.min.js --mangle.keepClassName -d lib",
     "test": "jest basic.test.js --env=jsdom",
     "test_node": "jest basic.test.js --env=node",

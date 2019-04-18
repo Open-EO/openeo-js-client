@@ -20,9 +20,7 @@ script:
 # Deploy 
   - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-js-client.git gh-pages
   - cd gh-pages
-  - rm -rf $TRAVIS_BRANCH/
-  - mkdir -p $TRAVIS_BRANCH/
-  - cp -R ../docs/* $TRAVIS_BRANCH/
+  - cp -R ../docs/@openeo/js-client/* .
 
 deploy:
   provider: pages
