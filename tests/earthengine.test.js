@@ -4,7 +4,7 @@ const waitForExpect = require("wait-for-expect");
 jest.setTimeout(60000); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-	const TESTBACKEND = 'http://127.0.0.1:8080';
+	const TESTBACKEND = 'https://earthengine.openeo.org';
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v0.4';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';

@@ -633,7 +633,7 @@ class Connection {
 						});
 					case 'stream':
 						return new Promise((_, reject) => {
-							var chunks = "";
+							var chunks = [];
 							error.response.data.on("data", chunk => chunks.push(chunk));
 							readStream.on("error", () => reject(error));
 							readStream.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
