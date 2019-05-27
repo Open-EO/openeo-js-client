@@ -114,7 +114,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.0-beta.1";
+		return "0.4.0-beta.2";
 	}
 
 }
@@ -1050,12 +1050,31 @@ class Capabilities {
 	}
 
 	/**
+	 * @typedef BillingPlan
+	 * @type {Object}
+	 * @property {string} name - Name of the billing plan.
+	 * @property {string} description - A description of the billing plan, may include CommonMark syntax.
+	 * @property {boolean} paid - `true` if it is a paid plan, otherwise `false`.
+	 * @property {string} url - A URL pointing to a page describing the billing plan.
+	 * @property {boolean} default - `true` if it is the default plan of the back-end, otherwise `false`.
+	 */
+
+	/**
 	 * List all billing plans.
 	 * 
-	 * @returns {object[]} Billing plans
+	 * @returns {BillingPlan[]} Billing plans
 	 */
 	listPlans() {
-		return (this.data.billing && Array.isArray(this.data.billing.plans) ? this.data.billing.plans : []);
+		if (this.data.billing && Array.isArray(this.data.billing.plans)) {
+			var plans = this.data.billing.plans;
+			return plans.map(plan => {
+				plan.default = (typeof this.data.billing.default_plan === 'string' && this.data.billing.default_plan.toLowerCase() == plan.name.toLowerCase());
+				return plan;
+			});
+		}
+		else {
+			return [];
+		}
 	}
 }
 
