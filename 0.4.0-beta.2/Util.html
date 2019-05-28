@@ -83,7 +83,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1603">line 1603</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1606">line 1606</a>
     </li></ul></dd>
     
 
@@ -240,7 +240,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1612">line 1612</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1615">line 1615</a>
     </li></ul></dd>
     
 
@@ -281,6 +281,200 @@
     <dd>
         
 <span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".compareVersionNumbers"><span class="type-signature">(static) </span>compareVersionNumbers<span class="signature">(v1, v2)</span><span class="type-signature"> &rarr; {integer|null}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Compares two version number.
+
+Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>v1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A version number.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>v2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Another version number.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1805">line 1805</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>Util.validateVersionNumber()</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - `1` if v1 is greater than v2, `-1` if v1 is less than v2 and `0` if v1 and v2 are equal. Returns `null` if any of the version numbers is invalid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">integer</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>
@@ -401,7 +595,7 @@ Internally uses Jenkins one_at_a_time hash function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1638">line 1638</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1641">line 1641</a>
     </li></ul></dd>
     
 
@@ -567,7 +761,7 @@ Internally uses Jenkins one_at_a_time hash function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1666">line 1666</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1670">line 1670</a>
     </li></ul></dd>
     
 
@@ -733,7 +927,7 @@ Internally uses Jenkins one_at_a_time hash function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1740">line 1740</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1745">line 1745</a>
     </li></ul></dd>
     
 
@@ -917,7 +1111,7 @@ NOTE: Only supported in a NodeJS environment.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1689">line 1689</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1694">line 1694</a>
     </li></ul></dd>
     
 
@@ -963,6 +1157,167 @@ NOTE: Only supported in a NodeJS environment.
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id=".validateVersionNumber"><span class="type-signature">(static) </span>validateVersionNumber<span class="signature">(v)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Validates a version number.
+
+Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>v</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A version number.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1781">line 1781</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - `true` if valid, `false` otherwise.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -984,7 +1339,7 @@ NOTE: Only supported in a NodeJS environment.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Tue May 28 2019 12:12:32 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Tue May 28 2019 19:01:49 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
