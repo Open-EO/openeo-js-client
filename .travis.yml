@@ -10,6 +10,8 @@ cache:
     - "node_modules"
 
 script:
+# Run code checks
+  - npm run compat
 # Run tests
   - npm run test
   - npm run test_node

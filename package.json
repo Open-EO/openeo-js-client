@@ -30,6 +30,7 @@
     "jest": "^24.7.1",
     "jest-html-reporter": "^2.4.2",
     "jsdoc": "^3.5.5",
+    "jshint": "^2.10.2",
     "wait-for-expect": "^1.1.1"
   },
   "dependencies": {
@@ -39,8 +40,9 @@
   "scripts": {
     "docs": "jsdoc openeo.js -d docs/ -P package.json -R README.md",
     "build": "minify openeo.js --out-file openeo.min.js --mangle.keepClassName -d lib",
+    "compat": "jshint openeo.js",
     "test": "jest basic.test.js --env=jsdom",
     "test_node": "jest basic.test.js --env=node",
-    "test_gee": "jest earthengine.test.js --env=node"
+    "test_gee": "jest basic.test.js earthengine.test.js --env=node"
   }
 }

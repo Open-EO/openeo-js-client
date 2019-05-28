@@ -7,7 +7,8 @@ JavaScript client for the openEO API.
 This client is in **version 0.4.0-beta.2** and supports **openEO API versions 0.4**. Legacy versions are available as releases.
 
 ## Usage
-This library can run in a recent browser supporting ECMAScript 2015 or node.js.
+
+This library can run in node.js or any recent browser supporting ECMAScript 2017 (ES8). This includes [mostly all browsers released after mid 2017, but excludes Internet Explorer 11](https://caniuse.com/#search=async%20functions).
 
 ### Browser environment
 
@@ -28,6 +29,14 @@ Afterwards, you can import the package: `const { OpenEO } = require('@openeo/js-
 Generate a minified build: `npm run build`
 
 Generate the documentation to the `docs/` folder: `npm run docs`
+
+Check against the coding guidelines: `npm run compat`
+
+Run tests:
+
+* `npm run test` (basic browser-based tests)
+* `npm run test_node` (basic node-based tests)
+* `npm run test_gee` (full test suite using the Google Earth Engine back-end as server)
 
 ### Running a job
 

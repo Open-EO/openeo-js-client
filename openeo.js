@@ -1,5 +1,11 @@
+/* jshint curly: true, eqeqeq: true, esversion: 8, freeze: true, futurehostile: true, noarg: true, nocomma: true, nonbsp: true, undef: true, unused: true */
+/* jshint browser: true, node: true */
+/* globals axios, define */
+
 if (typeof axios === 'undefined') {
+	/* jshint ignore:start */
 	var axios = require("axios");
+	/* jshint ignore:end */
 }
 
 /**
@@ -7,7 +13,7 @@ if (typeof axios === 'undefined') {
  * 
  * @var {boolean}
  */
-var isNode = false;
+let isNode = false;
 try {
 	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
 } catch(e) {}
@@ -42,7 +48,7 @@ class OpenEO {
 		try {
 			response = await axios.get(wellKnownUrl);
 
-			if (response.data === null || typeof response.data !== 'object' || !Array.isArray(response.data.versions)) {
+			if (!Util.isObject(response.data) || !Array.isArray(response.data.versions)) {
 				throw new Error("Well-Known Document doesn't list any version.");
 			}
 	
@@ -54,7 +60,7 @@ class OpenEO {
 				throw new Error("Server doesn't support API version 0.4.x.");
 			}
 		} catch(error) {
-			// @todo We should replace the fallback in a 1.0 or so. 
+			/** @todo We should replace the fallback in a 1.0 or so. */
 			if (error.response && [403,404,405,501].includes(error.response.status)) {
 				console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.");
 			}
@@ -231,12 +237,12 @@ class Connection {
 	 * Get further information about a single collection.
 	 * 
 	 * @async
-	 * @param {string} collection_id - Collection ID to request further metadata for.
+	 * @param {string} collectionId - Collection ID to request further metadata for.
 	 * @returns {object} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
-	async describeCollection(collection_id) {
-		let response = await this._get('/collections/' + collection_id);
+	async describeCollection(collectionId) {
+		let response = await this._get('/collections/' + collectionId);
 		return response.data;
 	}
 
@@ -262,7 +268,7 @@ class Connection {
 	 * @throws {Error}
 	 * @todo Implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
-	async authenticateOIDC(options = null) {
+	async authenticateOIDC(/*options = null*/) {
 		throw new Error("Not implemented yet.");
 	}
 
@@ -378,8 +384,8 @@ class Connection {
 	 */
 	async createProcessGraph(processGraph, title = null, description = null) {
 		let requestBody = {title: title, description: description, process_graph: processGraph};
-		var response = await this._post('/process_graphs', requestBody);
-		var obj = new ProcessGraph(this, response.headers['openeo-identifier']).setAll(requestBody);
+		let response = await this._post('/process_graphs', requestBody);
+		let obj = new ProcessGraph(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (await this.capabilitiesObject.hasFeature('describeProcessGraph')) {
 			return obj.describeProcessGraph();
 		}
@@ -398,7 +404,7 @@ class Connection {
 	 */
 	async getProcessGraphById(id) {
 		let pg = new ProcessGraph(this, id);
-		return await pg.describeJob();
+		return await pg.describeProcessGraph();
 	}
 
 	/**
@@ -430,7 +436,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listJobs() {
-		var response = await this._get('/jobs');
+		let response = await this._get('/jobs');
 		return response.data.jobs.map(
 			j => new Job(this, j.id).setAll(j)
 		);
@@ -458,7 +464,7 @@ class Connection {
 			budget: budget
 		});
 		let response = await this._post('/jobs', requestBody);
-		var job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
+		let job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeJob')) {
 			return await job.describeJob();
 		}
@@ -488,7 +494,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listServices() {
-		var response = await this._get('/services');
+		let response = await this._get('/services');
 		return response.data.services.map(
 			s => new Service(this, s.id).setAll(s)
 		);
@@ -540,7 +546,7 @@ class Connection {
 	 */
 	async getServiceById(id) {
 		let service = new Service(this, id);
-		return await service.describeJob();
+		return await service.describeService();
 	}
 
 	async _get(path, query, responseType) {
@@ -605,9 +611,9 @@ class Connection {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers['Authorization'] = 'Bearer ' + this.accessToken;
+			options.headers.Authorization = 'Bearer ' + this.accessToken;
 		}
-		if (options.responseType == 'stream' && !isNode) {
+		if (options.responseType === 'stream' && !isNode) {
 			options.responseType = 'blob';
 		}
 		if (!options.responseType) {
@@ -617,26 +623,26 @@ class Connection {
 		try {
 			return await axios(options);
 		} catch(error) {
-			if (error.response !== null && typeof error.response === 'object' && error.response.data !== null && typeof error.response.data === 'object' && typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) {
+			if (Util.isObject(error.response) && Util.isObject(error.response.data) && ((typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) || (Util.isObject(error.response.data.headers) && typeof error.response.data.headers['content-type'] === 'string' && error.response.data.headers['content-type'].indexOf('/json') !== -1))) {
 				// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
 				// See: https://github.com/axios/axios/issues/815
 				switch(options.responseType) {
 					case 'blob':
 						return new Promise((_, reject) => {
-							var fileReader = new FileReader();
-							fileReader.onerror = () => {
+							let fileReader = new FileReader();
+							fileReader.onerror = event => {
 								fileReader.abort();
-								reject(error);
+								reject(event.target.error);
 							};
 							fileReader.onload = () => reject(JSON.parse(fileReader.result));
 							fileReader.readAsText(error.response.data);
 						});
 					case 'stream':
 						return new Promise((_, reject) => {
-							var chunks = [];
+							let chunks = [];
 							error.response.data.on("data", chunk => chunks.push(chunk));
-							readStream.on("error", () => reject(error));
-							readStream.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
+							error.response.data.on("error", error => reject(error));
+							error.response.data.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
 						});
 				}
 			}
@@ -790,7 +796,7 @@ class Subscriptions {
 			let url = this.httpConnection.getBaseUrl().replace('http', 'ws') + '/subscription';
 
 			if (isNode) {
-				var WebSocket = require('ws');
+				const WebSocket = require('ws');
 				this.socket = new WebSocket(url, this.websocketProtocol);
 			}
 			else {
@@ -815,9 +821,9 @@ class Subscriptions {
 	}
 
 	_receiveMessage(event) {
-		// @todo Add error handling
+		/** @todo Add error handling */
 		let json = JSON.parse(event.data);
-		if (json.message.topic == 'openeo.welcome') {
+		if (json.message.topic === 'openeo.welcome') {
 			this.supportedTopics = json.payload.topics;
 		}
 		else {
@@ -825,11 +831,11 @@ class Subscriptions {
 			let topicListeners = this.listeners.get(json.message.topic);
 			let callback;
 			// we should now have a Map in which to look for the correct listener
-			// @todo It is not very elegant to check for hard-coded parameters.
 			if (topicListeners && topicListeners instanceof Map) {
-				callback = topicListeners.get(Util.hash({}))   // default: without parameters
-						|| topicListeners.get(Util.hash({job_id: json.payload.job_id}));
-						// more parameter checks possible
+				// This checks for no parameters OR for job_id, more parameter checks possible in future versions.
+				/** @todo Hardcoding these checks is quite messy/dirty, we should implement a better solution. */
+				callback = topicListeners.get(Util.hash({})) || topicListeners.get(Util.hash({job_id: json.payload.job_id}));
+						
 			}
 			// if we now have a function, we can call it with the information
 			if (typeof callback === 'function') {
@@ -878,7 +884,7 @@ class Subscriptions {
 	_sendSubscription(action, topic, parameters) {
 		this._createWebSocket();
 
-		if (!parameters || typeof parameters != 'object') {  // caution: typeof null == 'object', but null==false
+		if (!Util.isObject(parameters)) {
 			parameters = {};
 		}
 
@@ -906,7 +912,7 @@ class Capabilities {
 	 * @constructor
 	 */
 	constructor(data) {
-		if(!data || typeof data !== 'object') {
+		if(!Util.isObject(data)) {
 			throw new Error("No capabilities retrieved.");
 		}
 		if(!data.api_version) {
@@ -922,7 +928,7 @@ class Capabilities {
 		this.features = this.data.endpoints
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
 			// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
-			.reduce((a, b) => a.concat(b), [])  // ES6-proof version of flat(1);
+			.reduce((a, b) => a.concat(b), []); // ES6-proof version of flat(1);
 
 		this.featureMap = {
 			capabilities: 'get /',
@@ -1021,7 +1027,7 @@ class Capabilities {
 	 * @returns {string[]} An array of supported features.
 	 */
 	listFeatures() {
-		var features = [];
+		let features = [];
 		for(let feature in this.featureMap) {
 			if (this.features.includes(this.featureMap[feature])) {
 				features.push(feature);
@@ -1066,9 +1072,9 @@ class Capabilities {
 	 */
 	listPlans() {
 		if (this.data.billing && Array.isArray(this.data.billing.plans)) {
-			var plans = this.data.billing.plans;
+			let plans = this.data.billing.plans;
 			return plans.map(plan => {
-				plan.default = (typeof this.data.billing.default_plan === 'string' && this.data.billing.default_plan.toLowerCase() == plan.name.toLowerCase());
+				plan.default = (typeof this.data.billing.default_plan === 'string' && this.data.billing.default_plan.toLowerCase() === plan.name.toLowerCase());
 				return plan;
 			});
 		}
@@ -1160,8 +1166,8 @@ class BaseEntity {
 	}
 
 	_convertToRequest(parameters) {
-		var request = {};
-		for(var key in parameters) {
+		let request = {};
+		for(let key in parameters) {
 			if (typeof this.backendNames[key] === 'undefined') {
 				request[key] = parameters[key];
 			}
@@ -1234,7 +1240,7 @@ class File extends BaseEntity {
 	}
 
 	_readFromFileNode(path) {
-		var fs = require('fs');
+		const fs = require('fs');
 		return fs.createReadStream(path);
 	}
 
@@ -1418,7 +1424,7 @@ class Job extends BaseEntity {
 		// Returning null for missing headers is not strictly following the spec
 		let headerData = {
 			costs: response.headers['openeo-costs'] || null,
-			expires: response.headers['expires'] || null
+			expires: response.headers.expires || null
 		};
 		return Object.assign(headerData, response.data);
 	}
@@ -1436,20 +1442,17 @@ class Job extends BaseEntity {
 	async downloadResults(targetFolder) {
 		if (isNode) {
 			let list = await this.listResults();
-			var url = require("url");
-			var path = require("path");
+			const url = require("url");
+			const path = require("path");
 
-			let promises = [];
 			let files = [];
-			for(let i in list.links) {
-				let link = list.links[i].href;
-				let parsedUrl = url.parse(link);
+			const promises = list.links.map(async (link) => {
+				let parsedUrl = url.parse(link.href);
 				let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-				let p = this.connection.download(link, false)
-					.then(response => Util.saveToFileNode(response.data, targetPath))
-					.then(() => files.push(targetPath));
-				promises.push(p);
-			}
+				let response = await this.connection.download(link.href, false);
+				await Util.saveToFileNode(response.data, targetPath);
+				files.push(targetPath);
+			});
 
 			await Promise.all(promises);
 			return files;
@@ -1650,6 +1653,7 @@ class Util {
 				else {
 					return Util.hashString(Object.keys(o).sort().map(k => "o:" + k + ":" + Util.hash(o[k])).join("::"));
 				}
+				/* falls through */
 			default:
 				return Util.hashString(typeof o);
 		}
@@ -1664,7 +1668,8 @@ class Util {
 	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
 	 */
 	static hashString(b) {
-		for(var a = 0, c = b.length; c--; ) {
+		let a, c;
+		for(a = 0, c = b.length; c--; ) {
 			a += b.charCodeAt(c);
 			a += a<<10;
 			a ^= a>>6;
@@ -1687,7 +1692,7 @@ class Util {
 	 * @throws {Error}
 	 */
 	static async saveToFileNode(data, filename) {
-		var fs = require('fs');
+		const fs = require('fs');
 		return new Promise((resolve, reject) => {
 			let writeStream = fs.createWriteStream(filename);
 			writeStream.on('close', (err) => {
@@ -1742,49 +1747,94 @@ class Util {
 			return [];
 		}
 
-		let compatible = versions.filter(c => typeof c.url === 'string' && typeof c.api_version === 'string' && c.api_version.startsWith("0.4."));
+		let compatible = versions.filter(c => typeof c.url === 'string' && Util.validateVersionNumber(c.api_version) && c.api_version.startsWith("0.4."));
 		if (compatible.length === 0) {
-			return compatible;
+			return [];
 		}
 
-		return compatible.sort(Util.compatibilityComparator);
-	}
-
-	/**
-	 * Compares two version numbers (in a very dumb way).
-	 * 
-	 * @private
-	 * @static
-	 * @param {*} c1 
-	 * @param {*} c2 
-	 * @returns {*}
-	 * @todo This is a quite dumb sorting algorithm for version numbers, we still need to improve it!
-	 */
-	static compatibilityComparator(c1, c2) {
-		let v1 = Number.parseInt(c1.api_version.substr(4));
-		let v2 = Number.parseInt(c2.api_version.substr(4));
-		let p1 = c1.production !== false;
-		let p2 = c2.production !== false;
-		if (p1 === p2) {
-			if (v1 > v2) {
+		return compatible.sort((c1, c2) => {
+			let p1 = c1.production !== false;
+			let p2 = c2.production !== false;
+			if (p1 === p2) {
+				return Util.compareVersionNumbers(c1.api_version, c2.api_version) * -1; // `* -1` to sort in descending order.
+			}
+			else if (p1) {
 				return -1;
 			}
-			else if (v1 < v2) {
+			else if (p2) {
 				return 1;
 			}
 			else {
 				return 0;
 			}
+		});
+	}
+
+	/**
+	 * Validates a version number.
+	 * 
+	 * Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
+	 * 
+	 * @param {string} v - A version number.
+	 * @returns {boolean} - `true` if valid, `false` otherwise.
+	 */
+	static validateVersionNumber(v) {
+		if (typeof v !== 'string') {
+			return false;
 		}
-		else if (p1) {
-			return -1;
+
+		let parts = v.split('.');
+		for (var i = 0; i < parts.length; ++i) {
+			if (!/^\d+$/.test(parts[i])) {
+				return false;
+			}
 		}
-		else if (p2) {
-			return 1;
+		return true;
+	}
+
+	/**
+	 * Compares two version number.
+	 * 
+	 * Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
+	 * 
+	 * @param {string} v1 - A version number.
+	 * @param {string} v2 - Another version number.
+	 * @returns {integer|null} - `1` if v1 is greater than v2, `-1` if v1 is less than v2 and `0` if v1 and v2 are equal. Returns `null` if any of the version numbers is invalid.
+	 * @see Util.validateVersionNumber()
+	 */
+	static compareVersionNumbers(v1, v2) {
+		// First, validate both numbers are true version numbers
+		if (!Util.validateVersionNumber(v1) || !Util.validateVersionNumber(v2)) {
+			return null;
 		}
-		else {
-			return 0;
+	
+		let v1p = v1.split('.');
+		let v2p = v2.split('.');
+		for (var i = 0; i < Math.max(v1p.length, v2p.length); ++i) {
+			let left = typeof v1p[i] !== 'undefined' ? v1p[i] : 0;
+			let right = typeof v2p[i] !== 'undefined' ? v2p[i] : 0;
+			if (left < right) {
+				return -1;
+			}
+			else if (left > right) {
+				return 1;
+			}
 		}
+	
+		return 0;
+	}
+
+	/**
+	 * Checks whether a variable is a real object or not.
+	 * 
+	 * This is a more strict version of `typeof x === 'object'` as this example would also succeeds for arrays and `null`.
+	 * This function only returns `true` for real objects and not for arrays, `null` or any other data types.
+	 * 
+	 * @param {*} obj - A variable to check.
+	 * @returns {boolean} - `true` is the given variable is an object, `false` otherwise.
+	 */
+	static isObject(obj) {
+		return (typeof obj === 'object' && obj === Object(obj) && !Array.isArray(obj));
 	}
 }
 

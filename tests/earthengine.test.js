@@ -4,6 +4,7 @@ const waitForExpect = require("wait-for-expect");
 jest.setTimeout(60000); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
+//	const TESTBACKEND = 'http://127.0.0.1:8080';
 	const TESTBACKEND = 'https://earthengine.openeo.org';
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v0.4';
 	const TESTUSERNAME = 'group5';
@@ -13,6 +14,8 @@ describe('With earth-engine-driver', () => {
 	const TESTCOLLECTION = {"id":"AAFC/ACI","title":"Canada AAFC Annual Crop Inventory","description":"Starting in 2009, the Earth Observation Team of the Science and Technology\nBranch (STB) at Agriculture and Agri-Food Canada (AAFC) began the process\nof generating annual crop type digital maps. Focusing on the Prairie\nProvinces in 2009 and 2010, a Decision Tree (DT) based methodology was\napplied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based\nsatellite images. Beginning with the 2011 growing season, this activity has\nbeen extended to other provinces in support of a national crop inventory.\nTo date this approach can consistently deliver a crop inventory that meets\nthe overall target accuracy of at least 85% at a final spatial resolution of\n30m (56m in 2009 and 2010).\n","license":"proprietary","providers":[{"name":"Agriculture and Agri-Food Canada","roles":["producer","licensor"],"url":"https://open.canada.ca/data/en/dataset/ba2645d5-4458-414d-b196-6303ac06c1c9"},{"name":"Google Earth Engine","roles":["host"],"url":"https://developers.google.com/earth-engine/datasets/catalog/AAFC_ACI"}],"extent":{"spatial":[-135.17,36.83,-51.24,62.25],"temporal":["2009-01-01T00:00:00Z",null]},"links":[{"rel":"self","href":TESTBACKENDDIRECT+"/collections/AAFC/ACI"},{"rel":"parent","href":TESTBACKENDDIRECT+"/collections"},{"rel":"root","href":TESTBACKENDDIRECT+"collections"},{"rel":"source","href":"http://www.agr.gc.ca/atlas/data_donnees/agr/annualCropInventory/tif"}]};
 	const TESTPROCESS = {"id":"min","summary":"Minimum value","description":"Computes the smallest value of an array of numbers, which is is equal to the last element of a sorted (i.e., ordered) version the array.","categories":["math","reducer"],"gee:custom":true,"parameters":{"data":{"description":"An array of numbers. An empty array resolves always with `null`.","schema":{"type":"array","items":{"type":["number","null"]}},"required":true}},"returns":{"description":"The minimum value.","schema":{"type":["number","null"]}},"examples":[{"arguments":{"data":[1,0,3,2]},"returns":0},{"arguments":{"data":[5,2.5,null,-0.7]},"returns":-0.7},{"arguments":{"data":[]},"returns":null}],"links":[{"rel":"about","href":"http://mathworld.wolfram.com/Minimum.html","title":"Minimum explained by Wolfram MathWorld"}]};
 	const TESTPROCESSGGRAPH = {"1":{"process_id":"load_collection","arguments":{"id":"COPERNICUS/S2","spatial_extent":{"west":-2.763447,"south":43.040791,"east":-1.120991,"north":43.838489},"temporal_extent":["2018-04-30","2018-06-26"],"bands":["B4","B8"]}},"2":{"process_id":"filter_bands","arguments":{"data":{"from_node":1},"bands":["B4"]}},"3":{"process_id":"normalized_difference","arguments":{"band1":{"from_node":2},"band2":{"from_node":6}}},"4":{"process_id":"reduce","arguments":{"data":{"from_node":3},"reducer":{"callback":{"min":{"arguments":{"data":{"from_argument":"data"}},"process_id":"min","result":true}}},"dimension":"temporal"}},"5":{"process_id":"save_result","arguments":{"data":{"from_node":4},"format":"png"},"result":true},"6":{"process_id":"filter_bands","arguments":{"data":{"from_node":1},"bands":["B8"]}}};
+	const INVALID_PROCESSGRAPH = {"load": {"process_id": "load_collection","arguments": {}}};
+
 	var isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
@@ -208,6 +211,11 @@ describe('With earth-engine-driver', () => {
 			expect(types).not.toBeNull();
 			expect(types).toHaveProperty('xyz');
 		});
+
+		test('UDF runtimes', async () => {
+			// Not implemented by GEE back-end
+			await expect(con.listUdfRuntimes()).rejects.toThrow();
+		});
 	});
 
 	describe('Getting user-specific data', () => {
@@ -325,7 +333,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe process graph without metadata', async () => {
-			var pg = await pg1.describeProcessGraph();
+			var pg = await con.getProcessGraphById(pg1.processGraphId);
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
 			expect(pg.processGraphId).not.toBeNull();
@@ -335,7 +343,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe process graph with metadata', async () => {
-			var pg = await pg2.describeProcessGraph();
+			var pg = await con.getProcessGraphById(pg2.processGraphId);
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
 			expect(pg.processGraphId).not.toBeNull();
@@ -373,7 +381,7 @@ describe('With earth-engine-driver', () => {
 			await Promise.all(list.map(j => j.deleteJob()));
 		});
 
-		test('Sync. compute a process graph result', async () => {
+		test('Sync. compute a process graph result / Success', async () => {
 			var resource = await con.computeResult(TESTPROCESSGGRAPH, 'jpeg');
 			expect(resource).not.toBeNull();
 			if (isBrowserEnv) { // Browser environment
@@ -384,6 +392,16 @@ describe('With earth-engine-driver', () => {
 				const stream = require('stream');
 				expect(resource).toBeInstanceOf(stream.Readable);
 				// ToDo: Check blob content
+			}
+		});
+
+		test('Sync. compute a process graph result / Failure', async () => {
+			try {
+				var r = await con.computeResult(INVALID_PROCESSGRAPH, 'jpeg');
+				expect(r).toBeUndefined();
+			} catch (error) {
+				expect(error.code).toBe("ResultNodeMissing");
+				expect(error.message).toBe("No result node found for process graph.")
 			}
 		});
 	});
@@ -416,7 +434,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe job', async () => {
-			var jobdetails = await job.describeJob();
+			var jobdetails = await con.getJobById(job.jobId);
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
 			expect(jobdetails.jobId).toBe(job.jobId);
@@ -471,8 +489,9 @@ describe('With earth-engine-driver', () => {
 					// Node environment
 					// Create folder
 					const fs = require('fs');
-					expect(fs.existsSync(targetFolder)).toBeFalsy();
-					fs.mkdirSync(targetFolder);
+					if (!fs.existsSync(targetFolder)) {
+						fs.mkdirSync(targetFolder);
+					}
 					expect(fs.existsSync(targetFolder)).toBeTruthy();
 					// Get links to check against
 					var res = await job.listResults();
@@ -487,6 +506,11 @@ describe('With earth-engine-driver', () => {
 					}
 				}
 			}, 50000, 2000);
+		});
+
+		test('Stop job', async () => {
+			// Not implemented by GEE back-end
+			await expect(job.stopJob()).rejects.toThrow();
 		});
 
 		test('Delete job', async () => {
@@ -505,7 +529,7 @@ describe('With earth-engine-driver', () => {
 				files.map(file => {
 					fs.unlinkSync(path.join(targetFolder, file));
 				});
-				fs.unlinkSync(targetFolder);
+				fs.rmdirSync(targetFolder);
 			}
 		});
 	});
@@ -538,7 +562,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe service', async () => {
-			var svcdetails = await svc.describeService();
+			var svcdetails = await con.getServiceById(svc.serviceId);
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
 			expect(svcdetails.serviceId).toBe(svc.serviceId);
@@ -637,8 +661,8 @@ describe('With earth-engine-driver', () => {
 			}
 		});
 
+		var target = "downloaded_file.txt";
 		test('Download/Save file', async () => {
-			var target = "downloaded_file.txt";
 			if (isBrowserEnv) { 
 				// Browser environment
 				// Hard to test a browser download, ignore
@@ -670,6 +694,15 @@ describe('With earth-engine-driver', () => {
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0);
 		});
+
+		afterAll(() => {
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.unlinkSync(fileName);
+				fs.unlinkSync(target);
+			}
+		});
+
 	});
 
 	describe('Subscriptions', () => {
@@ -713,7 +746,12 @@ describe('With earth-engine-driver', () => {
 
 		afterAll(async (done) => {
 			await f.deleteFile();
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.unlinkSync(fileName);
+			}
 			done();
 		});
+
 	});
 });
