@@ -28,13 +28,13 @@
   "devDependencies": {
     "babel-minify": "^0.5.0",
     "jest": "^24.7.1",
-    "jest-html-reporter": "^2.4.2",
+    "jest-html-reporter": "^2.5.0",
     "jsdoc": "^3.5.5",
     "jshint": "^2.10.2",
     "wait-for-expect": "^1.1.1"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "ws": "^6.2.1"
   },
   "scripts": {

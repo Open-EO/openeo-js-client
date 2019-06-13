@@ -79,11 +79,10 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.0-beta.1/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.0-beta.2/).
 
 ## Interactive JS Editor
 
 There is an experimental interactive web-based editor for coding using the openEO API,
 where you can define processes and visualizations in JavaScript.
 See [https://github.com/Open-EO/openeo-web-editor](https://github.com/Open-EO/openeo-web-editor) for more details.
-

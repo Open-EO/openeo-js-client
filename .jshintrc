@@ -1,0 +1,18 @@
+{
+	"curly": true,
+	"eqeqeq": true,
+	"esversion": 8,
+	"freeze": true,
+	"futurehostile": true,
+	"noarg": true,
+	"nocomma": true,
+	"nonbsp": true,
+	"undef": true,
+	"unused": true,
+	"browser": true,
+	"node": true,
+	"globals": {
+		"axios": true,
+		"define": true
+	}
+}

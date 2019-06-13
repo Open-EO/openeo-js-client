@@ -18,6 +18,7 @@ script:
 # - npm run test_gee
 # Build
   - npm run build
+# Generate docs
   - npm run docs
 # Deploy 
   - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-js-client.git gh-pages

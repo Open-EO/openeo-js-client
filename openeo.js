@@ -1,7 +1,3 @@
-/* jshint curly: true, eqeqeq: true, esversion: 8, freeze: true, futurehostile: true, noarg: true, nocomma: true, nonbsp: true, undef: true, unused: true */
-/* jshint browser: true, node: true */
-/* globals axios, define */
-
 if (typeof axios === 'undefined') {
 	/* jshint ignore:start */
 	var axios = require("axios");
