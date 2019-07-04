@@ -1,0 +1,110 @@
+{
+  "loadco1": {
+    "process_id": "load_collection",
+    "arguments": {
+      "id": "Sentinel-2"
+    }
+  },
+  "filter1": {
+    "process_id": "filter_bbox",
+    "arguments": {
+      "data": {
+        "from_node": "loadco1"
+      },
+      "extent": {
+        "west": 16.1,
+        "east": 16.6,
+        "north": 48.6,
+        "south": 47.2
+      }
+    }
+  },
+  "filter2": {
+    "process_id": "filter_temporal",
+    "arguments": {
+      "data": {
+        "from_node": "filter1"
+      },
+      "start": "2017-01-01",
+      "end": "2017-02-01"
+    }
+  },
+  "filter3": {
+    "process_id": "filter_bands",
+    "arguments": {
+      "data": {
+        "from_node": "filter2"
+      },
+      "bands": [
+        "B8"
+      ]
+    }
+  },
+  "reduce1": {
+    "process_id": "reduce",
+    "arguments": {
+      "data": {
+        "from_node": "filter3"
+      },
+      "dimension": "spectral"
+    }
+  },
+  "aggreg1": {
+    "process_id": "aggregate_polygon",
+    "arguments": {
+      "data": {
+        "from_node": "reduce1"
+      },
+      "polygons": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.138916,
+              48.320647
+            ],
+            [
+              16.524124,
+              48.320647
+            ],
+            [
+              16.524124,
+              48.1386
+            ],
+            [
+              16.138916,
+              48.1386
+            ],
+            [
+              16.138916,
+              48.320647
+            ]
+          ]
+        ]
+      },
+      "reducer": {
+        "callback": {
+          "mean1": {
+            "process_id": "mean",
+            "arguments": {
+              "data": {
+                "from_argument": "data"
+              }
+            },
+            "result": true
+          }
+        }
+      }
+    }
+  },
+  "export1": {
+    "process_id": "export",
+    "arguments": {
+      "data": {
+        "from_node": "aggreg1"
+      },
+      "format": "JSON"
+    },
+    "result": true
+  }
+}
