@@ -4,7 +4,7 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-This client is in **version 0.4.0-beta.2** and supports **openEO API versions 0.4**. Legacy versions are available as releases.
+The version of this client is **0.4.0** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
 
 ## Usage
 
@@ -79,10 +79,17 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.0-beta.2/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.0/).
+
+## Roadmap
+
+* The JS client only supports browsers with support for ECMAScript 2017 (ES8). This is a steep requirement and should be lowered by transpiling. [#18](https://github.com/Open-EO/openeo-js-client/issues/18)
+* There's no functionality to build process graphs. An easy-to-use process graph builder is envisioned to be implemented. [#19](https://github.com/Open-EO/openeo-js-client/issues/19)
+* Implement authentification via OpenID Connect. [#11](https://github.com/Open-EO/openeo-js-client/issues/11)
+* See the [issue tracker](https://github.com/Open-EO/openeo-js-client/issues) for more information.
 
 ## Interactive JS Editor
 
 There is an experimental interactive web-based editor for coding using the openEO API,
-where you can define processes and visualizations in JavaScript.
+which is based on the JavaScript client.
 See [https://github.com/Open-EO/openeo-web-editor](https://github.com/Open-EO/openeo-web-editor) for more details.
