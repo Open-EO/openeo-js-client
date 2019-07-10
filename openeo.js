@@ -581,7 +581,6 @@ class Connection {
 		});
 	}
 
-	// 
 	/**
 	 * Downloads data from a URL.
 	 * 
@@ -676,7 +675,7 @@ class Connection {
 	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
 	 * @throws {Error}
 	 * @see Subscriptions.subscribe()
-	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
 	 * 
 	 */
 	subscribe(topic, callback, parameters = {}) {
@@ -690,7 +689,7 @@ class Connection {
 	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
 	 * @throws {Error}
 	 * @see Subscriptions.unsubscribe()
-	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
 	 * 
 	 */
 	unsubscribe(topic, parameters = {}) {
@@ -728,7 +727,7 @@ class Subscriptions {
 	 * @param {string} payload.issued - Date and time when the message was sent, formatted as a RFC 3339 date-time. 
 	 * @param {string} payload.topic - The type of the topic, e.g. `openeo.jobs.debug`
 	 * @param {object} message - A message, usually an object with some properties. Depends on the topic.
-	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
 	 */
 
 	/**
@@ -738,7 +737,7 @@ class Subscriptions {
 	 * @param {incomingMessageCallback} callback - A callback that is executed when a message for the topic is received.
 	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
 	 * @throws {Error}
-	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
 	 */
 	subscribe(topic, callback, parameters = {}) {
 		if (typeof callback !== 'function') {
@@ -759,7 +758,7 @@ class Subscriptions {
 	 * @param {string} topic - The topic to unsubscribe from.
 	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
 	 * @throws {Error}
-	 * @see https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/
+	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
 	 */
 	unsubscribe(topic, parameters = {}) {
 		// get all listeners for the topic
