@@ -1,103 +1,111 @@
 const { OpenEO } = require('../openeo.js');
+const waitForExpect = require("wait-for-expect");
 
-jest.setTimeout(30000); // Give Google some time to process data
+jest.setTimeout(60000); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-	const TESTBACKEND = 'http://earthengine.openeo.org/v0.3';
+//	const TESTBACKEND = 'http://127.0.0.1:8080';
+	const TESTBACKEND = 'https://earthengine.openeo.org';
+	const TESTBACKENDDIRECT = TESTBACKEND + '/v0.4';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
-	const TESTCAPABILITIES = {"version":"0.3.1","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/preview","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/storage/{job_id}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[{"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details."}]}};
-	const TESTCOLLECTION = {"name":"USGS/GTOPO30","title":"GTOPO30: Global 30 Arc-Second Elevation","description":"GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). The DEM was derived from several raster and vector sources of topographic information.  Completed in late 1996, GTOPO30 was developed over a three-year period through a collaborative effort led by the U.S. Geological Survey's Center for Earth Resources Observation and Science (EROS). The following organizations  participated by contributing funding or source data:  the National Aeronautics  and Space Administration (NASA), the United Nations Environment Programme/Global Resource Information Database (UNEP/GRID), the U.S. Agency for International Development (USAID), the Instituto Nacional de Estadistica Geografica e Informatica (INEGI) of Mexico, the Geographical Survey Institute  (GSI) of Japan, Manaaki Whenua Landcare Research of New Zealand, and the  Scientific Committee on Antarctic Research (SCAR).","license":"proprietary","extent":{"spatial":[-180,-90,180,90],"temporal":["1996-01-01T00:00:00Z","1996-01-01T00:00:00Z"]}};
-	const TESTPROCESS = {"name":"count_time","description":"Counts the number of images with a valid mask in a time series for all bands of the input dataset.","parameters":{"imagery":{"description":"EO data to process.","required":true,"schema":{"type":"object","format":"eodata"}}},"returns":{"description":"Processed EO data.","schema":{"type":"object","format":"eodata"}}};
-	const TESTPROCESSGGRAPH = {"process_id":"stretch_colors","imagery":{"process_id":"min_time","imagery":{"process_id":"NDVI","imagery":{"process_id":"filter_bbox","imagery":{"process_id":"filter_daterange","imagery":{"process_id":"get_collection","name":"COPERNICUS/S2"},"extent":["2018-01-01T00:00:00Z","2018-01-31T23:59:59Z"]},"extent":{"west":16.1,"south":47.2,"east":16.6,"north":48.6}},"red":"B4","nir":"B8"}},"min":-1,"max":1};
-	var obj = new OpenEO();
+	const FREE_PLAN = {"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details.","paid":false,"default":true};
+	const TESTCAPABILITIES = {"api_version":"0.4.2","backend_version":"0.4.0","title":"Google Earth Engine Proxy for openEO","description":"This is the Google Earth Engine Driver for openEO.\n\nGoogle Earth Engine is a planetary-scale platform for Earth science data & analysis. It is powered by Google's cloud infrastructure and combines a multi-petabyte catalog of satellite imagery and geospatial datasets with planetary-scale analysis capabilities. Google makes it available for scientists, researchers, and developers to detect changes, map trends, and quantify differences on the Earth's surface. Google Earth Engine is free for research, education, and nonprofit use.","endpoints":[{"path":"/","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/output_formats","methods":["GET"]},{"path":"/stac","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files/{user_id}","methods":["GET"]},{"path":"/files/{user_id}/{path}","methods":["GET","PUT","DELETE"]},{"path":"/result","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST"]},{"path":"/temp/{token}/{file}","methods":["GET"]},{"path":"/storage/{job_id}/{file}","methods":["GET"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/xyz/{service_id}/{z}/{x}/{y}","methods":["GET"]},{"path":"/subscription","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/credentials","methods":["POST"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET","POST"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PATCH","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[FREE_PLAN]},"links":[{"rel":"about","href":"https://earthengine.google.com/","title":"Google Earth Engine Homepage"},{"rel":"related","href":"https://github.com/Open-EO/openeo-earthengine-driver","title":"GitHub repository"},{"rel":"version-history","href":TESTBACKEND+"/.well-known/openeo","type":"application/json","title":"Supported API versions"}]};
+	const TESTCOLLECTION = {"id":"AAFC/ACI","title":"Canada AAFC Annual Crop Inventory","description":"Starting in 2009, the Earth Observation Team of the Science and Technology\nBranch (STB) at Agriculture and Agri-Food Canada (AAFC) began the process\nof generating annual crop type digital maps. Focusing on the Prairie\nProvinces in 2009 and 2010, a Decision Tree (DT) based methodology was\napplied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based\nsatellite images. Beginning with the 2011 growing season, this activity has\nbeen extended to other provinces in support of a national crop inventory.\nTo date this approach can consistently deliver a crop inventory that meets\nthe overall target accuracy of at least 85% at a final spatial resolution of\n30m (56m in 2009 and 2010).\n","license":"proprietary","providers":[{"name":"Agriculture and Agri-Food Canada","roles":["producer","licensor"],"url":"https://open.canada.ca/data/en/dataset/ba2645d5-4458-414d-b196-6303ac06c1c9"},{"name":"Google Earth Engine","roles":["host"],"url":"https://developers.google.com/earth-engine/datasets/catalog/AAFC_ACI"}],"extent":{"spatial":[-135.17,36.83,-51.24,62.25],"temporal":["2009-01-01T00:00:00Z",null]},"links":[{"rel":"self","href":TESTBACKENDDIRECT+"/collections/AAFC/ACI"},{"rel":"parent","href":TESTBACKENDDIRECT+"/collections"},{"rel":"root","href":TESTBACKENDDIRECT+"collections"},{"rel":"source","href":"http://www.agr.gc.ca/atlas/data_donnees/agr/annualCropInventory/tif"}]};
+	const TESTPROCESS = {"id":"min","summary":"Minimum value","description":"Computes the smallest value of an array of numbers, which is is equal to the last element of a sorted (i.e., ordered) version the array.","categories":["math","reducer"],"gee:custom":true,"parameters":{"data":{"description":"An array of numbers. An empty array resolves always with `null`.","schema":{"type":"array","items":{"type":["number","null"]}},"required":true}},"returns":{"description":"The minimum value.","schema":{"type":["number","null"]}},"examples":[{"arguments":{"data":[1,0,3,2]},"returns":0},{"arguments":{"data":[5,2.5,null,-0.7]},"returns":-0.7},{"arguments":{"data":[]},"returns":null}],"links":[{"rel":"about","href":"http://mathworld.wolfram.com/Minimum.html","title":"Minimum explained by Wolfram MathWorld"}]};
+	const TESTPROCESSGGRAPH = {"1":{"process_id":"load_collection","arguments":{"id":"COPERNICUS/S2","spatial_extent":{"west":-2.763447,"south":43.040791,"east":-1.120991,"north":43.838489},"temporal_extent":["2018-04-30","2018-06-26"],"bands":["B4","B8"]}},"2":{"process_id":"filter_bands","arguments":{"data":{"from_node":1},"bands":["B4"]}},"3":{"process_id":"normalized_difference","arguments":{"band1":{"from_node":2},"band2":{"from_node":6}}},"4":{"process_id":"reduce","arguments":{"data":{"from_node":3},"reducer":{"callback":{"min":{"arguments":{"data":{"from_argument":"data"}},"process_id":"min","result":true}}},"dimension":"temporal"}},"5":{"process_id":"save_result","arguments":{"data":{"from_node":4},"format":"png"},"result":true},"6":{"process_id":"filter_bands","arguments":{"data":{"from_node":1},"bands":["B8"]}}};
+	const INVALID_PROCESSGRAPH = {"load": {"process_id": "load_collection","arguments": {}}};
+
 	var isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
-		return obj.connect(TESTBACKEND);
+		return await OpenEO.connect(TESTBACKEND);
 	}
 
 	async function connectWithBasicAuth() {
-		return obj.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
+		return await OpenEO.connect(TESTBACKEND, 'basic', {username: TESTUSERNAME, password: TESTPASSWORD});
 	}
 
 	describe('Connecting', () => {
 		test('Connect without credentials', async () => {
-			await connectWithoutAuth().then(async con => {
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull();
-				expect(con.getBaseUrl()).toBe(TESTBACKEND);
-			});
+			var con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
+			expect(con).not.toBeNull();
+			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.getUserId()).toBeNull();
+			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 		});
 
 		test('Connect with Basic Auth credentials', async () => {
-			await connectWithBasicAuth().then(con => {
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-				expect(con.isLoggedIn()).toBeTruthy();
-				expect(con.getUserId()).toBe(TESTUSERNAME);
-				expect(con.getBaseUrl()).toBe(TESTBACKEND);
-			});
+			var con = await connectWithBasicAuth()
+			expect(con).not.toBeNull();
+			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+			expect(con.isLoggedIn()).toBeTruthy();
+			expect(con.getUserId()).toBe(TESTUSERNAME);
+			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
+		});
+
+		test('Connect directly to a known version via connect', async () => {
+			await expect(OpenEO.connect(TESTBACKENDDIRECT)).resolves.not.toBeNull();
+		});
+
+		test('Connect directly to a known version via connectDirect', async () => {
+			await expect(OpenEO.connectDirect(TESTBACKENDDIRECT)).resolves.not.toBeNull();
 		});
 
 		test('Connect with wrong Server URL', async () => {
-			await expect(obj.connect("http://localhost:12345")).rejects.toThrow();
+			await expect(OpenEO.connect("http://localhost:12345")).rejects.toThrow();
 		});
 
 		test('Connect with wrong Basic Auth credentials', async () => {
-			await expect(obj.connect(TESTBACKEND, 'basic', {username: "foo", password: "bar"})).rejects.toThrow();
+			await expect(OpenEO.connect(TESTBACKEND, 'basic', {username: "foo", password: "bar"})).rejects.toThrow();
 		});
 
 		test('Manually connect with Basic Auth credentials', async () => {
-			await connectWithoutAuth().then(async con => {
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull();
-				var login = await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
-				expect(con.isLoggedIn()).toBeTruthy();
-				expect(con.getUserId()).toBe(TESTUSERNAME);
-				expect(con.getBaseUrl()).toBe(TESTBACKEND);
-				expect(login).toHaveProperty('user_id');
-				expect(login).toHaveProperty('access_token');
-			});
+			var con = await connectWithoutAuth();
+			expect(con).not.toBeNull();
+			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.getUserId()).toBeNull();
+			var login = await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
+			expect(con.isLoggedIn()).toBeTruthy();
+			expect(con.getUserId()).toBe(TESTUSERNAME);
+			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
+			expect(login).toHaveProperty('user_id');
+			expect(login).toHaveProperty('access_token');
 		});
 
 		test('Auth via OIDC is not implemented yet', async () => {
-			await connectWithoutAuth().then(async con => {
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull();
-				expect(con.getBaseUrl()).toBe(TESTBACKEND);
-				expect(con.authenticateOIDC({})).rejects.toThrow(new Error('Not implemented yet.'));
-			});
+			var con = await connectWithoutAuth();
+			expect(con).not.toBeNull();
+			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.getUserId()).toBeNull();
+			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
+			await expect(con.authenticateOIDC({})).rejects.toThrow(new Error('Not implemented yet.'));
 		});
 
 		test('Manually connect with wrong Basic Auth credentials', async () => {
-			await connectWithoutAuth().then(async con => {
-				expect(con).not.toBeNull();
-				expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull();
-				await expect(con.authenticateBasic("foo", "bar")).rejects.toThrow();
-				expect(con.isLoggedIn()).toBeFalsy();
-				expect(con.getUserId()).toBeNull();
-				expect(con.getBaseUrl()).toBe(TESTBACKEND);
-			});
+			var con = await connectWithoutAuth();
+			expect(con).not.toBeNull();
+			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
+			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.getUserId()).toBeNull();
+			await expect(con.authenticateBasic("foo", "bar")).rejects.toThrow();
+			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.getUserId()).toBeNull();
+			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 		});
 
 		test('Connect via OIDC is not implemented yet', async () => {
-			await expect(obj.connect(TESTBACKEND, 'oidc', {})).rejects.toThrow(new Error('Not implemented yet.'));
+			await expect(OpenEO.connect(TESTBACKEND, 'oidc', {})).rejects.toThrow(new Error('Not implemented yet.'));
 		});
 
 		test('Connect via unknown should throw an error', async () => {
-			await expect(obj.connect(TESTBACKEND, 'unknown', {})).rejects.toThrow(new Error("Unknown authentication type."));
+			await expect(OpenEO.connect(TESTBACKEND, 'unknown', {})).rejects.toThrow(new Error("Unknown authentication type."));
 		});
 	});
-	
+
 	describe('Discovery', () => {
 		var con;
 		beforeAll(async (done) => {
@@ -109,13 +117,54 @@ describe('With earth-engine-driver', () => {
 			var caps = await con.capabilities();
 			expect(caps).not.toBeNull();
 			expect(Object.getPrototypeOf(caps).constructor.name).toBe('Capabilities');
-			expect(caps.data).toEqual(TESTCAPABILITIES);
-			expect(caps.version()).toBe('0.3.1');
-			expect(caps.listFeatures()).toEqual(TESTCAPABILITIES.endpoints);
+			expect(caps.apiVersion()).toBe(TESTCAPABILITIES.api_version);
+			expect(caps.backendVersion()).toBe(TESTCAPABILITIES.backend_version);
+			expect(caps.title()).toBe(TESTCAPABILITIES.title);
+			expect(caps.description()).toBe(TESTCAPABILITIES.description);
+			expect(caps.listFeatures()).toEqual([
+				"capabilities",
+				"listFileTypes",
+				"listServiceTypes",
+				"listCollections",
+				"describeCollection",
+				"listProcesses",
+				"authenticateBasic",
+				"describeAccount",
+				"listFiles",
+				"validateProcessGraph",
+				"createProcessGraph",
+				"listProcessGraphs",
+				"computeResult",
+				"listJobs",
+				"createJob",
+				"listServices",
+				"createService",
+				"downloadFile",
+				"openFile",
+				"uploadFile",
+				"deleteFile",
+				"getJobById",
+				"describeJob",
+				"updateJob",
+				"deleteJob",
+				"startJob",
+				"listResults",
+				"downloadResults",
+				"describeProcessGraph",
+				"getProcessGraphById",
+				"updateProcessGraph",
+				"deleteProcessGraph",
+				"describeService",
+				"getServiceById",
+				"updateService",
+				"deleteService",
+				"subscribe",
+				"unsubscribe"
+			]);
 			expect(caps.listPlans()).toEqual(TESTCAPABILITIES.billing.plans);
 			expect(caps.currency()).toEqual(TESTCAPABILITIES.billing.currency);
 			expect(caps.hasFeature('startJob')).toBeTruthy();
-			expect(caps.hasFeature('createFile')).toBeTruthy();
+			expect(caps.hasFeature('openFile')).toBeTruthy();
 			expect(caps.hasFeature('somethingThatIsntSupported')).toBeFalsy();
 		});
 
@@ -133,13 +182,14 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Collections in detail', async () => {
-			var coll = await con.describeCollection(TESTCOLLECTION.name);
+			var coll = await con.describeCollection(TESTCOLLECTION.id);
 			expect(coll).not.toBeNull();
 			expect(coll).toHaveProperty('description');
 			expect(coll).toHaveProperty('license');
 			expect(coll).toHaveProperty('extent');
 			expect(coll).toHaveProperty('links');
-			expect(coll.name).toBe(TESTCOLLECTION.name);
+			expect(coll).toHaveProperty('properties');
+			expect(coll.id).toBe(TESTCOLLECTION.id);
 		});
 
 		test('Processes', async () => {
@@ -153,15 +203,18 @@ describe('With earth-engine-driver', () => {
 		test('File types', async () => {
 			var types = await con.listFileTypes();
 			expect(types).not.toBeNull();
-			expect(types).toHaveProperty('default');
-			expect(types).toHaveProperty('formats');
-			expect(types.formats).toHaveProperty('PNG');
+			expect(types).toHaveProperty('PNG');
 		});
 
 		test('Service types', async () => {
 			var types = await con.listServiceTypes();
 			expect(types).not.toBeNull();
 			expect(types).toHaveProperty('xyz');
+		});
+
+		test('UDF runtimes', async () => {
+			// Not implemented by GEE back-end
+			await expect(con.listUdfRuntimes()).rejects.toThrow();
 		});
 	});
 
@@ -187,22 +240,23 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Valid process graph', async () => {
-			var result = await con.validateProcessGraph({
-				process_id: "get_collection",
-				name: "COPERNICUS/S2"
-			});
-			expect(result[0]).toBeTruthy();
-			expect(result[1]).toEqual({});
+			var result = await con.validateProcessGraph(TESTPROCESSGGRAPH);
+			expect(Array.isArray(result)).toBeTruthy();
+			expect(result).toEqual([]);
 		});
 
 		test('Invalid process graph', async () => {
 			var result = await con.validateProcessGraph({
-				process_id: "unknown_process"
+				nodeId: {
+					process_id: "unknown_process",
+					arguments: {},
+					result: true
+				}
 			});
-			expect(result[0]).toBeFalsy();
-			expect(typeof result[1]).toBe('object');
-			expect(result[1]).toHaveProperty('code');
-			expect(result[1]).toHaveProperty('message');
+			expect(Array.isArray(result)).toBeTruthy();
+			expect(typeof result[0]).toBe('object');
+			expect(result[0]).toHaveProperty('code');
+			expect(result[0]).toHaveProperty('message');
 		});
 	});
 
@@ -279,7 +333,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe process graph without metadata', async () => {
-			var pg = await pg1.describeProcessGraph();
+			var pg = await con.getProcessGraphById(pg1.processGraphId);
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
 			expect(pg.processGraphId).not.toBeNull();
@@ -289,7 +343,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe process graph with metadata', async () => {
-			var pg = await pg2.describeProcessGraph();
+			var pg = await con.getProcessGraphById(pg2.processGraphId);
 			expect(pg).not.toBeNull();
 			expect(pg).not.toBeUndefined();
 			expect(pg.processGraphId).not.toBeNull();
@@ -310,8 +364,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete the second process graph', async () => {
-			const success = await pg2.deleteProcessGraph();
-			expect(success).toBeTruthy();
+			await pg2.deleteProcessGraph();
 			
 			var pgs = await con.listProcessGraphs();
 			expect(pgs).toHaveLength(1);
@@ -319,7 +372,7 @@ describe('With earth-engine-driver', () => {
 		});
 	});
 
-	describe('Previews', () => {
+	describe('Sync. computation of results', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
@@ -328,8 +381,8 @@ describe('With earth-engine-driver', () => {
 			await Promise.all(list.map(j => j.deleteJob()));
 		});
 
-		test('Preview a process graph result', async () => {
-			var resource = await con.execute(TESTPROCESSGGRAPH, 'jpeg');
+		test('Sync. compute a process graph result / Success', async () => {
+			var resource = await con.computeResult(TESTPROCESSGGRAPH, 'jpeg');
 			expect(resource).not.toBeNull();
 			if (isBrowserEnv) { // Browser environment
 				expect(resource).toBeInstanceOf(Blob);
@@ -339,6 +392,16 @@ describe('With earth-engine-driver', () => {
 				const stream = require('stream');
 				expect(resource).toBeInstanceOf(stream.Readable);
 				// ToDo: Check blob content
+			}
+		});
+
+		test('Sync. compute a process graph result / Failure', async () => {
+			try {
+				var r = await con.computeResult(INVALID_PROCESSGRAPH, 'jpeg');
+				expect(r).toBeUndefined();
+			} catch (error) {
+				expect(error.code).toBe("ResultNodeMissing");
+				expect(error.message).toBe("No result node found for process graph.")
 			}
 		});
 	});
@@ -360,7 +423,7 @@ describe('With earth-engine-driver', () => {
 
 		var job;
 		test('Add minimal job', async () => {
-			job = await con.createJob(TESTPROCESSGGRAPH, 'jpeg');
+			job = await con.createJob(TESTPROCESSGGRAPH);
 			expect(Object.getPrototypeOf(job).constructor.name).toBe('Job');
 			expect(job.jobId).not.toBeNull();
 			expect(job.jobId).not.toBeUndefined();
@@ -371,7 +434,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe job', async () => {
-			var jobdetails = await job.describeJob();
+			var jobdetails = await con.getJobById(job.jobId);
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
 			expect(jobdetails.jobId).toBe(job.jobId);
@@ -395,21 +458,16 @@ describe('With earth-engine-driver', () => {
 			// Not implemented by GEE back-end
 			await expect(job.estimateJob()).rejects.toThrow();
 		});
+		  
 
 		var targetFolder = Math.random().toString(36);
-		test('Job Results', async (done) => {
+		test('Job Results', async () => {
 			// Start job
 			await expect(job.startJob()).resolves.toBeTruthy();
 			var jobdetails = await job.describeJob();
 			expect(jobdetails.status).toBe('queued');
 
-			var interval = setInterval(async () => {
-				var jobdetails = await job.describeJob();
-				if (jobdetails.status !== 'finished') {
-					return; // Wait until finished
-				}
-
-				clearInterval(interval);
+			await waitForExpect(async () => {
 				var jobdetails = await job.describeJob();
 				expect(jobdetails.status).toBe('finished');
 
@@ -431,8 +489,9 @@ describe('With earth-engine-driver', () => {
 					// Node environment
 					// Create folder
 					const fs = require('fs');
-					expect(fs.existsSync(targetFolder)).toBeFalsy();
-					fs.mkdirSync(targetFolder);
+					if (!fs.existsSync(targetFolder)) {
+						fs.mkdirSync(targetFolder);
+					}
 					expect(fs.existsSync(targetFolder)).toBeTruthy();
 					// Get links to check against
 					var res = await job.listResults();
@@ -446,13 +505,17 @@ describe('With earth-engine-driver', () => {
 						expect(fs.existsSync(files[i])).toBeTruthy();
 					}
 				}
-				done();
-			}, 1000);
+			}, 50000, 2000);
+		});
+
+		test('Stop job', async () => {
+			// Not implemented by GEE back-end
+			await expect(job.stopJob()).rejects.toThrow();
 		});
 
 		test('Delete job', async () => {
-			var success = await job.deleteJob();
-			expect(success).toBeTruthy();
+			await job.deleteJob();
+
 			var jobs = await con.listJobs();
 			expect(jobs).toHaveLength(0);
 		});
@@ -466,7 +529,7 @@ describe('With earth-engine-driver', () => {
 				files.map(file => {
 					fs.unlinkSync(path.join(targetFolder, file));
 				});
-				fs.unlinkSync(targetFolder);
+				fs.rmdirSync(targetFolder);
 			}
 		});
 	});
@@ -499,7 +562,7 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe service', async () => {
-			var svcdetails = await svc.describeService();
+			var svcdetails = await con.getServiceById(svc.serviceId);
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
 			expect(svcdetails.serviceId).toBe(svc.serviceId);
@@ -519,12 +582,13 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete service', async () => {
-			var success = await svc.deleteService();
-			expect(success).toBeTruthy();
+			await svc.deleteService();
+
 			var svcs = await con.listServices();
 			expect(svcs).toHaveLength(0);
 		});
 	});
+
 
 	describe('File management', () => {
 		var con, f;
@@ -549,17 +613,17 @@ describe('With earth-engine-driver', () => {
 
 		var f;
 		test('Upload file', async () => {
-			f = await con.createFile(fileName);
+			f = await con.openFile(fileName);
 			expect(Object.getPrototypeOf(f).constructor.name).toBe('File');
-			expect(f.name).toBe(fileName);
+			expect(f.path).toBe(fileName);
 			expect(f.userId).toBe(TESTUSERNAME);
 			var files = await con.listFiles();
-			expect(files).toHaveLength(0); // SIC!!! Zero! createFile only creates it locally
+			expect(files).toHaveLength(0); // Zero => openFile doesn't create a file yet
 			await f.uploadFile(isBrowserEnv ? fileContent : fileName);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(1); // now it should be there
 			expect(Object.getPrototypeOf(files[0]).constructor.name).toBe('File');
-			expect(files[0].name).toBe(f.name);
+			expect(files[0].path).toBe(f.path);
 		});
 
 		test('Get file contents', async (done) => {
@@ -597,8 +661,8 @@ describe('With earth-engine-driver', () => {
 			}
 		});
 
+		var target = "downloaded_file.txt";
 		test('Download/Save file', async () => {
-			var target = "downloaded_file.txt";
 			if (isBrowserEnv) { 
 				// Browser environment
 				// Hard to test a browser download, ignore
@@ -625,11 +689,20 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Delete file', async () => {
-			var success = await f.deleteFile();
-			expect(success).toBeTruthy();
+			await f.deleteFile();
+
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0);
 		});
+
+		afterAll(() => {
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.unlinkSync(fileName);
+				fs.unlinkSync(target);
+			}
+		});
+
 	});
 
 	describe('Subscriptions', () => {
@@ -646,18 +719,17 @@ describe('With earth-engine-driver', () => {
 			}
 			return content;
 		}
-		var con, f, iid;
+		var con, f;
 
 		beforeAll(async (done) => {
 			con = await connectWithBasicAuth();
-			f = await con.createFile(fileName);
+			f = await con.openFile(fileName);
 			await prepareFile(f);
 			done();
 		});
 
 		test('Subscribe to openeo.files', async (done) => {
 			con.subscribe('openeo.files', {}, (payload, message) => {
-				clearInterval(iid); // Stop uploading files
 				con.unsubscribe('openeo.files', {}); // Unsubscribe to avoid receiving the file delete message
 //				expect(message.issued).toBe(... an ISO datetime string);
 				expect(message.topic).toBe('openeo.files');
@@ -667,15 +739,19 @@ describe('With earth-engine-driver', () => {
 				done();
 			});
 			// Upload files every second to ensure a message is sent by the server during the test.
-			iid = setInterval(async () => {
+			await waitForExpect(async () => {
 				await prepareFile(f);
-			}, 1000);
+			}, 50000, 2000);
 		});
 
 		afterAll(async (done) => {
 			await f.deleteFile();
+			if (!isBrowserEnv) {
+				const fs = require('fs');
+				fs.unlinkSync(fileName);
+			}
 			done();
 		});
-	});
 
+	});
 });

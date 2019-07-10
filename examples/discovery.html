@@ -7,22 +7,21 @@
 		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 		<script src="../openeo.js"></script>
 		<script type="text/javascript">
-			var url = "https://earthengine.openeo.org/v0.3"; // Insert the openEO server URL here
+			var url = "https://earthengine.openeo.org"; // Insert the openEO server URL here
 			var connection = null;
 
 			window.onload = function () {
 				document.getElementById('url').innerText = url;
 
-				var client = new OpenEO();
-				document.getElementById('clientVersion').innerText = client.version();
+				document.getElementById('clientVersion').innerText = OpenEO.clientVersion();
 
-				client.connect(url)
+				OpenEO.connect(url)
 				.then(c => {
 					connection = c;
 					return connection.capabilities();
 				})
 				.then(capabilities => {
-					document.getElementById('serverVersion').innerText = capabilities.version();
+					document.getElementById('serverVersion').innerText = capabilities.apiVersion();
 					return connection.listCollections();
 				})
 				.then(collections => {

@@ -1,9 +1,15 @@
+# NPM
 node_modules/
-/dist
 /package-lock.json
 
-/nbproject/
-.vscode
+# Build related
+/openeo.min.js
 
+# Reports
 coverage/
-/test-report.html
+docs/
+
+# Temporary files from the earthengine tests
+/lorem.txt
+/randomnumber.txt
+/downloaded_file.txt
