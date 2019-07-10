@@ -1279,7 +1279,7 @@ class File extends BaseEntity {
 		if (typeof statusCallback === 'function') {
 			options.onUploadProgress = (progressEvent) => {
 				let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
-				statusCallback(percentCompleted);
+				statusCallback(percentCompleted, this);
 			};
 		}
 
