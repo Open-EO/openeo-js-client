@@ -14,8 +14,9 @@ This library can run in node.js or any recent browser supporting ECMAScript 2017
 
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client/openeo.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/oidc-client@1/lib/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+<script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@0.4/openeo.min.js"></script>
 ```
 
 ### NodeJS environment
@@ -85,7 +86,6 @@ More information can be found in the [**JS client documentation**](https://open-
 
 * The JS client only supports browsers with support for ECMAScript 2017 (ES8). This is a steep requirement and should be lowered by transpiling. [#18](https://github.com/Open-EO/openeo-js-client/issues/18)
 * There's no functionality to build process graphs. An easy-to-use process graph builder is envisioned to be implemented. [#19](https://github.com/Open-EO/openeo-js-client/issues/19)
-* Implement authentification via OpenID Connect. [#11](https://github.com/Open-EO/openeo-js-client/issues/11)
 * See the [issue tracker](https://github.com/Open-EO/openeo-js-client/issues) for more information.
 
 ## Interactive JS Editor

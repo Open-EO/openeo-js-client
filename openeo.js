@@ -1,6 +1,12 @@
 if (typeof axios === 'undefined') {
 	/* jshint ignore:start */
-	var axios = require("axios");
+	var axios = require('axios');
+	/* jshint ignore:end */
+}
+if (typeof axios === 'undefined') {
+	/* jshint ignore:start */
+	var oidcClient = require('oidc-client');
+	var { UserManager } = oidcClient;
 	/* jshint ignore:end */
 }
 
@@ -30,16 +36,18 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - 
-	 * @param {object} [authOptions={}] - 
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only) or `null` to disable authentication.
+	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
 	 */
 	static async connect(url, authType = null, authOptions = {}) {
-		let wellKnownUrl = url.replace(/\/$/, "") + '/.well-known/openeo';
+		let wellKnownUrl = Util.normalizeUrl(url, '/.well-known/openeo');
 		let response;
 		try {
 			response = await axios.get(wellKnownUrl);
@@ -75,10 +83,12 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect or `null` to disable authentication.
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only) or `null` to disable authentication.
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -98,7 +108,7 @@ class OpenEO {
 					await connection.authenticateBasic(authOptions.username, authOptions.password);
 					break;
 				case 'oidc':
-					await connection.authenticateOIDC(authOptions);
+					await connection.authenticateOIDC(authOptions.clientId, authOptions.redirectUri);
 					break;
 				default:
 					throw new Error("Unknown authentication type.");
@@ -135,9 +145,11 @@ class Connection {
 	 * @constructor
 	 */
 	constructor(baseUrl) {
-		this.baseUrl = baseUrl;
+		this.baseUrl = Util.normalizeUrl(baseUrl);
 		this.userId = null;
 		this.accessToken = null;
+		this.oidc = null;
+		this.oidcUser = null;
 		this.capabilitiesObject = null;
 		this.subscriptionsObject = new Subscriptions(this);
 	}
@@ -257,15 +269,36 @@ class Connection {
 	/**
 	 * Authenticate with OpenID Connect (OIDC).
 	 * 
+	 * Supported only in Browser environments.
+	 * 
 	 * Not required to be called explicitly if specified in `OpenEO.connect`.
 	 * 
 	 * @param {object} options - Options for OIDC authentication.
-	 * @returns {object}
+	 * @returns {object} Response of `desribeAccount()`.
 	 * @throws {Error}
-	 * @todo Implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
+	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
-	async authenticateOIDC(/*options = null*/) {
-		throw new Error("Not implemented yet.");
+	async authenticateOIDC(clientId, redirectUri) {
+		if (isNode || typeof window === 'undefined') {
+			throw "OpenID Connect authentication is only supported in a browser environment";
+		}
+		this.oidc = new UserManager({
+			authority: Util.normalizeUrl(this.baseUrl, '/credentials/oidc'),
+			client_id: clientId,
+			redirect_uri: redirectUri
+		});
+		this.oidcUser = await this.oidc.signinPopup();
+		this.accessToken = this.oidcUser.access_token;
+		// Either decode id_token or request describeAccount
+		if (this.capabilities.hasFeature('describeAccount')) {
+			var me = await this.describeAccount();
+			this.userId = me.userId;
+			return me;
+		}
+		else {
+			// ToDo: Decode id_token?!
+			throw "Could not load user information.";
+		}
 	}
 
 	/**
@@ -294,6 +327,16 @@ class Connection {
 		this.userId = response.data.user_id;
 		this.accessToken = response.data.access_token;
 		return response.data;
+	}
+
+	async logout() {
+		if (this.oidc !== null) {
+			await this.oidc.signoutPopup();
+			this.oidc = null;
+			this.oidcUser = null;
+		}
+		this.userId = null;
+		this.accessToken = null;
 	}
 
 	/**
@@ -1599,6 +1642,25 @@ class Service extends BaseEntity {
  * @hideconstructor
  */
 class Util {
+
+	/**
+	 * Normalize a URL (mostly handling slashes).
+	 * 
+	 * @static
+	 * @param {string} baseUrl - The URL to normalize
+	 * @param {string} path - An optional path to add to the URL
+	 * @returns {string} Normalized URL.
+	 */
+	static normalizeUrl(baseUrl, path = null) {
+		let url = baseUrl.replace(/\/$/, ""); // Remove trailing slash
+		if (typeof path === 'string') {
+			if (path.substr(0, 1) !== '/') {
+				path = '/' + path; // Add leading slash
+			}
+			url = url + path;
+		}
+		return url;
+	}
 
 	/**
 	 * Encodes a string into Base64 encoding.
