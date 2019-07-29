@@ -83,7 +83,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1601">line 1601</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1644">line 1644</a>
     </li></ul></dd>
     
 
@@ -240,7 +240,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1610">line 1610</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1672">line 1672</a>
     </li></ul></dd>
     
 
@@ -424,7 +424,7 @@ Handles only numeric version numbers separated by dots, doesn't allow wildcards 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1800">line 1800</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1862">line 1862</a>
     </li></ul></dd>
     
 
@@ -595,7 +595,7 @@ Internally uses Jenkins one_at_a_time hash function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1636">line 1636</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1698">line 1698</a>
     </li></ul></dd>
     
 
@@ -761,7 +761,7 @@ Internally uses Jenkins one_at_a_time hash function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1665">line 1665</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1727">line 1727</a>
     </li></ul></dd>
     
 
@@ -930,7 +930,7 @@ This function only returns `true` for real objects and not for arrays, `null` or
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1831">line 1831</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1893">line 1893</a>
     </li></ul></dd>
     
 
@@ -1089,7 +1089,7 @@ This function only returns `true` for real objects and not for arrays, `null` or
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1740">line 1740</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1802">line 1802</a>
     </li></ul></dd>
     
 
@@ -1130,6 +1130,200 @@ This function only returns `true` for real objects and not for arrays, `null` or
     <dd>
         
 <span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".normalizeUrl"><span class="type-signature">(static) </span>normalizeUrl<span class="signature">(baseUrl, path)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Normalize a URL (mostly handling slashes).
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>baseUrl</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The URL to normalize</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">An optional path to add to the URL</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1654">line 1654</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Normalized URL.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
 
 
     </dd>
@@ -1273,7 +1467,7 @@ NOTE: Only supported in a NodeJS environment.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1689">line 1689</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1751">line 1751</a>
     </li></ul></dd>
     
 
@@ -1427,7 +1621,7 @@ Handles only numeric version numbers separated by dots, doesn't allow wildcards 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1776">line 1776</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line1838">line 1838</a>
     </li></ul></dd>
     
 
@@ -1501,7 +1695,7 @@ Handles only numeric version numbers separated by dots, doesn't allow wildcards 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Tue Jul 16 2019 13:05:59 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Jul 29 2019 12:49:20 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
