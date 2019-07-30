@@ -282,8 +282,17 @@ class Connection {
 		if (isNode || typeof window === 'undefined') {
 			throw "OpenID Connect authentication is only supported in a browser environment";
 		}
+		var response = await this._send({
+			method: 'get',
+			url: '/credentials/oidc',
+			maxRedirects: 0 // Disallow redirects
+		});
+		var responseUrl = isNode ? response.request.res.responseUrl : response.request.responseURL;
+		if (typeof responseUrl !== 'string') {
+			throw "No URL available for OpenID Connect Discovery";
+		}
 		this.oidc = new UserManager({
-			authority: Util.normalizeUrl(this.baseUrl, '/credentials/oidc'),
+			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
 			client_id: clientId,
 			redirect_uri: redirectUri
 		});
