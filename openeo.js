@@ -41,7 +41,8 @@ class OpenEO {
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
 	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
-	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.redirectUri=false] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {boolean} [authOptions.openPopup] - OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -89,6 +90,7 @@ class OpenEO {
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
 	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
 	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {boolean} [authOptions.openPopup=false] - OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -108,7 +110,7 @@ class OpenEO {
 					await connection.authenticateBasic(authOptions.username, authOptions.password);
 					break;
 				case 'oidc':
-					await connection.authenticateOIDC(authOptions.clientId, authOptions.redirectUri);
+					await connection.authenticateOIDC(authOptions.clientId, authOptions.redirectUri, authOptions.openPopup || false);
 					break;
 				default:
 					throw new Error("Unknown authentication type.");
@@ -273,12 +275,14 @@ class Connection {
 	 * 
 	 * Not required to be called explicitly if specified in `OpenEO.connect`.
 	 * 
-	 * @param {object} options - Options for OIDC authentication.
+	 * @param {string} clientId - Your client application's identifier as registered with the OIDC provider
+	 * @param {string} redirectUri - The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {boolean} [openPopup=false] - Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
 	 * @returns {object} Response of `desribeAccount()`.
 	 * @throws {Error}
 	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
-	async authenticateOIDC(clientId, redirectUri) {
+	async authenticateOIDC(clientId, redirectUri, openPopup = false) {
 		if (isNode || typeof window === 'undefined') {
 			throw "OpenID Connect authentication is only supported in a browser environment";
 		}
@@ -296,7 +300,7 @@ class Connection {
 			client_id: clientId,
 			redirect_uri: redirectUri
 		});
-		this.oidcUser = await this.oidc.signinPopup();
+		this.oidcUser = openPopup ? await this.oidc.signinPopup() : await this.oidc.signinRedirect();
 		this.accessToken = this.oidcUser.access_token;
 		// Either decode id_token or request describeAccount
 		if (this.capabilities.hasFeature('describeAccount')) {
@@ -338,9 +342,14 @@ class Connection {
 		return response.data;
 	}
 
-	async logout() {
+	/**
+	 * Logout from the established session.
+	 * 
+	 * @param {boolean} [openPopup=false] - OpenID Connect only: Open a popup for the logout (`true`) instead of redirecting to the logout (`false`, default).
+	 */
+	async logout(openPopup = false) {
 		if (this.oidc !== null) {
-			await this.oidc.signoutPopup();
+			openPopup ? await this.oidc.signoutPopup() : await this.oidc.signinRedirect();
 			this.oidc = null;
 			this.oidcUser = null;
 		}
