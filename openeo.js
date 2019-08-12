@@ -57,13 +57,9 @@ class OpenEO {
 			}
 		} catch(error) {
 			/** @todo We should replace the fallback in a 1.0 or so. */
-			if (error.response && [403,404,405,501].includes(error.response.status)) {
-				console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.");
-			}
-			else {
-				throw error;
-			}
+			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error);
 		}
+	
 
 		return await OpenEO.connectDirect(url, authType, authOptions);
 	}
@@ -116,7 +112,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.0";
+		return "0.4.1";
 	}
 
 }
@@ -1279,7 +1275,7 @@ class File extends BaseEntity {
 		if (typeof statusCallback === 'function') {
 			options.onUploadProgress = (progressEvent) => {
 				let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
-				statusCallback(percentCompleted);
+				statusCallback(percentCompleted, this);
 			};
 		}
 

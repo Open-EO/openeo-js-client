@@ -465,7 +465,7 @@ describe('With earth-engine-driver', () => {
 			// Start job
 			await expect(job.startJob()).resolves.toBeTruthy();
 			var jobdetails = await job.describeJob();
-			expect(jobdetails.status).toBe('queued');
+			expect(['queued', 'running']).toContain(jobdetails.status);
 
 			await waitForExpect(async () => {
 				var jobdetails = await job.describeJob();
