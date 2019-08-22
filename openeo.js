@@ -345,7 +345,12 @@ class Connection {
 	 */
 	async logout(openPopup = false) {
 		if (this.oidc !== null) {
-			openPopup ? await this.oidc.signoutPopup() : await this.oidc.signinRedirect();
+			if (openPopup) {
+				await this.oidc.signoutPopup();
+			}
+			else {
+				await this.oidc.signinRedirect();
+			}
 			this.oidc = null;
 			this.oidcUser = null;
 		}
