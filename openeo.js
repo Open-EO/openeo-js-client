@@ -1,15 +1,3 @@
-if (typeof axios === 'undefined') {
-	/* jshint ignore:start */
-	var axios = require('axios');
-	/* jshint ignore:end */
-}
-if (typeof axios === 'undefined') {
-	/* jshint ignore:start */
-	var oidcClient = require('oidc-client');
-	var { UserManager } = oidcClient;
-	/* jshint ignore:end */
-}
-
 /**
  * Flag that indicated whether we are nunning in a NodeJS environment (`true`) or not (`false`).
  * 
@@ -19,6 +7,26 @@ let isNode = false;
 try {
 	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
 } catch(e) {}
+
+if (typeof axios === 'undefined') {
+	/* jshint ignore:start */
+	var axios = require('axios');
+	/* jshint ignore:end */
+}
+if (typeof UserManager === 'undefined') {
+	/* jshint ignore:start */
+	try {
+		var { UserManager } = require('oidc-client');
+	} catch (e) {}
+	/* jshint ignore:end */
+}
+if (typeof jwt_decode === 'undefined') {
+	/* jshint ignore:start */
+	try {
+		var jwt_decode = require('jwt-decode');
+	} catch (e) {}
+	/* jshint ignore:end */
+}
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -298,16 +306,11 @@ class Connection {
 		});
 		this.oidcUser = openPopup ? await this.oidc.signinPopup() : await this.oidc.signinRedirect();
 		this.accessToken = this.oidcUser.access_token;
-		// Either decode id_token or request describeAccount
-		if (this.capabilities.hasFeature('describeAccount')) {
-			var me = await this.describeAccount();
-			this.userId = me.userId;
-			return me;
+		var decodedToken = jwt_decode(this.accessToken);
+		if (!decodedToken.sub) {
+			throw "Retrieved token is invalid!";
 		}
-		else {
-			// ToDo: Decode id_token?!
-			throw "Could not load user information.";
-		}
+		this.userId = decodedToken.sub;
 	}
 
 	/**
