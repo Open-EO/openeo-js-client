@@ -146,7 +146,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line172">line 172</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line170">line 170</a>
     </li></ul></dd>
     
 
@@ -305,7 +305,7 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line366">line 366</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line370">line 370</a>
     </li></ul></dd>
     
 
@@ -378,7 +378,7 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
     
 
     
-    <h4 class="name" id="authenticateOIDC"><span class="type-signature">(async) </span>authenticateOIDC<span class="signature">(clientId, redirectUri, uiMethod<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="authenticateOIDC"><span class="type-signature">(async) </span>authenticateOIDC<span class="signature">(authOptions<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -430,6 +430,68 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
 
         <tr>
             
+                <td class="name"><code>authOptions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last">Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
                 <td class="name"><code>clientId</code></td>
             
 
@@ -444,6 +506,8 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
 
             
                 <td class="attributes">
+                
+                    &lt;optional><br>
                 
 
                 
@@ -480,6 +544,8 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
 
@@ -494,6 +560,45 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
             
 
             <td class="description last">The redirect URI of your client application to receive a response from the OIDC provider.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>scope</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    openid
+                
+                </td>
+            
+
+            <td class="description last">OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.</td>
         </tr>
 
     
@@ -532,7 +637,14 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
                 </td>
             
 
-            <td class="description last">Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).</td>
+            <td class="description last">Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -573,7 +685,7 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line325">line 325</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line332">line 332</a>
     </li></ul></dd>
     
 
@@ -705,7 +817,7 @@ Not required to be called explicitly if specified in `OpenEO.connect`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line217">line 217</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line215">line 215</a>
     </li></ul></dd>
     
 
@@ -960,7 +1072,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line524">line 524</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line525">line 525</a>
     </li></ul></dd>
     
 
@@ -1333,7 +1445,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line561">line 561</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line562">line 562</a>
     </li></ul></dd>
     
 
@@ -1601,7 +1713,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line488">line 488</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line489">line 489</a>
     </li></ul></dd>
     
 
@@ -2060,7 +2172,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line621">line 621</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line622">line 622</a>
     </li></ul></dd>
     
 
@@ -2185,7 +2297,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line413">line 413</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line414">line 414</a>
     </li></ul></dd>
     
 
@@ -2359,7 +2471,7 @@ Please note that requests can take a very long time of several minutes or even h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line277">line 277</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line275">line 275</a>
     </li></ul></dd>
     
 
@@ -2558,7 +2670,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line700">line 700</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line701">line 701</a>
     </li></ul></dd>
     
 
@@ -2671,7 +2783,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line199">line 199</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line197">line 197</a>
     </li></ul></dd>
     
 
@@ -2830,7 +2942,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line587">line 587</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line588">line 588</a>
     </li></ul></dd>
     
 
@@ -3004,7 +3116,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line508">line 508</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line509">line 509</a>
     </li></ul></dd>
     
 
@@ -3178,7 +3290,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line650">line 650</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line651">line 651</a>
     </li></ul></dd>
     
 
@@ -3303,7 +3415,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line208">line 208</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -3413,7 +3525,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line188">line 188</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -3523,7 +3635,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line773">line 773</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line774">line 774</a>
     </li></ul></dd>
     
 
@@ -3633,7 +3745,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line264">line 264</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line262">line 262</a>
     </li></ul></dd>
     
 
@@ -3827,7 +3939,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line426">line 426</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line427">line 427</a>
     </li></ul></dd>
     
 
@@ -3952,7 +4064,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line228">line 228</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line226">line 226</a>
     </li></ul></dd>
     
 
@@ -4077,7 +4189,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line541">line 541</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line542">line 542</a>
     </li></ul></dd>
     
 
@@ -4202,7 +4314,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line289">line 289</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line287">line 287</a>
     </li></ul></dd>
     
 
@@ -4327,7 +4439,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line471">line 471</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line472">line 472</a>
     </li></ul></dd>
     
 
@@ -4452,7 +4564,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line599">line 599</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line600">line 600</a>
     </li></ul></dd>
     
 
@@ -4577,7 +4689,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line240">line 240</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line238">line 238</a>
     </li></ul></dd>
     
 
@@ -4702,7 +4814,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line252">line 252</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line250">line 250</a>
     </li></ul></dd>
     
 
@@ -4855,7 +4967,7 @@ May include authorization details where required.
                 </td>
             
 
-            <td class="description last">OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).</td>
+            <td class="description last">OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).</td>
         </tr>
 
     
@@ -4896,7 +5008,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line388">line 388</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line392">line 392</a>
     </li></ul></dd>
     
 
@@ -5088,7 +5200,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line442">line 442</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line443">line 443</a>
     </li></ul></dd>
     
 
@@ -5150,6 +5262,150 @@ May include authorization details where required.
 </dl>
 
     
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setOidcUser"><span class="type-signature"></span>setOidcUser<span class="signature">(user)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Sets the OIDC User.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">User</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The OIDC User returned by OpenEO.finishAuthenticateOIDC(). Passing `null` resets OIDC authentication details.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line298">line 298</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/IdentityModel/oidc-client-js/wiki#user">https://github.com/IdentityModel/oidc-client-js/wiki#user</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5352,7 +5608,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line788">line 788</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line789">line 789</a>
     </li></ul></dd>
     
 
@@ -5568,7 +5824,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line802">line 802</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line803">line 803</a>
     </li></ul></dd>
     
 
@@ -5729,7 +5985,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line454">line 454</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line455">line 455</a>
     </li></ul></dd>
     
 
@@ -5796,7 +6052,7 @@ May include authorization details where required.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Aug 30 2019 14:12:08 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Aug 30 2019 15:40:30 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
