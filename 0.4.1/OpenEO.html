@@ -83,7 +83,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line29">line 29</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -588,7 +588,7 @@ Requests the capabilities and authenticates where required.
 
         <tr>
             
-                <td class="name"><code>openPopup</code></td>
+                <td class="name"><code>uiMethod</code></td>
             
 
             <td class="type">
@@ -615,10 +615,12 @@ Requests the capabilities and authenticates where required.
             
                 <td class="default">
                 
+                    redirect
+                
                 </td>
             
 
-            <td class="description last">OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).</td>
+            <td class="description last">OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).</td>
         </tr>
 
     
@@ -666,7 +668,7 @@ Requests the capabilities and authenticates where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line50">line 50</a>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line51">line 51</a>
     </li></ul></dd>
     
 
@@ -1069,7 +1071,7 @@ Doesn't do version discovery, therefore a URL of a versioned API must be specifi
 
         <tr>
             
-                <td class="name"><code>openPopup</code></td>
+                <td class="name"><code>uiMethod</code></td>
             
 
             <td class="type">
@@ -1096,12 +1098,12 @@ Doesn't do version discovery, therefore a URL of a versioned API must be specifi
             
                 <td class="default">
                 
-                    false
+                    redirect
                 
                 </td>
             
 
-            <td class="description last">OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).</td>
+            <td class="description last">OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).</td>
         </tr>
 
     
@@ -1213,6 +1215,187 @@ Doesn't do version discovery, therefore a URL of a versioned API must be specifi
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id=".finishAuthenticateOIDC"><span class="type-signature">(async, static) </span>finishAuthenticateOIDC<span class="signature">(uiMethod<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {User}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Finishes the OpenID Connect authentication worflow.
+
+Must be called in the page that OpenID Connect redirects to.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>uiMethod</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    redirect
+                
+                </td>
+            
+
+            <td class="description last">OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line139">line 139</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    For uiMethod = 'redirect' only: OIDC User (to be assigned to the connection via setOidcUser).
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">User</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -1234,7 +1417,7 @@ Doesn't do version discovery, therefore a URL of a versioned API must be specifi
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Aug 22 2019 16:54:55 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Aug 30 2019 14:12:08 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
