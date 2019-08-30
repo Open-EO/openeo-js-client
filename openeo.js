@@ -20,13 +20,6 @@ if (typeof UserManager === 'undefined') {
 	} catch (e) {}
 	/* jshint ignore:end */
 }
-if (typeof jwt_decode === 'undefined') {
-	/* jshint ignore:start */
-	try {
-		var jwt_decode = require('jwt-decode');
-	} catch (e) {}
-	/* jshint ignore:end */
-}
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -50,7 +43,7 @@ class OpenEO {
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
 	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
 	 * @param {string} [authOptions.redirectUri=false] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {boolean} [authOptions.openPopup] - OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
+	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -76,7 +69,6 @@ class OpenEO {
 			/** @todo We should replace the fallback in a 1.0 or so. */
 			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error);
 		}
-	
 
 		return await OpenEO.connectDirect(url, authType, authOptions);
 	}
@@ -94,7 +86,7 @@ class OpenEO {
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
 	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
 	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {boolean} [authOptions.openPopup=false] - OpenID Connect only: Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
+	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -114,7 +106,7 @@ class OpenEO {
 					await connection.authenticateBasic(authOptions.username, authOptions.password);
 					break;
 				case 'oidc':
-					await connection.authenticateOIDC(authOptions.clientId, authOptions.redirectUri, authOptions.openPopup || false);
+					await connection.authenticateOIDC(authOptions.clientId, authOptions.redirectUri, authOptions.uiMethod);
 					break;
 				default:
 					throw new Error("Unknown authentication type.");
@@ -133,6 +125,33 @@ class OpenEO {
 	 */
 	static clientVersion() {
 		return "0.4.1";
+	}
+
+	/**
+	 * Finishes the OpenID Connect authentication worflow.
+	 * 
+	 * Must be called in the page that OpenID Connect redirects to.
+	 * 
+	 * @async
+	 * @param {boolean} [uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).
+	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the connection via setOidcUser). 
+	 */
+	static async finishAuthenticateOIDC(uiMethod = 'redirect') {
+		try {
+			console.log(uiMethod);
+			var oidc = new UserManager();
+			if (uiMethod === 'popup') {
+				await oidc.signinPopupCallback();
+			}
+			else if (uiMethod === 'iframe') {
+				await oidc.signinSilentCallback();
+			}
+			else {
+				return await oidc.signinRedirectCallback();
+			}
+		} catch (e) {
+			console.log(e);
+		}
 	}
 
 }
@@ -272,6 +291,23 @@ class Connection {
 		return response.data;
 	}
 
+	setOidcUser(user) {
+		if (!user) {
+			this.oidcUser = null;
+			this.userId = null;
+			this.accessToken = null;
+		}
+		else {
+			if (!user.profile || !user.profile.sub) {
+				throw "Retrieved token is invalid.";
+			}
+			console.log(user);
+			this.oidcUser = user;
+			this.userId = user.profile.sub; // ToDo: The sub is not necessarily the correct userId
+			this.accessToken = user.access_token || user.id_token; // ToDo: Which one to send? 
+		}
+	}
+
 	/**
 	 * Authenticate with OpenID Connect (OIDC).
 	 * 
@@ -281,36 +317,40 @@ class Connection {
 	 * 
 	 * @param {string} clientId - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} redirectUri - The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {boolean} [openPopup=false] - Open a popup for authentication (`true`) instead of redirecting to login form (`false`, default).
+	 * @param {boolean} [uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).
 	 * @returns {object} Response of `desribeAccount()`.
 	 * @throws {Error}
 	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
-	async authenticateOIDC(clientId, redirectUri, openPopup = false) {
+	async authenticateOIDC(clientId, redirectUri, uiMethod = 'redirect') {
 		if (isNode || typeof window === 'undefined') {
 			throw "OpenID Connect authentication is only supported in a browser environment";
 		}
+
 		var response = await this._send({
 			method: 'get',
 			url: '/credentials/oidc',
 			maxRedirects: 0 // Disallow redirects
 		});
-		var responseUrl = isNode ? response.request.res.responseUrl : response.request.responseURL;
+		var responseUrl = response.request.responseURL; // Would be response.request.res.responseUrl in Node
 		if (typeof responseUrl !== 'string') {
 			throw "No URL available for OpenID Connect Discovery";
 		}
 		this.oidc = new UserManager({
 			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
 			client_id: clientId,
-			redirect_uri: redirectUri
+			redirect_uri: redirectUri,
+			response_type: 'id_token'
 		});
-		this.oidcUser = openPopup ? await this.oidc.signinPopup() : await this.oidc.signinRedirect();
-		this.accessToken = this.oidcUser.access_token;
-		var decodedToken = jwt_decode(this.accessToken);
-		if (!decodedToken.sub) {
-			throw "Retrieved token is invalid!";
+		if (uiMethod === 'popup') {
+			this.setOidcUser(await this.oidc.signinPopup());
 		}
-		this.userId = decodedToken.sub;
+		else if (uiMethod === 'iframe') {
+			this.setOidcUser(await this.oidc.signinSilent());
+		}
+		else {
+			await this.oidc.signinRedirect();
+		}
 	}
 
 	/**
@@ -343,16 +383,18 @@ class Connection {
 
 	/**
 	 * Logout from the established session.
-	 * 
-	 * @param {boolean} [openPopup=false] - OpenID Connect only: Open a popup for the logout (`true`) instead of redirecting to the logout (`false`, default).
+	 * @param {boolean} [uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window), `iframe` (silently show in an iframe) or `redirect` (HTTP redirects, default).
 	 */
-	async logout(openPopup = false) {
+	async logout(uiMethod = 'redirect') {
 		if (this.oidc !== null) {
-			if (openPopup) {
+			if (uiMethod === 'popup') {
 				await this.oidc.signoutPopup();
 			}
+			else if (uiMethod === 'iframe') {
+				await this.oidc.signoutSilent();
+			}
 			else {
-				await this.oidc.signinRedirect();
+				await this.oidc.signoutRedirect();
 			}
 			this.oidc = null;
 			this.oidcUser = null;
