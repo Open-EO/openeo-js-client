@@ -35,6 +35,10 @@ class OpenEO {
 	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
 	 * Requests the capabilities and authenticates where required.
 	 * 
+	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
+	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
 	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only) or `null` to disable authentication.
@@ -78,6 +82,10 @@ class OpenEO {
 	 * Connects directly to a back-end instance, without version discovery (NOT recommended).
 	 * 
 	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
+	 * 
+	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
@@ -307,9 +315,11 @@ class Connection {
 			}
 			this.oidcUser = user;
 			if (user.profile.sub) {
-				this.userId = user.profile.sub; // ToDo: The sub is not necessarily the correct userId
+				// The sub is not necessarily the correct userId.
+				// After authentication describeAccount() should be called to get a safe userId.
+				this.userId = user.profile.sub;
 			}
-			this.accessToken = user.access_token || user.id_token; // ToDo: Which one to send? 
+			this.accessToken = user.id_token;
 		}
 	}
 
@@ -320,12 +330,15 @@ class Connection {
 	 * 
 	 * Not required to be called explicitly if specified in `OpenEO.connect`.
 	 * 
+	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
+	 * 
 	 * @param {object} [authOptions={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
 	 * @param {string} [authOptions.clientId] - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} [authOptions.redirectUri] - The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
 	 * @param {boolean} [authOptions.uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
-	 * @returns {object} Response of `desribeAccount()`.
 	 * @throws {Error}
 	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
@@ -347,7 +360,8 @@ class Connection {
 			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
 			client_id: authOptions.clientId,
 			redirect_uri: authOptions.redirectUri,
-			response_type: 'id_token' // ToDo: and/or token?
+			response_type: 'id_token',
+			scope: authOptions.scope || 'openid'
 		}));
 		if (authOptions.uiMethod === 'popup') {
 			this.setOidcUser(await this.oidc.signinPopup());
@@ -407,12 +421,17 @@ class Connection {
 	/**
 	 * Get information about the authenticated user.
 	 * 
+	 * Updates the User ID if available.
+	 * 
 	 * @async
 	 * @returns {object} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeAccount() {
 		let response = await this._get('/me');
+		if (response.data && typeof response.data === 'object' && response.data.userId) {
+			this.userId = response.data.userId;
+		}
 		return response.data;
 	}
 
