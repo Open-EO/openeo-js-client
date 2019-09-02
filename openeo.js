@@ -35,13 +35,14 @@ class OpenEO {
 	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
 	 * Requests the capabilities and authenticates where required.
 	 * 
-	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Please note that support for OpenID Connect is EXPERIMENTAL!
+	 * Also note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
 	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
 	 * Users should always request the user details using descibeAccount() directly after authentication.
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only) or `null` to disable authentication.
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only, experimental) or `null` to disable authentication.
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
@@ -83,13 +84,14 @@ class OpenEO {
 	 * 
 	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
 	 * 
-	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Please note that support for OpenID Connect is EXPERIMENTAL!
+	 * Also note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
 	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
 	 * Users should always request the user details using descibeAccount() directly after authentication.
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only) or `null` to disable authentication.
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only, experimental) or `null` to disable authentication.
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
@@ -138,7 +140,7 @@ class OpenEO {
 	}
 
 	/**
-	 * Finishes the OpenID Connect signin (authentication) worflow.
+	 * Finishes the OpenID Connect signin (authentication) worflow - EXPERIMENTAL!
 	 * 
 	 * Must be called in the page that OpenID Connect redirects to after logging in.
 	 * 
@@ -322,7 +324,7 @@ class Connection {
 	}
 
 	/**
-	 * Authenticate with OpenID Connect (OIDC).
+	 * Authenticate with OpenID Connect (OIDC) - EXPERIMENTAL!
 	 * 
 	 * Supported only in Browser environments.
 	 * 
@@ -396,7 +398,9 @@ class Connection {
 	}
 
 	/**
-	 * Logout from the established session.
+	 * Logout from the established session - EXPERIMENTAL!
+	 * 
+	 * @async
 	 */
 	async logout() {
 		if (this.oidc !== null) {
