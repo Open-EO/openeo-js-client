@@ -4,7 +4,7 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-The version of this client is **0.4.1** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
+The version of this client is **0.4.2** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
 
 ## Usage
 
@@ -80,7 +80,7 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.1/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.2/).
 
 ## Roadmap
 

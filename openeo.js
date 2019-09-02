@@ -45,8 +45,8 @@ class OpenEO {
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
-	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
-	 * @param {string} [authOptions.redirectUri=false] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.client_id] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
 	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
@@ -93,8 +93,8 @@ class OpenEO {
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
-	 * @param {string} [authOptions.clientId] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
-	 * @param {string} [authOptions.redirectUri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.client_id] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
 	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
@@ -134,27 +134,25 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.1";
+		return "0.4.2";
 	}
 
 	/**
-	 * Finishes the OpenID Connect authentication worflow.
+	 * Finishes the OpenID Connect signin (authentication) worflow.
 	 * 
-	 * Must be called in the page that OpenID Connect redirects to.
+	 * Must be called in the page that OpenID Connect redirects to after logging in.
 	 * 
 	 * @async
-	 * @param {boolean} [uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
-	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setOidcUser). 
+	 * @param {boolean} [uiMethod=redirect] - Method how to load and show the signin/authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
+	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUserOIDC). 
 	 */
-	static async finishAuthenticateOIDC(uiMethod = 'redirect') {
+	static async signinCallbackOIDC(uiMethod = 'redirect') {
 		try {
 			var oidc = new UserManager();
 			if (uiMethod === 'popup') {
-				await oidc.signoutPopupCallback();
 				await oidc.signinPopupCallback();
 			}
 			else {
-				await oidc.signoutRedirectCallback();
 				return await oidc.signinRedirectCallback();
 			}
 		} catch (e) {}
@@ -301,9 +299,9 @@ class Connection {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {User} user - The OIDC User returned by OpenEO.finishAuthenticateOIDC(). Passing `null` resets OIDC authentication details.
+	 * @param {User} user - The OIDC User returned by OpenEO.signinCallbackOIDC(). Passing `null` resets OIDC authentication details.
 	 */
-	setOidcUser(user) {
+	setUserOIDC(user) {
 		if (!user) {
 			this.oidcUser = null;
 			this.userId = null;
@@ -335,8 +333,8 @@ class Connection {
 	 * Users should always request the user details using descibeAccount() directly after authentication.
 	 * 
 	 * @param {object} [authOptions={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
-	 * @param {string} [authOptions.clientId] - Your client application's identifier as registered with the OIDC provider
-	 * @param {string} [authOptions.redirectUri] - The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.client_id] - Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {string} [authOptions.scope=openid] - The scope being requested from the OIDC provider. Defaults to `openid`.
 	 * @param {boolean} [authOptions.uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @throws {Error}
@@ -356,15 +354,13 @@ class Connection {
 		if (typeof responseUrl !== 'string') {
 			throw "No URL available for OpenID Connect Discovery";
 		}
-		this.oidc = new UserManager(Object.assign(authOptions, {
+		this.oidc = new UserManager(Object.assign({
 			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
-			client_id: authOptions.clientId,
-			redirect_uri: authOptions.redirectUri,
 			response_type: 'id_token',
-			scope: authOptions.scope || 'openid'
-		}));
+			scope: 'openid'
+		}, authOptions));
 		if (authOptions.uiMethod === 'popup') {
-			this.setOidcUser(await this.oidc.signinPopup());
+			this.setUserOIDC(await this.oidc.signinPopup());
 		}
 		else {
 			await this.oidc.signinRedirect();
@@ -401,17 +397,10 @@ class Connection {
 
 	/**
 	 * Logout from the established session.
-	 * 
-	 * @param {boolean} [uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 */
-	async logout(uiMethod = 'redirect') {
+	async logout() {
 		if (this.oidc !== null) {
-			if (uiMethod === 'popup') {
-				await this.oidc.signoutPopup();
-			}
-			else {
-				await this.oidc.signoutRedirect();
-			}
+			await this.oidc.signoutRedirect();
 			this.oidc = null;
 			this.oidcUser = null;
 		}
