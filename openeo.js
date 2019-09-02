@@ -337,7 +337,7 @@ class Connection {
 	 * @param {object} [authOptions={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
 	 * @param {string} [authOptions.clientId] - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} [authOptions.redirectUri] - The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
+	 * @param {string} [authOptions.scope=openid] - The scope being requested from the OIDC provider. Defaults to `openid`.
 	 * @param {boolean} [authOptions.uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @throws {Error}
 	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
@@ -401,6 +401,7 @@ class Connection {
 
 	/**
 	 * Logout from the established session.
+	 * 
 	 * @param {boolean} [uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 */
 	async logout(uiMethod = 'redirect') {
