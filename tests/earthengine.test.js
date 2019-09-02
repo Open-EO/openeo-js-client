@@ -75,16 +75,6 @@ describe('With earth-engine-driver', () => {
 			expect(login).toHaveProperty('access_token');
 		});
 
-		test('Auth via OIDC is not implemented yet', async () => {
-			var con = await connectWithoutAuth();
-			expect(con).not.toBeNull();
-			expect(Object.getPrototypeOf(con).constructor.name).toBe('Connection');
-			expect(con.isLoggedIn()).toBeFalsy();
-			expect(con.getUserId()).toBeNull();
-			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
-			await expect(con.authenticateOIDC({})).rejects.toThrow(new Error('Not implemented yet.'));
-		});
-
 		test('Manually connect with wrong Basic Auth credentials', async () => {
 			var con = await connectWithoutAuth();
 			expect(con).not.toBeNull();
@@ -95,10 +85,6 @@ describe('With earth-engine-driver', () => {
 			expect(con.isLoggedIn()).toBeFalsy();
 			expect(con.getUserId()).toBeNull();
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
-		});
-
-		test('Connect via OIDC is not implemented yet', async () => {
-			await expect(OpenEO.connect(TESTBACKEND, 'oidc', {})).rejects.toThrow(new Error('Not implemented yet.'));
 		});
 
 		test('Connect via unknown should throw an error', async () => {

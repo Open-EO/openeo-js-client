@@ -1,9 +1,3 @@
-if (typeof axios === 'undefined') {
-	/* jshint ignore:start */
-	var axios = require("axios");
-	/* jshint ignore:end */
-}
-
 /**
  * Flag that indicated whether we are nunning in a NodeJS environment (`true`) or not (`false`).
  * 
@@ -13,6 +7,19 @@ let isNode = false;
 try {
 	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
 } catch(e) {}
+
+if (typeof axios === 'undefined') {
+	/* jshint ignore:start */
+	var axios = require('axios');
+	/* jshint ignore:end */
+}
+if (typeof UserManager === 'undefined') {
+	/* jshint ignore:start */
+	try {
+		var { UserManager } = require('oidc-client');
+	} catch (e) {}
+	/* jshint ignore:end */
+}
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -28,18 +35,27 @@ class OpenEO {
 	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
 	 * Requests the capabilities and authenticates where required.
 	 * 
+	 * Please note that support for OpenID Connect is EXPERIMENTAL!
+	 * Also note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
+	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - 
-	 * @param {object} [authOptions={}] - 
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only, experimental) or `null` to disable authentication.
+	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @param {string} [authOptions.client_id] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
+	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
 	 */
 	static async connect(url, authType = null, authOptions = {}) {
-		let wellKnownUrl = url.replace(/\/$/, "") + '/.well-known/openeo';
+		let wellKnownUrl = Util.normalizeUrl(url, '/.well-known/openeo');
 		let response;
 		try {
 			response = await axios.get(wellKnownUrl);
@@ -59,7 +75,6 @@ class OpenEO {
 			/** @todo We should replace the fallback in a 1.0 or so. */
 			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error);
 		}
-	
 
 		return await OpenEO.connectDirect(url, authType, authOptions);
 	}
@@ -69,12 +84,21 @@ class OpenEO {
 	 * 
 	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
 	 * 
+	 * Please note that support for OpenID Connect is EXPERIMENTAL!
+	 * Also note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
+	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect or `null` to disable authentication.
+	 * @param {string} [authType=null] - Authentication type, either `basic` for HTTP Basic, `oidc` for OpenID Connect (Browser only, experimental) or `null` to disable authentication.
 	 * @param {object} [authOptions={}] - Object with authentication options.
 	 * @param {string} [authOptions.username] - HTTP Basic only: Username
 	 * @param {string} [authOptions.password] - HTTP Basic only: Password
+	 * @param {string} [authOptions.client_id] - OpenID Connect only: Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - OpenID Connect only: The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.scope=openid] - OpenID Connect only: The scope being requested from the OIDC provider. Defaults to `openid`.
+	 * @param {boolean} [authOptions.uiMethod=redirect] - OpenID Connect only: Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @returns {Connection}
 	 * @throws {Error}
 	 * @static
@@ -112,7 +136,28 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.1";
+		return "0.4.2";
+	}
+
+	/**
+	 * Finishes the OpenID Connect signin (authentication) worflow - EXPERIMENTAL!
+	 * 
+	 * Must be called in the page that OpenID Connect redirects to after logging in.
+	 * 
+	 * @async
+	 * @param {boolean} [uiMethod=redirect] - Method how to load and show the signin/authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
+	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUserOIDC). 
+	 */
+	static async signinCallbackOIDC(uiMethod = 'redirect') {
+		try {
+			var oidc = new UserManager();
+			if (uiMethod === 'popup') {
+				await oidc.signinPopupCallback();
+			}
+			else {
+				return await oidc.signinRedirectCallback();
+			}
+		} catch (e) {}
 	}
 
 }
@@ -131,9 +176,11 @@ class Connection {
 	 * @constructor
 	 */
 	constructor(baseUrl) {
-		this.baseUrl = baseUrl;
+		this.baseUrl = Util.normalizeUrl(baseUrl);
 		this.userId = null;
 		this.accessToken = null;
+		this.oidc = null;
+		this.oidcUser = null;
 		this.capabilitiesObject = null;
 		this.subscriptionsObject = new Subscriptions(this);
 	}
@@ -251,17 +298,75 @@ class Connection {
 	}
 
 	/**
-	 * Authenticate with OpenID Connect (OIDC).
+	 * Sets the OIDC User.
+	 * 
+	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
+	 * @param {User} user - The OIDC User returned by OpenEO.signinCallbackOIDC(). Passing `null` resets OIDC authentication details.
+	 */
+	setUserOIDC(user) {
+		if (!user) {
+			this.oidcUser = null;
+			this.userId = null;
+			this.accessToken = null;
+		}
+		else {
+			if (!user.profile) {
+				throw "Retrieved token is invalid.";
+			}
+			this.oidcUser = user;
+			if (user.profile.sub) {
+				// The sub is not necessarily the correct userId.
+				// After authentication describeAccount() should be called to get a safe userId.
+				this.userId = user.profile.sub;
+			}
+			this.accessToken = user.id_token;
+		}
+	}
+
+	/**
+	 * Authenticate with OpenID Connect (OIDC) - EXPERIMENTAL!
+	 * 
+	 * Supported only in Browser environments.
 	 * 
 	 * Not required to be called explicitly if specified in `OpenEO.connect`.
 	 * 
-	 * @param {object} options - Options for OIDC authentication.
-	 * @returns {object}
+	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
+	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
+	 * Users should always request the user details using descibeAccount() directly after authentication.
+	 * 
+	 * @param {object} [authOptions={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
+	 * @param {string} [authOptions.client_id] - Your client application's identifier as registered with the OIDC provider
+	 * @param {string} [authOptions.redirect_uri] - The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} [authOptions.scope=openid] - The scope being requested from the OIDC provider. Defaults to `openid`.
+	 * @param {boolean} [authOptions.uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
 	 * @throws {Error}
-	 * @todo Implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
+	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
-	async authenticateOIDC(/*options = null*/) {
-		throw new Error("Not implemented yet.");
+	async authenticateOIDC(authOptions) {
+		if (isNode || typeof window === 'undefined') {
+			throw "OpenID Connect authentication is only supported in a browser environment";
+		}
+
+		var response = await this._send({
+			method: 'get',
+			url: '/credentials/oidc',
+			maxRedirects: 0 // Disallow redirects
+		});
+		var responseUrl = response.request.responseURL; // Would be response.request.res.responseUrl in Node
+		if (typeof responseUrl !== 'string') {
+			throw "No URL available for OpenID Connect Discovery";
+		}
+		this.oidc = new UserManager(Object.assign({
+			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
+			response_type: 'id_token',
+			scope: 'openid'
+		}, authOptions));
+		if (authOptions.uiMethod === 'popup') {
+			this.setUserOIDC(await this.oidc.signinPopup());
+		}
+		else {
+			await this.oidc.signinRedirect();
+		}
 	}
 
 	/**
@@ -293,7 +398,24 @@ class Connection {
 	}
 
 	/**
+	 * Logout from the established session - EXPERIMENTAL!
+	 * 
+	 * @async
+	 */
+	async logout() {
+		if (this.oidc !== null) {
+			await this.oidc.signoutRedirect();
+			this.oidc = null;
+			this.oidcUser = null;
+		}
+		this.userId = null;
+		this.accessToken = null;
+	}
+
+	/**
 	 * Get information about the authenticated user.
+	 * 
+	 * Updates the User ID if available.
 	 * 
 	 * @async
 	 * @returns {object} A response compatible to the API specification.
@@ -301,6 +423,9 @@ class Connection {
 	 */
 	async describeAccount() {
 		let response = await this._get('/me');
+		if (response.data && typeof response.data === 'object' && response.data.userId) {
+			this.userId = response.data.userId;
+		}
 		return response.data;
 	}
 
@@ -1595,6 +1720,25 @@ class Service extends BaseEntity {
  * @hideconstructor
  */
 class Util {
+
+	/**
+	 * Normalize a URL (mostly handling slashes).
+	 * 
+	 * @static
+	 * @param {string} baseUrl - The URL to normalize
+	 * @param {string} path - An optional path to add to the URL
+	 * @returns {string} Normalized URL.
+	 */
+	static normalizeUrl(baseUrl, path = null) {
+		let url = baseUrl.replace(/\/$/, ""); // Remove trailing slash
+		if (typeof path === 'string') {
+			if (path.substr(0, 1) !== '/') {
+				path = '/' + path; // Add leading slash
+			}
+			url = url + path;
+		}
+		return url;
+	}
 
 	/**
 	 * Encodes a string into Base64 encoding.

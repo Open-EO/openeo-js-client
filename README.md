@@ -4,7 +4,7 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-The version of this client is **0.4.1** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
+The version of this client is **0.4.2** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
 
 ## Usage
 
@@ -14,8 +14,9 @@ This library can run in node.js or any recent browser supporting ECMAScript 2017
 
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client/openeo.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/oidc-client@1/lib/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+<script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@0.4/openeo.min.js"></script>
 ```
 
 ### NodeJS environment
@@ -79,13 +80,12 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.1/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.2/).
 
 ## Roadmap
 
 * The JS client only supports browsers with support for ECMAScript 2017 (ES8). This is a steep requirement and should be lowered by transpiling. [#18](https://github.com/Open-EO/openeo-js-client/issues/18)
 * There's no functionality to build process graphs. An easy-to-use process graph builder is envisioned to be implemented. [#19](https://github.com/Open-EO/openeo-js-client/issues/19)
-* Implement authentification via OpenID Connect. [#11](https://github.com/Open-EO/openeo-js-client/issues/11)
 * See the [issue tracker](https://github.com/Open-EO/openeo-js-client/issues) for more information.
 
 ## Interactive JS Editor
