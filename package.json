@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
-    "oidc-client": "^1.8.2",
+    "oidc-client": "^1.10.1",
     "ws": "^6.2.1"
   },
   "scripts": {
