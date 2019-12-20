@@ -423,8 +423,8 @@ class Connection {
 	 */
 	async describeAccount() {
 		let response = await this._get('/me');
-		if (response.data && typeof response.data === 'object' && response.data.userId) {
-			this.userId = response.data.userId;
+		if (response.data && typeof response.data === 'object' && response.data.user_id) {
+			this.userId = response.data.user_id;
 		}
 		return response.data;
 	}
