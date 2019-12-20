@@ -358,7 +358,7 @@ class Connection {
 		}
 		this.oidc = new UserManager(Object.assign({
 			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
-			response_type: 'id_token',
+			response_type: 'token id_token',
 			scope: 'openid'
 		}, authOptions));
 		if (authOptions.uiMethod === 'popup') {
@@ -1975,9 +1975,16 @@ class Util {
 
 /** @module OpenEO */
 let toExport = {
-	OpenEO: OpenEO,
-	Capabilities: Capabilities,
-	Util: Util
+	OpenEO,
+	BaseEntity,
+	Capabilities,
+	Connection,
+	File,
+	Job,
+	ProcessGraph,
+	Service,
+	Subscriptions,
+	Util
 };
 
 /*
