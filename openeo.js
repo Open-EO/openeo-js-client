@@ -136,7 +136,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.2";
+		return "0.4.3";
 	}
 
 	/**
@@ -358,7 +358,7 @@ class Connection {
 		}
 		this.oidc = new UserManager(Object.assign({
 			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
-			response_type: 'id_token',
+			response_type: 'token id_token',
 			scope: 'openid'
 		}, authOptions));
 		if (authOptions.uiMethod === 'popup') {
@@ -423,8 +423,8 @@ class Connection {
 	 */
 	async describeAccount() {
 		let response = await this._get('/me');
-		if (response.data && typeof response.data === 'object' && response.data.userId) {
-			this.userId = response.data.userId;
+		if (response.data && typeof response.data === 'object' && response.data.user_id) {
+			this.userId = response.data.user_id;
 		}
 		return response.data;
 	}
@@ -1975,9 +1975,16 @@ class Util {
 
 /** @module OpenEO */
 let toExport = {
-	OpenEO: OpenEO,
-	Capabilities: Capabilities,
-	Util: Util
+	OpenEO,
+	BaseEntity,
+	Capabilities,
+	Connection,
+	File,
+	Job,
+	ProcessGraph,
+	Service,
+	Subscriptions,
+	Util
 };
 
 /*
