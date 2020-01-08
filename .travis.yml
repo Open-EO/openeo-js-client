@@ -30,7 +30,8 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
-  committer-from-gh: true
+  name: openEO CI
+  email: openeo.ci@uni-muenster.de
   local-dir: gh-pages
   on:
     all_branches: true
