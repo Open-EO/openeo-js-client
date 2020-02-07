@@ -7,6 +7,7 @@ module.exports = [
   // Web
   {
     target: "web",
+    mode: 'production',
     entry: './src/openeo.js',
     output: {
       filename: 'openeo.min.js',
@@ -22,6 +23,20 @@ module.exports = [
         '@openeo/js-environment': path.resolve(__dirname, 'src/browser.js')
       }
     },
+    module: {
+      rules: [
+        {
+          test: /.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env']
+            }
+          }
+        }
+      ]
+    },
     plugins: [
       new UnminifiedWebpackPlugin(),
       new BundleAnalyzerPlugin({
@@ -33,9 +48,10 @@ module.exports = [
   // Node
   {
     target: "node",
+    mode: 'none',
     entry: './src/openeo.js',
     output: {
-      filename: 'openeo.node.min.js',
+      filename: 'openeo.node.js',
       path: path.resolve(__dirname),
       libraryTarget: 'umd',
     },
@@ -46,9 +62,6 @@ module.exports = [
       alias: {
         '@openeo/js-environment': path.resolve(__dirname, 'src/node.js')
       }
-    },
-    plugins: [
-      new UnminifiedWebpackPlugin()
-    ],
+    }
   }
 ];
