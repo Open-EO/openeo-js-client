@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: job.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: job.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import Environment from '@openeo/js-environment';
+import BaseEntity from './baseentity';
+
+/**
+ * A Batch Job.
+ * 
+ * @class
+ * @extends BaseEntity
+ */
+export default class Job extends BaseEntity {
+
+	/**
+	 * Creates an object representing a batch job stored at the back-end.
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {string} jobId - The batch job ID.
+	 * @constructor
+	 */
+	constructor(connection, jobId) {
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "submitted", "updated", "plan", "costs", "budget"]);
+		this.jobId = jobId;
+	}
+
+	/**
+	 * Updates the batch job data stored in this object by requesting the metadata from the back-end.
+	 * 
+	 * @async
+	 * @returns {Job} The update job object (this).
+	 * @throws {Error}
+	 */
+	async describeJob() {
+		let response = await this.connection._get('/jobs/' + this.jobId);
+		return this.setAll(response.data);
+	}
+
+	/**
+	 * Modifies the batch job at the back-end and afterwards updates this object, too.
+	 * 
+	 * @async
+	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
+	 * @param {object} parameters.processGraph - A new process graph.
+	 * @param {string} parameters.title - A new title.
+	 * @param {string} parameters.description - A new description.
+	 * @param {string} parameters.plan - A new plan.
+	 * @param {number} parameters.budget - A new budget.
+	 * @returns {Job} The updated job object (this).
+	 * @throws {Error}
+	 */
+	async updateJob(parameters) {
+		await this.connection._patch('/jobs/' + this.jobId, this._convertToRequest(parameters));
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
+		}
+		else {
+			return this.setAll(parameters);
+		}
+	}
+
+	/**
+	 * Deletes the batch job from the back-end.
+	 * 
+	 * @async
+	 * @throws {Error}
+	 */
+	async deleteJob() {
+		await this.connection._delete('/jobs/' + this.jobId);
+	}
+
+	/**
+	 * Calculate an estimate (potentially time/costs/volume) for a batch job.
+	 * 
+	 * @async
+	 * @returns {object} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async estimateJob() {
+		let response = await this.connection._get('/jobs/' + this.jobId + '/estimate');
+		return response.data;
+	}
+
+	/**
+	 * Starts / queues the batch job for processing at the back-end.
+	 * 
+	 * @async
+	 * @returns {Job} The updated job object (this).
+	 * @throws {Error}
+	 */
+	async startJob() {
+		await this.connection._post('/jobs/' + this.jobId + '/results', {});
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
+		}
+		return this;
+	}
+
+	/**
+	 * Stops / cancels the batch job processing at the back-end.
+	 * 
+	 * @async
+	 * @returns {Job} The updated job object (this).
+	 * @throws {Error}
+	 */
+	async stopJob() {
+		await this.connection._delete('/jobs/' + this.jobId + '/results');
+		if (this._supports('describeJob')) {
+			return await this.describeJob();
+		}
+		return this;
+	}
+
+	/**
+	 * Retrieves download links and additional information about the batch job.
+	 * 
+	 * NOTE: Requesting metalink XML files is currently not supported by the JS client.
+	 * 
+	 * @async
+	 * @returns {object} The JSON-based response compatible to the API specification, but also including `costs` and `expires` properties as received in the headers (or `null` if not present).
+	 * @throws {Error}
+	 */
+	async listResults() {
+		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
+		// Returning null for missing headers is not strictly following the spec
+		let headerData = {
+			costs: response.headers['openeo-costs'] || null,
+			expires: response.headers.expires || null
+		};
+		return Object.assign(headerData, response.data);
+	}
+
+	/**
+	 * Downloads the results to the specified target folder. The specified target folder must already exist!
+	 * 
+	 * NOTE: This method is only supported in a NodeJS environment. In a browser environment this method throws an exception!
+	 * 
+	 * @async
+	 * @param {string} targetFolder - A target folder to store the file to, which must already exist.
+	 * @returns {string[]} A list of file paths of the newly created files.
+	 * @throws {Error}
+	 */
+	async downloadResults(targetFolder) {
+		let list = await this.listResults();
+		return await Environment.downloadResults(list, targetFolder);
+	}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3>Global</h3><ul><li><a href="global.html#apiVersion">apiVersion</a></li><li><a href="global.html#authenticateBasic">authenticateBasic</a></li><li><a href="global.html#authenticateOIDC">authenticateOIDC</a></li><li><a href="global.html#backendVersion">backendVersion</a></li><li><a href="global.html#base64encode">base64encode</a></li><li><a href="global.html#capabilities">capabilities</a></li><li><a href="global.html#computeResult">computeResult</a></li><li><a href="global.html#createJob">createJob</a></li><li><a href="global.html#createProcessGraph">createProcessGraph</a></li><li><a href="global.html#createService">createService</a></li><li><a href="global.html#currency">currency</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteJob">deleteJob</a></li><li><a href="global.html#deleteProcessGraph">deleteProcessGraph</a></li><li><a href="global.html#deleteService">deleteService</a></li><li><a href="global.html#describeAccount">describeAccount</a></li><li><a href="global.html#describeCollection">describeCollection</a></li><li><a href="global.html#describeJob">describeJob</a></li><li><a href="global.html#describeProcessGraph">describeProcessGraph</a></li><li><a href="global.html#describeService">describeService</a></li><li><a href="global.html#description">description</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#downloadFile">downloadFile</a></li><li><a href="global.html#downloadResults">downloadResults</a></li><li><a href="global.html#estimateJob">estimateJob</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getAll">getAll</a></li><li><a href="global.html#getBaseUrl">getBaseUrl</a></li><li><a href="global.html#getJobById">getJobById</a></li><li><a href="global.html#getProcessGraphById">getProcessGraphById</a></li><li><a href="global.html#getServiceById">getServiceById</a></li><li><a href="global.html#getUserId">getUserId</a></li><li><a href="global.html#hasFeature">hasFeature</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#listCollections">listCollections</a></li><li><a href="global.html#listFeatures">listFeatures</a></li><li><a href="global.html#listFiles">listFiles</a></li><li><a href="global.html#listFileTypes">listFileTypes</a></li><li><a href="global.html#listJobs">listJobs</a></li><li><a href="global.html#listPlans">listPlans</a></li><li><a href="global.html#listProcesses">listProcesses</a></li><li><a href="global.html#listProcessGraphs">listProcessGraphs</a></li><li><a href="global.html#listResults">listResults</a></li><li><a href="global.html#listServices">listServices</a></li><li><a href="global.html#listServiceTypes">listServiceTypes</a></li><li><a href="global.html#listUdfRuntimes">listUdfRuntimes</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#openFile">openFile</a></li><li><a href="global.html#saveToFile">saveToFile</a></li><li><a href="global.html#setAll">setAll</a></li><li><a href="global.html#setUserOIDC">setUserOIDC</a></li><li><a href="global.html#startJob">startJob</a></li><li><a href="global.html#stopJob">stopJob</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#toPlainObject">toPlainObject</a></li><li><a href="global.html#updateJob">updateJob</a></li><li><a href="global.html#updateProcessGraph">updateProcessGraph</a></li><li><a href="global.html#updateService">updateService</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateProcessGraph">validateProcessGraph</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 07 2020 15:32:42 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
