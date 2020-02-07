@@ -10,7 +10,7 @@ const path = require("path");
  * @class
  * @hideconstructor
  */
-class Environment {
+export default class Environment {
 
 	static checkOidcSupport() {
 		throw "OpenID Connect authentication is only supported in a browser environment";
@@ -88,5 +88,3 @@ class Environment {
 		});
 	}
 }
-
-module.exports = Environment;

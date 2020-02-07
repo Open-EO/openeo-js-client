@@ -6,7 +6,7 @@
  * @class
  * @hideconstructor
  */
-class Environment {
+export default class Environment {
 
 	static checkOidcSupport() {
 		if (typeof UserManager === 'undefined') {
@@ -46,8 +46,7 @@ class Environment {
 		return source;
 	}
 
-	/* istanbul ignore next */
-	static async downloadResults(results, targetFolder) {
+	static async downloadResults(/*results, targetFolder*/) {
 		throw new Error("downloadResults is not supported in a browser environment.");
 	}
 
@@ -84,5 +83,3 @@ class Environment {
 		});
 	}
 }
-
-module.exports = Environment;
