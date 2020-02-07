@@ -1,25 +1,8 @@
-/**
- * Flag that indicated whether we are nunning in a NodeJS environment (`true`) or not (`false`).
- * 
- * @var {boolean}
- */
-let isNode = false;
-try {
-	isNode = (typeof window === 'undefined' && Object.prototype.toString.call(global.process) === '[object process]');
-} catch(e) {}
+import axios from 'axios';
+import { UserManager } from 'oidc-client';
+import { Utils, Versions } from '@openeo/js-commons';
+import Environment from '@openeo/js-environment';
 
-if (typeof axios === 'undefined') {
-	/* jshint ignore:start */
-	var axios = require('axios');
-	/* jshint ignore:end */
-}
-if (typeof UserManager === 'undefined') {
-	/* jshint ignore:start */
-	try {
-		var { UserManager } = require('oidc-client');
-	} catch (e) {}
-	/* jshint ignore:end */
-}
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -27,7 +10,7 @@ if (typeof UserManager === 'undefined') {
  * @class
  * @hideconstructor
  */
-class OpenEO {
+export class OpenEO {
 
 	/**
 	 * Connect to a back-end with version discovery (recommended).
@@ -55,16 +38,16 @@ class OpenEO {
 	 * @static
 	 */
 	static async connect(url, authType = null, authOptions = {}) {
-		let wellKnownUrl = Util.normalizeUrl(url, '/.well-known/openeo');
+		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
 		let response;
 		try {
 			response = await axios.get(wellKnownUrl);
 
-			if (!Util.isObject(response.data) || !Array.isArray(response.data.versions)) {
+			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
 				throw new Error("Well-Known Document doesn't list any version.");
 			}
 	
-			let compatibility = Util.mostCompatible(response.data.versions);
+			let compatibility = Versions.findLatest(response.data.versions, true, "1.0.x", "1.0.x");
 			if (compatibility.length > 0) {
 				url = compatibility[0].url;
 			}
@@ -136,7 +119,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "0.4.3";
+		return "1.0.0-alpha.1";
 	}
 
 	/**
@@ -167,7 +150,7 @@ class OpenEO {
  * 
  * @class
  */
-class Connection {
+export class Connection {
 
 	/**
 	 * Creates a new Connection.
@@ -176,13 +159,12 @@ class Connection {
 	 * @constructor
 	 */
 	constructor(baseUrl) {
-		this.baseUrl = Util.normalizeUrl(baseUrl);
+		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		this.userId = null;
 		this.accessToken = null;
 		this.oidc = null;
 		this.oidcUser = null;
 		this.capabilitiesObject = null;
-		this.subscriptionsObject = new Subscriptions(this);
 	}
 
 	/**
@@ -343,9 +325,7 @@ class Connection {
 	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
 	async authenticateOIDC(authOptions) {
-		if (isNode || typeof window === 'undefined') {
-			throw "OpenID Connect authentication is only supported in a browser environment";
-		}
+		Environment.checkOidcSupport();
 
 		var response = await this._send({
 			method: 'get',
@@ -384,7 +364,7 @@ class Connection {
 			method: 'get',
 			responseType: 'json',
 			url: '/credentials/basic',
-			headers: {'Authorization': 'Basic ' + Util.base64encode(username + ':' + password)}
+			headers: {'Authorization': 'Basic ' + Environment.base64encode(username + ':' + password)}
 		});
 		if (!response.data.user_id) {
 			throw new Error("No user_id returned.");
@@ -533,7 +513,7 @@ class Connection {
 	 * @param {object} processGraph - A process graph (JSON).
 	 * @param {string} [plan=null] - The billing plan to use for this computation.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
-	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers (see `isNode`).
+	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
 	 */
 	async computeResult(processGraph, plan = null, budget = null) {
 		let requestBody = {
@@ -541,7 +521,7 @@ class Connection {
 			plan: plan,
 			budget: budget
 		};
-		let response = await this._post('/result', requestBody, 'stream');
+		let response = await this._post('/result', requestBody, Environment.getResponseType());
 		return response.data;
 	}
 
@@ -709,12 +689,12 @@ class Connection {
 	 * 
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers (see `isNode`).
+	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
 	 */
 	async download(url, authorize) {
 		return await this._send({
 			method: 'get',
-			responseType: 'stream',
+			responseType: Environment.getResponseType(),
 			url: url,
 			withCredentials: authorize
 		});
@@ -729,9 +709,6 @@ class Connection {
 			}
 			options.headers.Authorization = 'Bearer ' + this.accessToken;
 		}
-		if (options.responseType === 'stream' && !isNode) {
-			options.responseType = 'blob';
-		}
 		if (!options.responseType) {
 			options.responseType = 'json';
 		}
@@ -739,27 +716,11 @@ class Connection {
 		try {
 			return await axios(options);
 		} catch(error) {
-			if (Util.isObject(error.response) && Util.isObject(error.response.data) && ((typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) || (Util.isObject(error.response.data.headers) && typeof error.response.data.headers['content-type'] === 'string' && error.response.data.headers['content-type'].indexOf('/json') !== -1))) {
-				// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
-				// See: https://github.com/axios/axios/issues/815
-				switch(options.responseType) {
-					case 'blob':
-						return new Promise((_, reject) => {
-							let fileReader = new FileReader();
-							fileReader.onerror = event => {
-								fileReader.abort();
-								reject(event.target.error);
-							};
-							fileReader.onload = () => reject(JSON.parse(fileReader.result));
-							fileReader.readAsText(error.response.data);
-						});
-					case 'stream':
-						return new Promise((_, reject) => {
-							let chunks = [];
-							error.response.data.on("data", chunk => chunks.push(chunk));
-							error.response.data.on("error", error => reject(error));
-							error.response.data.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
-						});
+			if (Utils.isObject(error.response) && Utils.isObject(error.response.data) && ((typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) || (Utils.isObject(error.response.data.headers) && typeof error.response.data.headers['content-type'] === 'string' && error.response.data.headers['content-type'].indexOf('/json') !== -1))) {
+				if (options.responseType === Environment.getResponseType()) {
+					// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
+					// See: https://github.com/axios/axios/issues/815
+					return Environment.handleErrorResponse(error);
 				}
 			}
 			// Re-throw error if it was not handled yet.
@@ -787,230 +748,6 @@ class Connection {
 	isLoggedIn() {
 		return (this.accessToken !== null);
 	}
-
-	/**
-	 * Subscribes to a topic.
-	 * 
-	 * @param {string} topic - The topic to subscribe to.
-	 * @param {incomingMessageCallback} callback - A callback that is executed when a message for the topic is received.
-	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
-	 * @throws {Error}
-	 * @see Subscriptions.subscribe()
-	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
-	 * 
-	 */
-	subscribe(topic, callback, parameters = {}) {
-		this.subscriptionsObject.subscribe(topic, parameters, callback);
-	}
-
-	/**
-	 * Unsubscribes from a topic.
-	 * 
-	 * @param {string} topic - The topic to unsubscribe from.
-	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
-	 * @throws {Error}
-	 * @see Subscriptions.unsubscribe()
-	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
-	 * 
-	 */
-	unsubscribe(topic, parameters = {}) {
-		this.subscriptionsObject.unsubscribe(topic, parameters);
-	}
-}
-
-/**
- * Web-Socket-based Subscriptions.
- * 
- * @class
- */
-class Subscriptions {
-
-	/**
-	 * Creates a new object that handles the subscriptions.
-	 * 
-	 * @param {Connection} httpConnection - A Connection object representing an established connection to an openEO back-end.
-	 * @constructor
-	 */
-	constructor(httpConnection) {
-		this.httpConnection = httpConnection;
-		this.socket = null;
-		this.listeners = new Map();
-		this.supportedTopics = [];
-		this.messageQueue = [];
-		this.websocketProtocol = "openeo-v0.4";
-	}
-
-	/**
-	 * A callback that is executed when a message for the corresponding topic is received by the client.
-	 * 
-	 * @callback incomingMessageCallback
-	 * @param {object} payload
-	 * @param {string} payload.issued - Date and time when the message was sent, formatted as a RFC 3339 date-time. 
-	 * @param {string} payload.topic - The type of the topic, e.g. `openeo.jobs.debug`
-	 * @param {object} message - A message, usually an object with some properties. Depends on the topic.
-	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
-	 */
-
-	/**
-	 * Subscribes to a topic.
-	 * 
-	 * @param {string} topic - The topic to subscribe to.
-	 * @param {incomingMessageCallback} callback - A callback that is executed when a message for the topic is received.
-	 * @param {object} [parameters={}] - Parameters for the subscription request, for example a job id.
-	 * @throws {Error}
-	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
-	 */
-	subscribe(topic, callback, parameters = {}) {
-		if (typeof callback !== 'function') {
-			throw new Error("No valid callback specified.");
-		}
-
-		if(!this.listeners.has(topic)) {
-			this.listeners.set(topic, new Map());
-		}
-		this.listeners.get(topic).set(Util.hash(parameters), callback);
-
-		this._sendSubscription('subscribe', topic, parameters);
-	}
-
-	/**
-	 * Unsubscribes from a topic.
-	 * 
-	 * @param {string} topic - The topic to unsubscribe from.
-	 * @param {object} [parameters={}] - Parameters that have been used to subsribe to the topic.
-	 * @throws {Error}
-	 * @see https://open-eo.github.io/openeo-api/apireference-subscriptions/
-	 */
-	unsubscribe(topic, parameters = {}) {
-		// get all listeners for the topic
-		let topicListeners = this.listeners.get(topic);
-
-		// remove the applicable sub-callback
-		if(!(topicListeners instanceof Map)) {
-			throw new Error("this.listeners must be a Map of Maps");
-		}
-
-		topicListeners.delete(Util.hash(parameters));
-		// Remove entire topic from subscriptionListeners if no topic-specific listener is left
-		if(topicListeners.size === 0) {
-			this.listeners.delete(topic);
-		}
-
-		// now send the command to the server
-		this._sendSubscription('unsubscribe', topic, parameters);
-
-		// Close subscription socket if there is no subscription left (use .size, NOT .length!)
-		if (this.socket !== null && this.listeners.size === 0) {
-			console.log('Closing connection because there is no subscription left');
-			this.socket.close();
-		}
-	}
-
-	_createWebSocket() {
-		if (this.socket === null || this.socket.readyState === this.socket.CLOSING || this.socket.readyState === this.socket.CLOSED) {
-			this.messageQueue = [];
-			let url = this.httpConnection.getBaseUrl().replace('http', 'ws') + '/subscription';
-
-			if (isNode) {
-				const WebSocket = require('ws');
-				this.socket = new WebSocket(url, this.websocketProtocol);
-			}
-			else {
-				this.socket = new WebSocket(url, this.websocketProtocol);
-			}
-
-			this._sendAuthorize();
-
-			this.socket.addEventListener('open', () => this._flushQueue());
-
-			this.socket.addEventListener('message', event => this._receiveMessage(event));
-
-			this.socket.addEventListener('error', () => {
-				this.socket = null;
-			});
-
-			this.socket.addEventListener('close', () => {
-				this.socket = null;
-			});
-		}
-		return this.socket;
-	}
-
-	_receiveMessage(event) {
-		/** @todo Add error handling */
-		let json = JSON.parse(event.data);
-		if (json.message.topic === 'openeo.welcome') {
-			this.supportedTopics = json.payload.topics;
-		}
-		else {
-			// get listeners for topic
-			let topicListeners = this.listeners.get(json.message.topic);
-			let callback;
-			// we should now have a Map in which to look for the correct listener
-			if (topicListeners && topicListeners instanceof Map) {
-				// This checks for no parameters OR for job_id, more parameter checks possible in future versions.
-				/** @todo Hardcoding these checks is quite messy/dirty, we should implement a better solution. */
-				callback = topicListeners.get(Util.hash({})) || topicListeners.get(Util.hash({job_id: json.payload.job_id}));
-						
-			}
-			// if we now have a function, we can call it with the information
-			if (typeof callback === 'function') {
-				callback(json.payload, json.message);
-			} else {
-				console.log("No listener found to handle incoming message of type: " + json.message.topic);
-			}
-		}
-	}
-
-	_flushQueue() {
-		if(this.socket.readyState === this.socket.OPEN) {
-			for(let i in this.messageQueue) {
-				this.socket.send(JSON.stringify(this.messageQueue[i]));
-			}
-
-			this.messageQueue = [];
-		}
-	}
-
-	_sendMessage(topic, payload = null, priority = false) {
-		let obj = {
-			authorization: "Bearer " + this.httpConnection.accessToken,
-			message: {
-				topic: "openeo." + topic,
-				issued: (new Date()).toISOString()
-			}
-
-		};
-		if (payload !== null) {
-			obj.payload = payload;
-		}
-		if (priority) {
-			this.messageQueue.splice(0, 0, obj);
-		}
-		else {
-			this.messageQueue.push(obj);
-		}
-		this._flushQueue();
-	}
-
-	_sendAuthorize() {
-		this._sendMessage('authorize', null, true);
-	}
-
-	_sendSubscription(action, topic, parameters) {
-		this._createWebSocket();
-
-		if (!Util.isObject(parameters)) {
-			parameters = {};
-		}
-
-		let payloadParameters = Object.assign({}, parameters, { topic: topic });
-
-		this._sendMessage(action, {
-			topics: [payloadParameters]
-		});
-	}
-
 }
 
 /**
@@ -1018,7 +755,7 @@ class Subscriptions {
  * 
  * @class
  */
-class Capabilities {
+export class Capabilities {
 
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
@@ -1028,7 +765,7 @@ class Capabilities {
 	 * @constructor
 	 */
 	constructor(data) {
-		if(!Util.isObject(data)) {
+		if(!Utils.isObject(data)) {
 			throw new Error("No capabilities retrieved.");
 		}
 		if(!data.api_version) {
@@ -1043,8 +780,7 @@ class Capabilities {
 		// Flatten features to be compatible with the feature map.
 		this.features = this.data.endpoints
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
-			// .flat(1)   // does exactly what we want, but (as of Sept. 2018) not yet part of the standard...
-			.reduce((a, b) => a.concat(b), []); // ES6-proof version of flat(1);
+			.flat(1);
 
 		this.featureMap = {
 			capabilities: 'get /',
@@ -1086,9 +822,7 @@ class Capabilities {
 			describeService: 'get /services/{service_id}',
 			getServiceById: 'get /services/{service_id}',
 			updateService: 'patch /services/{service_id}',
-			deleteService: 'delete /services/{service_id}',
-			subscribe: 'get /subscription',
-			unsubscribe: 'get /subscription'
+			deleteService: 'delete /services/{service_id}'
 		};
 	}
 
@@ -1247,7 +981,7 @@ class BaseEntity {
 	 */
 	setAll(metadata) {
 		for(let name in metadata) {
-			if (typeof this.clientNames[name] === 'undefined') {
+			if (typeof this.backendNames[name] === 'undefined') {
 				this.extra[name] = metadata[name];
 			}
 			else {
@@ -1306,7 +1040,7 @@ class BaseEntity {
  * @class
  * @extends BaseEntity
  */
-class File extends BaseEntity {
+export class File extends BaseEntity {
 
 	/**
 	 * Creates an object representing a file on the user workspace.
@@ -1341,25 +1075,9 @@ class File extends BaseEntity {
 			return response.data;
 		}
 		else {
-			return await this._saveToFile(response.data, target);
+			return await Environment.saveToFile(response.data, target);
 		}
 	}
-
-	async _saveToFile(data, filename) {
-		if (isNode) {
-			return await Util.saveToFileNode(data, filename);
-		}
-		else {
-			/* istanbul ignore next */
-			return Util.saveToFileBrowser(data, filename);
-		}
-	}
-
-	_readFromFileNode(path) {
-		const fs = require('fs');
-		return fs.createReadStream(path);
-	}
-
 
 	/**
 	 * A callback that is executed on upload progress updates.
@@ -1383,16 +1101,10 @@ class File extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {
-		if (isNode) {
-			// Use a file stream for node
-			source = this._readFromFileNode(source);
-		}
-		// else: Just use the file object from the browser
-
 		let options = {
 			method: 'put',
 			url: '/files/' + this.userId + '/' + this.path,
-			data: source,
+			data: Environment.dataForUpload(source),
 			headers: {
 				'Content-Type': 'application/octet-stream'
 			}
@@ -1425,7 +1137,7 @@ class File extends BaseEntity {
  * @class
  * @extends BaseEntity
  */
-class Job extends BaseEntity {
+export class Job extends BaseEntity {
 
 	/**
 	 * Creates an object representing a batch job stored at the back-end.
@@ -1556,27 +1268,8 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async downloadResults(targetFolder) {
-		if (isNode) {
-			let list = await this.listResults();
-			const url = require("url");
-			const path = require("path");
-
-			let files = [];
-			const promises = list.links.map(async (link) => {
-				let parsedUrl = url.parse(link.href);
-				let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-				let response = await this.connection.download(link.href, false);
-				await Util.saveToFileNode(response.data, targetPath);
-				files.push(targetPath);
-			});
-
-			await Promise.all(promises);
-			return files;
-		}
-		else {
-			/* istanbul ignore next */
-			throw new Error("downloadResults is not supported in a browser environment.");
-		}
+		let list = await this.listResults();
+		return await Environment.downloadResults(list, targetFolder);
 	}
 }
 
@@ -1586,7 +1279,7 @@ class Job extends BaseEntity {
  * @class
  * @extends BaseEntity
  */
-class ProcessGraph extends BaseEntity {
+export class ProcessGraph extends BaseEntity {
 
 	/**
 	 * Creates an object representing a process graph stored at the back-end.
@@ -1651,7 +1344,7 @@ class ProcessGraph extends BaseEntity {
  * @class
  * @extends BaseEntity
  */
-class Service extends BaseEntity {
+export class Service extends BaseEntity {
 
 	/**
 	 * Creates an object representing a secondary web service stored at the back-end.
@@ -1710,299 +1403,5 @@ class Service extends BaseEntity {
 	 */
 	async deleteService() {
 		await this.connection._delete('/services/' + this.serviceId);
-	}
-}
-
-/**
- * Utilities for the openEO JS Client.
- * 
- * @class
- * @hideconstructor
- */
-class Util {
-
-	/**
-	 * Normalize a URL (mostly handling slashes).
-	 * 
-	 * @static
-	 * @param {string} baseUrl - The URL to normalize
-	 * @param {string} path - An optional path to add to the URL
-	 * @returns {string} Normalized URL.
-	 */
-	static normalizeUrl(baseUrl, path = null) {
-		let url = baseUrl.replace(/\/$/, ""); // Remove trailing slash
-		if (typeof path === 'string') {
-			if (path.substr(0, 1) !== '/') {
-				path = '/' + path; // Add leading slash
-			}
-			url = url + path;
-		}
-		return url;
-	}
-
-	/**
-	 * Encodes a string into Base64 encoding.
-	 * 
-	 * @static
-	 * @param {string} str - String to encode.
-	 * @returns {string} String encoded in Base64.
-	 */
-	static base64encode(str) {
-		if (typeof btoa === 'function') {
-			// btoa is JS's ugly name for encodeBase64
-			return btoa(str);
-		}
-		else {
-			let buffer;
-			if (str instanceof Buffer) {
-				buffer = str;
-			} else {
-				buffer = Buffer.from(str.toString(), 'binary');
-			}
-			return buffer.toString('base64');
-		}
-	}
-
-	/**
-	 * Non-crypthographic (unsafe) hashing for objects.
-	 * 
-	 * Internally uses Jenkins one_at_a_time hash function.
-	 * 
-	 * @static
-	 * @param {*} o - A value to encode. Only supported objects, arrays, strings, numbers and booleans. Can't encode functions or other data types.
-	 * @returns {string} The generated hash.
-	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
-	 */
-	static hash(o) {
-		switch(typeof o) {
-			case 'boolean':
-				return Util.hashString("b:" + o.toString());
-			case 'number':
-				return Util.hashString("n:" + o.toString());
-			case 'string':
-				return Util.hashString("s:" + o);
-			case 'object':
-				if (o === null) {
-					return Util.hashString("n:");
-				}
-				else {
-					return Util.hashString(Object.keys(o).sort().map(k => "o:" + k + ":" + Util.hash(o[k])).join("::"));
-				}
-				/* falls through */
-			default:
-				return Util.hashString(typeof o);
-		}
-	}
-
-	/**
-	 * Generates a hash for a string using Jenkins one_at_a_time hash function.
-	 * 
-	 * @static
-	 * @param {string} b - string to encode.
-	 * @returns {string} The generated hash.
-	 * @see https://en.wikipedia.org/wiki/Jenkins_hash_function
-	 */
-	static hashString(b) {
-		let a, c;
-		for(a = 0, c = b.length; c--; ) {
-			a += b.charCodeAt(c);
-			a += a<<10;
-			a ^= a>>6;
-		}
-		a += a<<3;
-		a ^= a>>11;
-		a += a<<15;
-		return ((a&4294967295)>>>0).toString(16);
-	}
-
-	/**
-	 * Streams data into a file.
-	 * 
-	 * NOTE: Only supported in a NodeJS environment.
-	 *
-	 * @static
-	 * @async
-	 * @param {Stream} data - Data stream to read from.
-	 * @param {string} filename - File path to store the data at.
-	 * @throws {Error}
-	 */
-	static async saveToFileNode(data, filename) {
-		const fs = require('fs');
-		return new Promise((resolve, reject) => {
-			let writeStream = fs.createWriteStream(filename);
-			writeStream.on('close', (err) => {
-				if (err) {
-					return reject(err);
-				}
-				resolve();
-			});
-			data.pipe(writeStream);
-		});
-	}
-
-	/**
-	 * Offers data to download in the browser.
-	 * 
-	 * NOTE: Only supported in a browser environment.
-	 * This method may fail with overly big data.
-	 * 
-	 * @static
-	 * @param {*} data - Data to download.
-	 * @param {string} filename - File name that is suggested to the user.
-	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
-	 */
-	/* istanbul ignore next */
-	static saveToFileBrowser(data, filename) {
-		let blob = new Blob([data], {type: 'application/octet-stream'});
-		let blobURL = window.URL.createObjectURL(blob);
-		let tempLink = document.createElement('a');
-		tempLink.style.display = 'none';
-		tempLink.href = blobURL;
-		tempLink.setAttribute('download', filename); 
-		
-		if (typeof tempLink.download === 'undefined') {
-			tempLink.setAttribute('target', '_blank');
-		}
-		
-		document.body.appendChild(tempLink);
-		tempLink.click();
-		document.body.removeChild(tempLink);
-		window.URL.revokeObjectURL(blobURL);
-	}
-
-	/**
-	 * Tries to guess the most suitable version from a well-known discovery document that this client is compatible to.
-	 * 
-	 * @static
-	 * @param {object} versions - A well-known discovery document compliant to the API specification.
-	 * @returns {object[]} - Gives a list that lists all compatible versions (as still API compliant objects) ordered from the most suitable to the least suitable.
-	 */
-	static mostCompatible(versions) {
-		if (!Array.isArray(versions)) {
-			return [];
-		}
-
-		let compatible = versions.filter(c => typeof c.url === 'string' && Util.validateVersionNumber(c.api_version) && c.api_version.startsWith("0.4."));
-		if (compatible.length === 0) {
-			return [];
-		}
-
-		return compatible.sort((c1, c2) => {
-			let p1 = c1.production !== false;
-			let p2 = c2.production !== false;
-			if (p1 === p2) {
-				return Util.compareVersionNumbers(c1.api_version, c2.api_version) * -1; // `* -1` to sort in descending order.
-			}
-			else if (p1) {
-				return -1;
-			}
-			else if (p2) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		});
-	}
-
-	/**
-	 * Validates a version number.
-	 * 
-	 * Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
-	 * 
-	 * @param {string} v - A version number.
-	 * @returns {boolean} - `true` if valid, `false` otherwise.
-	 */
-	static validateVersionNumber(v) {
-		if (typeof v !== 'string') {
-			return false;
-		}
-
-		let parts = v.split('.');
-		for (var i = 0; i < parts.length; ++i) {
-			if (!/^\d+$/.test(parts[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Compares two version number.
-	 * 
-	 * Handles only numeric version numbers separated by dots, doesn't allow wildcards or pre-release strings as `alpha` or `beta`.
-	 * 
-	 * @param {string} v1 - A version number.
-	 * @param {string} v2 - Another version number.
-	 * @returns {integer|null} - `1` if v1 is greater than v2, `-1` if v1 is less than v2 and `0` if v1 and v2 are equal. Returns `null` if any of the version numbers is invalid.
-	 * @see Util.validateVersionNumber()
-	 */
-	static compareVersionNumbers(v1, v2) {
-		// First, validate both numbers are true version numbers
-		if (!Util.validateVersionNumber(v1) || !Util.validateVersionNumber(v2)) {
-			return null;
-		}
-	
-		let v1p = v1.split('.');
-		let v2p = v2.split('.');
-		for (var i = 0; i < Math.max(v1p.length, v2p.length); ++i) {
-			let left = typeof v1p[i] !== 'undefined' ? v1p[i] : 0;
-			let right = typeof v2p[i] !== 'undefined' ? v2p[i] : 0;
-			if (left < right) {
-				return -1;
-			}
-			else if (left > right) {
-				return 1;
-			}
-		}
-	
-		return 0;
-	}
-
-	/**
-	 * Checks whether a variable is a real object or not.
-	 * 
-	 * This is a more strict version of `typeof x === 'object'` as this example would also succeeds for arrays and `null`.
-	 * This function only returns `true` for real objects and not for arrays, `null` or any other data types.
-	 * 
-	 * @param {*} obj - A variable to check.
-	 * @returns {boolean} - `true` is the given variable is an object, `false` otherwise.
-	 */
-	static isObject(obj) {
-		return (typeof obj === 'object' && obj === Object(obj) && !Array.isArray(obj));
-	}
-}
-
-/** @module OpenEO */
-let toExport = {
-	OpenEO,
-	BaseEntity,
-	Capabilities,
-	Connection,
-	File,
-	Job,
-	ProcessGraph,
-	Service,
-	Subscriptions,
-	Util
-};
-
-/*
- * @see https://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
- */
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = toExport;
-}
-else {
-	/* istanbul ignore next */
-	if (typeof define === 'function' && define.amd) {
-		define([], function () {
-			return toExport;
-		});
-	}
-	else {
-		for(let exportObjName in toExport) {
-			window[exportObjName] = toExport[exportObjName];
-		}
 	}
 }

@@ -1,4 +1,4 @@
-const { OpenEO } = require('../openeo.js');
+const { OpenEO } = require('../src/openeo.js');
 const waitForExpect = require("wait-for-expect");
 
 jest.setTimeout(60000); // Give Google some time to process data

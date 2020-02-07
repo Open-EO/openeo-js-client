@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "0.4.3",
+  "version": "1.0.0-alpha.1",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -20,30 +20,35 @@
     "type": "git",
     "url": "https://github.com/Open-EO/openeo-js-client.git"
   },
-  "main": "openeo.js",
+  "main": "dist/openeo.node.js",
   "files": [
-    "openeo.js",
-    "openeo.min.js"
+    "dist/*.js"
   ],
   "devDependencies": {
-    "babel-minify": "^0.5.0",
-    "jest": "^24.7.1",
+    "@babel/core": "^7.0.0",
+    "jest": "^24.8.0",
     "jest-html-reporter": "^2.5.0",
     "jsdoc": "^3.5.5",
     "jshint": "^2.10.2",
-    "wait-for-expect": "^1.1.1"
+    "unminified-webpack-plugin": "^2.0.0",
+    "wait-for-expect": "^1.1.1",
+    "webpack": "^4.35.2",
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-cli": "^3.3.6",
+    "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@openeo/js-commons": "1.0.0-rc.1",
     "axios": "^0.19.0",
-    "oidc-client": "^1.10.1",
-    "ws": "^6.2.1"
+    "oidc-client": "^1.10.1"
   },
   "scripts": {
-    "docs": "jsdoc openeo.js -d docs/ -P package.json -R README.md",
-    "build": "minify openeo.js --out-file openeo.min.js --mangle.keepClassName -d lib",
-    "compat": "jshint openeo.js",
-    "test": "jest basic.test.js --env=jsdom",
-    "test_node": "jest basic.test.js --env=node",
-    "test_gee": "jest basic.test.js earthengine.test.js --env=node"
+    "docs": "jsdoc src -r -d docs/ -P package.json -R README.md",
+    "build": "npx webpack",
+    "compat": "jshint src",
+    "test": "npm run build && jest browser node --env=jsdom",
+    "test_browser": "jest browser --env=jsdom",
+    "test_node": "jest node --env=node",
+    "test_gee": "jest earthengine --env=node"
   }
 }
