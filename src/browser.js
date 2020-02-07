@@ -46,7 +46,7 @@ export default class Environment {
 		return source;
 	}
 
-	static async downloadResults(/*results, targetFolder*/) {
+	static async downloadResults(/*con, results, targetFolder*/) {
 		throw new Error("downloadResults is not supported in a browser environment.");
 	}
 

@@ -18,6 +18,8 @@ export {
 	Service
 };
 
+const SUPPORTED_API_VERSIONS = '0.4.x';
+
 /**
  * Main class to start with openEO. Allows to connect to a server.
  * 
@@ -61,16 +63,16 @@ export class OpenEO {
 				throw new Error("Well-Known Document doesn't list any version.");
 			}
 	
-			let compatibility = Versions.findLatest(response.data.versions, true, "1.0.x", "1.0.x");
-			if (compatibility.length > 0) {
-				url = compatibility[0].url;
+			let version = Versions.findLatest(response.data.versions, true, SUPPORTED_API_VERSIONS, SUPPORTED_API_VERSIONS);
+			if (version !== null) {
+				url = version.url;
 			}
 			else {
-				throw new Error("Server doesn't support API version 0.4.x.");
+				throw new Error("Server doesn't support API version 1.0.x.");
 			}
 		} catch(error) {
 			/** @todo We should replace the fallback in a 1.0 or so. */
-			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error);
+			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error.message);
 		}
 
 		return await OpenEO.connectDirect(url, authType, authOptions);
@@ -105,7 +107,7 @@ export class OpenEO {
 
 		// Check whether back-end is accessible and supports a compatible version.
 		let capabilities = await connection.init();
-		if (!capabilities.apiVersion().startsWith("0.4.")) {
+		if (Versions.compare(capabilities.apiVersion(), SUPPORTED_API_VERSIONS) !== 0) {
 			throw new Error("Server instance doesn't support API version 0.4.x.");
 		}
 

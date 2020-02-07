@@ -50,13 +50,13 @@ export default class Environment {
 		return fs.createReadStream(source);
 	}
 
-	static async downloadResults(results, targetFolder) {
+	static async downloadResults(con, results, targetFolder) {
 		let files = [];
 		const promises = results.links.map(async (link) => {
 			let parsedUrl = url.parse(link.href);
 			let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-			let response = await this.connection.download(link.href, false);
-			await Environment.saveToFileNode(response.data, targetPath);
+			let response = await con.download(link.href, false);
+			await Environment.saveToFile(response.data, targetPath);
 			files.push(targetPath);
 		});
 

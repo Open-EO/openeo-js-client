@@ -15,8 +15,8 @@ export default class BaseEntity {
 	 */
 	constructor(connection, properties = []) {
 		this.connection = connection;
-		this.clientNames = {};
-		this.backendNames = {};
+		this.apiToClientNames = {};
+		this.clientToApiNames = {};
 		this.extra = {};
 		for(let i in properties) {
 			let backend, client;
@@ -28,8 +28,8 @@ export default class BaseEntity {
 				backend = properties[i];
 				client = properties[i];
 			}
-			this.clientNames[backend] = client;
-			this.backendNames[client] = backend;
+			this.apiToClientNames[backend] = client;
+			this.clientToApiNames[client] = backend;
 			if (typeof this[client] === 'undefined') {
 				this[client] = null;
 			}
@@ -44,11 +44,11 @@ export default class BaseEntity {
 	 */
 	setAll(metadata) {
 		for(let name in metadata) {
-			if (typeof this.backendNames[name] === 'undefined') {
+			if (typeof this.apiToClientNames[name] === 'undefined') {
 				this.extra[name] = metadata[name];
 			}
 			else {
-				this[this.clientNames[name]] = metadata[name];
+				this[this.apiToClientNames[name]] = metadata[name];
 			}
 		}
 		return this;
@@ -61,8 +61,8 @@ export default class BaseEntity {
 	 */
 	getAll() {
 		let obj = {};
-		for(let backend in this.clientNames) {
-			let client = this.clientNames[backend];
+		for(let backend in this.apiToClientNames) {
+			let client = this.apiToClientNames[backend];
 			obj[client] = this[client];
 		}
 		return Object.assign(obj, this.extra);
@@ -81,11 +81,11 @@ export default class BaseEntity {
 	_convertToRequest(parameters) {
 		let request = {};
 		for(let key in parameters) {
-			if (typeof this.backendNames[key] === 'undefined') {
+			if (typeof this.clientToApiNames[key] === 'undefined') {
 				request[key] = parameters[key];
 			}
 			else {
-				request[this.backendNames[key]] = parameters[key];
+				request[this.clientToApiNames[key]] = parameters[key];
 			}
 		}
 		return request;

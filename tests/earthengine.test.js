@@ -1,4 +1,4 @@
-const { OpenEO } = require('../src/openeo.js');
+const { OpenEO } = require('../openeo.node.js');
 const waitForExpect = require("wait-for-expect");
 
 jest.setTimeout(60000); // Give Google some time to process data
@@ -143,9 +143,7 @@ describe('With earth-engine-driver', () => {
 				"describeService",
 				"getServiceById",
 				"updateService",
-				"deleteService",
-				"subscribe",
-				"unsubscribe"
+				"deleteService"
 			]);
 			expect(caps.listPlans()).toEqual(TESTCAPABILITIES.billing.plans);
 			expect(caps.currency()).toEqual(TESTCAPABILITIES.billing.currency);
@@ -626,7 +624,7 @@ describe('With earth-engine-driver', () => {
 						done();
 					}
 					catch(error) {
-						console.log(error); // it's not being printed by expect itself
+						console.log(error.message); // it's not being printed by expect itself
 						done.fail();
 					}
 				});
@@ -687,56 +685,6 @@ describe('With earth-engine-driver', () => {
 				fs.unlinkSync(fileName);
 				fs.unlinkSync(target);
 			}
-		});
-
-	});
-
-	describe('Subscriptions', () => {
-		var fileName = 'randomnumber.txt';
-		var prepareFile = async (f) => {
-			var content = Math.random().toString(36);
-			if (!isBrowserEnv) {
-				const fs = require('fs');
-				fs.writeFileSync(fileName, content);
-				await f.uploadFile(fileName);
-			}
-			else {
-				await f.uploadFile(content);
-			}
-			return content;
-		}
-		var con, f;
-
-		beforeAll(async (done) => {
-			con = await connectWithBasicAuth();
-			f = await con.openFile(fileName);
-			await prepareFile(f);
-			done();
-		});
-
-		test('Subscribe to openeo.files', async (done) => {
-			con.subscribe('openeo.files', {}, (payload, message) => {
-				con.unsubscribe('openeo.files', {}); // Unsubscribe to avoid receiving the file delete message
-//				expect(message.issued).toBe(... an ISO datetime string);
-				expect(message.topic).toBe('openeo.files');
-				expect(payload.user_id).toBe(TESTUSERNAME);
-				expect(payload.path).toBe(fileName);
-				expect(payload.action).toBe('updated');
-				done();
-			});
-			// Upload files every second to ensure a message is sent by the server during the test.
-			await waitForExpect(async () => {
-				await prepareFile(f);
-			}, 50000, 2000);
-		});
-
-		afterAll(async (done) => {
-			await f.deleteFile();
-			if (!isBrowserEnv) {
-				const fs = require('fs');
-				fs.unlinkSync(fileName);
-			}
-			done();
 		});
 
 	});

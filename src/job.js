@@ -139,6 +139,6 @@ export default class Job extends BaseEntity {
 	 */
 	async downloadResults(targetFolder) {
 		let list = await this.listResults();
-		return await Environment.downloadResults(list, targetFolder);
+		return await Environment.downloadResults(this.connection, list, targetFolder);
 	}
 }
