@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-beta.1",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -40,9 +40,9 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@openeo/js-commons": "1.0.0-rc.1",
-    "axios": "^0.19.2",
-    "oidc-client": "^1.10.1"
+    "@openeo/js-commons": "1.0.0-rc.2",
+    "axios": "^0.19.0",
+    "oidc-client": "^1.10.0"
   },
   "scripts": {
     "docs": "jsdoc src -r -d docs/ -P package.json -R README.md",

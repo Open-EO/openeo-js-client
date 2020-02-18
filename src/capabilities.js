@@ -33,46 +33,57 @@ export default class Capabilities {
 			.flat(1);
 
 		this.featureMap = {
-			capabilities: 'get /',
-			listFileTypes: 'get /output_formats',
+			// Discovery
+			capabilities: true,
+			listFileTypes: 'get /file_formats',
 			listServiceTypes: 'get /service_types',
 			listUdfRuntimes: 'get /udf_runtimes',
+			// Collections
 			listCollections: 'get /collections',
 			describeCollection: 'get /collections/{collection_id}',
+			// Processes
 			listProcesses: 'get /processes',
+			// Auth / Account
+			listAuthProviders: true,
 			authenticateOIDC: 'get /credentials/oidc',
 			authenticateBasic: 'get /credentials/basic',
 			describeAccount: 'get /me',
-			listFiles: 'get /files/{user_id}',
-			validateProcessGraph: 'post /validation',
-			createProcessGraph: 'post /process_graphs',
-			listProcessGraphs: 'get /process_graphs',
+			// Files
+			listFiles: 'get /files',
+			getFile: 'get /files', // getFile is a virtual function and doesn't request an endpoint, but get /files should be available nevertheless.
+			uploadFile: 'put /files/{path}',
+			downloadFile: 'get /files/{path}',
+			deleteFile: 'delete /files/{path}',
+			// User-Defined Processes
+			validateProcess: 'post /validation',
+			listUserProcesses: 'get /process_graphs',
+			describeUserProcess: 'get /process_graphs/{process_graph_id}',
+			getUserProcess: 'get /process_graphs/{process_graph_id}',
+			setUserProcess: 'post /process_graphs', // soon: put /process_graphs/{process_graph_id}
+			replaceUserProcess: 'patch /process_graphs/{process_graph_id}', // soon: put /process_graphs/{process_graph_id}
+			deleteUserProcess: 'delete /process_graphs/{process_graph_id}',
+			// Processing
 			computeResult: 'post /result',
 			listJobs: 'get /jobs',
 			createJob: 'post /jobs',
 			listServices: 'get /services',
 			createService: 'post /services',
-			downloadFile: 'get /files/{user_id}/{path}',
-			openFile: 'put /files/{user_id}/{path}',
-			uploadFile: 'put /files/{user_id}/{path}',
-			deleteFile: 'delete /files/{user_id}/{path}',
-			getJobById: 'get /jobs/{job_id}',
+			getJob: 'get /jobs/{job_id}',
 			describeJob: 'get /jobs/{job_id}',
 			updateJob: 'patch /jobs/{job_id}',
 			deleteJob: 'delete /jobs/{job_id}',
 			estimateJob: 'get /jobs/{job_id}/estimate',
+			debugJob: 'get /jobs/{job_id}/logs',
 			startJob: 'post /jobs/{job_id}/results',
 			stopJob: 'delete /jobs/{job_id}/results',
 			listResults: 'get /jobs/{job_id}/results',
 			downloadResults: 'get /jobs/{job_id}/results',
-			describeProcessGraph: 'get /process_graphs/{process_graph_id}',
-			getProcessGraphById: 'get /process_graphs/{process_graph_id}',
-			updateProcessGraph: 'patch /process_graphs/{process_graph_id}',
-			deleteProcessGraph: 'delete /process_graphs/{process_graph_id}',
+			// Web services
 			describeService: 'get /services/{service_id}',
-			getServiceById: 'get /services/{service_id}',
+			getService: 'get /services/{service_id}',
 			updateService: 'patch /services/{service_id}',
-			deleteService: 'delete /services/{service_id}'
+			deleteService: 'delete /services/{service_id}',
+			debugService: 'get /services/{service_id}/logs',
 		};
 	}
 
@@ -109,7 +120,7 @@ export default class Capabilities {
 	 * @returns {string} Title
 	 */
 	title() {
-		return this.data.title || "";
+		return typeof this.data.title === 'string' ? this.data.title : "";
 	}
 
 	/**
@@ -118,7 +129,25 @@ export default class Capabilities {
 	 * @returns {string} Description
 	 */
 	description() {
-		return this.data.description || "";
+		return typeof this.data.description === 'string' ? this.data.description : "";
+	}
+
+	/**
+	 * Is the back-end suitable for use in production?
+	 * 
+	 * @returns {boolean} true = stable/production, false = unstable
+	 */
+	isStable() {
+		return !!this.data.production;
+	}
+
+	/**
+	 * Returns the links.
+	 * 
+	 * @returns {array} Array of link objects (href, title, rel, type)
+	 */
+	links() {
+		return Array.isArray(this.data.links) ? this.data.links : [];
 	}
 
 	/**
@@ -129,11 +158,11 @@ export default class Capabilities {
 	listFeatures() {
 		let features = [];
 		for(let feature in this.featureMap) {
-			if (this.features.includes(this.featureMap[feature])) {
+			if (this.featureMap[feature] === true || this.features.includes(this.featureMap[feature])) {
 				features.push(feature);
 			}
 		}
-		return features;
+		return features.sort();
 	}
 
 	/**
@@ -143,7 +172,7 @@ export default class Capabilities {
 	 * @returns {boolean} `true` if the feature is supported, otherwise `false`.
 	 */
 	hasFeature(methodName) {
-		return this.features.some(e => e === this.featureMap[methodName]);
+		return this.featureMap[methodName] === true || this.features.some(e => e === this.featureMap[methodName]);
 	}
 
 	/**
@@ -152,7 +181,7 @@ export default class Capabilities {
 	 * @returns {string|null} The billing currency or `null` if not available.
 	 */
 	currency() {
-		return (this.data.billing && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);
+		return (Utils.isObject(this.data.billing) && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);
 	}
 
 	/**
@@ -171,11 +200,13 @@ export default class Capabilities {
 	 * @returns {BillingPlan[]} Billing plans
 	 */
 	listPlans() {
-		if (this.data.billing && Array.isArray(this.data.billing.plans)) {
-			let plans = this.data.billing.plans;
-			return plans.map(plan => {
-				plan.default = (typeof this.data.billing.default_plan === 'string' && this.data.billing.default_plan.toLowerCase() === plan.name.toLowerCase());
-				return plan;
+		if (Utils.isObject(this.data.billing) && Array.isArray(this.data.billing.plans)) {
+			let defaultPlan = typeof this.data.billing.default_plan === 'string' ? this.data.billing.default_plan.toLowerCase() : null;
+			return this.data.billing.plans.map(plan => {
+				let addition = {
+					default: (defaultPlan === plan.name.toLowerCase())
+				};
+				return Object.assign({}, plan, addition);
 			});
 		}
 		else {

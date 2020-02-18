@@ -1,10 +1,13 @@
 import Environment from '@openeo/js-environment';
 import { Utils } from '@openeo/js-commons';
 
+import { BasicProvider, OidcProvider } from './authprovider';
 import Capabilities from './capabilities';
+import FileTypes from './filetypes';
+
 import File from './file';
 import Job from './job';
-import ProcessGraph from './processgraph';
+import UserProcess from './userprocess';
 import Service from './service';
 
 /**
@@ -22,10 +25,8 @@ export default class Connection {
 	 */
 	constructor(baseUrl) {
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
-		this.userId = null;
-		this.accessToken = null;
-		this.oidc = null;
-		this.oidcUser = null;
+		this.authProviderList = null;
+		this.authProvider = null;
 		this.capabilitiesObject = null;
 	}
 
@@ -51,15 +52,6 @@ export default class Connection {
 	}
 
 	/**
-	 * Returns the identifier of the user that is currently authenticated at the back-end.
-	 * 
-	 * @returns {string} ID of the authenticated user.
-	 */
-	getUserId() {
-		return this.userId;
-	}
-
-	/**
 	 * Returns the capabilities of the back-end.
 	 * 
 	 * @returns {Capabilities} Capabilities
@@ -76,8 +68,8 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	async listFileTypes() {
-		let response = await this._get('/output_formats');
-		return response.data;
+		let response = await this._get('/file_formats');
+		return new FileTypes(response.data);
 	}
 
 	/**
@@ -142,116 +134,40 @@ export default class Connection {
 	}
 
 	/**
-	 * Sets the OIDC User.
-	 * 
-	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {User} user - The OIDC User returned by OpenEO.signinCallbackOIDC(). Passing `null` resets OIDC authentication details.
-	 */
-	setUserOIDC(user) {
-		if (!user) {
-			this.oidcUser = null;
-			this.userId = null;
-			this.accessToken = null;
-		}
-		else {
-			if (!user.profile) {
-				throw "Retrieved token is invalid.";
-			}
-			this.oidcUser = user;
-			if (user.profile.sub) {
-				// The sub is not necessarily the correct userId.
-				// After authentication describeAccount() should be called to get a safe userId.
-				this.userId = user.profile.sub;
-			}
-			this.accessToken = user.id_token;
-		}
-	}
-
-	/**
-	 * Authenticate with OpenID Connect (OIDC) - EXPERIMENTAL!
-	 * 
-	 * Supported only in Browser environments.
-	 * 
-	 * Not required to be called explicitly if specified in `OpenEO.connect`.
-	 * 
-	 * Please note that the User ID may not be initialized correctly after authenticating with OpenID Connect.
-	 * Therefore requests to endpoints requiring the user ID (e.g file management) may fail.
-	 * Users should always request the user details using descibeAccount() directly after authentication.
-	 * 
-	 * @param {object} [authOptions={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
-	 * @param {string} [authOptions.client_id] - Your client application's identifier as registered with the OIDC provider
-	 * @param {string} [authOptions.redirect_uri] - The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {string} [authOptions.scope=openid] - The scope being requested from the OIDC provider. Defaults to `openid`.
-	 * @param {boolean} [authOptions.uiMethod=redirect] - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
-	 * @throws {Error}
-	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
-	 */
-	async authenticateOIDC(authOptions) {
-		Environment.checkOidcSupport();
-
-		var response = await this._send({
-			method: 'get',
-			url: '/credentials/oidc',
-			maxRedirects: 0 // Disallow redirects
-		});
-		var responseUrl = response.request.responseURL; // Would be response.request.res.responseUrl in Node
-		if (typeof responseUrl !== 'string') {
-			throw "No URL available for OpenID Connect Discovery";
-		}
-		this.oidc = new UserManager(Object.assign({
-			authority: responseUrl.replace('/.well-known/openid-configuration', ''),
-			response_type: 'token id_token',
-			scope: 'openid'
-		}, authOptions));
-		if (authOptions.uiMethod === 'popup') {
-			this.setUserOIDC(await this.oidc.signinPopup());
-		}
-		else {
-			await this.oidc.signinRedirect();
-		}
-	}
-
-	/**
-	 * Authenticate with HTTP Basic.
-	 * 
-	 * Not required to be called explicitly if specified in `OpenEO.connect`.
+	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @param {object} options - Options for Basic authentication.
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {object} An object containing AuthProviders.
 	 * @throws {Error}
 	 */
-	async authenticateBasic(username, password) {
-		let response = await this._send({
-			method: 'get',
-			responseType: 'json',
-			url: '/credentials/basic',
-			headers: {'Authorization': 'Basic ' + Environment.base64encode(username + ':' + password)}
-		});
-		if (!response.data.user_id) {
-			throw new Error("No user_id returned.");
+	async listAuthProviders() {
+		if (this.authProviderList !== null) {
+			return this.authProviderList;
 		}
-		if (!response.data.access_token) {
-			throw new Error("No access_token returned.");
+
+		this.authProviderList = {};
+		let cap = this.capabilities();
+
+		// Add OIDC providers
+		if (Environment.checkOidcSupport() && cap.hasFeature('authenticateOIDC')) {
+			let res = await this._get('/credentials/oidc');
+			if (Utils.isObject(res.data) && Array.isArray(res.data.providers)) {
+				for(let i in res.data.providers) {
+					this._addAuthProvider(new OidcProvider(this, res.data.providers[i]));
+				}
+			}
 		}
-		this.userId = response.data.user_id;
-		this.accessToken = response.data.access_token;
-		return response.data;
+		
+		// Add Basic provider
+		if (cap.hasFeature('authenticateBasic')) {
+			this._addAuthProvider(new BasicProvider(this));
+		}
+
+		return this.authProviderList;
 	}
 
-	/**
-	 * Logout from the established session - EXPERIMENTAL!
-	 * 
-	 * @async
-	 */
-	async logout() {
-		if (this.oidc !== null) {
-			await this.oidc.signoutRedirect();
-			this.oidc = null;
-			this.oidcUser = null;
-		}
-		this.userId = null;
-		this.accessToken = null;
+	_addAuthProvider(provider) {
+		this.authProviderList[provider.getId()] = provider;
 	}
 
 	/**
@@ -265,9 +181,6 @@ export default class Connection {
 	 */
 	async describeAccount() {
 		let response = await this._get('/me');
-		if (response.data && typeof response.data === 'object' && response.data.user_id) {
-			this.userId = response.data.user_id;
-		}
 		return response.data;
 	}
 
@@ -275,15 +188,13 @@ export default class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @param {string} [userId=null] - User ID, defaults to authenticated user.
 	 * @returns {File[]} A list of files.
 	 * @throws {Error}
 	 */
-	async listFiles(userId = null) {
-		userId = this._resolveUserId(userId);
-		let response = await this._get('/files/' + userId);
+	async listFiles() {
+		let response = await this._get('/files');
 		return response.data.files.map(
-			f => new File(this, userId, f.path).setAll(f)
+			f => new File(this, f.path).setAll(f)
 		);
 	}
 
@@ -291,24 +202,35 @@ export default class Connection {
 	 * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end. 
 	 * 
 	 * @param {string} path - Path to the file, relative to the user workspace.
-	 * @param {string} [userId=null] - User ID, defaults to authenticated user.
 	 * @returns {File} A file.
 	 * @throws {Error}
 	 */
-	openFile(path, userId = null) {
-		return new File(this, this._resolveUserId(userId), path);
+	getFile(path) {
+		return new File(this, path);
+	}
+
+	_normalizeUserProcess(process, additional = {}) {
+		if (process instanceof UserProcess) {
+			process = process.toPlainObject();
+		}
+		else if (Utils.isObject(process) && !Utils.isObject(process.process_graph)) {
+			process = {
+				process_graph: process
+			};
+		}
+		return Object.assign({}, process, additional);
 	}
 
 	/**
-	 * Validates a process graph at the back-end.
+	 * Validates a user-defined process at the back-end.
 	 * 
 	 * @async
-	 * @param {object} processGraph - Process graph to validate.
-	 * @retrurns {Object[]} errors - A list of API compatible error objects. A valid process graph returns an empty list.
+	 * @param {object} process - User-defined process to validate.
+	 * @returns {Object[]} errors - A list of API compatible error objects. A valid process returns an empty list.
 	 * @throws {Error}
 	 */
-	async validateProcessGraph(processGraph) {
-		let response = await this._post('/validation', {process_graph: processGraph});
+	async validateProcess(process) {
+		let response = await this._post('/validation', this._normalizeUserProcess(process));
 		if (Array.isArray(response.data.errors)) {
 			return response.data.errors;
 		}
@@ -318,35 +240,34 @@ export default class Connection {
 	}
 
 	/**
-	 * Lists all process graphs of the authenticated user.
+	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {ProcessGraph[]} A list of stored process graphs.
+	 * @returns {UserProcess[]} A list of user-defined processes.
 	 * @throws {Error}
 	 */
-	async listProcessGraphs() {
+	async listUserProcesses() {
 		let response = await this._get('/process_graphs');
-		return response.data.process_graphs.map(
-			pg => new ProcessGraph(this, pg.id).setAll(pg)
+		return response.data.processes.map(
+			pg => new UserProcess(this, pg.id).setAll(pg)
 		);
 	}
 
 	/**
-	 * Creates a new stored process graph at the back-end.
+	 * Creates a new stored user-defined process at the back-end.
 	 * 
 	 * @async
-	 * @param {object} processGraph - A process graph (JSON).
-	 * @param {string} [title=null] - A title for the stored process graph.
-	 * @param {string} [description=null] - A description for the stored process graph.
-	 * @returns {ProcessGraph} The new stored process graph.
+	 * @param {string} id - Unique identifier for the process.
+	 * @param {object} process - A user-defined process.
+	 * @returns {UserProcess} The new user-defined process.
 	 * @throws {Error}
 	 */
-	async createProcessGraph(processGraph, title = null, description = null) {
-		let requestBody = {title: title, description: description, process_graph: processGraph};
-		let response = await this._post('/process_graphs', requestBody);
-		let obj = new ProcessGraph(this, response.headers['openeo-identifier']).setAll(requestBody);
-		if (await this.capabilitiesObject.hasFeature('describeProcessGraph')) {
-			return obj.describeProcessGraph();
+	async setUserProcess(id, process) {
+		let data = this._normalizeUserProcess(process, {id: id});
+		let response = await this._post('/process_graphs', data);
+		let obj = new UserProcess(this, response.headers['openeo-identifier'] || id).setAll(data);
+		if (await this.capabilitiesObject.hasFeature('describeUserProcess')) {
+			return obj.describeUserProcess();
 		}
 		else {
 			return obj;
@@ -354,35 +275,37 @@ export default class Connection {
 	}
 
 	/**
-	 * Get all information about a stored process graph.
+	 * Get all information about a user-defined process.
 	 * 
 	 * @async
-	 * @param {string} id - Process graph ID. 
-	 * @returns {ProcessGraph} The stored process graph.
+	 * @param {string} id - Identifier of the user-defined process. 
+	 * @returns {UserProcess} The user-defined process.
 	 * @throws {Error}
 	 */
-	async getProcessGraphById(id) {
-		let pg = new ProcessGraph(this, id);
-		return await pg.describeProcessGraph();
+	async getUserProcess(id) {
+		let pg = new UserProcess(this, id);
+		return await pg.describeUserProcess();
 	}
 
 	/**
-	 * Executes a process graph synchronously and returns the result as the response.
+	 * Executes a process synchronously and returns the result as the response.
 	 * 
 	 * Please note that requests can take a very long time of several minutes or even hours.
 	 * 
 	 * @async
-	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {object} process - A user-defined process.
 	 * @param {string} [plan=null] - The billing plan to use for this computation.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
 	 */
-	async computeResult(processGraph, plan = null, budget = null) {
-		let requestBody = {
-			process_graph: processGraph,
-			plan: plan,
-			budget: budget
-		};
+	async computeResult(process, plan = null, budget = null) {
+		let requestBody = this._normalizeUserProcess(
+			process,
+			{
+				plan: plan,
+				budget: budget
+			}
+		);
 		let response = await this._post('/result', requestBody, Environment.getResponseType());
 		return response.data;
 	}
@@ -405,7 +328,7 @@ export default class Connection {
 	 * Creates a new batch job at the back-end.
 	 * 
 	 * @async
-	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {object} process - A user-define process to execute.
 	 * @param {string} [title=null] - A title for the batch job.
 	 * @param {string} [description=null] - A description for the batch job.
 	 * @param {string} [plan=null] - The billing plan to use for this batch job.
@@ -414,14 +337,14 @@ export default class Connection {
 	 * @returns {Job} The stored batch job.
 	 * @throws {Error}
 	 */
-	async createJob(processGraph, title = null, description = null, plan = null, budget = null, additional = {}) {
-		let requestBody = Object.assign({}, additional, {
+	async createJob(process, title = null, description = null, plan = null, budget = null, additional = {}) {
+		additional = Object.assign({}, additional, {
 			title: title,
 			description: description,
-			process_graph: processGraph,
 			plan: plan,
 			budget: budget
 		});
+		let requestBody = this._normalizeUserProcess(process, additional);
 		let response = await this._post('/jobs', requestBody);
 		let job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeJob')) {
@@ -440,7 +363,7 @@ export default class Connection {
 	 * @returns {Job} The batch job.
 	 * @throws {Error}
 	 */
-	async getJobById(id) {
+	async getJob(id) {
 		let job = new Job(this, id);
 		return await job.describeJob();
 	}
@@ -463,7 +386,7 @@ export default class Connection {
 	 * Creates a new secondary web service at the back-end. 
 	 * 
 	 * @async
-	 * @param {object} processGraph - A process graph (JSON).
+	 * @param {object} process - A user-defined process.
 	 * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
 	 * @param {string} [title=null] - A title for the service.
 	 * @param {string} [description=null] - A description for the service.
@@ -471,20 +394,20 @@ export default class Connection {
 	 * @param {object} [parameters={}] - Parameters to pass to the service.
 	 * @param {string} [plan=null] - The billing plan to use for this service.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
+	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Service} The stored service.
 	 * @throws {Error}
 	 */
-	async createService(processGraph, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null) {
-		let requestBody = {
+	async createService(process, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null, additional = {}) {
+		let requestBody = this._normalizeUserProcess(process, {
 			title: title,
 			description: description,
-			process_graph: processGraph,
 			type: type,
 			enabled: enabled,
 			parameters: parameters,
 			plan: plan,
 			budget: budget
-		};
+		}, additional);
 		let response = await this._post('/services', requestBody);
 		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeService')) {
@@ -503,7 +426,7 @@ export default class Connection {
 	 * @returns {Job} The service.
 	 * @throws {Error}
 	 */
-	async getServiceById(id) {
+	async getService(id) {
 		let service = new Service(this, id);
 		return await service.describeService();
 	}
@@ -569,7 +492,7 @@ export default class Connection {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers.Authorization = 'Bearer ' + this.accessToken;
+			options.headers.Authorization = 'Bearer ' + this.authProvider.getToken();
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';
@@ -590,24 +513,12 @@ export default class Connection {
 		}
 	}
 
-	_resolveUserId(userId = null) {
-		if(userId === null) {
-			if(this.userId === null) {
-				throw new Error("Parameter 'userId' not specified and no default value available because user is not logged in.");
-			}
-			else {
-				userId = this.userId;
-			}
-		}
-		return userId;
-	}
-
 	/**
 	 * Returns whether the user is authenticated (logged in) at the back-end or not.
 	 * 
 	 * @returns {boolean} `true` if authenticated, `false` if not.
 	 */
 	isLoggedIn() {
-		return (this.accessToken !== null);
+		return (this.authProvider !== null);
 	}
 }

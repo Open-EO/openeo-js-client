@@ -16,7 +16,7 @@ export default class Service extends BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, serviceId) {
-		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "parameters", "attributes", "submitted", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
@@ -65,5 +65,16 @@ export default class Service extends BaseEntity {
 	 */
 	async deleteService() {
 		await this.connection._delete('/services/' + this.serviceId);
+	}
+
+	/**
+	 * Get logs for the secondary web service from the back-end.
+	 * 
+	 * @async
+	 * @throws {Error}
+	 */
+	async debugService() {
+		let response = await this.connection._get('/services/' + this.serviceId + '/logs');
+		return Array.isArray(response.data.logs) ? response.data.logs : [];
 	}
 }

@@ -10,8 +10,9 @@ export default class Environment {
 
 	static checkOidcSupport() {
 		if (typeof UserManager === 'undefined') {
-			throw "OpenID Connect library not found";
+			return false;
 		}
+		return true;
 	}
 
 	static handleErrorResponse(error) {
@@ -46,7 +47,7 @@ export default class Environment {
 		return source;
 	}
 
-	static async downloadResults(/*con, results, targetFolder*/) {
+	static async downloadResults(/*con, assets, targetFolder*/) {
 		throw new Error("downloadResults is not supported in a browser environment.");
 	}
 

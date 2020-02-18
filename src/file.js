@@ -13,13 +13,11 @@ export default class File extends BaseEntity {
 	 * Creates an object representing a file on the user workspace.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {string} userId - The user ID.
 	 * @param {string} path - The path to the file, relative to the user workspace and without user ID.
 	 * @constructor
 	 */
-	constructor(connection, userId, path) {
+	constructor(connection, path) {
 		super(connection, ["path", "size", "modified"]);
-		this.userId = userId;
 		this.path = path;
 	}
 
@@ -37,7 +35,7 @@ export default class File extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async downloadFile(target = null) {
-		let response = await this.connection.download('/files/' + this.userId + '/' + this.path, true);
+		let response = await this.connection.download('/files/' + this.path, true);
 		if (target === null) {
 			return response.data;
 		}
@@ -70,7 +68,7 @@ export default class File extends BaseEntity {
 	async uploadFile(source, statusCallback = null) {
 		let options = {
 			method: 'put',
-			url: '/files/' + this.userId + '/' + this.path,
+			url: '/files/' + this.path,
 			data: Environment.dataForUpload(source),
 			headers: {
 				'Content-Type': 'application/octet-stream'
@@ -94,6 +92,6 @@ export default class File extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async deleteFile() {
-		await this.connection._delete('/files/' + this.userId + '/' + this.path);
+		await this.connection._delete('/files/' + this.path);
 	}
 }

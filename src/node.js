@@ -13,7 +13,7 @@ const path = require("path");
 export default class Environment {
 
 	static checkOidcSupport() {
-		throw "OpenID Connect authentication is only supported in a browser environment";
+		return false;
 	}
 
 	static handleErrorResponse(error) {
@@ -50,9 +50,9 @@ export default class Environment {
 		return fs.createReadStream(source);
 	}
 
-	static async downloadResults(con, results, targetFolder) {
+	static async downloadResults(con, assets, targetFolder) {
 		let files = [];
-		const promises = results.links.map(async (link) => {
+		const promises = assets.map(async (link) => {
 			let parsedUrl = url.parse(link.href);
 			let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
 			let response = await con.download(link.href, false);

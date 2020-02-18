@@ -30,10 +30,18 @@ export default class BaseEntity {
 			}
 			this.apiToClientNames[backend] = client;
 			this.clientToApiNames[client] = backend;
-			if (typeof this[client] === 'undefined') {
-				this[client] = null;
+		}
+	}
+
+	toPlainObject() {
+		let obj = {};
+		for(let key in this.clientToApiNames) {
+			let apiKey = this.clientToApiNames[key];
+			if (typeof this[key] !== 'undefined') {
+				obj[apiKey] = this[key];
 			}
 		}
+		return Object.assign(obj, this.extra);
 	}
 
 	/**

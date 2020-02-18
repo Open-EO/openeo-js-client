@@ -4,11 +4,11 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-The version of this client is **0.4.3** and supports **openEO API version 0.4.x**. Legacy versions are available as releases.
+The version of this client is **1.0.0-beta.1** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
 
 ## Usage
 
-This library can run in node.js or any recent browser supporting ECMAScript 2017 (ES8). This includes [mostly all browsers released after mid 2017, but excludes Internet Explorer 11](https://caniuse.com/#search=async%20functions).
+This library can run in node.js or any recent browser (excluding Internet Explorer).
 
 ### Browser environment
 
@@ -35,8 +35,9 @@ Check against the coding guidelines: `npm run compat`
 
 Run tests:
 
-* `npm run test` (basic browser-based tests)
-* `npm run test_node` (basic node-based tests)
+* `npm run test` (browser and node tests)
+* `npm run test_browser` (browser tests)
+* `npm run test_node` (node tests)
 * `npm run test_gee` (full test suite using the Google Earth Engine back-end as server)
 
 ### Running a job
@@ -80,7 +81,7 @@ try {
 }
 ```
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/0.4.3/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/1.0.0-beta.1/).
 
 ## Roadmap
 

@@ -1,5 +1,6 @@
 import Environment from '@openeo/js-environment';
 import BaseEntity from './baseentity';
+import { Utils } from '@openeo/js-commons';
 
 /**
  * A Batch Job.
@@ -17,7 +18,7 @@ export default class Job extends BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, jobId) {
-		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "submitted", "updated", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
@@ -79,6 +80,17 @@ export default class Job extends BaseEntity {
 	}
 
 	/**
+	 * Get logs for the batch job from the back-end.
+	 * 
+	 * @async
+	 * @throws {Error}
+	 */
+	async debugJob() {
+		let response = await this.connection._get('/jobs/' + this.jobId + '/logs');
+		return Array.isArray(response.data.logs) ? response.data.logs : [];
+	}
+
+	/**
 	 * Starts / queues the batch job for processing at the back-end.
 	 * 
 	 * @async
@@ -109,22 +121,40 @@ export default class Job extends BaseEntity {
 	}
 
 	/**
-	 * Retrieves download links and additional information about the batch job.
-	 * 
-	 * NOTE: Requesting metalink XML files is currently not supported by the JS client.
+	 * Retrieves the STAC Item produced for the job results.
 	 * 
 	 * @async
-	 * @returns {object} The JSON-based response compatible to the API specification, but also including `costs` and `expires` properties as received in the headers (or `null` if not present).
+	 * @returns {object} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+	 * @throws {Error}
+	 */
+	async getResultsAsItem() {
+		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
+		let data = response.data;
+		if (!Utils.isObject(data.properties)) {
+			data.properties = {};
+		}
+		if (typeof response.headers['openeo-costs'] === 'number') {
+			data.properties.costs = response.headers['openeo-costs'];
+		}
+
+		return data;
+	}
+
+	/**
+	 * Retrieves download links.
+	 * 
+	 * @async
+	 * @returns {object} A list of links (object with href, rel, title and type).
 	 * @throws {Error}
 	 */
 	async listResults() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
-		// Returning null for missing headers is not strictly following the spec
-		let headerData = {
-			costs: response.headers['openeo-costs'] || null,
-			expires: response.headers.expires || null
-		};
-		return Object.assign(headerData, response.data);
+		let item = await this.getResultsAsItem();
+		if (Utils.isObject(item.assets)) {
+			return Object.values(item.assets);
+		}
+		else {
+			return {};
+		}
 	}
 
 	/**

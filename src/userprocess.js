@@ -6,30 +6,43 @@ import BaseEntity from './baseentity';
  * @class
  * @extends BaseEntity
  */
-export default class ProcessGraph extends BaseEntity {
+export default class UserProcess extends BaseEntity {
 
 	/**
 	 * Creates an object representing a process graph stored at the back-end.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {string} processGraphId - ID of a stored process graph.
+	 * @param {string} id - ID of a stored process graph.
 	 * @constructor
 	 */
-	constructor(connection, processGraphId) {
-		super(connection, ["id", "title", "description", ["process_graph", "processGraph"]]);
+	constructor(connection, id) {
+		super(connection, [
+			"id",
+			"summary",
+			"description",
+			"categories",
+			"parameters",
+			"returns",
+			"deprecated",
+			"experimental",
+			"exceptions",
+			"examples",
+			"links",
+			["process_graph", "processGraph"]
+		]);
+		this.id = id;
 		this.connection = connection;
-		this.processGraphId = processGraphId;
 	}
 
 	/**
 	 * Updates the data stored in this object by requesting the process graph metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {ProcessGraph} The updated process graph object (this).
+	 * @returns {UserProcess} The updated process graph object (this).
 	 * @throws {Error}
 	 */
-	async describeProcessGraph() {
-		let response = await this.connection._get('/process_graphs/' + this.processGraphId);
+	async describeUserProcess() {
+		let response = await this.connection._get('/process_graphs/' + this.id);
 		return this.setAll(response.data);
 	}
 
@@ -41,13 +54,13 @@ export default class ProcessGraph extends BaseEntity {
 	 * @param {object} parameters.processGraph - A new process graph.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
-	 * @returns {ProcessGraph} The updated process graph object (this).
+	 * @returns {UserProcess} The updated process graph object (this).
 	 * @throws {Error}
 	 */
-	async updateProcessGraph(parameters) {
-		await this.connection._patch('/process_graphs/' + this.processGraphId, this._convertToRequest(parameters));
-		if (this._supports('describeProcessGraph')) {
-			return this.describeProcessGraph();
+	async replaceUserProcess(parameters) {
+		await this.connection._patch('/process_graphs/' + this.id, this._convertToRequest(parameters));
+		if (this._supports('describeUserProcess')) {
+			return this.describeUserProcess();
 		}
 		else {
 			return this.setAll(parameters);
@@ -60,7 +73,7 @@ export default class ProcessGraph extends BaseEntity {
 	 * @async
 	 * @throws {Error}
 	 */
-	async deleteProcessGraph() {
-		await this.connection._delete('/process_graphs/' + this.processGraphId);
+	async deleteUserProcess() {
+		await this.connection._delete('/process_graphs/' + this.id);
 	}
 }
