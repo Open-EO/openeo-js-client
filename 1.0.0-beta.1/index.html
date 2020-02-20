@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3>@openeo/js-client 1.0.0-beta.1</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>openeo-js-client</h1>
+<p>JavaScript client for the openEO API.</p>
+<p><a href="https://travis-ci.org/Open-EO/openeo-js-client"><img src="https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master" alt="Build Status"></a></p>
+<p>The version of this client is <strong>1.0.0-beta.1</strong> and supports <strong>openEO API versions 1.0.x</strong>. Legacy versions are available as releases.</p>
+<h2>Usage</h2>
+<p>This library can run in node.js or any recent browser (excluding Internet Explorer).</p>
+<h3>Browser environment</h3>
+<p>To use it in a browser environment simply add the following code to your HTML file:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js&quot;>&lt;/script>
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/oidc-client@1/lib/oidc-client.min.js&quot;>&lt;/script> &lt;!-- Only required if you'd like to enable authentication via OpenID Connect -->
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@openeo/js-client@latest/openeo.min.js&quot;>&lt;/script>
+</code></pre>
+<h3>NodeJS environment</h3>
+<p>To install it in a NodeJS environment run: <code>npm install @openeo/js-client</code></p>
+<p>Afterwards, you can import the package: <code>const { OpenEO } = require('@openeo/js-client');</code></p>
+<h3>Advanced options</h3>
+<p>Generate a minified build: <code>npm run build</code></p>
+<p>Generate the documentation to the <code>docs/</code> folder: <code>npm run docs</code></p>
+<p>Check against the coding guidelines: <code>npm run compat</code></p>
+<p>Run tests:</p>
+<ul>
+<li><code>npm run test</code> (browser and node tests)</li>
+<li><code>npm run test_browser</code> (browser tests)</li>
+<li><code>npm run test_node</code> (node tests)</li>
+<li><code>npm run test_gee</code> (full test suite using the Google Earth Engine back-end as server)</li>
+</ul>
+<h3>Running a job</h3>
+<pre class="prettyprint source lang-js"><code>// Show the client version
+console.log(&quot;Client Version: &quot; + OpenEO.clientVersion());
+
+try {
+  // Connect to the back-end
+  var con = await OpenEO.connect(&quot;https://earthengine.openeo.org&quot;, &quot;basic&quot;, {username: &quot;group1&quot;, password: &quot;test123&quot;});
+
+  // Show implemented API version of the back-end
+  var capabilities = con.capabilities();
+  console.log(&quot;Server API version: &quot; + capabilities.apiVersion());
+
+  // List collection names
+  var collections = await con.listCollections();
+  console.log(&quot;Collections: &quot; + collections.collections.map(c => c.name));
+
+  // List process ids
+  var processes = await con.listProcesses();
+  console.log(&quot;Processes: &quot; + processes.processes.map(p => p.name));
+  
+  // List supported file types
+  var fileTypes = await con.listFileTypes();
+  console.log(&quot;Files types: &quot; + Object.keys(fileTypes.formats));
+  
+  // Check whether synchronous previews are supported
+  var syncSupport = capabilities.hasFeature(&quot;computeResult&quot;);
+  console.log(&quot;Synchronous previews: &quot; + (syncSupport ? &quot;supported&quot; : &quot;NOT supported&quot;));
+  
+  // Request a preview synchronously for a process graph
+  if (syncSupport) {
+    // Replace ... with your JSON process graph
+    var preview = await con.computeResult(..., &quot;png&quot;);
+    // This returns a Blob object containing a binary PNG file you could further process or show.
+  }
+} catch(e) {
+  console.log(e);
+}
+</code></pre>
+<p>More information can be found in the <a href="https://open-eo.github.io/openeo-js-client/1.0.0-beta.1/"><strong>JS client documentation</strong></a>.</p>
+<h2>Roadmap</h2>
+<ul>
+<li>There's no functionality to build process graphs. An easy-to-use process graph builder is envisioned to be implemented. <a href="https://github.com/Open-EO/openeo-js-client/issues/19">#19</a></li>
+<li>See the <a href="https://github.com/Open-EO/openeo-js-client/issues">issue tracker</a> for more information.</li>
+</ul>
+<h2>Interactive JS Editor</h2>
+<p>There is an experimental interactive web-based editor for coding using the openEO API,
+which is based on the JavaScript client.
+See <a href="https://github.com/Open-EO/openeo-web-editor">https://github.com/Open-EO/openeo-web-editor</a> for more details.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3>Global</h3><ul><li><a href="global.html#apiVersion">apiVersion</a></li><li><a href="global.html#backendVersion">backendVersion</a></li><li><a href="global.html#base64encode">base64encode</a></li><li><a href="global.html#capabilities">capabilities</a></li><li><a href="global.html#computeResult">computeResult</a></li><li><a href="global.html#createJob">createJob</a></li><li><a href="global.html#createService">createService</a></li><li><a href="global.html#currency">currency</a></li><li><a href="global.html#debugJob">debugJob</a></li><li><a href="global.html#debugService">debugService</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteJob">deleteJob</a></li><li><a href="global.html#deleteService">deleteService</a></li><li><a href="global.html#deleteUserProcess">deleteUserProcess</a></li><li><a href="global.html#describeAccount">describeAccount</a></li><li><a href="global.html#describeCollection">describeCollection</a></li><li><a href="global.html#describeJob">describeJob</a></li><li><a href="global.html#describeService">describeService</a></li><li><a href="global.html#describeUserProcess">describeUserProcess</a></li><li><a href="global.html#description">description</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#downloadFile">downloadFile</a></li><li><a href="global.html#downloadResults">downloadResults</a></li><li><a href="global.html#estimateJob">estimateJob</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getAll">getAll</a></li><li><a href="global.html#getBaseUrl">getBaseUrl</a></li><li><a href="global.html#getFile">getFile</a></li><li><a href="global.html#getJob">getJob</a></li><li><a href="global.html#getResultsAsItem">getResultsAsItem</a></li><li><a href="global.html#getService">getService</a></li><li><a href="global.html#getUserProcess">getUserProcess</a></li><li><a href="global.html#hasFeature">hasFeature</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#isStable">isStable</a></li><li><a href="global.html#links">links</a></li><li><a href="global.html#listAuthProviders">listAuthProviders</a></li><li><a href="global.html#listCollections">listCollections</a></li><li><a href="global.html#listFeatures">listFeatures</a></li><li><a href="global.html#listFiles">listFiles</a></li><li><a href="global.html#listFileTypes">listFileTypes</a></li><li><a href="global.html#listJobs">listJobs</a></li><li><a href="global.html#listPlans">listPlans</a></li><li><a href="global.html#listProcesses">listProcesses</a></li><li><a href="global.html#listResults">listResults</a></li><li><a href="global.html#listServices">listServices</a></li><li><a href="global.html#listServiceTypes">listServiceTypes</a></li><li><a href="global.html#listUdfRuntimes">listUdfRuntimes</a></li><li><a href="global.html#listUserProcesses">listUserProcesses</a></li><li><a href="global.html#replaceUserProcess">replaceUserProcess</a></li><li><a href="global.html#saveToFile">saveToFile</a></li><li><a href="global.html#setAll">setAll</a></li><li><a href="global.html#setUserProcess">setUserProcess</a></li><li><a href="global.html#startJob">startJob</a></li><li><a href="global.html#stopJob">stopJob</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#toPlainObject">toPlainObject</a></li><li><a href="global.html#updateJob">updateJob</a></li><li><a href="global.html#updateService">updateService</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateProcess">validateProcess</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Feb 20 2020 13:49:09 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
