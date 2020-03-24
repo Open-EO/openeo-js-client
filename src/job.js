@@ -1,6 +1,6 @@
-import Environment from '@openeo/js-environment';
-import BaseEntity from './baseentity';
-import { Utils } from '@openeo/js-commons';
+const Environment = require('./env');
+const BaseEntity = require('./baseentity');
+const Utils = require('@openeo/js-commons/src/utils');
 
 /**
  * A Batch Job.
@@ -8,7 +8,7 @@ import { Utils } from '@openeo/js-commons';
  * @class
  * @extends BaseEntity
  */
-export default class Job extends BaseEntity {
+module.exports = class Job extends BaseEntity {
 
 	/**
 	 * Creates an object representing a batch job stored at the back-end.
@@ -18,7 +18,7 @@ export default class Job extends BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, jobId) {
-		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", "process", "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
 	}
 
@@ -171,4 +171,4 @@ export default class Job extends BaseEntity {
 		let list = await this.listResults();
 		return await Environment.downloadResults(this.connection, list, targetFolder);
 	}
-}
+};

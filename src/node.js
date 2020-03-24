@@ -10,7 +10,7 @@ const path = require("path");
  * @class
  * @hideconstructor
  */
-export default class Environment {
+module.exports = class Environment {
 
 	static checkOidcSupport() {
 		return false;
@@ -87,4 +87,4 @@ export default class Environment {
 			data.pipe(writeStream);
 		});
 	}
-}
+};

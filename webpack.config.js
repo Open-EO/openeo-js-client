@@ -20,13 +20,13 @@ module.exports = [
     },
     resolve: {
       alias: {
-        '@openeo/js-environment': path.resolve(__dirname, 'src/browser.js')
+        './env$': path.resolve(__dirname, 'src/browser.js')
       }
     },
     module: {
       rules: [
         {
-          test: /.js$/,
+          test: /\.js$/,
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
@@ -44,24 +44,5 @@ module.exports = [
         openAnalyzer: false
       })
     ],
-  },
-  // Node
-  {
-    target: "node",
-    mode: 'none',
-    entry: './src/openeo.js',
-    output: {
-      filename: 'openeo.node.js',
-      path: path.resolve(__dirname),
-      libraryTarget: 'umd',
-    },
-    externals: [
-      nodeExternals()
-    ],
-    resolve: {
-      alias: {
-        '@openeo/js-environment': path.resolve(__dirname, 'src/node.js')
-      }
-    }
   }
 ];

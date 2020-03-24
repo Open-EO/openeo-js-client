@@ -1,6 +1,6 @@
-import Environment from '@openeo/js-environment';
-import { Utils } from '@openeo/js-commons';
-import { UserManager } from 'oidc-client';
+const Environment = require('./env');
+const Utils = require('@openeo/js-commons/src/utils');
+const { UserManager } = require('oidc-client');
 
 class AuthProvider {
 
@@ -231,7 +231,7 @@ class BasicProvider extends AuthProvider {
 
 }
 
-export {
+module.exports = {
 	AuthProvider,
 	BasicProvider,
 	OidcProvider

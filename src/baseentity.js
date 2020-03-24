@@ -4,7 +4,7 @@
  * @class
  * @abstract
  */
-export default class BaseEntity {
+module.exports = class BaseEntity {
 
 	/**
 	 * Creates an instance of this object.
@@ -103,4 +103,4 @@ export default class BaseEntity {
 		return this.connection.capabilities().hasFeature(feature);
 	}
 
-}
+};

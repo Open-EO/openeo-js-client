@@ -1,6 +1,6 @@
-import { Utils } from '@openeo/js-commons';
+const Utils = require('@openeo/js-commons/src/utils');
 
-export default class FileTypes {
+module.exports = class FileTypes {
 
 	constructor(data) {
 		this.data = {
@@ -47,12 +47,10 @@ export default class FileTypes {
 
 	_findType(type, io) {
 		type = type.toUpperCase();
-		for(let key in this.data[io]) {
-			if (key.toUpperCase() === type) {
-				return this.data[io][type];
-			}
+		if (type in this.data[io]) {
+			return this.data[io][type];
 		}
 		return null;
 	}
 
-}
+};

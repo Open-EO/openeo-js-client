@@ -1,21 +1,20 @@
-import Environment from '@openeo/js-environment';
-import { Utils } from '@openeo/js-commons';
+const Environment = require('./env');
+const Utils = require('@openeo/js-commons/src/utils');
 
-import { BasicProvider, OidcProvider } from './authprovider';
-import Capabilities from './capabilities';
-import FileTypes from './filetypes';
-
-import File from './file';
-import Job from './job';
-import UserProcess from './userprocess';
-import Service from './service';
+const { BasicProvider, OidcProvider } = require('./authprovider');
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
+const UserFile = require('./file');
+const Job = require('./job');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
 
 /**
  * A connection to a back-end.
  * 
  * @class
  */
-export default class Connection {
+module.exports = class Connection {
 
 	/**
 	 * Creates a new Connection.
@@ -166,6 +165,12 @@ export default class Connection {
 		return this.authProviderList;
 	}
 
+	// Deprecated
+	async authenticateBasic(username, password) {
+		let basic = new BasicProvider(this);
+		await basic.login(username, password);
+	}
+
 	_addAuthProvider(provider) {
 		this.authProviderList[provider.getId()] = provider;
 	}
@@ -194,7 +199,7 @@ export default class Connection {
 	async listFiles() {
 		let response = await this._get('/files');
 		return response.data.files.map(
-			f => new File(this, f.path).setAll(f)
+			f => new UserFile(this, f.path).setAll(f)
 		);
 	}
 
@@ -206,7 +211,7 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	getFile(path) {
-		return new File(this, path);
+		return new UserFile(this, path);
 	}
 
 	_normalizeUserProcess(process, additional = {}) {
@@ -218,7 +223,7 @@ export default class Connection {
 				process_graph: process
 			};
 		}
-		return Object.assign({}, process, additional);
+		return Object.assign({}, additional, {process: process});
 	}
 
 	/**
@@ -230,7 +235,7 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
-		let response = await this._post('/validation', this._normalizeUserProcess(process));
+		let response = await this._post('/validation', this._normalizeUserProcess(process).process);
 		if (Array.isArray(response.data.errors)) {
 			return response.data.errors;
 		}
@@ -263,15 +268,8 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	async setUserProcess(id, process) {
-		let data = this._normalizeUserProcess(process, {id: id});
-		let response = await this._post('/process_graphs', data);
-		let obj = new UserProcess(this, response.headers['openeo-identifier'] || id).setAll(data);
-		if (await this.capabilitiesObject.hasFeature('describeUserProcess')) {
-			return obj.describeUserProcess();
-		}
-		else {
-			return obj;
-		}
+		let pg = new UserProcess(this, id);
+		return await pg.replaceUserProcess(process);
 	}
 
 	/**
@@ -452,6 +450,14 @@ export default class Connection {
 		});
 	}
 
+	async _put(path, body) {
+		return await this._send({
+			method: 'put',
+			url: path,
+			data: body
+		});
+	}
+
 	async _patch(path, body) {
 		return await this._send({
 			method: 'patch',
@@ -521,4 +527,4 @@ export default class Connection {
 	isLoggedIn() {
 		return (this.authProvider !== null);
 	}
-}
+};

@@ -1,33 +1,21 @@
-import axios from 'axios';
-import { Utils, Versions } from '@openeo/js-commons';
+const axios = require('axios');
+const Utils = require('@openeo/js-commons/src/utils');
+const Versions = require('@openeo/js-commons/src/versions');
 
 // API wrapper
-import Connection from './connection';
-import File from './file';
-import Job from './job';
-import UserProcess from './userprocess';
-import Service from './service';
-import { AuthProvider, BasicProvider, OidcProvider } from './authprovider';
+const Connection = require('./connection');
+const UserFile = require('./file');
+const Job = require('./job');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
+const { AuthProvider, BasicProvider, OidcProvider } = require('./authprovider');
 
 // Response wrapper
-import Capabilities from './capabilities';
-import FileTypes from './filetypes';
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
 
-export {
-	AuthProvider,
-	BasicProvider,
-	Capabilities,
-	Connection,
-	File,
-	FileTypes,
-	OidcProvider,
-	Job,
-	UserProcess,
-	Service
-};
-
-const MIN_API_VERSION = '1.0.0-rc.1';
-const MAX_API_VERSION = '1.0.0-rc.1';
+const MIN_API_VERSION = '1.0.0-rc.2';
+const MAX_API_VERSION = '1.0.0-rc.2';
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -35,7 +23,7 @@ const MAX_API_VERSION = '1.0.0-rc.1';
  * @class
  * @hideconstructor
  */
-export class OpenEO {
+class OpenEO {
 
 	/**
 	 * Connect to a back-end with version discovery (recommended).
@@ -51,14 +39,18 @@ export class OpenEO {
 	 */
 	static async connect(url) {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
-		let response;
+		let response = null;
 		try {
 			response = await axios.get(wellKnownUrl);
 
 			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
-				throw new Error("Well-Known Document doesn't list any version.");
+				throw new Error("Well-Known Document doesn't list any versions.");
 			}
+		} catch(error) {
+			console.warn("Can't read well-known document, connecting directly to the specified URL as fallback mechanism. Reason: " + error.message);
+		}
 	
+		if (Utils.isObject(response)) {
 			let version = Versions.findLatest(response.data.versions, true, MIN_API_VERSION, MAX_API_VERSION);
 			if (version !== null) {
 				url = version.url;
@@ -66,9 +58,6 @@ export class OpenEO {
 			else {
 				throw new Error("Server not supported. Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
 			}
-		} catch(error) {
-			/** @todo We should replace the fallback in a 1.0 or so. */
-			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error.message);
 		}
 
 		return await OpenEO.connectDirect(url);
@@ -109,3 +98,17 @@ export class OpenEO {
 	}
 
 }
+
+module.exports = {
+	AuthProvider,
+	BasicProvider,
+	Capabilities,
+	Connection,
+	File: UserFile,
+	FileTypes,
+	OidcProvider,
+	OpenEO,
+	Job,
+	UserProcess,
+	Service
+};

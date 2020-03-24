@@ -20,9 +20,11 @@
     "type": "git",
     "url": "https://github.com/Open-EO/openeo-js-client.git"
   },
-  "main": "dist/openeo.node.js",
+  "main": "src/openeo.js",
   "files": [
-    "dist/*.js"
+    "openeo.js",
+    "openeo.min.js",
+    "src/*"
   ],
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -48,10 +50,10 @@
     "docs": "jsdoc src -r -d docs/ -P package.json -R README.md",
     "build": "npx webpack",
     "compat": "jshint src",
-    "test": "npm run build && jest browser node --env=jsdom",
-    "test_browser": "npm run build && jest browser --env=jsdom",
-    "test_node": "npm run build && jest node --env=node",
-    "test_gee": "npm run build && jest earthengine --env=node"
+    "test": " jest browser node --env=jsdom",
+    "test_browser": "jest browser --env=jsdom",
+    "test_node": "jest node --env=node",
+    "test_gee": "jest earthengine --env=node"
   },
   "browserslist": [
     "> 1%",

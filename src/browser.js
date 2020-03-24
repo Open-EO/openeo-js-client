@@ -6,7 +6,7 @@
  * @class
  * @hideconstructor
  */
-export default class Environment {
+module.exports = class Environment {
 
 	static checkOidcSupport() {
 		if (typeof UserManager === 'undefined') {
@@ -83,4 +83,4 @@ export default class Environment {
 			resolve();
 		});
 	}
-}
+};

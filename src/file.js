@@ -1,5 +1,5 @@
-import Environment from '@openeo/js-environment';
-import BaseEntity from './baseentity';
+const Environment = require('./env');
+const BaseEntity = require('./baseentity');
 
 /**
  * A File on the user workspace.
@@ -7,7 +7,7 @@ import BaseEntity from './baseentity';
  * @class
  * @extends BaseEntity
  */
-export default class File extends BaseEntity {
+module.exports = class File extends BaseEntity {
 
 	/**
 	 * Creates an object representing a file on the user workspace.
@@ -94,4 +94,4 @@ export default class File extends BaseEntity {
 	async deleteFile() {
 		await this.connection._delete('/files/' + this.path);
 	}
-}
+};

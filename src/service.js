@@ -1,4 +1,4 @@
-import BaseEntity from './baseentity';
+const BaseEntity = require('./baseentity');
 
 /**
  * A Secondary Web Service.
@@ -6,7 +6,7 @@ import BaseEntity from './baseentity';
  * @class
  * @extends BaseEntity
  */
-export default class Service extends BaseEntity {
+module.exports = class Service extends BaseEntity {
 
 	/**
 	 * Creates an object representing a secondary web service stored at the back-end.
@@ -16,7 +16,7 @@ export default class Service extends BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, serviceId) {
-		super(connection, ["id", "title", "description", ["process_graph", "processGraph"], "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", "process", "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
 	}
 
@@ -77,4 +77,4 @@ export default class Service extends BaseEntity {
 		let response = await this.connection._get('/services/' + this.serviceId + '/logs');
 		return Array.isArray(response.data.logs) ? response.data.logs : [];
 	}
-}
+};

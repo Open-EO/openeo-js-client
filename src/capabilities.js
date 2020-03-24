@@ -1,11 +1,11 @@
-import { Utils } from '@openeo/js-commons';
+const Utils = require('@openeo/js-commons/src/utils');
 
 /**
  * Capabilities of a back-end.
  * 
  * @class
  */
-export default class Capabilities {
+module.exports = class Capabilities {
 
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
@@ -59,8 +59,8 @@ export default class Capabilities {
 			listUserProcesses: 'get /process_graphs',
 			describeUserProcess: 'get /process_graphs/{process_graph_id}',
 			getUserProcess: 'get /process_graphs/{process_graph_id}',
-			setUserProcess: 'post /process_graphs', // soon: put /process_graphs/{process_graph_id}
-			replaceUserProcess: 'patch /process_graphs/{process_graph_id}', // soon: put /process_graphs/{process_graph_id}
+			setUserProcess: 'put /process_graphs/{process_graph_id}',
+			replaceUserProcess: 'put /process_graphs/{process_graph_id}',
 			deleteUserProcess: 'delete /process_graphs/{process_graph_id}',
 			// Processing
 			computeResult: 'post /result',
@@ -213,4 +213,4 @@ export default class Capabilities {
 			return [];
 		}
 	}
-}
+};

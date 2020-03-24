@@ -1,4 +1,4 @@
-const { OpenEO } = require('../openeo.js');
+const { OpenEO } = require('../src/openeo');
 const packageInfo = require('../package.json');
 
 describe('Client Basics', () => {

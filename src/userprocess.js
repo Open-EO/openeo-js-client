@@ -1,4 +1,4 @@
-import BaseEntity from './baseentity';
+const BaseEntity = require('./baseentity');
 
 /**
  * A Stored Process Graph.
@@ -6,7 +6,7 @@ import BaseEntity from './baseentity';
  * @class
  * @extends BaseEntity
  */
-export default class UserProcess extends BaseEntity {
+module.exports = class UserProcess extends BaseEntity {
 
 	/**
 	 * Creates an object representing a process graph stored at the back-end.
@@ -58,7 +58,7 @@ export default class UserProcess extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async replaceUserProcess(parameters) {
-		await this.connection._patch('/process_graphs/' + this.id, this._convertToRequest(parameters));
+		await this.connection._put('/process_graphs/' + this.id, this._convertToRequest(parameters));
 		if (this._supports('describeUserProcess')) {
 			return this.describeUserProcess();
 		}
@@ -76,4 +76,4 @@ export default class UserProcess extends BaseEntity {
 	async deleteUserProcess() {
 		await this.connection._delete('/process_graphs/' + this.id);
 	}
-}
+};
