@@ -26,36 +26,24 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import axios from 'axios';
-import { Utils, Versions } from '@openeo/js-commons';
+            <pre class="prettyprint source linenums"><code>const axios = require('axios');
+const Utils = require('@openeo/js-commons/src/utils');
+const Versions = require('@openeo/js-commons/src/versions');
 
 // API wrapper
-import Connection from './connection';
-import File from './file';
-import Job from './job';
-import UserProcess from './userprocess';
-import Service from './service';
-import { AuthProvider, BasicProvider, OidcProvider } from './authprovider';
+const Connection = require('./connection');
+const UserFile = require('./file');
+const Job = require('./job');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
+const { AuthProvider, BasicProvider, OidcProvider } = require('./authprovider');
 
 // Response wrapper
-import Capabilities from './capabilities';
-import FileTypes from './filetypes';
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
 
-export {
-	AuthProvider,
-	BasicProvider,
-	Capabilities,
-	Connection,
-	File,
-	FileTypes,
-	OidcProvider,
-	Job,
-	UserProcess,
-	Service
-};
-
-const MIN_API_VERSION = '1.0.0-rc.1';
-const MAX_API_VERSION = '1.0.0-rc.1';
+const MIN_API_VERSION = '1.0.0-rc.2';
+const MAX_API_VERSION = '1.0.0-rc.2';
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -63,7 +51,7 @@ const MAX_API_VERSION = '1.0.0-rc.1';
  * @class
  * @hideconstructor
  */
-export class OpenEO {
+class OpenEO {
 
 	/**
 	 * Connect to a back-end with version discovery (recommended).
@@ -79,14 +67,18 @@ export class OpenEO {
 	 */
 	static async connect(url) {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
-		let response;
+		let response = null;
 		try {
 			response = await axios.get(wellKnownUrl);
 
 			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
-				throw new Error("Well-Known Document doesn't list any version.");
+				throw new Error("Well-Known Document doesn't list any versions.");
 			}
+		} catch(error) {
+			console.warn("Can't read well-known document, connecting directly to the specified URL as fallback mechanism. Reason: " + error.message);
+		}
 	
+		if (Utils.isObject(response)) {
 			let version = Versions.findLatest(response.data.versions, true, MIN_API_VERSION, MAX_API_VERSION);
 			if (version !== null) {
 				url = version.url;
@@ -94,9 +86,6 @@ export class OpenEO {
 			else {
 				throw new Error("Server not supported. Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
 			}
-		} catch(error) {
-			/** @todo We should replace the fallback in a 1.0 or so. */
-			console.warn("DEPRECATED: Can't read well-known document, connecting directly to the specified URL as fallback mechanism.", error.message);
 		}
 
 		return await OpenEO.connectDirect(url);
@@ -136,7 +125,22 @@ export class OpenEO {
 		return "1.0.0-beta.1";
 	}
 
-}</code></pre>
+}
+
+module.exports = {
+	AuthProvider,
+	BasicProvider,
+	Capabilities,
+	Connection,
+	File: UserFile,
+	FileTypes,
+	OidcProvider,
+	OpenEO,
+	Job,
+	UserProcess,
+	Service
+};
+</code></pre>
         </article>
     </section>
 
@@ -146,13 +150,13 @@ export class OpenEO {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3>Global</h3><ul><li><a href="global.html#apiVersion">apiVersion</a></li><li><a href="global.html#backendVersion">backendVersion</a></li><li><a href="global.html#base64encode">base64encode</a></li><li><a href="global.html#capabilities">capabilities</a></li><li><a href="global.html#computeResult">computeResult</a></li><li><a href="global.html#createJob">createJob</a></li><li><a href="global.html#createService">createService</a></li><li><a href="global.html#currency">currency</a></li><li><a href="global.html#debugJob">debugJob</a></li><li><a href="global.html#debugService">debugService</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteJob">deleteJob</a></li><li><a href="global.html#deleteService">deleteService</a></li><li><a href="global.html#deleteUserProcess">deleteUserProcess</a></li><li><a href="global.html#describeAccount">describeAccount</a></li><li><a href="global.html#describeCollection">describeCollection</a></li><li><a href="global.html#describeJob">describeJob</a></li><li><a href="global.html#describeService">describeService</a></li><li><a href="global.html#describeUserProcess">describeUserProcess</a></li><li><a href="global.html#description">description</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#downloadFile">downloadFile</a></li><li><a href="global.html#downloadResults">downloadResults</a></li><li><a href="global.html#estimateJob">estimateJob</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getAll">getAll</a></li><li><a href="global.html#getBaseUrl">getBaseUrl</a></li><li><a href="global.html#getFile">getFile</a></li><li><a href="global.html#getJob">getJob</a></li><li><a href="global.html#getResultsAsItem">getResultsAsItem</a></li><li><a href="global.html#getService">getService</a></li><li><a href="global.html#getUserProcess">getUserProcess</a></li><li><a href="global.html#hasFeature">hasFeature</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#isStable">isStable</a></li><li><a href="global.html#links">links</a></li><li><a href="global.html#listAuthProviders">listAuthProviders</a></li><li><a href="global.html#listCollections">listCollections</a></li><li><a href="global.html#listFeatures">listFeatures</a></li><li><a href="global.html#listFiles">listFiles</a></li><li><a href="global.html#listFileTypes">listFileTypes</a></li><li><a href="global.html#listJobs">listJobs</a></li><li><a href="global.html#listPlans">listPlans</a></li><li><a href="global.html#listProcesses">listProcesses</a></li><li><a href="global.html#listResults">listResults</a></li><li><a href="global.html#listServices">listServices</a></li><li><a href="global.html#listServiceTypes">listServiceTypes</a></li><li><a href="global.html#listUdfRuntimes">listUdfRuntimes</a></li><li><a href="global.html#listUserProcesses">listUserProcesses</a></li><li><a href="global.html#replaceUserProcess">replaceUserProcess</a></li><li><a href="global.html#saveToFile">saveToFile</a></li><li><a href="global.html#setAll">setAll</a></li><li><a href="global.html#setUserProcess">setUserProcess</a></li><li><a href="global.html#startJob">startJob</a></li><li><a href="global.html#stopJob">stopJob</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#toPlainObject">toPlainObject</a></li><li><a href="global.html#updateJob">updateJob</a></li><li><a href="global.html#updateService">updateService</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateProcess">validateProcess</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Feb 20 2020 13:49:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Mar 25 2020 12:33:31 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

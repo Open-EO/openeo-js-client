@@ -26,24 +26,23 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import Environment from '@openeo/js-environment';
-import { Utils } from '@openeo/js-commons';
+            <pre class="prettyprint source linenums"><code>const Environment = require('./env');
+const Utils = require('@openeo/js-commons/src/utils');
 
-import { BasicProvider, OidcProvider } from './authprovider';
-import Capabilities from './capabilities';
-import FileTypes from './filetypes';
-
-import File from './file';
-import Job from './job';
-import UserProcess from './userprocess';
-import Service from './service';
+const { BasicProvider, OidcProvider } = require('./authprovider');
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
+const UserFile = require('./file');
+const Job = require('./job');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
 
 /**
  * A connection to a back-end.
  * 
  * @class
  */
-export default class Connection {
+module.exports = class Connection {
 
 	/**
 	 * Creates a new Connection.
@@ -194,6 +193,12 @@ export default class Connection {
 		return this.authProviderList;
 	}
 
+	// Deprecated
+	async authenticateBasic(username, password) {
+		let basic = new BasicProvider(this);
+		await basic.login(username, password);
+	}
+
 	_addAuthProvider(provider) {
 		this.authProviderList[provider.getId()] = provider;
 	}
@@ -222,7 +227,7 @@ export default class Connection {
 	async listFiles() {
 		let response = await this._get('/files');
 		return response.data.files.map(
-			f => new File(this, f.path).setAll(f)
+			f => new UserFile(this, f.path).setAll(f)
 		);
 	}
 
@@ -234,7 +239,7 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	getFile(path) {
-		return new File(this, path);
+		return new UserFile(this, path);
 	}
 
 	_normalizeUserProcess(process, additional = {}) {
@@ -246,7 +251,7 @@ export default class Connection {
 				process_graph: process
 			};
 		}
-		return Object.assign({}, process, additional);
+		return Object.assign({}, additional, {process: process});
 	}
 
 	/**
@@ -258,7 +263,7 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
-		let response = await this._post('/validation', this._normalizeUserProcess(process));
+		let response = await this._post('/validation', this._normalizeUserProcess(process).process);
 		if (Array.isArray(response.data.errors)) {
 			return response.data.errors;
 		}
@@ -291,15 +296,8 @@ export default class Connection {
 	 * @throws {Error}
 	 */
 	async setUserProcess(id, process) {
-		let data = this._normalizeUserProcess(process, {id: id});
-		let response = await this._post('/process_graphs', data);
-		let obj = new UserProcess(this, response.headers['openeo-identifier'] || id).setAll(data);
-		if (await this.capabilitiesObject.hasFeature('describeUserProcess')) {
-			return obj.describeUserProcess();
-		}
-		else {
-			return obj;
-		}
+		let pg = new UserProcess(this, id);
+		return await pg.replaceUserProcess(process);
 	}
 
 	/**
@@ -480,6 +478,14 @@ export default class Connection {
 		});
 	}
 
+	async _put(path, body) {
+		return await this._send({
+			method: 'put',
+			url: path,
+			data: body
+		});
+	}
+
 	async _patch(path, body) {
 		return await this._send({
 			method: 'patch',
@@ -549,7 +555,8 @@ export default class Connection {
 	isLoggedIn() {
 		return (this.authProvider !== null);
 	}
-}</code></pre>
+};
+</code></pre>
         </article>
     </section>
 
@@ -559,13 +566,13 @@ export default class Connection {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3>Global</h3><ul><li><a href="global.html#apiVersion">apiVersion</a></li><li><a href="global.html#backendVersion">backendVersion</a></li><li><a href="global.html#base64encode">base64encode</a></li><li><a href="global.html#capabilities">capabilities</a></li><li><a href="global.html#computeResult">computeResult</a></li><li><a href="global.html#createJob">createJob</a></li><li><a href="global.html#createService">createService</a></li><li><a href="global.html#currency">currency</a></li><li><a href="global.html#debugJob">debugJob</a></li><li><a href="global.html#debugService">debugService</a></li><li><a href="global.html#deleteFile">deleteFile</a></li><li><a href="global.html#deleteJob">deleteJob</a></li><li><a href="global.html#deleteService">deleteService</a></li><li><a href="global.html#deleteUserProcess">deleteUserProcess</a></li><li><a href="global.html#describeAccount">describeAccount</a></li><li><a href="global.html#describeCollection">describeCollection</a></li><li><a href="global.html#describeJob">describeJob</a></li><li><a href="global.html#describeService">describeService</a></li><li><a href="global.html#describeUserProcess">describeUserProcess</a></li><li><a href="global.html#description">description</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#downloadFile">downloadFile</a></li><li><a href="global.html#downloadResults">downloadResults</a></li><li><a href="global.html#estimateJob">estimateJob</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getAll">getAll</a></li><li><a href="global.html#getBaseUrl">getBaseUrl</a></li><li><a href="global.html#getFile">getFile</a></li><li><a href="global.html#getJob">getJob</a></li><li><a href="global.html#getResultsAsItem">getResultsAsItem</a></li><li><a href="global.html#getService">getService</a></li><li><a href="global.html#getUserProcess">getUserProcess</a></li><li><a href="global.html#hasFeature">hasFeature</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#isStable">isStable</a></li><li><a href="global.html#links">links</a></li><li><a href="global.html#listAuthProviders">listAuthProviders</a></li><li><a href="global.html#listCollections">listCollections</a></li><li><a href="global.html#listFeatures">listFeatures</a></li><li><a href="global.html#listFiles">listFiles</a></li><li><a href="global.html#listFileTypes">listFileTypes</a></li><li><a href="global.html#listJobs">listJobs</a></li><li><a href="global.html#listPlans">listPlans</a></li><li><a href="global.html#listProcesses">listProcesses</a></li><li><a href="global.html#listResults">listResults</a></li><li><a href="global.html#listServices">listServices</a></li><li><a href="global.html#listServiceTypes">listServiceTypes</a></li><li><a href="global.html#listUdfRuntimes">listUdfRuntimes</a></li><li><a href="global.html#listUserProcesses">listUserProcesses</a></li><li><a href="global.html#replaceUserProcess">replaceUserProcess</a></li><li><a href="global.html#saveToFile">saveToFile</a></li><li><a href="global.html#setAll">setAll</a></li><li><a href="global.html#setUserProcess">setUserProcess</a></li><li><a href="global.html#startJob">startJob</a></li><li><a href="global.html#stopJob">stopJob</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#toPlainObject">toPlainObject</a></li><li><a href="global.html#updateJob">updateJob</a></li><li><a href="global.html#updateService">updateService</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#validateProcess">validateProcess</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="OpenEO.html">OpenEO</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Feb 20 2020 13:49:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Mar 25 2020 12:33:31 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
