@@ -133,6 +133,9 @@ module.exports = class Job extends BaseEntity {
 		if (!Utils.isObject(data.properties)) {
 			data.properties = {};
 		}
+		if (!Utils.isObject(data.assets)) {
+			data.assets = {};
+		}
 		if (typeof response.headers['openeo-costs'] === 'number') {
 			data.properties.costs = response.headers['openeo-costs'];
 		}

@@ -45,7 +45,7 @@ describe('With earth-engine-driver', () => {
 		test('Connect', async () => {
 			var con = await OpenEO.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
-			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -54,7 +54,7 @@ describe('With earth-engine-driver', () => {
 		test('Connect directly to a known version via connect', async () => {
 			var con = await OpenEO.connect(TESTBACKENDDIRECT);
 			expect(con instanceof Connection).toBeTruthy();
-			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -62,7 +62,7 @@ describe('With earth-engine-driver', () => {
 
 		test('Connect directly to a known version via connectDirect', async () => {
 			var con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
-			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -90,13 +90,13 @@ describe('With earth-engine-driver', () => {
 
 		test('Connect with wrong Basic Auth credentials', async () => {
 			await expect(basic.login("foo", "bar")).rejects.toThrow();
-			expect(con.isLoggedIn()).toBeFalsy();
+			expect(con.isAuthenticated()).toBeFalsy();
 		});
 
 		test('Connect with Basic Auth credentials', async () => {
 			await basic.login(TESTUSERNAME, TESTPASSWORD);
 			expect(basic.getToken()).not.toBeNull();
-			expect(con.isLoggedIn()).toBeTruthy();
+			expect(con.isAuthenticated()).toBeTruthy();
 		});
 	
 	});

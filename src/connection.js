@@ -171,6 +171,19 @@ module.exports = class Connection {
 		await basic.login(username, password);
 	}
 
+	/**
+	 * Returns whether the user is authenticated (logged in) at the back-end or not.
+	 * 
+	 * @returns {boolean} `true` if authenticated, `false` if not.
+	 */
+	isAuthenticated() {
+		return (this.authProvider !== null);
+	}
+
+	getAuthProvider() {
+		return this.authProvider;
+	}
+
 	_addAuthProvider(provider) {
 		this.authProviderList[provider.getId()] = provider;
 	}
@@ -493,7 +506,7 @@ module.exports = class Connection {
 
 	async _send(options) {
 		options.baseURL = this.baseUrl;
-		if (this.isLoggedIn() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
+		if (this.isAuthenticated() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
 			options.withCredentials = true;
 			if (!options.headers) {
 				options.headers = {};
@@ -517,14 +530,5 @@ module.exports = class Connection {
 			// Re-throw error if it was not handled yet.
 			throw error;
 		}
-	}
-
-	/**
-	 * Returns whether the user is authenticated (logged in) at the back-end or not.
-	 * 
-	 * @returns {boolean} `true` if authenticated, `false` if not.
-	 */
-	isLoggedIn() {
-		return (this.authProvider !== null);
 	}
 };

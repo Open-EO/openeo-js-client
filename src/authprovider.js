@@ -123,7 +123,6 @@ class OidcProvider extends AuthProvider {
 	 * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {object} [options={}] - Object with authentication options. See https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings for further options.
 	 * @throws {Error}
-	 * @todo Fully implement OpenID Connect authentication {@link https://github.com/Open-EO/openeo-js-client/issues/11}
 	 */
 	async login(client_id, redirect_uri, options = {}) {
 		if (!this.issuer || typeof this.issuer !== 'string') {
@@ -213,7 +212,6 @@ class BasicProvider extends AuthProvider {
 	 * 
 	 * @async
 	 * @param {object} options - Options for Basic authentication.
-	 * @returns {object} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async login(username, password) {
