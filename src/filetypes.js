@@ -25,7 +25,7 @@ module.exports = class FileTypes {
 	 * 
 	 * @returns {object} - A reference to the capabilities response.
 	 */
-	toPlainObject() {
+	toJSON() {
 		return this.data;
 	}
 

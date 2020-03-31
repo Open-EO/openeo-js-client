@@ -33,7 +33,7 @@ module.exports = class BaseEntity {
 		}
 	}
 
-	toPlainObject() {
+	toJSON() {
 		let obj = {};
 		for(let key in this.clientToApiNames) {
 			let apiKey = this.clientToApiNames[key];

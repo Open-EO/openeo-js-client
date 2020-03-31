@@ -111,7 +111,7 @@ describe('With earth-engine-driver', () => {
 		test('Capabilities', async () => {
 			var caps = await con.capabilities();
 			expect(caps instanceof Capabilities).toBeTruthy();
-			expect(caps.toPlainObject()).toEqual(TESTCAPABILITIES);
+			expect(caps.toJSON()).toEqual(TESTCAPABILITIES);
 			expect(caps.apiVersion()).toBe(TESTCAPABILITIES.api_version);
 			expect(caps.backendVersion()).toBe(TESTCAPABILITIES.backend_version);
 			expect(caps.title()).toBe(TESTCAPABILITIES.title);

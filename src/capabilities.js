@@ -92,7 +92,7 @@ module.exports = class Capabilities {
 	 * 
 	 * @returns {object} - A reference to the capabilities response.
 	 */
-	toPlainObject() {
+	toJSON() {
 		return this.data;
 	}
 

@@ -229,7 +229,7 @@ module.exports = class Connection {
 
 	_normalizeUserProcess(process, additional = {}) {
 		if (process instanceof UserProcess) {
-			process = process.toPlainObject();
+			process = process.toJSON();
 		}
 		else if (Utils.isObject(process) && !Utils.isObject(process.process_graph)) {
 			process = {
