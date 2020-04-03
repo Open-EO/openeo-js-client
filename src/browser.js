@@ -43,6 +43,10 @@ module.exports = class Environment {
 		return btoa(str);
 	}
 
+	static fileNameForUpload(source) {
+		return source.name.split(/(\\|\/)/g).pop();
+	}
+
 	static dataForUpload(source) {
 		return source;
 	}

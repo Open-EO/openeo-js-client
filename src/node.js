@@ -46,6 +46,10 @@ module.exports = class Environment {
 		return buffer.toString('base64');
 	}
 
+	static fileNameForUpload(source) {
+		return path.basename(source);
+	}
+
 	static dataForUpload(source) {
 		return fs.createReadStream(source);
 	}

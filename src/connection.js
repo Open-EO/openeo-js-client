@@ -216,14 +216,46 @@ module.exports = class Connection {
 		);
 	}
 
+
+	/**
+	 * A callback that is executed on upload progress updates.
+	 * 
+	 * @callback uploadStatusCallback
+	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 */
+
+	/**
+	 * Uploads a file to the user workspace.
+	 * If a file with the name exists, overwrites it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a nodeJS environment the source must be a path to a file as string.
+	 * In a browser environment the source must be an object from a file upload form.
+	 * 
+	 * @async
+	 * @param {string|object} source - The source, see method description for details.
+	 * @param {string|null} targetPath - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
+	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @returns {File}
+	 * @throws {Error}
+	 */
+	async uploadFile(source, targetPath = null, statusCallback = null) {
+		if (targetPath === null) {
+			targetPath = Environment.fileNameForUpload(source);
+		}
+		let file = await this.getFile(targetPath);
+		return await file.uploadFile(source, statusCallback);
+	}
+
 	/**
 	 * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end. 
 	 * 
+	 * @async
 	 * @param {string} path - Path to the file, relative to the user workspace.
 	 * @returns {File} A file.
 	 * @throws {Error}
 	 */
-	getFile(path) {
+	async getFile(path) {
 		return new UserFile(this, path);
 	}
 
