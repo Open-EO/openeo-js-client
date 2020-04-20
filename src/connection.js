@@ -434,20 +434,20 @@ module.exports = class Connection {
 	 * @param {string} [title=null] - A title for the service.
 	 * @param {string} [description=null] - A description for the service.
 	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
-	 * @param {object} [parameters={}] - Parameters to pass to the service.
+	 * @param {object} [configuration={}] - Configuration parameters to pass to the service.
 	 * @param {string} [plan=null] - The billing plan to use for this service.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Service} The stored service.
 	 * @throws {Error}
 	 */
-	async createService(process, type, title = null, description = null, enabled = true, parameters = {}, plan = null, budget = null, additional = {}) {
+	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, plan = null, budget = null, additional = {}) {
 		let requestBody = this._normalizeUserProcess(process, {
 			title: title,
 			description: description,
 			type: type,
 			enabled: enabled,
-			parameters: parameters,
+			configuration: configuration,
 			plan: plan,
 			budget: budget
 		}, additional);

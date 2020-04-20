@@ -41,7 +41,7 @@ module.exports = class Service extends BaseEntity {
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
 	 * @param {boolean} parameters.enabled - Enables (`true`) or disables (`false`) the service.
-	 * @param {object} parameters.parameters - A new set of parameters to set for the service.
+	 * @param {object} parameters.configuration - A new set of configuration parameters to set for the service.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
 	 * @returns {Service} The updated service object (this).
