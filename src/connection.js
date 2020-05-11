@@ -1,5 +1,6 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
+const axios = require('axios');
 
 const { BasicProvider, OidcProvider } = require('./authprovider');
 const Capabilities = require('./capabilities');
