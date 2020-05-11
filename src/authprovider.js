@@ -1,6 +1,6 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
-const { UserManager } = require('oidc-client');
+const OidcClient = require('oidc-client');
 
 class AuthProvider {
 
@@ -78,6 +78,10 @@ class OidcProvider extends AuthProvider {
 		this.user = null;
 	}
 
+	static isSupported() {
+		return (Utils.isObject(OidcClient) && !!OidcClient.UserManager);
+	}
+
 	/**
 	 * Globally sets the UI method (redirect, popup) to use for OIDC authentication.
 	 * 
@@ -100,7 +104,7 @@ class OidcProvider extends AuthProvider {
 	 */
 	static async signinCallback(provider = null) {
 		try {
-			var oidc = new UserManager();
+			var oidc = new OidcClient.UserManager();
 			if (OidcProvider.uiMethod === 'popup') {
 				await oidc.signinPopupCallback();
 			}
@@ -128,14 +132,14 @@ class OidcProvider extends AuthProvider {
 		if (!this.issuer || typeof this.issuer !== 'string') {
 			throw "No Issuer URL available for OpenID Connect";
 		}
-		else if (!this.client_id || typeof this.client_id !== 'string') {
+		else if (!client_id || typeof client_id !== 'string') {
 			throw "No Client ID specified for OpenID Connect";
 		}
-		else if (!this.redirect_uri || typeof this.redirect_uri !== 'string') {
+		else if (!redirect_uri || typeof redirect_uri !== 'string') {
 			throw "No Redirect URI specified for OpenID Connect";
 		}
 
-		this.manager = new UserManager(Object.assign({
+		this.manager = new OidcClient.UserManager(Object.assign({
 			client_id: client_id,
 			redirect_uri: redirect_uri,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
@@ -144,7 +148,7 @@ class OidcProvider extends AuthProvider {
 		}, options));
 
 		if (OidcProvider.uiMethod === 'popup') {
-			this.setUserOIDC(await this.manager.signinPopup());
+			this.setUser(await this.manager.signinPopup());
 		}
 		else {
 			await this.manager.signinRedirect();
@@ -167,7 +171,7 @@ class OidcProvider extends AuthProvider {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {User} user - The OIDC User returned by OpenEO.signinCallbackOIDC(). Passing `null` resets OIDC authentication details.
+	 * @param {User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
 	 */
 	setUser(user) {
 		if (!user) {
@@ -187,7 +191,11 @@ class OidcProvider extends AuthProvider {
 	 */
 	async logout() {
 		if (this.manager !== null) {
-			await this.manager.signoutRedirect();
+			try {
+				await this.manager.signoutRedirect();
+			} catch (error) {
+				console.warn(error);
+			}
 			super.logout();
 			this.manager = null;
 			this.setUser(null);

@@ -8,13 +8,6 @@
  */
 module.exports = class Environment {
 
-	static checkOidcSupport() {
-		if (typeof UserManager === 'undefined') {
-			return false;
-		}
-		return true;
-	}
-
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let fileReader = new FileReader();

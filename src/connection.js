@@ -137,7 +137,7 @@ module.exports = class Connection {
 	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @returns {object} An object containing AuthProviders.
+	 * @returns {array} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
 	 */
 	async listAuthProviders() {
@@ -145,22 +145,22 @@ module.exports = class Connection {
 			return this.authProviderList;
 		}
 
-		this.authProviderList = {};
+		this.authProviderList = [];
 		let cap = this.capabilities();
 
 		// Add OIDC providers
-		if (Environment.checkOidcSupport() && cap.hasFeature('authenticateOIDC')) {
+		if (cap.hasFeature('authenticateOIDC') && OidcProvider.isSupported()) {
 			let res = await this._get('/credentials/oidc');
 			if (Utils.isObject(res.data) && Array.isArray(res.data.providers)) {
 				for(let i in res.data.providers) {
-					this._addAuthProvider(new OidcProvider(this, res.data.providers[i]));
+					this.authProviderList.push(new OidcProvider(this, res.data.providers[i]));
 				}
 			}
 		}
 		
 		// Add Basic provider
 		if (cap.hasFeature('authenticateBasic')) {
-			this._addAuthProvider(new BasicProvider(this));
+			this.authProviderList.push(new BasicProvider(this));
 		}
 
 		return this.authProviderList;
@@ -183,10 +183,6 @@ module.exports = class Connection {
 
 	getAuthProvider() {
 		return this.authProvider;
-	}
-
-	_addAuthProvider(provider) {
-		this.authProviderList[provider.getId()] = provider;
 	}
 
 	/**

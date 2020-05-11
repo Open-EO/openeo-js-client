@@ -12,10 +12,6 @@ const path = require("path");
  */
 module.exports = class Environment {
 
-	static checkOidcSupport() {
-		return false;
-	}
-
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let chunks = [];
