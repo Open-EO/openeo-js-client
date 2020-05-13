@@ -4,11 +4,11 @@ JavaScript client for the openEO API.
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-The version of this client is **1.0.0-beta.1** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
+The version of this client is **1.0.0-beta.2** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
 
 ## Usage
 
-This library can run in node.js or any recent browser (Internet Explorer not tested).
+This library can run in node.js or any recent browser supporting ECMAScript 2017. This excludes Internet Explorer, but includes Edge >= 15.
 
 ### Browser environment
 
@@ -30,7 +30,7 @@ Afterwards, you can import the package: `const { OpenEO } = require('@openeo/js-
 * [Basic Discovery (promises)](examples/discovery.html)
 * [Run sync. job (async/await)](examples/workflow.html)
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/1.0.0-beta.1/).
+More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/1.0.0-beta.2/).
 
 ### Advanced options
 

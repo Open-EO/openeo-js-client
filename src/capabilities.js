@@ -30,7 +30,7 @@ module.exports = class Capabilities {
 		// Flatten features to be compatible with the feature map.
 		this.features = this.data.endpoints
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
-			.flat(1);
+			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support gets better
 
 		this.featureMap = {
 			// Discovery
