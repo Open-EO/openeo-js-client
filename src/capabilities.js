@@ -138,7 +138,7 @@ module.exports = class Capabilities {
 	 * @returns {boolean} true = stable/production, false = unstable
 	 */
 	isStable() {
-		return !!this.data.production;
+		return this.data.production === true;
 	}
 
 	/**
