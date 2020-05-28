@@ -15,7 +15,7 @@ const Capabilities = require('./capabilities');
 const FileTypes = require('./filetypes');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
-const MAX_API_VERSION = '1.0.0-rc.2';
+const MAX_API_VERSION = '1';
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
