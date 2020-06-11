@@ -101,21 +101,20 @@ class OidcProvider extends AuthProvider {
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
 	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
+	 * @throws Error
 	 */
 	static async signinCallback(provider = null) {
-		try {
-			var oidc = new OidcClient.UserManager();
-			if (OidcProvider.uiMethod === 'popup') {
-				await oidc.signinPopupCallback();
+		var oidc = new OidcClient.UserManager();
+		if (OidcProvider.uiMethod === 'popup') {
+			await oidc.signinPopupCallback();
+		}
+		else {
+			let user = await oidc.signinRedirectCallback();
+			if (provider) {
+				provider.setUser(user);
 			}
-			else {
-				let user = await oidc.signinRedirectCallback();
-				if (provider) {
-					provider.setUser(user);
-				}
-				return user;
-			}
-		} catch (e) {}
+			return user;
+		}
 	}
 
 	/**
