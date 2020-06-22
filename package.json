@@ -42,7 +42,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@openeo/js-commons": "1.0.0-rc.3",
+    "@openeo/js-commons": "1.0.0-rc.4",
     "axios": "^0.19.0",
     "oidc-client": "^1.10.0"
   },
