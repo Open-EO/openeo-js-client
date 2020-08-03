@@ -1,5 +1,6 @@
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
+const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
 
 /**
@@ -82,12 +83,10 @@ module.exports = class Job extends BaseEntity {
 	/**
 	 * Get logs for the batch job from the back-end.
 	 * 
-	 * @async
-	 * @throws {Error}
+	 * @returns {Logs}
 	 */
-	async debugJob() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/logs');
-		return Array.isArray(response.data.logs) ? response.data.logs : [];
+	debugJob() {
+		return new Logs(this.connection, '/jobs/' + this.jobId + '/logs');
 	}
 
 	/**

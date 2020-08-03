@@ -332,6 +332,8 @@ module.exports = class Connection {
 	 * 
 	 * Please note that requests can take a very long time of several minutes or even hours.
 	 * 
+	 * The client does not support to retrieve the costs or log files.
+	 * 
 	 * @async
 	 * @param {object} process - A user-defined process.
 	 * @param {string} [plan=null] - The billing plan to use for this computation.

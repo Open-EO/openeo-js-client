@@ -1,4 +1,5 @@
 const BaseEntity = require('./baseentity');
+const Logs = require('./logs');
 
 /**
  * A Secondary Web Service.
@@ -70,11 +71,9 @@ module.exports = class Service extends BaseEntity {
 	/**
 	 * Get logs for the secondary web service from the back-end.
 	 * 
-	 * @async
-	 * @throws {Error}
+	 * @returns {Logs}
 	 */
-	async debugService() {
-		let response = await this.connection._get('/services/' + this.serviceId + '/logs');
-		return Array.isArray(response.data.logs) ? response.data.logs : [];
+	debugService() {
+		return new Logs(this.connection, '/services/' + this.serviceId + '/logs');
 	}
 };

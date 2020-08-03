@@ -6,6 +6,7 @@ const Versions = require('@openeo/js-commons/src/versions');
 const Connection = require('./connection');
 const UserFile = require('./file');
 const Job = require('./job');
+const Logs = require('./logs');
 const UserProcess = require('./userprocess');
 const Service = require('./service');
 const { AuthProvider, BasicProvider, OidcProvider } = require('./authprovider');
@@ -106,9 +107,10 @@ module.exports = {
 	Connection,
 	File: UserFile,
 	FileTypes,
+	Job,
+	Logs,
 	OidcProvider,
 	OpenEO,
-	Job,
-	UserProcess,
-	Service
+	Service,
+	UserProcess
 };
