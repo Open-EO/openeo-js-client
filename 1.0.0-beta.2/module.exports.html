@@ -873,7 +873,7 @@
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -884,8 +884,6 @@
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -1072,7 +1070,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -1101,7 +1099,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -1112,10 +1110,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -1445,7 +1440,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -1943,7 +1938,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -3665,7 +3660,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -4873,7 +4868,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -5172,7 +5167,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -6680,7 +6675,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -7165,7 +7160,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -11414,7 +11409,7 @@ Browser implementation</div>
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -11425,8 +11420,6 @@ Browser implementation</div>
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -11613,7 +11606,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -11642,7 +11635,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -11653,10 +11646,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -11986,7 +11976,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -12484,7 +12474,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -14206,7 +14196,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -15414,7 +15404,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -15713,7 +15703,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -17221,7 +17211,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -17706,7 +17696,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -22031,7 +22021,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -22042,8 +22032,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -22230,7 +22218,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -22259,7 +22247,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -22270,10 +22258,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -22603,7 +22588,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -23101,7 +23086,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -24823,7 +24808,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -26031,7 +26016,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -26330,7 +26315,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -27838,7 +27823,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -28323,7 +28308,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -32633,7 +32618,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -32644,8 +32629,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -32832,7 +32815,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -32861,7 +32844,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -32872,10 +32855,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -33205,7 +33185,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -33703,7 +33683,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -35425,7 +35405,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -36633,7 +36613,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -36932,7 +36912,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -38440,7 +38420,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -38925,7 +38905,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -43269,7 +43249,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -43280,8 +43260,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -43468,7 +43446,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -43497,7 +43475,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -43508,10 +43486,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -43841,7 +43816,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -44339,7 +44314,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -46061,7 +46036,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -47269,7 +47244,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -47568,7 +47543,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -49076,7 +49051,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -49561,7 +49536,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -53905,7 +53880,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -53916,8 +53891,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -54104,7 +54077,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -54133,7 +54106,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -54144,10 +54117,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -54477,7 +54447,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -54975,7 +54945,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -56697,7 +56667,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -57905,7 +57875,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -58204,7 +58174,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -59712,7 +59682,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -60197,7 +60167,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -64454,7 +64424,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -64465,8 +64435,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -64653,7 +64621,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -64682,7 +64650,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -64693,10 +64661,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -65026,7 +64991,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -65524,7 +65489,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -67246,7 +67211,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -68454,7 +68419,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -68753,7 +68718,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -70261,7 +70226,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -70746,7 +70711,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -74995,7 +74960,7 @@ Node implementation</div>
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -75006,8 +74971,6 @@ Node implementation</div>
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -75194,7 +75157,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -75223,7 +75186,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -75234,10 +75197,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -75567,7 +75527,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -76065,7 +76025,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -77787,7 +77747,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -78995,7 +78955,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -79294,7 +79254,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -80802,7 +80762,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -81287,7 +81247,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -85631,7 +85591,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -85642,8 +85602,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -85830,7 +85788,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -85859,7 +85817,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -85870,10 +85828,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -86203,7 +86158,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -86701,7 +86656,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -88423,7 +88378,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -89631,7 +89586,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -89930,7 +89885,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -91438,7 +91393,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -91923,7 +91878,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -96267,7 +96222,7 @@ In a browser environment the source must be an object from a file upload form.
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Stream|Blob}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="global.html#SyncResult">SyncResult</a>}</span></h4>
     
 
     
@@ -96278,8 +96233,6 @@ In a browser environment the source must be an object from a file upload form.
     Executes a process synchronously and returns the result as the response.
 
 Please note that requests can take a very long time of several minutes or even hours.
-
-The client does not support to retrieve the costs or log files.
 </div>
 
 
@@ -96466,7 +96419,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -96495,7 +96448,7 @@ The client does not support to retrieve the costs or log files.
 
         
 <div class="param-desc">
-    - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+    - An object with the data and some metadata.
 </div>
 
 
@@ -96506,10 +96459,7 @@ The client does not support to retrieve the costs or log files.
     </dt>
     <dd>
         
-<span class="param-type">Stream</span>
-|
-
-<span class="param-type">Blob</span>
+<span class="param-type"><a href="global.html#SyncResult">SyncResult</a></span>
 
 
     </dd>
@@ -96839,7 +96789,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line382">line 382</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -97337,7 +97287,7 @@ The client does not support to retrieve the costs or log files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line477">line 477</a>
     </li></ul></dd>
     
 
@@ -99059,7 +99009,7 @@ May include authorization details where required.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line529">line 529</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line563">line 563</a>
     </li></ul></dd>
     
 
@@ -100267,7 +100217,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line408">line 408</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -100566,7 +100516,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line471">line 471</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line505">line 505</a>
     </li></ul></dd>
     
 
@@ -102074,7 +102024,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line362">line 362</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -102559,7 +102509,7 @@ NOTE: This method is only supported in a NodeJS environment. In a browser enviro
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line420">line 420</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -106049,7 +105999,7 @@ In a browser environment the source must be an object from a file upload form.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Mon Aug 03 2020 16:23:19 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Aug 04 2020 17:19:46 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
