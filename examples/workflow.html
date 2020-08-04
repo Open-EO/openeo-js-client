@@ -50,7 +50,7 @@
           // Replace ... with your JSON process graph
           log("Running process...");
           var preview = await con.computeResult(pg);
-          // This returns a Blob object containing a binary PNG file you could further process or show.
+          // This returns an object containing a binary PNG file in the data property you could further process or show.
         }
       } catch (e) {
         log("Error: " + e.message);

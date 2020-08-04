@@ -328,17 +328,23 @@ module.exports = class Connection {
 	}
 
 	/**
+	 * @typedef SyncResult
+	 * @type {Object}
+	 * @property {Stream|Blob} data - The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+	 * @property {number|null} costs - The costs for the request in the currency exposed by the back-end.
+	 * @property {array} logs - Array of log entries as specified in the API.
+	 */
+
+	/**
 	 * Executes a process synchronously and returns the result as the response.
 	 * 
 	 * Please note that requests can take a very long time of several minutes or even hours.
-	 * 
-	 * The client does not support to retrieve the costs or log files.
 	 * 
 	 * @async
 	 * @param {object} process - A user-defined process.
 	 * @param {string} [plan=null] - The billing plan to use for this computation.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
-	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers.
+	 * @returns {SyncResult} - An object with the data and some metadata.
 	 */
 	async computeResult(process, plan = null, budget = null) {
 		let requestBody = this._normalizeUserProcess(
@@ -349,7 +355,35 @@ module.exports = class Connection {
 			}
 		);
 		let response = await this._post('/result', requestBody, Environment.getResponseType());
-		return response.data;
+		let syncResult = {
+			data: response.data,
+			costs: null,
+			logs: []
+		};
+		
+		if (typeof response.headers['openeo-costs'] === 'number') {
+			syncResult.costs = response.headers['openeo-costs'];
+		}
+
+		let links = Array.isArray(response.headers.link) ? response.headers.link : [response.headers.link];
+		for(let link of links) {
+			if (typeof link !== 'string') {
+				continue;
+			}
+			let logs = link.match(/^<([^>]+)>;\s?rel="monitor"/i);
+			if (Array.isArray(logs) && logs.length > 1) {
+				try {
+					let logsResponse = await this._get(logs[1]);
+					if (Utils.isObject(logsResponse.data) && Array.isArray(logsResponse.data.logs)) {
+						syncResult.logs = logsResponse.data.logs;
+					}
+				} catch(error) {
+					console.warn(error);
+				}
+			}
+		}
+
+		return syncResult;
 	}
 
 	/**
