@@ -1,7 +1,5 @@
 "use strict";
 
-const Utils = require("@openeo/js-commons/src/utils");
-
 module.exports = class Parameter {
 
 	static create(builder, parameterName) {
@@ -18,7 +16,7 @@ module.exports = class Parameter {
 					
 						let args = {
 							data: parameter
-						}
+						};
 						if (name.match(/^(0|[1-9]\d*)$/)) {
 							args.index = parseInt(name, 10);
 						}
@@ -61,4 +59,4 @@ module.exports = class Parameter {
 		return this.spec;
 	}
 
-}
+};

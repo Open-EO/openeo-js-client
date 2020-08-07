@@ -11,7 +11,7 @@ const UserProcess = require('./userprocess');
 const Service = require('./service');
 
 const Builder = require('./builder/builder');
-const Node = require('./builder/node');
+const BuilderNode = require('./builder/node');
 
 /**
  * A connection to a back-end.
@@ -276,7 +276,7 @@ module.exports = class Connection {
 		if (process instanceof UserProcess) {
 			process = process.toJSON();
 		}
-		else if (process instanceof Node) {
+		else if (process instanceof BuilderNode) {
 			process.result = true;
 			process = process.parent.toJSON();
 		}

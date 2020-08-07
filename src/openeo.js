@@ -17,7 +17,7 @@ const FileTypes = require('./filetypes');
 
 // Builder
 const Builder = require('./builder/builder');
-const Node = require('./builder/node');
+const BuilderNode = require('./builder/node');
 const Parameter = require('./builder/parameter');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
@@ -119,6 +119,6 @@ module.exports = {
 	Service,
 	UserProcess,
 	Builder,
-	Node,
+	BuilderNode,
 	Parameter
 };

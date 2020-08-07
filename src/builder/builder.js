@@ -1,4 +1,4 @@
-const Node = require('./node');
+const BuilderNode = require('./node');
 
 module.exports = class Builder {
 
@@ -10,12 +10,14 @@ module.exports = class Builder {
 
 		this.id = id;
 
+		/* jshint ignore:start */
 		for(let process of this.processes) {
 			this[process.id] = function() {
 				// Don't use arrow functions, they don't support the arguments keyword.
 				return this.process(process.id, [...arguments]);
 			};
 		}
+		/* jshint ignore:end */
 	}
 
 	addParameter(parameter, root = true) {
@@ -42,7 +44,7 @@ module.exports = class Builder {
 	}
 
 	process(processId, args = {}, description = null) {
-		var node = new Node(this, processId, args, description);
+		var node = new BuilderNode(this, processId, args, description);
 		this.nodes[node.id] = node;
 		return node;
 	}
@@ -84,4 +86,4 @@ module.exports = class Builder {
 		return name + this.idCounter[name];
 	}
 
-}
+};

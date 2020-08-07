@@ -1,7 +1,7 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
 
-module.exports = class Node {
+module.exports = class BuilderNode {
 
 	constructor(parent, processId, args = {}, description = null) {
 		this.parent = parent;
@@ -40,7 +40,7 @@ module.exports = class Node {
 					this.parent.addParameter(arg.spec);
 				}
 			}
-			else if (arg instanceof Node) {
+			else if (arg instanceof BuilderNode) {
 				this.addParametersToProcess(arg.arguments);
 			}
 			else if (Array.isArray(arg) || Utils.isObject(arg)) {
@@ -86,7 +86,7 @@ module.exports = class Node {
 
 	exportArgument(arg, name) {
 		if (Utils.isObject(arg)) {
-			if (arg instanceof Node) {
+			if (arg instanceof BuilderNode) {
 				return {
 					from_node: arg.id
 				};
@@ -127,12 +127,12 @@ module.exports = class Node {
 		let params = this.getCallbackParameter(builder, name);
 		// Bind builder to this, so that this.xxx can be used for processes
 		let node = arg.bind(builder)(...params);
-		if (node instanceof Node) {
+		if (node instanceof BuilderNode) {
 			node.result = true;
 			return builder.toJSON();
 		}
 		else {
-			throw new Error("Callback must return Node");
+			throw new Error("Callback must return BuilderNode");
 		}
 	}
 
@@ -158,4 +158,4 @@ module.exports = class Node {
 		return obj;
 	}
 
-}
+};
