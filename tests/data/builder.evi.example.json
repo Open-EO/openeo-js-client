@@ -1,194 +1,129 @@
 {
-  "loadco1": {
-    "process_id": "load_collection",
-    "arguments": {
-      "id": "Sentinel-2"
-    }
-  },
-  "filter1": {
-    "process_id": "filter_bbox",
-    "arguments": {
-      "data": {
-        "from_node": "loadco1"
-      },
-      "extent": {
-        "west": 16.1,
-        "east": 16.6,
-        "north": 48.6,
-        "south": 47.2
+  "id": "evi",
+  "parameters": [
+    {
+      "name": "collection-id",
+      "description": "The ID of the collection to load",
+      "schema": {
+        "type": "string"
       }
     }
-  },
-  "filter2": {
-    "process_id": "filter_temporal",
-    "arguments": {
-      "data": {
-        "from_node": "filter1"
-      },
-      "start": "2018-01-01",
-      "end": "2018-02-01"
-    }
-  },
-  "filter3": {
-    "process_id": "filter_bands",
-    "arguments": {
-      "data": {
-        "from_node": "filter2"
-      },
-      "bands": [
-        "B08",
-        "B04",
-        "B02"
-      ]
-    }
-  },
-  "reduce1": {
-    "process_id": "reduce",
-    "arguments": {
-      "data": {
-        "from_node": "filter3"
-      },
-      "dimension": "spectral",
-      "reducer": {
-        "callback": {
-          "arraye1": {
-            "process_id": "array_element",
-            "arguments": {
-              "data": {
-                "from_argument": "data"
-              },
-              "index": 0
-            }
-          },
-          "arraye2": {
-            "process_id": "array_element",
-            "arguments": {
-              "data": {
-                "from_argument": "data"
-              },
-              "index": 1
-            }
-          },
-          "arraye3": {
-            "process_id": "array_element",
-            "arguments": {
-              "data": {
-                "from_argument": "data"
-              },
-              "index": 2
-            }
-          },
-          "substr1": {
-            "process_id": "substract",
-            "arguments": {
-              "data": [
-                {
-                  "from_node": "arraye1"
-                },
-                {
-                  "from_node": "arraye2"
-                }
-              ]
-            }
-          },
-          "produc1": {
-            "process_id": "product",
-            "arguments": {
-              "data": [
-                6,
-                {
-                  "from_node": "arraye2"
-                }
-              ]
-            }
-          },
-          "produc2": {
-            "process_id": "product",
-            "arguments": {
-              "data": [
-                -7.5,
-                {
-                  "from_node": "arraye3"
-                }
-              ]
-            }
-          },
-          "sum1": {
-            "process_id": "sum",
-            "arguments": {
-              "data": [
-                1,
-                {
-                  "from_node": "arraye1"
-                },
-                {
-                  "from_node": "produc1"
-                },
-                {
-                  "from_node": "produc2"
-                }
-              ]
-            }
-          },
-          "divide1": {
-            "process_id": "divide",
-            "arguments": {
-              "data": [
-                {
-                  "from_node": "substr1"
-                },
-                {
-                  "from_node": "sum1"
-                }
-              ]
-            }
-          },
-          "produc3": {
-            "process_id": "product",
-            "arguments": {
-              "data": [
-                2.5,
-                {
-                  "from_node": "divide1"
-                }
-              ]
-            },
-            "result": true
-          }
-        }
+  ],
+  "process_graph": {
+    "loadco1": {
+      "process_id": "load_collection",
+      "arguments": {
+        "id": {"from_parameter": "collection-id"},
+        "spatial_extent": {
+          "west": 16.1,
+          "east": 16.6,
+          "north": 48.6,
+          "south": 47.2
+        },
+        "temporal_extent": ["2018-01-01", "2018-02-01"],
+        "bands": ["B02", "B04", "B08"]
       }
-    }
-  },
-  "reduce2": {
-    "process_id": "reduce",
-    "arguments": {
-      "data": {
-        "from_node": "reduce1"
-      },
-      "dimension": "temporal",
-      "reducer": {
-        "callback": {
-          "min1": {
-            "process_id": "min",
-            "arguments": {
-              "data": {
-                "from_argument": "data"
+    },
+    "reduce1": {
+      "process_id": "reduce_dimension",
+      "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
+      "arguments": {
+        "data": {"from_node": "loadco1"},
+        "dimension": "bands",
+        "reducer": {
+          "process_graph": {
+            "arraye1": {
+              "process_id": "array_element",
+              "arguments": {
+                "data": {"from_parameter": "data"},
+                "label": "B08"
               }
             },
-            "result": true
+            "arraye2": {
+              "process_id": "array_element",
+              "arguments": {
+                "data": {"from_parameter": "data"},
+                "label": "B04"
+              }
+            },
+            "arraye3": {
+              "process_id": "array_element",
+              "arguments": {
+                "data": {"from_parameter": "data"},
+                "label": "B02"
+              }
+            },
+            "subtra1": {
+              "process_id": "subtract",
+              "arguments": {
+                "x": {"from_node": "arraye1"},
+                "y": {"from_node": "arraye2"}
+              }
+            },
+            "multip1": {
+              "process_id": "multiply",
+              "arguments": {
+                "x": 6,
+                "y": {"from_node": "arraye2"}
+              }
+            },
+            "multip2": {
+              "process_id": "multiply",
+              "arguments": {
+                "x": -7.5,
+                "y": {"from_node": "arraye3"}
+              }
+            },
+            "sum1": {
+              "process_id": "sum",
+              "arguments": {
+                "data": [1, {"from_node": "arraye1"}, {"from_node": "multip1"}, {"from_node": "multip2"}]
+              }
+            },
+            "divide1": {
+              "process_id": "divide",
+              "arguments": {
+                "x": {"from_node": "subtra1"},
+                "y": {"from_node": "sum1"}
+              }
+            },
+            "multip3": {
+              "process_id": "multiply",
+              "arguments": {
+                "x": 2.5,
+                "y": {"from_node": "divide1"}
+              },
+              "result": true
+            }
           }
         }
       }
-    }
-  },
-  "export1": {
-    "process_id": "export",
-    "arguments": {
-      "data": {
-        "from_node": "reduce2"
-      },
-      "format": "GTiff"
     },
-    "result": true
+    "reduce2": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {"from_node": "reduce1"},
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "min1": {
+              "process_id": "min",
+              "arguments": {
+                "data": {"from_parameter": "data"}
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "savere1": {
+      "process_id": "save_result",
+      "arguments": {
+        "data": {"from_node": "reduce2"},
+        "format": "PNG"
+      },
+      "result": true
+    }
   }
 }
