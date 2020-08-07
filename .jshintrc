@@ -13,6 +13,7 @@
 	"node": true,
 	"globals": {
 		"axios": true,
-		"define": true
+		"define": true,
+		"OidcClient": true
 	}
 }

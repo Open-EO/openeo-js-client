@@ -14,10 +14,6 @@ script:
   - npm run compat
 # Run tests
   - npm run test
-  - npm run test_node
-# - npm run test_gee
-# Build
-  - npm run build
 # Generate docs
   - npm run docs
 # Deploy 
@@ -30,7 +26,8 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
-  committer-from-gh: true
+  name: openEO CI
+  email: openeo.ci@uni-muenster.de
   local-dir: gh-pages
   on:
     all_branches: true

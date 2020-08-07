@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>openEO JS client - Workflow example</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
+  <script src="../openeo.js"></script>
+  <script type="text/javascript">
+    async function run() {
+      // Show the client version
+      log("Client Version: " + OpenEO.clientVersion());
+
+      try {
+        // Connect to the back-end
+        var con = await OpenEO.connect("https://earthengine.openeo.org");
+
+        // Show implemented API version of the back-end
+        var capabilities = con.capabilities();
+        log("Server API version: " + capabilities.apiVersion());
+
+        // List collection names
+        var collections = await con.listCollections();
+        log("Collections: " + collections.collections.map(c => c.id).join(', '));
+
+        // List process ids
+        var processes = await con.listProcesses();
+        log("Processes: " + processes.processes.map(p => p.id).join(', '));
+
+        // List supported file types
+        var types = await con.listFileTypes();
+        log("Input file formats: " + Object.keys(types.getInputTypes()).join(', '));
+        log("Output file formats: " + Object.keys(types.getOutputTypes()).join(', '));
+
+        // Authenticate at back-end using HTTP Basic
+        await con.authenticateBasic("group1", "test123");
+
+        // Request user info
+        var user = await con.describeAccount();
+        log("User: " + user.user_id);
+
+        // Check whether synchronous previews are supported
+        var syncSupport = capabilities.hasFeature("computeResult");
+        log("Synchronous previews: " + (syncSupport ? "supported" : "NOT supported"));
+
+        // Request a preview synchronously for a process graph
+        var pg = {}; // Specify your user-defined process here...
+        if (syncSupport) {
+          // Replace ... with your JSON process graph
+          log("Running process...");
+          var preview = await con.computeResult(pg);
+          // This returns an object containing a binary PNG file in the data property you could further process or show.
+        }
+      } catch (e) {
+        log("Error: " + e.message);
+      }
+    }
+    function log(text) {
+      document.getElementById('console').innerHTML += "<p>" + text + "</p>";
+    }
+  </script>
+</head>
+
+<body onload="run()"><code id="console"></code></body>
+
+</html>

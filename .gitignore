@@ -3,7 +3,11 @@ node_modules/
 /package-lock.json
 
 # Build related
+/report.html
+/openeo.js
 /openeo.min.js
+/openeo.node.js
+/openeo.node.min.js
 
 # Reports
 coverage/
