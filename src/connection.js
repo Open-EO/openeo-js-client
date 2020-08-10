@@ -18,7 +18,7 @@ const BuilderNode = require('./builder/node');
  * 
  * @class
  */
-module.exports = class Connection {
+class Connection {
 
 	/**
 	 * Creates a new Connection.
@@ -616,4 +616,6 @@ module.exports = class Connection {
 			throw error;
 		}
 	}
-};
+}
+
+module.exports = Connection;

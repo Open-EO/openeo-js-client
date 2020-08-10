@@ -6,7 +6,7 @@ const BaseEntity = require('./baseentity');
  * @class
  * @extends BaseEntity
  */
-module.exports = class UserProcess extends BaseEntity {
+class UserProcess extends BaseEntity {
 
 	/**
 	 * Creates an object representing a process graph stored at the back-end.
@@ -76,4 +76,6 @@ module.exports = class UserProcess extends BaseEntity {
 	async deleteUserProcess() {
 		await this.connection._delete('/process_graphs/' + this.id);
 	}
-};
+}
+
+module.exports = UserProcess;

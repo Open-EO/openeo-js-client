@@ -7,7 +7,7 @@ const BaseEntity = require('./baseentity');
  * @class
  * @extends BaseEntity
  */
-module.exports = class File extends BaseEntity {
+class File extends BaseEntity {
 
 	/**
 	 * Creates an object representing a file on the user workspace.
@@ -94,4 +94,6 @@ module.exports = class File extends BaseEntity {
 	async deleteFile() {
 		await this.connection._delete('/files/' + this.path);
 	}
-};
+}
+
+module.exports = File;

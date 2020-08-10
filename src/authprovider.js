@@ -2,6 +2,12 @@ const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const OidcClient = require('oidc-client');
 
+/**
+ * The base class for authentication providers such as Basic and OpenID Connect.
+ * 
+ * @class
+ * @abstract
+ */
 class AuthProvider {
 
 	constructor(type, connection, options) {
@@ -69,7 +75,12 @@ class AuthProvider {
 
 }
 
-
+/**
+ * The Authentication Provider for OpenID Connect.
+ * 
+ * @class
+ * @extends {AuthProvider}
+ */
 class OidcProvider extends AuthProvider {
 
 	constructor(connection, options) {
@@ -205,6 +216,12 @@ class OidcProvider extends AuthProvider {
 OidcProvider.uiMethod = 'redirect';
 
 
+/**
+ * The Authentication Provider for HTTP Basic.
+ * 
+ * @class
+ * @extends {AuthProvider}
+ */
 class BasicProvider extends AuthProvider {
 
 	constructor(connection) {

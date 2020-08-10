@@ -47,7 +47,7 @@
     "oidc-client": "^1.10.0"
   },
   "scripts": {
-    "docs": "jsdoc src -r -d docs/ -P package.json -R README.md",
+    "docs": "jsdoc -r -d docs/ -P package.json -R README.md -c .jsdoc",
     "build": "npx webpack",
     "compat": "jshint src",
     "test": " jest --env=jsdom",

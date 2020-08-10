@@ -5,7 +5,7 @@ const Utils = require('@openeo/js-commons/src/utils');
  * 
  * @class
  */
-module.exports = class Logs {
+class Logs {
 
 	constructor(connection, endpoint) {
 		this.connection = connection;
@@ -55,4 +55,6 @@ module.exports = class Logs {
 		return response.data;
 	}
 
-};
+}
+
+module.exports = Logs;

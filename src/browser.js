@@ -6,7 +6,7 @@
  * @class
  * @hideconstructor
  */
-module.exports = class Environment {
+class Environment {
 
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
@@ -80,4 +80,6 @@ module.exports = class Environment {
 			resolve();
 		});
 	}
-};
+}
+
+module.exports = Environment;

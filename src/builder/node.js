@@ -1,7 +1,12 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
 
-module.exports = class BuilderNode {
+/**
+ * A class that represents a process node and also a result from a process.
+ * 
+ * @class
+ */
+class BuilderNode {
 
 	constructor(parent, processId, args = {}, description = null) {
 		this.parent = parent;
@@ -49,6 +54,22 @@ module.exports = class BuilderNode {
 		}
 	}
 
+	/**
+	 * Gets/Sets a description for the node.
+	 * 
+	 * Can be used in a variety of ways:
+	 * 
+	 * By default, this is a function: 
+	 * `node.description()` - Returns the description.
+	 * `node.description("foo")` - Sets the description to "foo". Returns the node itself for method chaining.
+	 * 
+	 * You can also "replace" the function, then it acts as normal property and the function is not available any longer:
+	 * `node.description = "foo"` - Sets the description to "foo".
+	 * Afterwards you can call `node.description` as normal object property.
+	 * 
+	 * @param {string|undefined} description - Optional: If given, set the value.
+	 * @returns {string|BuilderNode}
+	 */
 	description(description) {
 		if (typeof description === 'undefined') {
 			return this._description;
@@ -158,4 +179,6 @@ module.exports = class BuilderNode {
 		return obj;
 	}
 
-};
+}
+
+module.exports = BuilderNode;

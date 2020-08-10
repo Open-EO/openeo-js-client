@@ -5,7 +5,7 @@ const Utils = require('@openeo/js-commons/src/utils');
  * 
  * @class
  */
-module.exports = class Capabilities {
+class Capabilities {
 
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
@@ -213,4 +213,6 @@ module.exports = class Capabilities {
 			return [];
 		}
 	}
-};
+}
+
+module.exports = Capabilities;

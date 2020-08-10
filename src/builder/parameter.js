@@ -1,6 +1,30 @@
 "use strict";
 
-module.exports = class Parameter {
+/**
+ * A class that represents a process parameter. 
+ * 
+ * This is used for two things:
+ * 1. You can create process parameters (placeholders) with `new Parameter()`.
+ * 2. This is passed to functions for the parameters of the sub-process.
+ * 
+ * For the second case, you can access array elements referred to by the parameter
+ * with a simplified notation: 
+ * 
+ * ```
+ * function(data, context) {
+ *     data['B1'] // Accesses the B1 element of the array by label
+ *     data[1] // Accesses the second element of the array by index
+ * }
+ * ```
+ * 
+ * Those array calls create corresponding `array_element` nodes in the process. So it's
+ * equivalent to
+ * `this.array_element(data, undefined, 'B1')` or 
+ * `this.array_element(data, 1)` respectively.
+ * 
+ * @class
+ */
+class Parameter {
 
 	static create(builder, parameterName) {
 		let parameter = new Parameter(parameterName, null);
@@ -41,6 +65,14 @@ module.exports = class Parameter {
 		}
 	}
 	
+	/**
+	 * Creates a new process parameter.
+	 * 
+	 * @param {string} name - Name of the parameter.
+	 * @param {object|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
+	 * @param {string} description - A description for the parameter
+	 * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
+	 */
 	constructor(name, schema = {}, description = "", defaultValue = undefined) {
 		this.name = name;
 		this.spec = {
@@ -59,4 +91,6 @@ module.exports = class Parameter {
 		return this.spec;
 	}
 
-};
+}
+
+module.exports = Parameter;
