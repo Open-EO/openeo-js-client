@@ -2,6 +2,7 @@
 describe('Process Graph Builder (EVI)', () => {
 
 	const TESTBACKEND = 'https://earthengine.openeo.org';
+	const FROM_URL = TESTBACKEND + '/v1.0/processes';
 
 	const { OpenEO, Connection, Builder, Parameter } = require('../src/openeo');
 
@@ -29,6 +30,22 @@ describe('Process Graph Builder (EVI)', () => {
 	var expectedProcess = require('./data/builder.evi.example.json');
 	test('Builder', async () => {
 		var builder = await con.buildProcess("evi");
+		build(builder);
+	});
+
+	test('Builder from URL', async () => {
+		var builder = await Builder.fromURL(FROM_URL);
+		builder.id = "evi";
+		build(builder);
+	});
+
+	test('Builder for an openEO processes version', async () => {
+		var builder = await Builder.fromVersion('1.0.0');
+		builder.id = "evi";
+		build(builder);
+	});
+
+	function build(builder) {
 		expect(builder instanceof Builder).toBeTruthy();
 
 		var datacube = builder.load_collection(
@@ -75,5 +92,5 @@ describe('Process Graph Builder (EVI)', () => {
 		let pg = builder.toJSON();
 		expect(Object.keys(pg.process_graph)).toEqual(Object.keys(expectedProcess.process_graph));
 		expect(pg).toEqual(expectedProcess);
-	});
+	}
 });

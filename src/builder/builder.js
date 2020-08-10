@@ -1,10 +1,34 @@
 const BuilderNode = require('./node');
+const axios = require('axios');
+const Utils = require('@openeo/js-commons/src/utils');
 
 module.exports = class Builder {
 
+	// Loads the latest version if no version is passed
+	static async fromVersion(version = null) {
+		let url = 'https://processes.openeo.org/processes.json';
+		if (typeof version === 'string') {
+			url = 'https://processes.openeo.org/' + version + '/processes.json';
+		}
+		return await Builder.fromURL(url);
+	}
+
+	static async fromURL(url) {
+		let response = await axios(url);
+		return new Builder(response.data);
+	}
+
 	constructor(processes, parent = null, id = undefined) {
 		this.parent = parent;
-		this.processes = processes;
+		if (Array.isArray(processes)) {
+			this.processes = processes;
+		}
+		else if (Utils.isObject(processes) && Array.isArray(processes.processes)) {
+			this.processes = processes.processes;
+		}
+		else {
+			throw new Error("Processes are invalid; must be array or object according to API.");
+		}
 		this.nodes = {};
 		this.idCounter = {};
 

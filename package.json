@@ -50,7 +50,8 @@
     "docs": "jsdoc src -r -d docs/ -P package.json -R README.md",
     "build": "npx webpack",
     "compat": "jshint src",
-    "test": " jest --env=jsdom"
+    "test": " jest --env=jsdom",
+    "test_node": " jest --env=node"
   },
   "browserslist": [
     "> 1%",
