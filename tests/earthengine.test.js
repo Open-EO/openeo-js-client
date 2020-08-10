@@ -368,9 +368,6 @@ describe('With earth-engine-driver', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			// clean up
-			var list = await con.listJobs();
-			await Promise.all(list.map(j => j.deleteJob()));
 		});
 
 		test('Sync. compute a process graph result / Success', async () => {
@@ -527,10 +524,14 @@ describe('With earth-engine-driver', () => {
 
 		test('Stop job', async () => {
 			// Not implemented by GEE back-end
+			expect(job2 instanceof Job).toBeTruthy();
+			
 			await expect(job2.stopJob()).rejects.toThrow();
 		});
 
 		test('Delete job', async () => {
+			expect(job2 instanceof Job).toBeTruthy();
+
 			await job2.deleteJob();
 
 			var jobs = await con.listJobs();
