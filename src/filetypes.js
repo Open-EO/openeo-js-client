@@ -1,6 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
-module.exports = class FileTypes {
+class FileTypes {
 
 	constructor(data) {
 		this.data = {
@@ -53,4 +53,6 @@ module.exports = class FileTypes {
 		return null;
 	}
 
-};
+}
+
+module.exports = FileTypes;

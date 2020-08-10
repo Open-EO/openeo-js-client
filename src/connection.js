@@ -10,12 +10,15 @@ const Job = require('./job');
 const UserProcess = require('./userprocess');
 const Service = require('./service');
 
+const Builder = require('./builder/builder');
+const BuilderNode = require('./builder/node');
+
 /**
  * A connection to a back-end.
  * 
  * @class
  */
-module.exports = class Connection {
+class Connection {
 
 	/**
 	 * Creates a new Connection.
@@ -131,6 +134,19 @@ module.exports = class Connection {
 	async listProcesses() {
 		let response = await this._get('/processes');
 		return response.data;
+	}
+
+	/**
+	 * Returns an object to simply build user-defined processes.
+	 * 
+	 * @async
+	 * @param {string} id - A name for the process.
+	 * @returns {Builder}
+	 * @throws {Error}
+	 */
+	async buildProcess(id) {
+		let processes = await this.listProcesses();
+		return new Builder(processes.processes, null, id);
 	}
 
 	/**
@@ -259,6 +275,10 @@ module.exports = class Connection {
 	_normalizeUserProcess(process, additional = {}) {
 		if (process instanceof UserProcess) {
 			process = process.toJSON();
+		}
+		else if (process instanceof BuilderNode) {
+			process.result = true;
+			process = process.parent.toJSON();
 		}
 		else if (Utils.isObject(process) && !Utils.isObject(process.process_graph)) {
 			process = {
@@ -596,4 +616,6 @@ module.exports = class Connection {
 			throw error;
 		}
 	}
-};
+}
+
+module.exports = Connection;

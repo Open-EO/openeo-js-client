@@ -44,12 +44,52 @@
         var syncSupport = capabilities.hasFeature("computeResult");
         log("Synchronous previews: " + (syncSupport ? "supported" : "NOT supported"));
 
-        // Request a preview synchronously for a process graph
-        var pg = {}; // Specify your user-defined process here...
+        // Write an algorithm / process to run
+        var builder = await con.buildProcess();
+
+        var datacube = builder.load_collection(
+          "COPERNICUS/S2",
+          { "west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2 },
+          ["2018-01-01", "2018-02-01"],
+          ["B2", "B4", "B8"]
+        );
+
+        var eviAlgorithm = function(data) {
+          var nir = data[2];
+          var red = data[1];
+          var blue = data[0];
+          return this.multiply(
+            2.5,
+            this.divide(
+              this.subtract(nir, red),
+              this.sum([
+                1,
+                nir,
+                this.multiply(6, red),
+                this.multiply(-7.5, blue)
+              ])
+            )
+          );
+        };
+        datacube = builder.reduce_dimension(datacube, eviAlgorithm, "bands")
+                          .description("Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)");
+                          
+        var min = function(data) { return this.min(data); };
+        datacube = builder.reduce_dimension(datacube, min, "t");
+
+        var scale = function(x) { return this.linear_scale_range(x, -1, 1, 0, 255); };
+        datacube = builder.apply(datacube, scale);
+
+        datacube = builder.save_result(datacube, "PNG");
+
+        // Request a preview synchronously for the process
         if (syncSupport) {
-          // Replace ... with your JSON process graph
           log("Running process...");
-          var preview = await con.computeResult(pg);
+          var preview = await con.computeResult(datacube);
+
+          // Show image in browser
+          var objectURL = URL.createObjectURL(preview.data);
+          document.getElementById('image').src = objectURL;
           // This returns an object containing a binary PNG file in the data property you could further process or show.
         }
       } catch (e) {
@@ -62,6 +102,9 @@
   </script>
 </head>
 
-<body onload="run()"><code id="console"></code></body>
+<body onload="run()">
+  <code id="console"></code>
+  <img id="image" />
+</body>
 
 </html>

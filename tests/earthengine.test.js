@@ -6,8 +6,8 @@ var timeout = 2*60*1000;
 jest.setTimeout(timeout); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-	const TESTBACKEND = 'http://127.0.0.1:8080';
-//	const TESTBACKEND = 'https://earthengine.openeo.org';
+//	const TESTBACKEND = 'http://127.0.0.1:8080';
+	const TESTBACKEND = 'https://earthengine.openeo.org';
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
@@ -38,7 +38,7 @@ describe('With earth-engine-driver', () => {
 
 	describe('Connecting', () => {
 		test('Connect with wrong Server URL', async () => {
-			await expect(OpenEO.connect("http://localhost:12345")).rejects.toThrow();
+			await expect(OpenEO.connect("http://invalid.openeo.org")).rejects.toThrow();
 		});
 
 		test('Connect', async () => {
@@ -368,9 +368,6 @@ describe('With earth-engine-driver', () => {
 		var con;
 		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			// clean up
-			var list = await con.listJobs();
-			await Promise.all(list.map(j => j.deleteJob()));
 		});
 
 		test('Sync. compute a process graph result / Success', async () => {
@@ -527,10 +524,14 @@ describe('With earth-engine-driver', () => {
 
 		test('Stop job', async () => {
 			// Not implemented by GEE back-end
+			expect(job2 instanceof Job).toBeTruthy();
+			
 			await expect(job2.stopJob()).rejects.toThrow();
 		});
 
 		test('Delete job', async () => {
+			expect(job2 instanceof Job).toBeTruthy();
+
 			await job2.deleteJob();
 
 			var jobs = await con.listJobs();

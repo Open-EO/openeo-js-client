@@ -9,7 +9,7 @@ const Utils = require('@openeo/js-commons/src/utils');
  * @class
  * @extends BaseEntity
  */
-module.exports = class Job extends BaseEntity {
+class Job extends BaseEntity {
 
 	/**
 	 * Creates an object representing a batch job stored at the back-end.
@@ -173,4 +173,6 @@ module.exports = class Job extends BaseEntity {
 		let list = await this.listResults();
 		return await Environment.downloadResults(this.connection, list, targetFolder);
 	}
-};
+}
+
+module.exports = Job;

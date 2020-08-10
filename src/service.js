@@ -7,7 +7,7 @@ const Logs = require('./logs');
  * @class
  * @extends BaseEntity
  */
-module.exports = class Service extends BaseEntity {
+class Service extends BaseEntity {
 
 	/**
 	 * Creates an object representing a secondary web service stored at the back-end.
@@ -76,4 +76,6 @@ module.exports = class Service extends BaseEntity {
 	debugService() {
 		return new Logs(this.connection, '/services/' + this.serviceId + '/logs');
 	}
-};
+}
+
+module.exports = Service;

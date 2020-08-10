@@ -10,7 +10,7 @@ const path = require("path");
  * @class
  * @hideconstructor
  */
-module.exports = class Environment {
+class Environment {
 
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
@@ -87,4 +87,6 @@ module.exports = class Environment {
 			data.pipe(writeStream);
 		});
 	}
-};
+}
+
+module.exports = Environment;

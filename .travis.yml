@@ -14,6 +14,7 @@ script:
   - npm run compat
 # Run tests
   - npm run test
+  - npm run test_node
 # Generate docs
   - npm run docs
 # Deploy 

@@ -42,15 +42,11 @@ Check against the coding guidelines: `npm run compat`
 
 Run tests:
 
-* `npm run test` (browser and node tests)
-* `npm run test_browser` (browser tests)
-* `npm run test_node` (node tests)
-* `npm run test_gee` (full test suite using the Google Earth Engine back-end as server)
-
-## Roadmap
-
-* There's no functionality to build process graphs. An easy-to-use process graph builder is envisioned to be implemented. [#19](https://github.com/Open-EO/openeo-js-client/issues/19)
-* See the [issue tracker](https://github.com/Open-EO/openeo-js-client/issues) for more information.
+* `npm test` (all tests)
+* `npm test browser` (browser tests)
+* `npm test node` (node tests)
+* `npm test builder` (tests only the process builder)
+* `npm test earthengine` (full test suite using the Google Earth Engine back-end as server)
 
 ## Interactive JS Editor
 
