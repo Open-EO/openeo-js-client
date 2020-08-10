@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: OpenEO</title>
+    <title>JSDoc: Class: BaseEntity</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: OpenEO</h1>
+    <h1 class="page-title">Class: BaseEntity</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>OpenEO</h2>
+        <h2><span class="attribs"><span class="type-signature">(abstract) </span></span>BaseEntity<span class="signature">(connection, properties)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Main class to start with openEO. Allows to connect to a server.</p></div>
+            <div class="class-description"><p>The base class for entities such as Job, Process Graph, Service etc.</p></div>
         
     
 </header>
@@ -40,6 +40,21 @@
     
         
 
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="BaseEntity"><span class="type-signature">(abstract) </span>new BaseEntity<span class="signature">(connection, properties)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Creates an instance of this object.</p>
+</div>
 
 
 
@@ -48,6 +63,77 @@
 
 
 
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>connection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Connection.html">Connection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A Connection object representing an established connection to an openEO back-end.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -83,7 +169,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line32">line 32</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -139,7 +225,7 @@
     
 
     
-    <h4 class="name" id=".clientVersion"><span class="type-signature">(static) </span>clientVersion<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(name)</span><span class="type-signature"> &rarr; {*}</span></h4>
     
 
     
@@ -147,8 +233,7 @@
 
 
 <div class="description">
-    <p>Returns the version number of the client.</p>
-<p>Not to confuse with the API version(s) supported by the client.</p>
+    <p>Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.</p>
 </div>
 
 
@@ -157,6 +242,55 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the property.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -192,7 +326,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line102">line 102</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -221,7 +355,7 @@
 
         
 <div class="param-desc">
-    <p>Version number (according to SemVer).</p>
+    <p>The value, which could be of any type.</p>
 </div>
 
 
@@ -232,7 +366,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">*</span>
 
 
     </dd>
@@ -250,7 +384,7 @@
     
 
     
-    <h4 class="name" id=".connect"><span class="type-signature">(async, static) </span>connect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
+    <h4 class="name" id="getAll"><span class="type-signature"></span>getAll<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -258,9 +392,113 @@
 
 
 <div class="description">
-    <p>Connect to a back-end with version discovery (recommended).</p>
-<p>Includes version discovery (request to <code>GET /well-known/openeo</code>) and connects to the most suitable version compatible to this JS client version.
-Requests the capabilities and authenticates where required.</p>
+    <p>Returns all data in the model.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setAll"><span class="type-signature"></span>setAll<span class="signature">(metadata)</span><span class="type-signature"> &rarr; {this}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Converts the data from an API response into data suitable for our JS client models.</p>
 </div>
 
 
@@ -296,13 +534,13 @@ Requests the capabilities and authenticates where required.</p>
 
         <tr>
             
-                <td class="name"><code>url</code></td>
+                <td class="name"><code>metadata</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">object</span>
 
 
             
@@ -312,7 +550,7 @@ Requests the capabilities and authenticates where required.</p>
 
             
 
-            <td class="description last"><p>The server URL to connect to.</p></td>
+            <td class="description last"><p>JSON object originating from an API response.</p></td>
         </tr>
 
     
@@ -353,7 +591,7 @@ Requests the capabilities and authenticates where required.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line46">line 46</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -376,206 +614,24 @@ Requests the capabilities and authenticates where required.</p>
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">Error</span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
 
         
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Connection.html">Connection</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".connectDirect"><span class="type-signature">(async, static) </span>connectDirect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Connects directly to a back-end instance, without version discovery (NOT recommended).</p>
-<p>Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.</p>
+<div class="param-desc">
+    <p>Returns the object itself.</p>
 </div>
 
 
 
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>url</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The server URL to connect to.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line83">line 83</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">Error</span>
-
-
-    
-    </div>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-
-
 <dl>
     <dt>
         Type
     </dt>
     <dd>
         
-<span class="param-type"><a href="Connection.html">Connection</a></span>
+<span class="param-type">this</span>
 
 
     </dd>

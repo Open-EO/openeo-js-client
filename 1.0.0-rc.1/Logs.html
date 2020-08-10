@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: OpenEO</title>
+    <title>JSDoc: Class: Logs</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: OpenEO</h1>
+    <h1 class="page-title">Class: Logs</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>OpenEO</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Logs<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Main class to start with openEO. Allows to connect to a server.</p></div>
+            <div class="class-description"><p>Interface to loop through the logs</p></div>
         
     
 </header>
@@ -39,6 +39,16 @@
     <div class="container-overview">
     
         
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Logs"><span class="type-signature"></span>new Logs<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
 
 
 
@@ -83,7 +93,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line32">line 32</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -139,7 +149,7 @@
     
 
     
-    <h4 class="name" id=".clientVersion"><span class="type-signature">(static) </span>clientVersion<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="next"><span class="type-signature">(async) </span>next<span class="signature">(limit)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -147,120 +157,8 @@
 
 
 <div class="description">
-    <p>Returns the version number of the client.</p>
-<p>Not to confuse with the API version(s) supported by the client.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line102">line 102</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Version number (according to SemVer).</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".connect"><span class="type-signature">(async, static) </span>connect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Connect to a back-end with version discovery (recommended).</p>
-<p>Includes version discovery (request to <code>GET /well-known/openeo</code>) and connects to the most suitable version compatible to this JS client version.
-Requests the capabilities and authenticates where required.</p>
+    <p>Retrieves the next log entries since the last request.</p>
+<p>Retrieves the full response compliant to the API, including log entries and links.</p>
 </div>
 
 
@@ -286,6 +184,8 @@ Requests the capabilities and authenticates where required.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -296,13 +196,13 @@ Requests the capabilities and authenticates where required.</p>
 
         <tr>
             
-                <td class="name"><code>url</code></td>
+                <td class="name"><code>limit</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">integer</span>
 
 
             
@@ -311,8 +211,14 @@ Requests the capabilities and authenticates where required.</p>
             
 
             
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
 
-            <td class="description last"><p>The server URL to connect to.</p></td>
+            <td class="description last"><p>The number of log entries to retrieve per request.</p></td>
         </tr>
 
     
@@ -353,7 +259,7 @@ Requests the capabilities and authenticates where required.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line46">line 46</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line39">line 39</a>
     </li></ul></dd>
     
 
@@ -376,21 +282,6 @@ Requests the capabilities and authenticates where required.</p>
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">Error</span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
@@ -404,7 +295,7 @@ Requests the capabilities and authenticates where required.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="Connection.html">Connection</a></span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -422,7 +313,7 @@ Requests the capabilities and authenticates where required.</p>
     
 
     
-    <h4 class="name" id=".connectDirect"><span class="type-signature">(async, static) </span>connectDirect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
+    <h4 class="name" id="nextLogs"><span class="type-signature">(async) </span>nextLogs<span class="signature">(limit)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -430,8 +321,8 @@ Requests the capabilities and authenticates where required.</p>
 
 
 <div class="description">
-    <p>Connects directly to a back-end instance, without version discovery (NOT recommended).</p>
-<p>Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.</p>
+    <p>Retrieves the next log entries since the last request.</p>
+<p>Retrieves log entries only.</p>
 </div>
 
 
@@ -457,6 +348,8 @@ Requests the capabilities and authenticates where required.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -467,13 +360,13 @@ Requests the capabilities and authenticates where required.</p>
 
         <tr>
             
-                <td class="name"><code>url</code></td>
+                <td class="name"><code>limit</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">integer</span>
 
 
             
@@ -482,8 +375,14 @@ Requests the capabilities and authenticates where required.</p>
             
 
             
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
 
-            <td class="description last"><p>The server URL to connect to.</p></td>
+            <td class="description last"><p>The number of log entries to retrieve per request.</p></td>
         </tr>
 
     
@@ -524,7 +423,7 @@ Requests the capabilities and authenticates where required.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line83">line 83</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line25">line 25</a>
     </li></ul></dd>
     
 
@@ -547,21 +446,6 @@ Requests the capabilities and authenticates where required.</p>
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">Error</span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
@@ -575,7 +459,7 @@ Requests the capabilities and authenticates where required.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="Connection.html">Connection</a></span>
+<span class="param-type">Array.&lt;object></span>
 
 
     </dd>
