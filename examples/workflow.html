@@ -54,6 +54,8 @@
           ["B2", "B4", "B8"]
         );
 
+        // Alternatively you can also use the shorter variant:
+        // var eviAlgorithm = new Formula('2.5 * (($1 - $2) / (1 + $1 + 6 * $2 + -7.5 * $3))');
         var eviAlgorithm = function(data) {
           var nir = data[2];
           var red = data[1];

@@ -4,7 +4,7 @@ describe('Process Graph Builder (EVI)', () => {
 	const TESTBACKEND = 'https://earthengine.openeo.org';
 	const FROM_URL = TESTBACKEND + '/v1.0/processes';
 
-	const { OpenEO, Connection, Builder, Parameter } = require('../src/openeo');
+	const { OpenEO, Connection, Builder, Parameter, Formula } = require('../src/openeo');
 
 	var con;
 	test('Connect', async () => {
@@ -27,10 +27,15 @@ describe('Process Graph Builder (EVI)', () => {
 		expect(ids).toContain('array_element');
 	});
 
-	var expectedProcess = require('./data/builder.evi.example.json');
+	var expectedProcessEvi = require('./data/builder.evi.example.json');
 	test('Builder', async () => {
 		var builder = await con.buildProcess("evi");
 		build(builder);
+	});
+	
+	test('Builder with Math', async () => {
+		var builder = await con.buildProcess("evi");
+		build(builder, true);
 	});
 
 	test('Builder from URL', async () => {
@@ -45,7 +50,7 @@ describe('Process Graph Builder (EVI)', () => {
 		build(builder);
 	});
 
-	function build(builder) {
+	function build(builder, math = false) {
 		expect(builder instanceof Builder).toBeTruthy();
 
 		var datacube = builder.load_collection(
@@ -59,12 +64,19 @@ describe('Process Graph Builder (EVI)', () => {
 			["2018-01-01", "2018-02-01"],
 			["B02", "B04", "B08"]
 		);
-		var evi = builder.reduce_dimension(
-			datacube,
-			function(data, context) {
+		var eviAlgorithm;
+		var expectedProcess;
+		if (math) {
+			expectedProcess = require('./data/builder.math.evi.example.json');
+			eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
+		}
+		else {
+			expectedProcess = expectedProcessEvi;
+			eviAlgorithm = function(data) {
 				var nir = data["B08"];
 				var red = data["B04"];
 				var blue = data["B02"];
+				var blue2 = data["B02"]; // Not needed for the algorithm, but tests whether multiple calls don't result in multiple array_element nodes.
 				return this.multiply(
 					2.5,
 					this.divide(
@@ -77,12 +89,13 @@ describe('Process Graph Builder (EVI)', () => {
 						])
 					)
 				);
-			},
-			"bands"
-		).description("Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)"); // description() allows chaining
+			};
+		}
+		var evi = builder.reduce_dimension(datacube, eviAlgorithm, "bands").description("Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)");
+
 		var minTime = builder.reduce_dimension(
 			evi,
-			function(data, context) {
+			function(data) {
 				return this.min(data);
 			},
 			"t"

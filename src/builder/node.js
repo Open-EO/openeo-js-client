@@ -1,5 +1,6 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
+const Formula = require('./formula');
 
 /**
  * A class that represents a process node and also a result from a process.
@@ -102,20 +103,20 @@ class BuilderNode {
 		if (!schema) {
 			return params;
 		}
-		return schema.parameters.map(param => Parameter.create(builder, param.name));
+		return schema.parameters.map(param => builder.getCallbackParameter(param.name));
 	}
 
 	exportArgument(arg, name) {
 		if (Utils.isObject(arg)) {
-			if (arg instanceof BuilderNode) {
-				return {
-					from_node: arg.id
-				};
+			if (arg instanceof BuilderNode || arg instanceof Parameter) {
+				return arg.ref();
 			}
-			else if (arg instanceof Parameter) {
-				return {
-					from_parameter: arg.name
-				};
+			else if (arg instanceof Formula) {
+				let builder = this.createBuilder();
+				arg.setBuilder(builder);
+				arg.setParent(this, name);
+				arg.generate();
+				return builder.toJSON();
 			}
 			else if (typeof arg.toJSON === 'function') {
 				return arg.toJSON();
@@ -142,9 +143,13 @@ class BuilderNode {
 		}
 	}
 
-	exportCallback(arg, name) {
+	createBuilder() {
 		const Builder = require('./builder');
-		let builder = new Builder(this.parent.processes, this.parent);
+		return new Builder(this.parent.processes, this.parent);
+	}
+
+	exportCallback(arg, name) {
+		let builder = this.createBuilder();
 		let params = this.getCallbackParameter(builder, name);
 		// Bind builder to this, so that this.xxx can be used for processes
 		let node = arg.bind(builder)(...params);
@@ -177,6 +182,10 @@ class BuilderNode {
 			obj.result = true;
 		}
 		return obj;
+	}
+
+	ref() {
+		return { from_node: this.id };
 	}
 
 }

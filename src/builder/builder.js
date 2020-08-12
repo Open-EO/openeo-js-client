@@ -1,6 +1,8 @@
 const BuilderNode = require('./node');
+const Parameter = require('./parameter');
 const axios = require('axios');
 const Utils = require('@openeo/js-commons/src/utils');
+const Formula = require('./formula');
 
 /**
  * A class to construct processes easily.
@@ -17,6 +19,9 @@ const Utils = require('@openeo/js-commons/src/utils');
  *   ["B02", "B04", "B08"]
  * );
  * 
+ * // Alternative 1 - using the Formula class
+ * var eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
+ * // Alternative 2 - "by hand"
  * var eviAlgorithm = function(data) {
  *   var nir = data["B08"]; // Array access by label, accessing label "B08" here
  *   var red = data["B04"];
@@ -108,17 +113,30 @@ class Builder {
 		}
 		this.nodes = {};
 		this.idCounter = {};
+		this.callbackParameterCache = {};
 
 		this.id = id;
 
 		/* jshint ignore:start */
 		for(let process of this.processes) {
-			this[process.id] = function() {
-				// Don't use arrow functions, they don't support the arguments keyword.
-				return this.process(process.id, [...arguments]);
-			};
+			if (typeof this[process.id] === 'undefined') {
+				this[process.id] = function() {
+					// Don't use arrow functions, they don't support the arguments keyword.
+					return this.process(process.id, [...arguments]);
+				};
+			}
+			else {
+				console.warn("Can't create function for process '" + process.id + "'. Already exists in Builder class.");
+			}
 		}
 		/* jshint ignore:end */
+	}
+
+	getCallbackParameter(parameterName) {			
+		if (!this.callbackParameterCache[parameterName]) {
+			this.callbackParameterCache[parameterName] = Parameter.create(this, parameterName);
+		}
+		return this.callbackParameterCache[parameterName];
 	}
 
 	addParameter(parameter, root = true) {
@@ -142,6 +160,21 @@ class Builder {
 
 	spec(id) {
 		return this.processes.find(process => process.id === id);
+	}
+
+	/**
+	 * Adds a mathematical formula to the process.
+	 * 
+	 * See the {@link Formula} class for more information.
+	 * 
+	 * @param {string} formula 
+	 * @returns {BuilderNode}
+	 * @throws {Error}
+	 */
+	math(formula) {
+		let math = new Formula(formula);
+		math.setBuilder(this);
+		return math.generate(false);
 	}
 
 	/**

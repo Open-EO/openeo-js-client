@@ -22,6 +22,9 @@
  * `this.array_element(data, undefined, 'B1')` or 
  * `this.array_element(data, 1)` respectively.
  * 
+ * Simple access to numeric labels is not supported. You need to use `array_element` directly, e.g.
+ * `this.array_element(data, undefined, 1)`
+ * 
  * @class
  */
 class Parameter {
@@ -33,21 +36,21 @@ class Parameter {
 				nodeCache: {},
 				get(target, name, receiver) {
 					if (!Reflect.has(target, name)) {
-						// Check whether array element for this label/index exists
-						if (this.nodeCache[name]) {
-							return this.nodeCache[name];
+						if (!this.nodeCache[name]) {
+							let args = {
+								data: parameter
+							};
+							if (name.match(/^(0|[1-9]\d*)$/)) {
+								args.index = parseInt(name, 10);
+							}
+							else {
+								args.label = name;
+							}
+							// We assume array_element exists
+							this.nodeCache[name] = builder.process("array_element", args);
 						}
 					
-						let args = {
-							data: parameter
-						};
-						if (name.match(/^(0|[1-9]\d*)$/)) {
-							args.index = parseInt(name, 10);
-						}
-						else {
-							args.label = name;
-						}
-						return builder.process("array_element", args);
+						return this.nodeCache[name];
 					}
 					return Reflect.get(target, name, receiver);
 				},
@@ -89,6 +92,10 @@ class Parameter {
 
 	toJSON() {
 		return this.spec;
+	}
+
+	ref() {
+		return { from_parameter: this.name };
 	}
 
 }

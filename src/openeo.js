@@ -19,6 +19,7 @@ const FileTypes = require('./filetypes');
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 const Parameter = require('./builder/parameter');
+const Formula = require('./builder/formula');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
 const MAX_API_VERSION = '1';
@@ -120,5 +121,6 @@ module.exports = {
 	UserProcess,
 	Builder,
 	BuilderNode,
-	Parameter
+	Parameter,
+	Formula
 };
