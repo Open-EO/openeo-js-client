@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: OpenEO</title>
+    <title>JSDoc: Class: Formula</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: OpenEO</h1>
+    <h1 class="page-title">Class: Formula</h1>
 
     
 
@@ -28,9 +28,17 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>OpenEO</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Formula<span class="signature">(formula, builder)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Main class to start with openEO. Allows to connect to a server.</p></div>
+            <div class="class-description"><p>This converts a mathematical formula into a openEO process for you.</p>
+<p>Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)</p>
+<p>It supports all mathematical functions (i.e. expects a number and returns a number) the back-end implements, e.g. <code>sqrt(x)</code>.</p>
+<p>Only available if a builder is specified in the constructor:
+You can refer to output from processes with a leading <code>#</code>, e.g. <code>#loadco1</code> if the node to refer to has the key <code>loadco1</code>.</p>
+<p>Only available if a parent node is set via <code>setNode()</code>:
+Parameters can be accessed simply by name.
+If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a $ in front, for example $B1 for the label B1 or $0 for the first element in the array. Numeric labels are not supported.</p>
+<p>An example that computes an EVI (assuming the labels for the bands are <code>NIR</code>, <code>RED</code> and <code>BLUE</code>): <code>2.5 * ($NIR - $RED) / (1 + $NIR + 6 * $RED + (-7.5 * $BLUE))</code></p></div>
         
     
 </header>
@@ -40,6 +48,21 @@
     
         
 
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Formula"><span class="type-signature"></span>new Formula<span class="signature">(formula, builder)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Creates a math formula object.</p>
+</div>
 
 
 
@@ -48,6 +71,77 @@
 
 
 
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>formula</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A mathematical formula to parse.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>builder</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Builder.html">Builder</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The builder instance to add the formula to.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -83,7 +177,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line33">line 33</a>
+        <a href="builder_formula.js.html">builder/formula.js</a>, <a href="builder_formula.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -139,7 +233,7 @@
     
 
     
-    <h4 class="name" id=".clientVersion"><span class="type-signature">(static) </span>clientVersion<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="generate"><span class="type-signature"></span>generate<span class="signature">(setResultNode)</span><span class="type-signature"> &rarr; {<a href="BuilderNode.html">BuilderNode</a>}</span></h4>
     
 
     
@@ -147,120 +241,8 @@
 
 
 <div class="description">
-    <p>Returns the version number of the client.</p>
-<p>Not to confuse with the API version(s) supported by the client.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line103">line 103</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Version number (according to SemVer).</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".connect"><span class="type-signature">(async, static) </span>connect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Connect to a back-end with version discovery (recommended).</p>
-<p>Includes version discovery (request to <code>GET /well-known/openeo</code>) and connects to the most suitable version compatible to this JS client version.
-Requests the capabilities and authenticates where required.</p>
+    <p>Generates the processes for the formula specified in the constructor.</p>
+<p>Returns the last node that computes the result.</p>
 </div>
 
 
@@ -286,6 +268,8 @@ Requests the capabilities and authenticates where required.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -296,13 +280,13 @@ Requests the capabilities and authenticates where required.</p>
 
         <tr>
             
-                <td class="name"><code>url</code></td>
+                <td class="name"><code>setResultNode</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -311,8 +295,14 @@ Requests the capabilities and authenticates where required.</p>
             
 
             
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
 
-            <td class="description last"><p>The server URL to connect to.</p></td>
+            <td class="description last"><p>Set the <code>result</code> flag to <code>true</code>.</p></td>
         </tr>
 
     
@@ -353,7 +343,7 @@ Requests the capabilities and authenticates where required.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line47">line 47</a>
+        <a href="builder_formula.js.html">builder/formula.js</a>, <a href="builder_formula.js.html#line57">line 57</a>
     </li></ul></dd>
     
 
@@ -404,178 +394,7 @@ Requests the capabilities and authenticates where required.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="Connection.html">Connection</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".connectDirect"><span class="type-signature">(async, static) </span>connectDirect<span class="signature">(url)</span><span class="type-signature"> &rarr; {<a href="Connection.html">Connection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Connects directly to a back-end instance, without version discovery (NOT recommended).</p>
-<p>Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>url</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The server URL to connect to.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="openeo.js.html">openeo.js</a>, <a href="openeo.js.html#line84">line 84</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">Error</span>
-
-
-    
-    </div>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Connection.html">Connection</a></span>
+<span class="param-type"><a href="BuilderNode.html">BuilderNode</a></span>
 
 
     </dd>

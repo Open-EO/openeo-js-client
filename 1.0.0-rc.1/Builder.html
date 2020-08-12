@@ -41,6 +41,9 @@ var datacube = builder.load_collection(
   [&quot;B02&quot;, &quot;B04&quot;, &quot;B08&quot;]
 );
 
+// Alternative 1 - using the Formula class
+var eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
+// Alternative 2 - &quot;by hand&quot;
 var eviAlgorithm = function(data) {
   var nir = data[&quot;B08&quot;]; // Array access by label, accessing label &quot;B08&quot; here
   var red = data[&quot;B04&quot;];
@@ -252,7 +255,7 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line98">line 98</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -414,7 +417,7 @@ CORS needs to be implemented on the server-side for the URL given.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line84">line 84</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -597,7 +600,7 @@ Requests the latest version if no version number is passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line64">line 64</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -649,6 +652,177 @@ Requests the latest version if no version number is passed.</p>
     <dd>
         
 <span class="param-type"><a href="Builder.html">Builder</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="math"><span class="type-signature"></span>math<span class="signature">(formula)</span><span class="type-signature"> &rarr; {<a href="BuilderNode.html">BuilderNode</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Adds a mathematical formula to the process.</p>
+<p>See the <a href="Formula.html">Formula</a> class for more information.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>formula</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line174">line 174</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type">Error</span>
+
+
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="BuilderNode.html">BuilderNode</a></span>
 
 
     </dd>
@@ -835,7 +1009,7 @@ Requests the latest version if no version number is passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line155">line 155</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line188">line 188</a>
     </li></ul></dd>
     
 
@@ -899,13 +1073,13 @@ Requests the latest version if no version number is passed.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Mon Aug 10 2020 15:14:44 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Aug 12 2020 11:54:05 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
