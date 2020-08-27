@@ -40,7 +40,7 @@ class Job extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
-	 * @param {object} parameters.processGraph - A new process graph.
+	 * @param {object} parameters.process - A new process.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
 	 * @param {string} parameters.plan - A new plan.

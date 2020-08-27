@@ -142,7 +142,7 @@ class Formula {
 		// Everything else is a parameter
 		else {
 			let parameter = new Parameter(value);
-			if (callbackParams.filter(p => p.id === value).length === 0) {
+			if (callbackParams.findIndex(p => p.id === value).length === -1) {
 				// Add new parameter if it doesn't exist
 				this.builder.addParameter(parameter);
 			}

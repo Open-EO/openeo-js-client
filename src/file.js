@@ -27,7 +27,7 @@ class File extends BaseEntity {
 	 * This method has different behaviour depending on the environment.
 	 * If the target is set to `null`, returns a stream in a NodeJS environment or a Blob in a browser environment.
 	 * If a target is specified, writes the downloaded file to the target location on the file system in a NodeJS environment.
-	 * In a browser environment offers the file for downloading using the specified name (paths not supported).
+	 * In a browser environment offers the file for downloading using the specified name (folders are not supported).
 	 * 
 	 * @async
 	 * @param {string|null} target - The target, see method description for details.
