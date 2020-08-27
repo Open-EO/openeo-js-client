@@ -31,6 +31,7 @@ class Connection {
 		this.authProviderList = null;
 		this.authProvider = null;
 		this.capabilitiesObject = null;
+		this.processes = null;
 	}
 
 	/**
@@ -116,7 +117,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {object} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeCollection(collectionId) {
@@ -127,13 +128,38 @@ class Connection {
 	/**
 	 * List all processes available on the back-end.
 	 * 
+	 * Data is cached in memory.
+	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {object} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listProcesses() {
-		let response = await this._get('/processes');
-		return response.data;
+		if (this.processes === null) {
+			let response = await this._get('/processes');
+			this.processes = response.data;
+		}
+		return this.processes;
+	}
+
+	/**
+	 * Get information about a single process.
+	 * 
+	 * @async
+	 * @param {string} processId - Collection ID to request further metadata for.
+	 * @returns {object|null} - A single process as object, or `null` if none is found.
+	 * @throws {Error}
+	 * @see listProcesses()
+	 */
+	async describeProcess(processId) {
+		let response = await this.listProcesses();
+		if (Array.isArray(response.processes)) {
+			let process = response.processes.filter(process => process.id === processId);
+			if (process.length > 0) {
+				return process[0];
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -143,10 +169,11 @@ class Connection {
 	 * @param {string} id - A name for the process.
 	 * @returns {Builder}
 	 * @throws {Error}
+	 * @see listProcesses()
 	 */
 	async buildProcess(id) {
-		let processes = await this.listProcesses();
-		return new Builder(processes.processes, null, id);
+		let response = await this.listProcesses();
+		return new Builder(response.processes, null, id);
 	}
 
 	/**

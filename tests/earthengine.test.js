@@ -126,6 +126,7 @@ describe('With earth-engine-driver', () => {
 				"listCollections",
 				"describeCollection",
 				"listProcesses",
+				"describeProcess",
 				"listAuthProviders",
 				"authenticateBasic",
 				"describeAccount",
@@ -201,6 +202,13 @@ describe('With earth-engine-driver', () => {
 			expect(min.length).toBe(1);
 			expect(min[0]).toEqual(TESTPROCESS);
 			expect(procs.processes).toContainEqual(TESTPROCESS);
+		});
+
+		test('Single Process', async () => {
+			var min = await con.describeProcess('min');
+			expect(min).toEqual(TESTPROCESS);
+			var invalid = await con.describeProcess('invalid');
+			expect(invalid).toBeNull();
 		});
 
 		test('File types', async () => {

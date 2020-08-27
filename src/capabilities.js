@@ -43,6 +43,7 @@ class Capabilities {
 			describeCollection: 'get /collections/{collection_id}',
 			// Processes
 			listProcesses: 'get /processes',
+			describeProcess: 'get /processes',
 			// Auth / Account
 			listAuthProviders: true,
 			authenticateOIDC: 'get /credentials/oidc',
