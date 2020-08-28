@@ -486,9 +486,14 @@ describe('With earth-engine-driver', () => {
 
 		var targetFolder = Math.random().toString(36);
 		test('Job Results', async () => {
-			await waitForExpect(async () => {
-				var jobdetails = await job.describeJob();
-				expect(jobdetails.status).toBe('finished');
+			let finishedJob = null;
+			job.monitorJob((job, logs) => {
+				if (job.status === 'finished') {
+					finishedJob = job;
+				}
+			}, 5);
+			await waitForExpect(() => {
+				expect(finishedJob).not.toBeNull();
 			}, timeout * 5/6, 5000);
 
 			// Get STAC Item
@@ -594,7 +599,7 @@ describe('With earth-engine-driver', () => {
 			expect(svcdetails.serviceId).toBe(svc.serviceId);
 			expect(svcdetails.title).toBeNull();
 			expect(typeof svcdetails.url).toBe('string');
-		})
+		});
 
 		test('Update service', async () => {
 			var success = await svc.updateService({title: 'Test service'});
@@ -606,6 +611,24 @@ describe('With earth-engine-driver', () => {
 			expect(svcdetails.title).toBe('Test service');
 			expect(typeof svcdetails.url).toBe('string');
 		});
+
+		test('Monitor service', async () => {
+			expect(svc.enabled).toBeTruthy();
+
+			let stoppedService = null;
+			let stopFn = svc.monitorService((service, logs) => {
+				if (!service.enabled) {
+					stoppedService = service;
+					stopFn();
+				}
+			}, 5);
+			await svc.updateService({enabled: false});
+			await waitForExpect(() => {
+				expect(stoppedService).not.toBeNull();
+				expect(stoppedService.enabled).toBeFalsy();
+			}, timeout * 5/6, 5000);
+		});
+
 
 		test('Delete service', async () => {
 			await svc.deleteService();

@@ -76,6 +76,56 @@ class Service extends BaseEntity {
 	debugService() {
 		return new Logs(this.connection, '/services/' + this.serviceId + '/logs');
 	}
+
+	/**
+	 * Checks for new log entries every x seconds.
+	 * 
+	 * On every status change (enabled/disabled) observed or on new log entries (if supported by the back-end),
+	 * the callback is executed.
+	 * The callback receives the service (this object) and the logs (array) passed.
+	 * 
+	 * Returns a function that can be called to stop monitoring the service manually.
+	 * The monitoring must be stopped manually, otherwise it runs forever.
+	 * 
+	 * This is only supported if describeService is supported by the back-end.
+	 * 
+	 * @param {function} callback 
+	 * @param {integer} [interval=60]
+	 * @returns {function}
+	 * @throws {Error}
+	 */
+	monitorService(callback, interval = 60) {
+		if (typeof callback !== 'function' || interval < 1) {
+			return;
+		}
+		let capabilities = this.connection.capabilities();
+		if (!capabilities.hasFeature('describeService')) {
+			throw new Error('Monitoring Services not supported by the back-end.');
+		}
+
+		let wasEnabled = this.enabled;
+		let intervalId = null;
+		let logIterator = null;
+		if (capabilities.hasFeature('debugService')) {
+			logIterator = this.debugService();
+		}
+		let monitorFn = async () => {
+			await this.describeService();
+			let logs = logIterator ? await logIterator.nextLogs() : [];
+			if (wasEnabled !== this.enabled || logs.length > 0) {
+				callback(this, logs);
+			}
+			wasEnabled = this.enabled;
+		};
+		intervalId = setTimeout(monitorFn, interval * 1000);
+		let stopFn = () => {
+			if (intervalId) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
+		};
+		return stopFn;
+	}
 }
 
 module.exports = Service;

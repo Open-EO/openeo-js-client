@@ -3,6 +3,8 @@ const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
 
+const STOP_STATUS = ['finished', 'canceled', 'error'];
+
 /**
  * A Batch Job.
  * 
@@ -87,6 +89,60 @@ class Job extends BaseEntity {
 	 */
 	debugJob() {
 		return new Logs(this.connection, '/jobs/' + this.jobId + '/logs');
+	}
+
+	/**
+	 * Checks for status changes and new log entries every x seconds.
+	 * 
+	 * On every status change observed or on new log entries (if supported by the back-end),
+	 * the callback is executed.
+	 * The callback receives the job (this object) and the logs (array) passed.
+	 * 
+	 * The monitoring stops once the job has finished, was canceled or errored out.
+	 * 
+	 * This is only supported if describeJob is supported by the back-end.
+	 * 
+	 * Returns a function that can be called to stop monitoring the job manually.
+	 * 
+	 * @param {function} callback 
+	 * @param {integer} [interval=60] 
+	 * @returns {function}
+	 * @throws {Error}
+	 */
+	monitorJob(callback, interval = 60) {
+		if (typeof callback !== 'function' || interval < 1) {
+			return;
+		}
+		let capabilities = this.connection.capabilities();
+		if (!capabilities.hasFeature('describeJob')) {
+			throw new Error('Monitoring Jobs not supported by the back-end.');
+		}
+
+		let lastStatus = this.status;
+		let intervalId = null;
+		let logIterator = null;
+		if (capabilities.hasFeature('debugJob')) {
+			logIterator = this.debugJob();
+		}
+		let monitorFn = async () => {
+			await this.describeJob();
+			let logs = logIterator ? await logIterator.nextLogs() : [];
+			if (lastStatus !== this.status || logs.length > 0) {
+				callback(this, logs);
+			}
+			lastStatus = this.status;
+			if (STOP_STATUS.includes(this.status)) {
+				stopFn();
+			}
+		};
+		intervalId = setTimeout(monitorFn, interval * 1000);
+		let stopFn = () => {
+			if (intervalId) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
+		};
+		return stopFn;
 	}
 
 	/**

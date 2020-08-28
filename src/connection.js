@@ -434,6 +434,27 @@ class Connection {
 	}
 
 	/**
+	 * Executes a process synchronously and downloads to result the given path.
+	 * 
+	 * Please note that requests can take a very long time of several minutes or even hours.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * If a NodeJs environment, writes the downloaded file to the target location on the file system.
+	 * In a browser environment, offers the file for downloading using the specified name (folders are not supported).
+	 * 
+	 * @async
+	 * @param {object} process - A user-defined process.
+	 * @param {string} target - The target, see method description for details.
+	 * @param {string} [plan=null] - The billing plan to use for this computation.
+	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @throws {Error}
+	 */
+	async downloadResult(process, targetPath, plan = null, budget = null) {
+		let response = await this.computeResult(process, plan, budget);
+		await Environment.saveToFile(response.data, targetPath);
+	}
+
+	/**
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
