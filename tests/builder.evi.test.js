@@ -1,7 +1,6 @@
-// CODE TO GENERATE PROCESS GRAPH
 describe('Process Graph Builder (EVI)', () => {
 
-	const TESTBACKEND = 'https://earthengine.openeo.org';
+	const { TESTBACKEND } = require('./config.js');
 	const FROM_URL = TESTBACKEND + '/v1.0/processes';
 
 	const { OpenEO, Connection, Builder, Parameter, Formula } = require('../src/openeo');
@@ -27,7 +26,7 @@ describe('Process Graph Builder (EVI)', () => {
 		expect(ids).toContain('array_element');
 	});
 
-	var expectedProcessEvi = require('./data/builder.evi.example.json');
+	const expectedProcessEvi = require('./data/builder.evi.example.json');
 	test('Builder', async () => {
 		var builder = await con.buildProcess("evi");
 		build(builder);

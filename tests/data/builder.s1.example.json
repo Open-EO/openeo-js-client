@@ -1,0 +1,232 @@
+{
+  "process_graph": {
+    "loadco1": {
+      "process_id": "load_collection",
+      "arguments": {
+        "id": "COPERNICUS/S1_GRD",
+        "spatial_extent": {
+          "west": 16.06,
+          "south": 48.06,
+          "east": 16.65,
+          "north": 48.35
+        },
+        "temporal_extent": [
+          "2017-03-01",
+          "2017-06-01"
+        ],
+        "bands": [
+          "VV"
+        ]
+      }
+    },
+    "filter1": {
+      "process_id": "filter_temporal",
+      "arguments": {
+        "data": {
+          "from_node": "loadco1"
+        },
+        "extent": [
+          "2017-03-01",
+          "2017-04-01"
+        ]
+      }
+    },
+    "filter2": {
+      "process_id": "filter_temporal",
+      "arguments": {
+        "data": {
+          "from_node": "loadco1"
+        },
+        "extent": [
+          "2017-04-01",
+          "2017-05-01"
+        ]
+      }
+    },
+    "filter3": {
+      "process_id": "filter_temporal",
+      "arguments": {
+        "data": {
+          "from_node": "loadco1"
+        },
+        "extent": [
+          "2017-05-01",
+          "2017-06-01"
+        ]
+      }
+    },
+    "reduce1": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "filter1"
+        },
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        },
+        "dimension": "t"
+      }
+    },
+    "reduce2": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "filter2"
+        },
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        },
+        "dimension": "t"
+      }
+    },
+    "reduce3": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "filter3"
+        },
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        },
+        "dimension": "t"
+      }
+    },
+    "rename1": {
+      "process_id": "rename_labels",
+      "arguments": {
+        "data": {
+          "from_node": "reduce1"
+        },
+        "dimension": "bands",
+        "target": [
+          "R"
+        ],
+        "source": [
+          "VV"
+        ]
+      }
+    },
+    "rename2": {
+      "process_id": "rename_labels",
+      "arguments": {
+        "data": {
+          "from_node": "reduce2"
+        },
+        "dimension": "bands",
+        "target": [
+          "G"
+        ],
+        "source": [
+          "VV"
+        ]
+      }
+    },
+    "rename3": {
+      "process_id": "rename_labels",
+      "arguments": {
+        "data": {
+          "from_node": "reduce3"
+        },
+        "dimension": "bands",
+        "target": [
+          "B"
+        ],
+        "source": [
+          "VV"
+        ]
+      }
+    },
+    "mergec1": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "rename1"
+        },
+        "cube2": {
+          "from_node": "rename2"
+        }
+      }
+    },
+    "mergec2": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "mergec1"
+        },
+        "cube2": {
+          "from_node": "rename3"
+        }
+      }
+    },
+    "apply1": {
+      "process_id": "apply",
+      "arguments": {
+        "data": {
+          "from_node": "mergec2"
+        },
+        "process": {
+          "process_graph": {
+            "linear1": {
+              "process_id": "linear_scale_range",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "inputMin": -20,
+                "inputMax": -5,
+                "outputMin": 0,
+                "outputMax": 255
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "savere1": {
+      "process_id": "save_result",
+      "arguments": {
+        "data": {
+          "from_node": "apply1"
+        },
+        "format": "PNG",
+        "options": {
+          "red": "R",
+          "green": "G",
+          "blue": "B"
+        }
+      },
+      "result": true
+    }
+  }
+}

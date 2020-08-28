@@ -6,8 +6,7 @@ var timeout = 2*60*1000;
 jest.setTimeout(timeout); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-//	const TESTBACKEND = 'http://127.0.0.1:8080';
-	const TESTBACKEND = 'https://earthengine.openeo.org';
+	const { TESTBACKEND } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
