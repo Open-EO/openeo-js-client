@@ -303,12 +303,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line147">line 147</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line174">line 174</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>listProcesses()</li>
+        </ul>
+    </dd>
     
 
     
@@ -424,7 +431,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line62">line 62</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -678,7 +685,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line369">line 369</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -1050,7 +1057,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line436">line 436</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line463">line 463</a>
     </li></ul></dd>
     
 
@@ -1548,7 +1555,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line497">line 497</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line524">line 524</a>
     </li></ul></dd>
     
 
@@ -1674,7 +1681,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line213">line 213</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line240">line 240</a>
     </li></ul></dd>
     
 
@@ -1848,7 +1855,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line122">line 122</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line123">line 123</a>
     </li></ul></dd>
     
 
@@ -1892,7 +1899,9 @@
 
         
 <div class="param-desc">
-    <p>A response compatible to the API specification.</p>
+    <ul>
+<li>A response compatible to the API specification.</li>
+</ul>
 </div>
 
 
@@ -1904,6 +1913,192 @@
     <dd>
         
 <span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="describeProcess"><span class="type-signature">(async) </span>describeProcess<span class="signature">(processId)</span><span class="type-signature"> &rarr; {object|null}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Get information about a single process.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>processId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Collection ID to request further metadata for.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line154">line 154</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>listProcesses()</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type">Error</span>
+
+
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>A single process as object, or <code>null</code> if none is found.</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>
@@ -2046,7 +2241,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line583">line 583</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line610">line 610</a>
     </li></ul></dd>
     
 
@@ -2161,7 +2356,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line53">line 53</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line54">line 54</a>
     </li></ul></dd>
     
 
@@ -2320,7 +2515,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line271">line 271</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line298">line 298</a>
     </li></ul></dd>
     
 
@@ -2494,7 +2689,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line462">line 462</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line489">line 489</a>
     </li></ul></dd>
     
 
@@ -2668,7 +2863,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line525">line 525</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line552">line 552</a>
     </li></ul></dd>
     
 
@@ -2842,7 +3037,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line345">line 345</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line372">line 372</a>
     </li></ul></dd>
     
 
@@ -2967,7 +3162,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line42">line 42</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line43">line 43</a>
     </li></ul></dd>
     
 
@@ -3077,7 +3272,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line196">line 196</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line223">line 223</a>
     </li></ul></dd>
     
 
@@ -3187,7 +3382,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line159">line 159</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -3312,7 +3507,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line109">line 109</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -3437,7 +3632,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line225">line 225</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line252">line 252</a>
     </li></ul></dd>
     
 
@@ -3562,7 +3757,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line73">line 73</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -3687,7 +3882,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line416">line 416</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line443">line 443</a>
     </li></ul></dd>
     
 
@@ -3769,6 +3964,7 @@
 
 <div class="description">
     <p>List all processes available on the back-end.</p>
+<p>Data is cached in memory.</p>
 </div>
 
 
@@ -3812,7 +4008,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line134">line 134</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line137">line 137</a>
     </li></ul></dd>
     
 
@@ -3856,7 +4052,9 @@
 
         
 <div class="param-desc">
-    <p>A response compatible to the API specification.</p>
+    <ul>
+<li>A response compatible to the API specification.</li>
+</ul>
 </div>
 
 
@@ -3937,7 +4135,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line474">line 474</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line501">line 501</a>
     </li></ul></dd>
     
 
@@ -4062,7 +4260,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line85">line 85</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -4187,7 +4385,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line97">line 97</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -4312,7 +4510,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line316">line 316</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line343">line 343</a>
     </li></ul></dd>
     
 
@@ -4509,7 +4707,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line332">line 332</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line359">line 359</a>
     </li></ul></dd>
     
 
@@ -4760,7 +4958,7 @@ In a browser environment the source must be an object from a file upload form.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line255">line 255</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line282">line 282</a>
     </li></ul></dd>
     
 
@@ -4930,7 +5128,7 @@ In a browser environment the source must be an object from a file upload form.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line299">line 299</a>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line326">line 326</a>
     </li></ul></dd>
     
 
@@ -5019,7 +5217,7 @@ In a browser environment the source must be an object from a file upload form.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Aug 12 2020 11:58:51 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Fri Aug 28 2020 11:12:00 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
