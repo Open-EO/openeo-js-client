@@ -169,7 +169,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line21">line 21</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line23">line 23</a>
     </li></ul></dd>
     
 
@@ -288,7 +288,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line88">line 88</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line90">line 90</a>
     </li></ul></dd>
     
 
@@ -394,7 +394,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line67">line 67</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -497,7 +497,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line33">line 33</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -672,7 +672,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line172">line 172</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -797,7 +797,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line78">line 78</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -1197,7 +1197,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line129">line 129</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -1322,7 +1322,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line152">line 152</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line208">line 208</a>
     </li></ul></dd>
     
 
@@ -1378,6 +1378,237 @@
     <dd>
         
 <span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="monitorJob"><span class="type-signature"></span>monitorJob<span class="signature">(callback, interval<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Checks for status changes and new log entries every x seconds.</p>
+<p>On every status change observed or on new log entries (if supported by the back-end),
+the callback is executed.
+The callback receives the job (this object) and the logs (array) passed.</p>
+<p>The monitoring stops once the job has finished, was canceled or errored out.</p>
+<p>This is only supported if describeJob is supported by the back-end.</p>
+<p>Returns a function that can be called to stop monitoring the job manually.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>interval</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    60
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line112">line 112</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type">Error</span>
+
+
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">function</span>
 
 
     </dd>
@@ -1611,7 +1842,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line99">line 99</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line155">line 155</a>
     </li></ul></dd>
     
 
@@ -1736,7 +1967,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line114">line 114</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line170">line 170</a>
     </li></ul></dd>
     
 
@@ -2051,7 +2282,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="job.js.html">job.js</a>, <a href="job.js.html#line51">line 51</a>
+        <a href="job.js.html">job.js</a>, <a href="job.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -2140,7 +2371,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Fri Aug 28 2020 11:12:00 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Fri Aug 28 2020 12:40:41 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
