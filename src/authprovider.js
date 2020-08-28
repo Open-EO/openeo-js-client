@@ -78,6 +78,8 @@ class AuthProvider {
 /**
  * The Authentication Provider for OpenID Connect.
  * 
+ * ToDo: Add how to use the OIDC Provider.
+ * 
  * @class
  * @extends {AuthProvider}
  */

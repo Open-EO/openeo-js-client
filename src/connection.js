@@ -274,8 +274,8 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
-	 * @param {string|null} targetPath - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
-	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @param {string|null} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
+	 * @param {uploadStatusCallback|null} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
 	 * @returns {File}
 	 * @throws {Error}
 	 */

@@ -1,4 +1,5 @@
 const Utils = require("@openeo/js-commons/src/utils");
+const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 const Parameter = require("./parameter");
 const Formula = require('./formula');
 
@@ -82,28 +83,12 @@ class BuilderNode {
 	}
 
 	getCallbackParameter(builder, name) {
-		let params = [];
-		if (!Array.isArray(this.spec.parameters)) {
-			return params;
+		try {
+			return ProcessUtils.getCallbackParametersForProcess(this.spec, name).map(param => builder.getCallbackParameter(param.name));
+		} catch(error) {
+			console.warn(error);
+			return [];
 		}
-		let param = this.spec.parameters.find(p => p.name === name);
-		if (!param || !param.schema) {
-			return params;
-		}
-
-		let schema = param.schema;
-		if (Utils.isObject(schema)) {
-			schema = [schema];
-		}
-		if (!Array.isArray(schema)) {
-			return params;
-		}
-
-		schema = schema.find(s => Array.isArray(s.parameters));
-		if (!schema) {
-			return params;
-		}
-		return schema.parameters.map(param => builder.getCallbackParameter(param.name));
 	}
 
 	exportArgument(arg, name) {
