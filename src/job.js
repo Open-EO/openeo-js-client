@@ -95,7 +95,7 @@ class Job extends BaseEntity {
 	 * Checks for status changes and new log entries every x seconds.
 	 * 
 	 * On every status change observed or on new log entries (if supported by the back-end),
-	 * the callback is executed. It is also executed once at the beginning.
+	 * the callback is executed. It may also be executed once at the beginning.
 	 * The callback receives the updated job (this object) and the logs (array) passed.
 	 * 
 	 * The monitoring stops once the job has finished, was canceled or errored out.
@@ -118,14 +118,16 @@ class Job extends BaseEntity {
 			throw new Error('Monitoring Jobs not supported by the back-end.');
 		}
 
-		let lastStatus = null;
+		let lastStatus = this.status;
 		let intervalId = null;
 		let logIterator = null;
 		if (capabilities.hasFeature('debugJob')) {
 			logIterator = this.debugJob();
 		}
 		let monitorFn = async () => {
-			await this.describeJob();
+			if (this.getDataAge() > 1) {
+				await this.describeJob();
+			}
 			let logs = logIterator ? await logIterator.nextLogs() : [];
 			if (lastStatus !== this.status || logs.length > 0) {
 				callback(this, logs);

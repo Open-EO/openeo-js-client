@@ -81,7 +81,7 @@ class Service extends BaseEntity {
 	 * Checks for new log entries every x seconds.
 	 * 
 	 * On every status change (enabled/disabled) observed or on new log entries (if supported by the back-end),
-	 * the callback is executed. It is also executed once at the beginning.
+	 * the callback is executed. It may also be executed once at the beginning.
 	 * The callback receives the updated service (this object) and the logs (array) passed.
 	 * 
 	 * Returns a function that can be called to stop monitoring the service manually.
@@ -103,14 +103,16 @@ class Service extends BaseEntity {
 			throw new Error('Monitoring Services not supported by the back-end.');
 		}
 
-		let wasEnabled = null;
+		let wasEnabled = this.enabled;
 		let intervalId = null;
 		let logIterator = null;
 		if (capabilities.hasFeature('debugService')) {
 			logIterator = this.debugService();
 		}
 		let monitorFn = async () => {
-			await this.describeService();
+			if (this.getDataAge() > 1) {
+				await this.describeService();
+			}
 			let logs = logIterator ? await logIterator.nextLogs() : [];
 			if (wasEnabled !== this.enabled || logs.length > 0) {
 				callback(this, logs);
