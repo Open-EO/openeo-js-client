@@ -17,6 +17,7 @@ class BaseEntity {
 		this.connection = connection;
 		this.apiToClientNames = {};
 		this.clientToApiNames = {};
+		this.lastRefreshTime = 0;
 		this.extra = {};
 		for(let i in properties) {
 			let backend, client;
@@ -59,7 +60,17 @@ class BaseEntity {
 				this[this.apiToClientNames[name]] = metadata[name];
 			}
 		}
+		this.lastRefreshTime = Date.now();
 		return this;
+	}
+
+	/**
+	 * Returns the age of the data in seconds.
+	 * 
+	 * @returns {integer}
+	 */
+	getDataAge() {
+		return (Date.now() - this.lastRefreshTime) / 1000;
 	}
 
 	/**
