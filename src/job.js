@@ -135,6 +135,7 @@ class Job extends BaseEntity {
 				stopFn();
 			}
 		};
+		monitorFn();
 		intervalId = setTimeout(monitorFn, interval * 1000);
 		let stopFn = () => {
 			if (intervalId) {
