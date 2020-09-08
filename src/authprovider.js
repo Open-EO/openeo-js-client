@@ -61,7 +61,7 @@ class AuthProvider {
 	}
 
 	async login() {
-		throw "Not implemented.";
+		throw new Error("Not implemented.");
 	}
 
 	/**
@@ -142,13 +142,13 @@ class OidcProvider extends AuthProvider {
 	 */
 	async login(client_id, redirect_uri, options = {}) {
 		if (!this.issuer || typeof this.issuer !== 'string') {
-			throw "No Issuer URL available for OpenID Connect";
+			throw new Error("No Issuer URL available for OpenID Connect");
 		}
 		else if (!client_id || typeof client_id !== 'string') {
-			throw "No Client ID specified for OpenID Connect";
+			throw new Error("No Client ID specified for OpenID Connect");
 		}
 		else if (!redirect_uri || typeof redirect_uri !== 'string') {
-			throw "No Redirect URI specified for OpenID Connect";
+			throw new Error("No Redirect URI specified for OpenID Connect");
 		}
 
 		this.manager = new OidcClient.UserManager(Object.assign({
