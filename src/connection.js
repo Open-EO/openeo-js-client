@@ -2,7 +2,7 @@ const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const axios = require('axios');
 
-const { BasicProvider, OidcProvider } = require('./authprovider');
+const { BasicProvider, OidcProvider, AuthProvider } = require('./authprovider');
 const Capabilities = require('./capabilities');
 const FileTypes = require('./filetypes');
 const UserFile = require('./file');
@@ -192,11 +192,15 @@ class Connection {
 		let cap = this.capabilities();
 
 		// Add OIDC providers
-		if (cap.hasFeature('authenticateOIDC') && OidcProvider.isSupported()) {
+		if (cap.hasFeature('authenticateOIDC')) {
 			let res = await this._get('/credentials/oidc');
-			if (Utils.isObject(res.data) && Array.isArray(res.data.providers)) {
+			let oidcFactory = this.getOidcProviderFactory();
+			if (Utils.isObject(res.data) && Array.isArray(res.data.providers) && typeof oidcFactory === 'function') {
 				for(let i in res.data.providers) {
-					this.authProviderList.push(new OidcProvider(this, res.data.providers[i]));
+					let obj = oidcFactory(res.data.providers[i]);
+					if (obj instanceof AuthProvider) {
+						this.authProviderList.push(obj);
+					}
 				}
 			}
 		}
@@ -207,6 +211,57 @@ class Connection {
 		}
 
 		return this.authProviderList;
+	}
+
+	/**
+	 * This function is meant to create the OIDC providers used for authentication.
+	 * 
+	 * The function gets passed a single argument that contains the
+	 * provider information as provided by the API, e.g. having the properties
+	 * `id`, `issuer`, `title` etc.
+	 * 
+	 * The function must return an instance of AuthProvider or any derived class.
+	 * May return `null` is the instance can't be created.
+	 *
+	 * @callback oidcProviderFactoryFunction
+	 * @param {object} providerInfo
+	 * @returns {AuthProvider|null}
+	 */
+
+	/**
+	 * Sets a factory function that creates custom OpenID Connect provider instances.
+	 * 
+	 * You only need to call this if you have implemented a new AuthProvider based
+	 * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
+	 * OIDC library other than oidc-client-js.
+	 * 
+	 * @param {oidcProviderFactoryFunction} providerFactoryFunc
+	 */
+	setOidcProviderFactory(providerFactoryFunc) {
+		this.oidcProviderFactory = providerFactoryFunc;
+	}
+
+	/**
+	 * Get the OpenID Connect provider factory.
+	 * 
+	 * Returns `null` if OIDC is not supported by the client or an instance
+	 * can't be created for whatever reason.
+	 * 
+	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
+	 * @returns {AuthProvider|null}
+	 */
+	getOidcProviderFactory() {
+		if (typeof this.oidcProviderFactory === 'function') {
+			return this.oidcProviderFactory;
+		}
+		else {
+			if (OidcProvider.isSupported()) {
+				return providerInfo => new OidcProvider(this, providerInfo);
+			}
+			else {
+				return null;
+			}
+		}
 	}
 
 	// Deprecated
@@ -224,7 +279,53 @@ class Connection {
 		return (this.authProvider !== null);
 	}
 
+	/**
+	 * Returns the AuthProvider.
+	 * 
+	 * @returns {AuthProvider} 
+	 */
 	getAuthProvider() {
+		return this.authProvider;
+	}
+
+	/**
+	 * Sets the AuthProvider.
+	 * 
+	 * The provider must have a token set.
+	 * 
+	 * @param {AuthProvider} provider 
+	 * @throws {Error}
+	 */
+	setAuthProvider(provider) {
+		if (provider instanceof AuthProvider && provider.getToken() !== null) {
+			this.authProvider = provider;
+		}
+		else {
+			throw new Error("Invalid auth provider given or no token set.");
+		}
+	}
+
+	/**
+	 * Sets the authentication token for the connection.
+	 * 
+	 * This creates a new custom `AuthProvider` with the given details and returns it.
+	 * After calling this function you can make requests against the API.
+	 * 
+	 * This is NOT recommended to use. Only use if you know what you are doing.
+	 * It is recommended to authenticate through `listAuthProviders` or related functions.
+	 * 
+	 * @param {string} type - The authentication type, e.g. `basic` or `oidc`.
+	 * @param {string} providerId - The provider identifier. For OIDC the `id` of the provider.
+	 * @param {string} token - The actual access token as given by the authentication method during the login process.
+	 * @returns {AuthProvider}
+	 */
+	setAuthToken(type, providerId, token) {
+		this.authProvider = new AuthProvider(type, this, {
+			id: providerId,
+			title: "Custom",
+			description: ""
+		});
+		this.authProvider.setToken(token);
 		return this.authProvider;
 	}
 
