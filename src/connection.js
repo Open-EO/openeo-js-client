@@ -221,7 +221,7 @@ class Connection {
 	 * `id`, `issuer`, `title` etc.
 	 * 
 	 * The function must return an instance of AuthProvider or any derived class.
-	 * May return `null` is the instance can't be created.
+	 * May return `null` if the instance can't be created.
 	 *
 	 * @callback oidcProviderFactoryFunction
 	 * @param {object} providerInfo
