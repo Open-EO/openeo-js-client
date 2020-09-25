@@ -8,6 +8,10 @@
  */
 class Environment {
 
+	static getName() {
+		return 'Browser';
+	}
+
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let fileReader = new FileReader();
@@ -62,12 +66,18 @@ class Environment {
 	/* istanbul ignore next */
 	static async saveToFile(data, filename) {
 		return new Promise(resolve => {
-			let blob = new Blob([data], {type: 'application/octet-stream'});
+			let blob;
+			if (data instanceof Blob) {
+				blob = data;
+			}
+			else {
+				blob = new Blob([data], {type: 'application/octet-stream'});
+			}
 			let blobURL = window.URL.createObjectURL(blob);
 			let tempLink = document.createElement('a');
 			tempLink.style.display = 'none';
 			tempLink.href = blobURL;
-			tempLink.setAttribute('download', filename); 
+			tempLink.setAttribute('download', filename || 'download'); 
 			
 			if (typeof tempLink.download === 'undefined') {
 				tempLink.setAttribute('target', '_blank');

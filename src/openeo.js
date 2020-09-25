@@ -106,6 +106,8 @@ class OpenEO {
 
 }
 
+OpenEO.Environment = require('./env');
+
 module.exports = {
 	AuthProvider,
 	BasicProvider,

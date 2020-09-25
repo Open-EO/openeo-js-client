@@ -12,6 +12,10 @@ const path = require("path");
  */
 class Environment {
 
+	static getName() {
+		return 'Node';
+	}
+
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let chunks = [];
