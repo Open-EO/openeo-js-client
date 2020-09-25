@@ -80,8 +80,9 @@ class Service extends BaseEntity {
 	/**
 	 * Checks for new log entries every x seconds.
 	 * 
-	 * On every status change (enabled/disabled) observed or on new log entries (if supported by the back-end),
-	 * the callback is executed. It may also be executed once at the beginning.
+	 * On every status change (enabled/disabled) observed or on new log entries
+	 * (if supported by the back-end and not disabled via `requestLogs`), the
+	 * callback is executed. It may also be executed once at the beginning.
 	 * The callback receives the updated service (this object) and the logs (array) passed.
 	 * 
 	 * Returns a function that can be called to stop monitoring the service manually.
@@ -90,11 +91,12 @@ class Service extends BaseEntity {
 	 * This is only supported if describeService is supported by the back-end.
 	 * 
 	 * @param {function} callback 
-	 * @param {integer} [interval=60]
+	 * @param {integer} [interval=60] - Interval between update requests, in seconds
+	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
 	 * @returns {function}
 	 * @throws {Error}
 	 */
-	monitorService(callback, interval = 60) {
+	monitorService(callback, interval = 60, requestLogs = true) {
 		if (typeof callback !== 'function' || interval < 1) {
 			return;
 		}
@@ -106,7 +108,7 @@ class Service extends BaseEntity {
 		let wasEnabled = this.enabled;
 		let intervalId = null;
 		let logIterator = null;
-		if (capabilities.hasFeature('debugService')) {
+		if (capabilities.hasFeature('debugService') && requestLogs) {
 			logIterator = this.debugService();
 		}
 		let monitorFn = async () => {

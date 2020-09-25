@@ -94,8 +94,9 @@ class Job extends BaseEntity {
 	/**
 	 * Checks for status changes and new log entries every x seconds.
 	 * 
-	 * On every status change observed or on new log entries (if supported by the back-end),
-	 * the callback is executed. It may also be executed once at the beginning.
+	 * On every status change observed or on new log entries (if supported by the
+	 * back-end and not disabled via `requestLogs`), the callback is executed.
+	 * It may also be executed once at the beginning.
 	 * The callback receives the updated job (this object) and the logs (array) passed.
 	 * 
 	 * The monitoring stops once the job has finished, was canceled or errored out.
@@ -105,11 +106,12 @@ class Job extends BaseEntity {
 	 * Returns a function that can be called to stop monitoring the job manually.
 	 * 
 	 * @param {function} callback 
-	 * @param {integer} [interval=60] 
+	 * @param {integer} [interval=60] - Interval between update requests, in seconds
+	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
 	 * @returns {function}
 	 * @throws {Error}
 	 */
-	monitorJob(callback, interval = 60) {
+	monitorJob(callback, interval = 60, requestLogs = true) {
 		if (typeof callback !== 'function' || interval < 1) {
 			return;
 		}
@@ -121,7 +123,7 @@ class Job extends BaseEntity {
 		let lastStatus = this.status;
 		let intervalId = null;
 		let logIterator = null;
-		if (capabilities.hasFeature('debugJob')) {
+		if (capabilities.hasFeature('debugJob') && requestLogs) {
 			logIterator = this.debugJob();
 		}
 		let monitorFn = async () => {
