@@ -1,5 +1,4 @@
 const Utils = require("@openeo/js-commons/src/utils");
-const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 const Parameter = require("./parameter");
 const Formula = require('./formula');
 
@@ -11,7 +10,7 @@ const Formula = require('./formula');
 class BuilderNode {
 
 	constructor(parent, processId, args = {}, description = null) {
-		this.parent = parent;
+		this.parent = parent; // parent builder
 		this.spec = this.parent.spec(processId);
 		if (!Utils.isObject(this.spec)) {
 			throw new Error("Process doesn't exist: " + processId);
@@ -82,24 +81,14 @@ class BuilderNode {
 		}
 	}
 
-	getCallbackParameter(builder, name) {
-		try {
-			return ProcessUtils.getCallbackParametersForProcess(this.spec, name).map(param => builder.getCallbackParameter(param.name));
-		} catch(error) {
-			console.warn(error);
-			return [];
-		}
-	}
-
 	exportArgument(arg, name) {
 		if (Utils.isObject(arg)) {
 			if (arg instanceof BuilderNode || arg instanceof Parameter) {
 				return arg.ref();
 			}
 			else if (arg instanceof Formula) {
-				let builder = this.createBuilder();
+				let builder = this.createBuilder(this, name);
 				arg.setBuilder(builder);
-				arg.setParent(this, name);
 				arg.generate();
 				return builder.toJSON();
 			}
@@ -128,14 +117,18 @@ class BuilderNode {
 		}
 	}
 
-	createBuilder() {
+	createBuilder(parentNode = null, parentParameter = null) {
 		const Builder = require('./builder');
-		return new Builder(this.parent.processes, this.parent);
+		let builder = new Builder(this.parent.processes, this.parent);
+		if (parentNode !== null && parentParameter !== null) {
+			builder.setParent(parentNode, parentParameter);
+		}
+		return builder;
 	}
 
 	exportCallback(arg, name) {
-		let builder = this.createBuilder();
-		let params = this.getCallbackParameter(builder, name);
+		let builder = this.createBuilder(this, name);
+		let params = builder.getParentCallbackParameters();
 		// Bind builder to this, so that this.xxx can be used for processes
 		let node = arg.bind(builder)(...params);
 		if (node instanceof BuilderNode) {

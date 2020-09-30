@@ -1,8 +1,9 @@
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
+const Formula = require('./formula');
 const axios = require('axios');
 const Utils = require('@openeo/js-commons/src/utils');
-const Formula = require('./formula');
+const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
 const PROCESS_META = [
 	"id", "summary", "description", "categories", "parameters", "returns",
@@ -106,7 +107,9 @@ class Builder {
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
-		this.parent = parent;
+		this.parent = parent; // parent builder
+		this.parentNode = null; // parent node
+		this.parentParameter = null; // parent parameter name
 		if (Array.isArray(processes)) {
 			this.processes = processes;
 		}
@@ -137,14 +140,36 @@ class Builder {
 		/* jshint ignore:end */
 	}
 
-	getCallbackParameter(parameterName) {
+	setParent(node, parameterName) {
+		this.parentNode = node;
+		this.parentParameter = parameterName;
+	}
+
+	createCallbackParameter(parameterName) {
 		if (!this.callbackParameterCache[parameterName]) {
 			this.callbackParameterCache[parameterName] = Parameter.create(this, parameterName);
 		}
 		return this.callbackParameterCache[parameterName];
 	}
 
+	getParentCallbackParameters() {
+		// ToDo: Should this also pass callback parameters from parents until root is reached?
+		let callbackParams = [];
+		if (this.parentNode && this.parentParameter) {
+			try {
+				callbackParams = ProcessUtils.getCallbackParametersForProcess(this.parentNode.spec, this.parentParameter).map(param => this.createCallbackParameter(param.name));
+			} catch(error) {
+				console.warn(error);
+			}
+		}
+		return callbackParams;
+	}
+
 	addParameter(parameter, root = true) {
+		if (this.getParentCallbackParameters().find(p => p.name === parameter.name) !== undefined) {
+			return; // parameter refers to callback
+		}
+
 		let builder = this;
 		if (root) {
 			while(builder.parent) {

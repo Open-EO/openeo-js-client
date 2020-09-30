@@ -32,17 +32,10 @@ class Formula {
 		let parser = new TapDigit.Parser();
 		this.tree = parser.parse(formula);
 		this.builder = null;
-		this.parentNode = null;
-		this.parentParameter = null;
 	}
 
 	setBuilder(builder) {
 		this.builder = builder;
-	}
-
-	setParent(node, parameterName) {
-		this.parentNode = node;
-		this.parentParameter = parameterName;
 	}
 
 	/**
@@ -128,11 +121,7 @@ class Formula {
 			}
 		}
 
-		let callbackParams = [];
-		if (this.parentNode && this.parentParameter) {
-			callbackParams = this.parentNode.getCallbackParameter(this.builder, this.parentParameter);
-		}
-
+		let callbackParams = this.builder.getParentCallbackParameters();
 		// Array labels / indices
 		if (typeof value === 'string' && value.startsWith('$') && callbackParams.length > 0) {
 			let ref = value.substring(1);
@@ -142,10 +131,8 @@ class Formula {
 		// Everything else is a parameter
 		else {
 			let parameter = new Parameter(value);
-			if (callbackParams.findIndex(p => p.name === value).length === -1) {
-				// Add new parameter if it doesn't exist
-				this.builder.addParameter(parameter);
-			}
+			// Add new parameter if it doesn't exist
+			this.builder.addParameter(parameter);
 			return parameter;
 		}
 	}
