@@ -2,6 +2,12 @@ const Utils = require('@openeo/js-commons/src/utils');
 
 class FileTypes {
 
+	/**
+	 * Creates a new FileTypes object from an API-compatible JSON response.
+	 * 
+	 * @param {object} data - A capabilities response compatible to the API specification for `GET /file_formats`.
+	 * @constructor
+	 */
 	constructor(data) {
 		this.data = {
 			input: {},
@@ -29,18 +35,44 @@ class FileTypes {
 		return this.data;
 	}
 
+	/**
+	 * Returns the input file formats.
+	 * 
+	 * @returns {object}
+	 */
 	getInputTypes() {
 		return this.data.input;
 	}
 
+	/**
+	 * Returns the output file formats.
+	 * 
+	 * @returns {object}
+	 */
 	getOutputTypes() {
 		return this.data.output;
 	}
 
+	/**
+	 * Returns a single input file format for a given identifier.
+	 * 
+	 * Returns null if no input file format was found for the given identifier.
+	 * 
+	 * @param {string} type - Case-insensitive file format identifier
+	 * @returns {object|null}
+	 */
 	getInputType(type) {
 		return this._findType(type, 'input');
 	}
 
+	/**
+	 * Returns a single output file format for a given identifier.
+	 * 
+	 * Returns null if no output file format was found for the given identifier.
+	 * 
+	 * @param {string} type - Case-insensitive file format identifier
+	 * @returns {object|null}
+	 */
 	getOutputType(type) {
 		return this._findType(type, 'output');
 	}

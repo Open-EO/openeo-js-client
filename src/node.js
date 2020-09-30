@@ -5,13 +5,19 @@ const path = require("path");
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
- * Node implementation
+ * Node.js implementation, don't use in other environments.
  * 
  * @class
  * @hideconstructor
  */
 class Environment {
 
+	/**
+	 * Returns the name of the Environment, here `Node`.
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
 	static getName() {
 		return 'Node';
 	}
@@ -25,6 +31,12 @@ class Environment {
 		});
 	}
 
+	/**
+	 * Returns how binary responses from the servers are returned (`stream` or `blob`).
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
 	static getResponseType() {
 		return 'stream';
 	}
@@ -70,8 +82,6 @@ class Environment {
 
 	/**
 	 * Streams data into a file.
-	 * 
-	 * NOTE: Only supported in a NodeJS environment.
 	 *
 	 * @static
 	 * @async

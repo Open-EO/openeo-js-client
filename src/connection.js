@@ -180,8 +180,9 @@ class Connection {
 	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @returns {array} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
+	 * @returns {AuthProvider[]} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
+	 * @see AuthProvider
 	 */
 	async listAuthProviders() {
 		if (this.authProviderList !== null) {
@@ -236,6 +237,7 @@ class Connection {
 	 * OIDC library other than oidc-client-js.
 	 * 
 	 * @param {oidcProviderFactoryFunction} providerFactoryFunc
+	 * @see AuthProvider
 	 */
 	setOidcProviderFactory(providerFactoryFunc) {
 		this.oidcProviderFactory = providerFactoryFunc;
@@ -249,6 +251,7 @@ class Connection {
 	 * 
 	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
 	 * @returns {AuthProvider|null}
+	 * @see AuthProvider
 	 */
 	getOidcProviderFactory() {
 		if (typeof this.oidcProviderFactory === 'function') {
@@ -264,7 +267,18 @@ class Connection {
 		}
 	}
 
-	// Deprecated
+	/**
+	 * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
+	 * 
+	 * DEPRECATED in favor of using `listAuthProviders` and `BasicProvider`.
+	 * 
+	 * @async
+	 * @deprecated
+	 * @param {string} username 
+	 * @param {string} password 
+	 * @see BasicProvider
+	 * @see listAuthProviders
+	 */
 	async authenticateBasic(username, password) {
 		let basic = new BasicProvider(this);
 		await basic.login(username, password);

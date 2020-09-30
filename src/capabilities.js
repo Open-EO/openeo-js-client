@@ -10,7 +10,7 @@ class Capabilities {
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
 	 * 
-	 * @param {object} data - A capabilities response compatible to the API specification.
+	 * @param {object} data - A capabilities response compatible to the API specification for `GET /`.
 	 * @throws {Error}
 	 * @constructor
 	 */
@@ -145,7 +145,7 @@ class Capabilities {
 	/**
 	 * Returns the links.
 	 * 
-	 * @returns {array} Array of link objects (href, title, rel, type)
+	 * @returns {object[]} Array of link objects (href, title, rel, type)
 	 */
 	links() {
 		return Array.isArray(this.data.links) ? this.data.links : [];

@@ -1,13 +1,19 @@
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
- * Browser implementation
+ * Browser implementation, don't use in other environments.
  * 
  * @class
  * @hideconstructor
  */
 class Environment {
 
+	/**
+	 * Returns the name of the Environment, here `Browser`.
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
 	static getName() {
 		return 'Browser';
 	}
@@ -24,6 +30,12 @@ class Environment {
 		});
 	}
 
+	/**
+	 * Returns how binary responses from the servers are returned (`stream` or `blob`).
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
 	static getResponseType() {
 		return 'blob';
 	}
@@ -55,7 +67,6 @@ class Environment {
 	/**
 	 * Offers data to download in the browser.
 	 * 
-	 * NOTE: Only supported in a browser environment.
 	 * This method may fail with overly big data.
 	 * 
 	 * @static
