@@ -92,6 +92,9 @@ class BuilderNode {
 				arg.generate();
 				return builder.toJSON();
 			}
+			else if (arg instanceof Date) {
+				return arg.toISOString();
+			}
 			else if (typeof arg.toJSON === 'function') {
 				return arg.toJSON();
 			}

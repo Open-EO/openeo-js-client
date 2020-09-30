@@ -15,7 +15,7 @@ describe('Process Graph Builder (S1)', () => {
 		var datacube = builder.load_collection(
 			"COPERNICUS/S1_GRD",
 			{west: 16.06, south: 48.06, east: 16.65, north: 48.35},
-			["2017-03-01", "2017-06-01"],
+			[new Date(Date.UTC(2017, 2, 1)), new Date(Date.UTC(2017, 5, 1))], // Check whether date objects are converted
 			["VV"]
 		);
 	
