@@ -187,7 +187,7 @@ class Capabilities {
 
 	/**
 	 * @typedef BillingPlan
-	 * @type {Object}
+	 * @type {object}
 	 * @property {string} name - Name of the billing plan.
 	 * @property {string} description - A description of the billing plan, may include CommonMark syntax.
 	 * @property {boolean} paid - `true` if it is a paid plan, otherwise `false`.

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const url = require("url");
 const path = require("path");
+const Stream = require('stream');
+const Connection = require('./connection'); // jshint ignore:line
 
 /**
  * Platform dependant utilities for the openEO JS Client.
@@ -45,7 +47,7 @@ class Environment {
 	 * Encodes a string into Base64 encoding.
 	 * 
 	 * @static
-	 * @param {string} str - String to encode.
+	 * @param {string|Buffer} str - String to encode.
 	 * @returns {string} String encoded in Base64.
 	 */
 	static base64encode(str) {
@@ -66,14 +68,29 @@ class Environment {
 		return fs.createReadStream(source);
 	}
 
+	/**
+	 * Downloads files to local storage and returns a list of file paths.
+	 * 
+	 * @static
+	 * @param {Connection} con 
+	 * @param {object[]} assets 
+	 * @param {string} targetFolder 
+	 * @returns {Promise<string[]>}
+	 * @throws {Error}
+	 */
 	static async downloadResults(con, assets, targetFolder) {
 		let files = [];
 		const promises = assets.map(async (link) => {
 			let parsedUrl = url.parse(link.href);
 			let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
-			let response = await con.download(link.href, false);
-			await Environment.saveToFile(response.data, targetPath);
-			files.push(targetPath);
+			let data = await con.download(link.href, false);
+			if (data instanceof Stream.Readable) {
+				await Environment.saveToFile(data, targetPath);
+				files.push(targetPath);
+			}
+			else {
+				throw new Error("Data retrieved is not a Stream");
+			}
 		});
 
 		await Promise.all(promises);
@@ -85,11 +102,12 @@ class Environment {
 	 *
 	 * @static
 	 * @async
-	 * @param {Stream} data - Data stream to read from.
+	 * @param {Stream.Readable} data - Data stream to read from.
 	 * @param {string} filename - File path to store the data at.
+	 * @returns {Promise}
 	 * @throws {Error}
 	 */
-	static async saveToFile(data, filename) {
+	static saveToFile(data, filename) {
 		return new Promise((resolve, reject) => {
 			let writeStream = fs.createWriteStream(filename);
 			writeStream.on('close', (err) => {

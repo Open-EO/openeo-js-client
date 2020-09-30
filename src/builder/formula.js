@@ -1,5 +1,6 @@
 const TapDigit = require("./tapdigit");
 const Parameter = require("./parameter");
+const Builder = require("./builder"); // jshint ignore:line
 
 /**
  * This converts a mathematical formula into a openEO process for you.
@@ -25,8 +26,7 @@ class Formula {
 	 * Creates a math formula object.
 	 * 
 	 * @constructor
-	 * @param {string} formula - A mathematical formula to parse.
-	 * @param {Builder} builder - The builder instance to add the formula to.
+	 * @param {string} formula - A mathematical formula to parse.y
 	 */
 	constructor(formula) {
 		let parser = new TapDigit.Parser();
@@ -34,6 +34,11 @@ class Formula {
 		this.builder = null;
 	}
 
+	/**
+	 * The builder instance to use.
+	 * 
+	 * @param {Builder} builder - The builder instance to add the formula to.
+	 */
 	setBuilder(builder) {
 		this.builder = builder;
 	}
@@ -116,7 +121,7 @@ class Formula {
 		// Output of a process
 		if (typeof value === 'string' && value.startsWith('#')) {
 			let nodeId = value.substring(1);
-			if (this.results.includes(nodeId)) {
+			if (nodeId in this.builder.nodes) {
 				return { from_node: nodeId };
 			}
 		}

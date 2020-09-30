@@ -1,4 +1,5 @@
 const Utils = require('@openeo/js-commons/src/utils');
+const Connection = require('./connection'); // jshint ignore:line
 
 /**
  * Interface to loop through the logs
@@ -26,8 +27,8 @@ class Logs {
 	 * Retrieves log entries only.
 	 * 
 	 * @async
-	 * @param {integer} limit - The number of log entries to retrieve per request.
-	 * @returns {object[]}
+	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
+	 * @returns {Promise<object[]>}
 	 */
 	async nextLogs(limit = null) {
 		let response = await this.next(limit);
@@ -40,8 +41,8 @@ class Logs {
 	 * Retrieves the full response compliant to the API, including log entries and links.
 	 * 
 	 * @async
-	 * @param {integer} limit - The number of log entries to retrieve per request.
-	 * @returns {object}
+	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
+	 * @returns {Promise<object>}
 	 */
 	async next(limit = null) {
 		let query = {

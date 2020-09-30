@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const Versions = require('@openeo/js-commons/src/versions');
 
@@ -40,7 +40,7 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @returns {Connection}
+	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
@@ -76,8 +76,8 @@ class OpenEO {
 	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
 	 * 
 	 * @async
-	 * @param {string} url - The server URL to connect to.
-	 * @returns {Connection}
+	 * @param {string} versionedUrl - The server URL to connect to.
+	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */

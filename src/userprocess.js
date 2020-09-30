@@ -1,4 +1,5 @@
 const BaseEntity = require('./baseentity');
+const Connection = require('./connection'); // jshint ignore:line
 
 /**
  * A Stored Process Graph.
@@ -38,7 +39,7 @@ class UserProcess extends BaseEntity {
 	 * Updates the data stored in this object by requesting the process graph metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {UserProcess} The updated process graph object (this).
+	 * @returns {Promise<UserProcess>} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async describeUserProcess() {
@@ -54,7 +55,7 @@ class UserProcess extends BaseEntity {
 	 * @param {object} parameters.process - A new process.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
-	 * @returns {UserProcess} The updated process graph object (this).
+	 * @returns {Promise<UserProcess>} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async replaceUserProcess(parameters) {

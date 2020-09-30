@@ -1,4 +1,5 @@
 const BaseEntity = require('./baseentity');
+const Connection = require('./connection'); // jshint ignore:line
 const Logs = require('./logs');
 
 /**
@@ -19,13 +20,14 @@ class Service extends BaseEntity {
 	constructor(connection, serviceId) {
 		super(connection, ["id", "title", "description", "process", "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
 		this.serviceId = serviceId;
+		this.enabled = undefined;
 	}
 
 	/**
 	 * Updates the data stored in this object by requesting the secondary web service metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Service} The updates service object (this).
+	 * @returns {Promise<Service>} The updates service object (this).
 	 * @throws {Error}
 	 */
 	async describeService() {
@@ -45,7 +47,7 @@ class Service extends BaseEntity {
 	 * @param {object} parameters.configuration - A new set of configuration parameters to set for the service.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
-	 * @returns {Service} The updated service object (this).
+	 * @returns {Promise<Service>} The updated service object (this).
 	 * @throws {Error}
 	 */
 	async updateService(parameters) {
@@ -91,7 +93,7 @@ class Service extends BaseEntity {
 	 * This is only supported if describeService is supported by the back-end.
 	 * 
 	 * @param {function} callback 
-	 * @param {integer} [interval=60] - Interval between update requests, in seconds
+	 * @param {number} [interval=60] - Interval between update requests, in seconds as integer.
 	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
 	 * @returns {function}
 	 * @throws {Error}

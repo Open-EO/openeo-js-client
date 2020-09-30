@@ -33,23 +33,27 @@ class Parameter {
 		let parameter = new Parameter(parameterName, null);
 		if (typeof Proxy !== "undefined") {
 			return new Proxy(parameter, {
+				// @ts-ignore
 				nodeCache: {},
 				get(target, name, receiver) {
 					if (!Reflect.has(target, name)) {
+						// @ts-ignore
 						if (!this.nodeCache[name]) {
 							let args = {
 								data: parameter
 							};
-							if (name.match(/^(0|[1-9]\d*)$/)) {
+							if ((typeof name === 'string' && name.match(/^(0|[1-9]\d*)$/))) {
 								args.index = parseInt(name, 10);
 							}
 							else {
 								args.label = name;
 							}
 							// We assume array_element exists
+							// @ts-ignore
 							this.nodeCache[name] = builder.process("array_element", args);
 						}
 					
+						// @ts-ignore
 						return this.nodeCache[name];
 					}
 					return Reflect.get(target, name, receiver);

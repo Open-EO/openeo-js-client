@@ -4,7 +4,7 @@ module.exports = {
   collectCoverage: true,
 
   globals: {
-    'axios': require('axios'),
+    'axios': require('axios').default,
     'oidc-client': require('oidc-client')
   },
 

@@ -1,5 +1,7 @@
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
+const Connection = require('./connection'); // jshint ignore:line
+const Stream = require('stream'); // jshint ignore:line
 
 /**
  * A File on the user workspace.
@@ -22,26 +24,35 @@ class File extends BaseEntity {
 	}
 
 	/**
-	 * Downloads a file from the user workspace.
+	 * Downloads a file from the user workspace into memory.
 	 * 
 	 * This method has different behaviour depending on the environment.
-	 * If the target is set to `null`, returns a stream in a NodeJS environment or a Blob in a browser environment.
-	 * If a target is specified, writes the downloaded file to the target location on the file system in a NodeJS environment.
+	 * Returns a stream in a NodeJS environment or a Blob in a browser environment.
+	 * 
+	 * @async
+	 * @returns {Promise<Stream.Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+	 * @throws {Error}
+	 */
+	async retrieveFile() {
+		return await this.connection.download('/files/' + this.path, true);
+	}
+
+	/**
+	 * Downloads a file from the user workspace and saves it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a NodeJS environment writes the downloaded file to the target location on the file system.
 	 * In a browser environment offers the file for downloading using the specified name (folders are not supported).
 	 * 
 	 * @async
-	 * @param {string|null} target - The target, see method description for details.
-	 * @returns {Stream|Blob|void} - Return value depends on the target and environment, see method description for details.
+	 * @param {string} target - The target, see method description for details.
+	 * @returns {Promise<string[]|void>} - Return value depends on the target and environment, see method description for details.
 	 * @throws {Error}
 	 */
-	async downloadFile(target = null) {
-		let response = await this.connection.download('/files/' + this.path, true);
-		if (target === null) {
-			return response.data;
-		}
-		else {
-			return await Environment.saveToFile(response.data, target);
-		}
+	async downloadFile(target) {
+		let data = await this.connection.download('/files/' + this.path, true);
+		// @ts-ignore
+		return await Environment.saveToFile(data, target);
 	}
 
 	/**
@@ -49,6 +60,7 @@ class File extends BaseEntity {
 	 * 
 	 * @callback uploadStatusCallback
 	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 * @param {File} file - The file object corresponding to the callback.
 	 */
 
 	/**
@@ -62,7 +74,7 @@ class File extends BaseEntity {
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {File}
+	 * @returns {Promise<File>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {

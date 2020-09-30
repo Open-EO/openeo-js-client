@@ -1,3 +1,4 @@
+// @ts-nocheck
 describe('Process Graph Builder (EVI)', () => {
 
 	const { TESTBACKEND } = require('./config.js');

@@ -2,6 +2,7 @@ const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
+const Connection = require('./connection'); // jshint ignore:line
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
@@ -23,13 +24,14 @@ class Job extends BaseEntity {
 	constructor(connection, jobId) {
 		super(connection, ["id", "title", "description", "process", "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
 		this.jobId = jobId;
+		this.status = undefined;
 	}
 
 	/**
 	 * Updates the batch job data stored in this object by requesting the metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Job} The update job object (this).
+	 * @returns {Promise<Job>} The update job object (this).
 	 * @throws {Error}
 	 */
 	async describeJob() {
@@ -47,7 +49,7 @@ class Job extends BaseEntity {
 	 * @param {string} parameters.description - A new description.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
-	 * @returns {Job} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
@@ -74,7 +76,7 @@ class Job extends BaseEntity {
 	 * Calculate an estimate (potentially time/costs/volume) for a batch job.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<object>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async estimateJob() {
@@ -106,7 +108,7 @@ class Job extends BaseEntity {
 	 * Returns a function that can be called to stop monitoring the job manually.
 	 * 
 	 * @param {function} callback 
-	 * @param {integer} [interval=60] - Interval between update requests, in seconds
+	 * @param {number} [interval=60] - Interval between update requests, in seconds as integer.
 	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
 	 * @returns {function}
 	 * @throws {Error}
@@ -154,7 +156,7 @@ class Job extends BaseEntity {
 	 * Starts / queues the batch job for processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Job} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async startJob() {
@@ -169,7 +171,7 @@ class Job extends BaseEntity {
 	 * Stops / cancels the batch job processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Job} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async stopJob() {
@@ -184,7 +186,7 @@ class Job extends BaseEntity {
 	 * Retrieves the STAC Item produced for the job results.
 	 * 
 	 * @async
-	 * @returns {object} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+	 * @returns {Promise<object>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
 	 * @throws {Error}
 	 */
 	async getResultsAsItem() {
@@ -207,7 +209,7 @@ class Job extends BaseEntity {
 	 * Retrieves download links.
 	 * 
 	 * @async
-	 * @returns {object} A list of links (object with href, rel, title and type).
+	 * @returns {Promise<object>} A list of links (object with href, rel, title and type).
 	 * @throws {Error}
 	 */
 	async listResults() {
@@ -227,7 +229,7 @@ class Job extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {string} targetFolder - A target folder to store the file to, which must already exist.
-	 * @returns {string[]} A list of file paths of the newly created files.
+	 * @returns {Promise<string[]|void>} Depending on the environment: A list of file paths of the newly created files (Node), throws in Browsers.
 	 * @throws {Error}
 	 */
 	async downloadResults(targetFolder) {

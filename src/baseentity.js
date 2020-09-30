@@ -1,3 +1,5 @@
+const Connection = require("./connection"); // jshint ignore:line
+
 /**
  * The base class for entities such as Job, Process Graph, Service etc.
  * 
@@ -67,7 +69,7 @@ class BaseEntity {
 	/**
 	 * Returns the age of the data in seconds.
 	 * 
-	 * @returns {integer}
+	 * @returns {number} Age of the data in seconds as integer.
 	 */
 	getDataAge() {
 		return (Date.now() - this.lastRefreshTime) / 1000;

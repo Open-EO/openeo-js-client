@@ -1,5 +1,4 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 
@@ -16,7 +15,9 @@ module.exports = [
     },
     externals: {
         'axios': 'axios',
-        'oidc-client': 'oidc-client'
+        'oidc-client': 'oidc-client',
+        'stream': 'Stream',
+        'buffer': 'Buffer'
     },
     resolve: {
       alias: {

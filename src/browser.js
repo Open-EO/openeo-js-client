@@ -1,3 +1,5 @@
+const Connection = require("./connection"); // jshint ignore:line
+
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
@@ -25,7 +27,12 @@ class Environment {
 				fileReader.abort();
 				reject(event.target.error);
 			};
-			fileReader.onload = () => reject(JSON.parse(fileReader.result));
+			fileReader.onload = () => {
+				// ArrayBuffer to String conversion is from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+				let res = fileReader.result instanceof ArrayBuffer ? String.fromCharCode.apply(null, new Uint16Array(fileReader.result)) : fileReader.result;
+				let obj = typeof res === 'string' ? JSON.parse(res) : res;
+				reject(obj);
+			};
 			fileReader.readAsText(error.response.data);
 		});
 	}
@@ -60,7 +67,18 @@ class Environment {
 		return source;
 	}
 
-	static async downloadResults(/*con, assets, targetFolder*/) {
+	/**
+	 * Downloads files to local storage and returns a list of file paths.
+	 * 
+	 * Not supported in Browsers and only throws an Error!
+	 * 
+	 * @static
+	 * @param {Connection} con 
+	 * @param {object[]} assets 
+	 * @param {string} targetFolder 
+	 * @throws {Error}
+	 */
+	static async downloadResults(con, assets, targetFolder) { // jshint ignore:line
 		throw new Error("downloadResults is not supported in a browser environment.");
 	}
 
@@ -69,36 +87,37 @@ class Environment {
 	 * 
 	 * This method may fail with overly big data.
 	 * 
+	 * @async
 	 * @static
 	 * @param {*} data - Data to download.
 	 * @param {string} filename - File name that is suggested to the user.
+	 * @returns {Promise}
 	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 	 */
 	/* istanbul ignore next */
-	static async saveToFile(data, filename) {
-		return new Promise(resolve => {
-			let blob;
-			if (data instanceof Blob) {
-				blob = data;
+	static saveToFile(data, filename) {
+		return new Promise((resolve, reject) => {
+			try {
+				if (!(data instanceof Blob)) {
+					data = new Blob([data], {type: 'application/octet-stream'});
+				}
+				let blobURL = window.URL.createObjectURL(data);
+				let tempLink = document.createElement('a');
+				tempLink.style.display = 'none';
+				tempLink.href = blobURL;
+				tempLink.setAttribute('download', filename || 'download');
+				if (typeof tempLink.download === 'undefined') {
+					tempLink.setAttribute('target', '_blank');
+				}
+				document.body.appendChild(tempLink);
+				tempLink.click();
+				document.body.removeChild(tempLink);
+				window.URL.revokeObjectURL(blobURL);
+				resolve();
+			} catch (error) {
+				console.error(error);
+				reject(error);
 			}
-			else {
-				blob = new Blob([data], {type: 'application/octet-stream'});
-			}
-			let blobURL = window.URL.createObjectURL(blob);
-			let tempLink = document.createElement('a');
-			tempLink.style.display = 'none';
-			tempLink.href = blobURL;
-			tempLink.setAttribute('download', filename || 'download'); 
-			
-			if (typeof tempLink.download === 'undefined') {
-				tempLink.setAttribute('target', '_blank');
-			}
-			
-			document.body.appendChild(tempLink);
-			tempLink.click();
-			document.body.removeChild(tempLink);
-			window.URL.revokeObjectURL(blobURL);
-			resolve();
 		});
 	}
 }

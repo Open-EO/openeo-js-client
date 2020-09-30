@@ -1,7 +1,6 @@
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
-const Formula = require('./formula');
-const axios = require('axios');
+const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
@@ -69,7 +68,7 @@ class Builder {
 	 * @async
 	 * @static
 	 * @param {string|null} version 
-	 * @returns {Builder}
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
 	static async fromVersion(version = null) {
@@ -88,8 +87,8 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {string|null} version 
-	 * @returns {Builder}
+	 * @param {string|null} url 
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
 	static async fromURL(url) {
@@ -122,15 +121,16 @@ class Builder {
 		this.nodes = {};
 		this.idCounter = {};
 		this.callbackParameterCache = {};
+		this.parameters = undefined;
 
 		this.id = id;
 
 		/* jshint ignore:start */
 		for(let process of this.processes) {
 			if (typeof this[process.id] === 'undefined') {
-				this[process.id] = function() {
+				this[process.id] = function(...args) {
 					// Don't use arrow functions, they don't support the arguments keyword.
-					return this.process(process.id, [...arguments]);
+					return this.process(process.id, args);
 				};
 			}
 			else {
@@ -170,6 +170,9 @@ class Builder {
 			return; // parameter refers to callback
 		}
 
+		/**
+		 * @type {Builder}
+		 */
 		let builder = this;
 		if (root) {
 			while(builder.parent) {
@@ -202,6 +205,7 @@ class Builder {
 	 * @throws {Error}
 	 */
 	math(formula) {
+		const Formula = require('./formula');
 		let math = new Formula(formula);
 		math.setBuilder(this);
 		return math.generate(false);

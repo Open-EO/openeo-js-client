@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { OpenEO } = require('../src/openeo');
 const packageInfo = require('../package.json');
 

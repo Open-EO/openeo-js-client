@@ -1,6 +1,18 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const OidcClient = require('oidc-client');
+const Connection = require('./connection'); // jshint ignore:line
+
+/**
+ * Authentication Provider details.
+ * 
+ * @typedef AuthProviderMeta
+ * @type {object} 
+ * @property {string|null} id - Provider identifier, may not be used for all authentication methods. 
+ * @property {string} title - Title for the authentication method.
+ * @property {string} description - Description for the authentication method.
+ */
+
 
 /**
  * The base class for authentication providers such as Basic and OpenID Connect.
@@ -15,14 +27,13 @@ class AuthProvider {
 	 * 
 	 * @param {string} type - The type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {object} options - Options
-	 * @param {string|null} options.id - Provider identifier, may not be used for all authentication methods. 
-	 * @param {string} options.title - Title for the authentication method.
-	 * @param {string} options.description - Description for the authentication method.
+	 * @param {AuthProviderMeta} options - Options
 	 * @constructor
 	 */
 	constructor(type, connection, options) {
-		Object.assign(this, options);
+		this.id = options.id || null;
+		this.title = options.title || "";
+		this.description = options.description || "";
 		this.type = type;
 		this.connection = connection;
 		this.token = null;
@@ -116,9 +127,11 @@ class AuthProvider {
 	 * Login procedure, to be overridden by sub-classes.
 	 * 
 	 * @async
+	 * @param {...*} var_args
+	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 */
-	async login() {
+	async login(...var_args) { // jshint ignore:line
 		throw new Error("Not implemented.");
 	}
 
@@ -139,6 +152,8 @@ class AuthProvider {
 /**
  * The Authentication Provider for OpenID Connect.
  * 
+ * 
+ * 
  * ToDo: Add how to use the OIDC Provider.
  * 
  * @class
@@ -147,14 +162,31 @@ class AuthProvider {
 class OidcProvider extends AuthProvider {
 
 	/**
+	 * OpenID Connect Provider details as returned by the API.
+	 * 
+	 * @extends AuthProviderMeta
+	 * @typedef OidcProviderMeta
+	 * @type {object} 
+	 * @property {string} id - Provider identifier.
+	 * @property {string} title - Title for the authentication method.
+	 * @property {string} description - Description for the authentication method.
+	 * @property {string} issuer - The OpenID Connect issuer location (authority).
+	 * @property {string[]} scopes - OpenID Connect Scopes
+	 * @property {object[]} links - Links
+	 */
+
+	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {object} options - Options, in addition to what is allows to be passed to the AuthProvider constructor.
+	 * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
 	 * @constructor
 	 */
 	constructor(connection, options) {
 		super("oidc", connection, options);
+		this.issuer = options.issuer;
+		this.scopes = options.scopes;
+		this.links = options.links;
 		this.manager = null;
 		this.user = null;
 	}
@@ -187,11 +219,11 @@ class OidcProvider extends AuthProvider {
 	 * @async
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
-	 * @returns {User} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
+	 * @returns {Promise<OidcClient.User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
 	 * @throws Error
 	 */
 	static async signinCallback(provider = null) {
-		var oidc = new OidcClient.UserManager();
+		var oidc = new OidcClient.UserManager({});
 		if (OidcProvider.uiMethod === 'popup') {
 			await oidc.signinPopupCallback();
 		}
@@ -212,6 +244,7 @@ class OidcProvider extends AuthProvider {
 	 * @param {string} client_id - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {object} [options={}] - Object with authentication options.
+	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
@@ -263,7 +296,7 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Returns the OpenID Connect user instance retrieved from the OIDC client library.
 	 * 
-	 * @returns {User}
+	 * @returns {OidcClient.User}
 	 */
 	getUser() {
 		return this.user;
@@ -273,7 +306,7 @@ class OidcProvider extends AuthProvider {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
+	 * @param {OidcClient.User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
 	 */
 	setUser(user) {
 		if (!user) {
@@ -324,6 +357,7 @@ class BasicProvider extends AuthProvider {
 	 */
 	constructor(connection) {
 		super("basic", connection, {
+			id: null,
 			title: "HTTP Basic",
 			description: "Login with username and password using the method HTTP Basic."
 		});
@@ -335,6 +369,7 @@ class BasicProvider extends AuthProvider {
 	 * @async
 	 * @param {string} username 
 	 * @param {string} password 
+	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 */
 	async login(username, password) {

@@ -1,6 +1,7 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
-const axios = require('axios');
+const axios = require('axios').default;
+const Stream = require('stream'); // jshint ignore:line
 
 const { BasicProvider, OidcProvider, AuthProvider } = require('./authprovider');
 const Capabilities = require('./capabilities');
@@ -38,7 +39,7 @@ class Connection {
 	 * Initializes the connection by requesting the capabilities.
 	 * 
 	 * @async
-	 * @returns {Capabilities} Capabilities
+	 * @returns {Promise<Capabilities>} Capabilities
 	 */
 	async init() {
 		let response = await this._get('/');
@@ -68,7 +69,7 @@ class Connection {
 	 * List the supported output file formats.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<FileTypes>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listFileTypes() {
@@ -80,7 +81,7 @@ class Connection {
 	 * List the supported secondary service types.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<object>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listServiceTypes() {
@@ -92,7 +93,7 @@ class Connection {
 	 * List the supported UDF runtimes.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<object>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listUdfRuntimes() {
@@ -104,7 +105,7 @@ class Connection {
 	 * List all collections available on the back-end.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<object>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listCollections() {
@@ -117,7 +118,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
-	 * @returns {object} - A response compatible to the API specification.
+	 * @returns {Promise<object>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeCollection(collectionId) {
@@ -131,7 +132,7 @@ class Connection {
 	 * Data is cached in memory.
 	 * 
 	 * @async
-	 * @returns {object} - A response compatible to the API specification.
+	 * @returns {Promise<object>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listProcesses() {
@@ -147,7 +148,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} processId - Collection ID to request further metadata for.
-	 * @returns {object|null} - A single process as object, or `null` if none is found.
+	 * @returns {Promise<object|null>} - A single process as object, or `null` if none is found.
 	 * @throws {Error}
 	 * @see listProcesses()
 	 */
@@ -167,7 +168,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - A name for the process.
-	 * @returns {Builder}
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 * @see listProcesses()
 	 */
@@ -180,7 +181,7 @@ class Connection {
 	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @returns {AuthProvider[]} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
+	 * @returns {Promise<AuthProvider[]>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
 	 * @see AuthProvider
 	 */
@@ -225,7 +226,7 @@ class Connection {
 	 * May return `null` if the instance can't be created.
 	 *
 	 * @callback oidcProviderFactoryFunction
-	 * @param {object} providerInfo
+	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
 	 * @returns {AuthProvider|null}
 	 */
 
@@ -249,8 +250,7 @@ class Connection {
 	 * Returns `null` if OIDC is not supported by the client or an instance
 	 * can't be created for whatever reason.
 	 * 
-	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-	 * @returns {AuthProvider|null}
+	 * @returns {oidcProviderFactoryFunction}
 	 * @see AuthProvider
 	 */
 	getOidcProviderFactory() {
@@ -349,7 +349,7 @@ class Connection {
 	 * Updates the User ID if available.
 	 * 
 	 * @async
-	 * @returns {object} A response compatible to the API specification.
+	 * @returns {Promise<object>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeAccount() {
@@ -361,7 +361,7 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {File[]} A list of files.
+	 * @returns {Promise<File[]>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
@@ -391,7 +391,7 @@ class Connection {
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {string|null} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
 	 * @param {uploadStatusCallback|null} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {File}
+	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, targetPath = null, statusCallback = null) {
@@ -407,7 +407,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} path - Path to the file, relative to the user workspace.
-	 * @returns {File} A file.
+	 * @returns {Promise<UserFile>} A file.
 	 * @throws {Error}
 	 */
 	async getFile(path) {
@@ -435,7 +435,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {object} process - User-defined process to validate.
-	 * @returns {Object[]} errors - A list of API compatible error objects. A valid process returns an empty list.
+	 * @returns {Promise<object[]>} errors - A list of API compatible error objects. A valid process returns an empty list.
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
@@ -452,7 +452,7 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {UserProcess[]} A list of user-defined processes.
+	 * @returns {Promise<UserProcess[]>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
 	async listUserProcesses() {
@@ -468,7 +468,7 @@ class Connection {
 	 * @async
 	 * @param {string} id - Unique identifier for the process.
 	 * @param {object} process - A user-defined process.
-	 * @returns {UserProcess} The new user-defined process.
+	 * @returns {Promise<UserProcess>} The new user-defined process.
 	 * @throws {Error}
 	 */
 	async setUserProcess(id, process) {
@@ -481,7 +481,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Identifier of the user-defined process. 
-	 * @returns {UserProcess} The user-defined process.
+	 * @returns {Promise<UserProcess>} The user-defined process.
 	 * @throws {Error}
 	 */
 	async getUserProcess(id) {
@@ -491,8 +491,8 @@ class Connection {
 
 	/**
 	 * @typedef SyncResult
-	 * @type {Object}
-	 * @property {Stream|Blob} data - The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+	 * @type {object}
+	 * @property {Stream.Readable|Blob} data - The data as `Stream` in NodeJS environments or as `Blob` in browsers.
 	 * @property {number|null} costs - The costs for the request in the currency exposed by the back-end.
 	 * @property {array} logs - Array of log entries as specified in the API.
 	 */
@@ -506,7 +506,7 @@ class Connection {
 	 * @param {object} process - A user-defined process.
 	 * @param {string} [plan=null] - The billing plan to use for this computation.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
-	 * @returns {SyncResult} - An object with the data and some metadata.
+	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
 	async computeResult(process, plan = null, budget = null) {
 		let requestBody = this._normalizeUserProcess(
@@ -559,13 +559,14 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {object} process - A user-defined process.
-	 * @param {string} target - The target, see method description for details.
+	 * @param {string} targetPath - The target, see method description for details.
 	 * @param {string} [plan=null] - The billing plan to use for this computation.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @throws {Error}
 	 */
 	async downloadResult(process, targetPath, plan = null, budget = null) {
 		let response = await this.computeResult(process, plan, budget);
+		// @ts-ignore
 		await Environment.saveToFile(response.data, targetPath);
 	}
 
@@ -573,7 +574,7 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Job[]} A list of jobs.
+	 * @returns {Promise<Job[]>} A list of jobs.
 	 * @throws {Error}
 	 */
 	async listJobs() {
@@ -593,7 +594,7 @@ class Connection {
 	 * @param {string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this batch job.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
-	 * @returns {Job} The stored batch job.
+	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
 	async createJob(process, title = null, description = null, plan = null, budget = null, additional = {}) {
@@ -619,7 +620,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Batch Job ID. 
-	 * @returns {Job} The batch job.
+	 * @returns {Promise<Job>} The batch job.
 	 * @throws {Error}
 	 */
 	async getJob(id) {
@@ -631,7 +632,7 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Job[]} A list of services.
+	 * @returns {Promise<Job[]>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices() {
@@ -654,11 +655,11 @@ class Connection {
 	 * @param {string} [plan=null] - The billing plan to use for this service.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
-	 * @returns {Service} The stored service.
+	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */
 	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, plan = null, budget = null, additional = {}) {
-		let requestBody = this._normalizeUserProcess(process, {
+		let requestBody = this._normalizeUserProcess(process, Object.assign({
 			title: title,
 			description: description,
 			type: type,
@@ -666,7 +667,7 @@ class Connection {
 			configuration: configuration,
 			plan: plan,
 			budget: budget
-		}, additional);
+		}, additional));
 		let response = await this._post('/services', requestBody);
 		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeService')) {
@@ -682,7 +683,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Service ID. 
-	 * @returns {Job} The service.
+	 * @returns {Promise<Service>} The service.
 	 * @throws {Error}
 	 */
 	async getService(id) {
@@ -741,15 +742,16 @@ class Connection {
 	 * 
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-	 * @returns {Stream|Blob} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+	 * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
 	 */
 	async download(url, authorize) {
-		return await this._send({
+		let result = await this._send({
 			method: 'get',
 			responseType: Environment.getResponseType(),
 			url: url,
 			withCredentials: authorize
 		});
+		return result.data;
 	}
 
 	async _send(options) {
