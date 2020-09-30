@@ -4,6 +4,11 @@ const axios = require('axios');
 const Utils = require('@openeo/js-commons/src/utils');
 const Formula = require('./formula');
 
+const PROCESS_META = [
+	"id", "summary", "description", "categories", "parameters", "returns",
+	"deprecated", "experimental", "exceptions", "examples", "links"
+];
+
 /**
  * A class to construct processes easily.
  * 
@@ -193,27 +198,13 @@ class Builder {
 
 	toJSON() {
 		let process = {
-			id: this.id,
-			summary: this.summary,
-			description: this.description,
-			categories: this.categories,
-			parameters: this.parameters,
-			returns: this.returns,
-			deprecated: this.deprecated,
-			experimental: this.experimental,
-			exceptions: this.exceptions,
-			examples: this.examples,
-			links: this.links,
-			process_graph: {}
+			process_graph: Utils.mapObjectValues(this.nodes, node => node.toJSON())
 		};
-		for(let id in this.nodes) {
-			process.process_graph[id] = this.nodes[id].toJSON();
-		}
-		for(let key in process) {
-			if (typeof process[key] === 'undefined') {
-				delete process[key];
+		PROCESS_META.forEach(key => {
+			if (typeof this[key] !== 'undefined') {
+				process[key] = this[key];
 			}
-		}
+		});
 		return process;
 	}
 	
