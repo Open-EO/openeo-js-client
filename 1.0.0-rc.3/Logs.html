@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Logs<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Logs<span class="signature">(connection, endpoint)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>Interface to loop through the logs</p></div>
         
@@ -45,19 +45,95 @@
     
 
     
-    <h4 class="name" id="Logs"><span class="type-signature"></span>new Logs<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Logs"><span class="type-signature"></span>new Logs<span class="signature">(connection, endpoint)</span><span class="type-signature"></span></h4>
     
 
     
 
 
 
+<div class="description">
+    <p>Creates a new Logs instance to retrieve logs from a back-end.</p>
+</div>
 
 
 
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>connection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Connection.html">Connection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A Connection object representing an established connection to an openEO back-end.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endpoint</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The relative endpoint to request the logs from, usually <code>/jobs/.../logs</code> or <code>/services/.../logs</code> with <code>...</code> being the actual job or service id.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -93,7 +169,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line10">line 10</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line18">line 18</a>
     </li></ul></dd>
     
 
@@ -149,7 +225,7 @@
     
 
     
-    <h4 class="name" id="next"><span class="type-signature">(async) </span>next<span class="signature">(limit)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="next"><span class="type-signature">(async) </span>next<span class="signature">(limit)</span><span class="type-signature"> &rarr; {Promise.&lt;object>}</span></h4>
     
 
     
@@ -202,7 +278,7 @@
             <td class="type">
             
                 
-<span class="param-type">integer</span>
+<span class="param-type">number</span>
 
 
             
@@ -218,7 +294,7 @@
                 </td>
             
 
-            <td class="description last"><p>The number of log entries to retrieve per request.</p></td>
+            <td class="description last"><p>The number of log entries to retrieve per request, as integer.</p></td>
         </tr>
 
     
@@ -259,7 +335,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line39">line 39</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
@@ -295,7 +371,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">Promise.&lt;object></span>
 
 
     </dd>
@@ -313,7 +389,7 @@
     
 
     
-    <h4 class="name" id="nextLogs"><span class="type-signature">(async) </span>nextLogs<span class="signature">(limit)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
+    <h4 class="name" id="nextLogs"><span class="type-signature">(async) </span>nextLogs<span class="signature">(limit)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;object>>}</span></h4>
     
 
     
@@ -366,7 +442,7 @@
             <td class="type">
             
                 
-<span class="param-type">integer</span>
+<span class="param-type">number</span>
 
 
             
@@ -382,7 +458,7 @@
                 </td>
             
 
-            <td class="description last"><p>The number of log entries to retrieve per request.</p></td>
+            <td class="description last"><p>The number of log entries to retrieve per request, as integer.</p></td>
         </tr>
 
     
@@ -423,7 +499,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line25">line 25</a>
+        <a href="logs.js.html">logs.js</a>, <a href="logs.js.html#line33">line 33</a>
     </li></ul></dd>
     
 
@@ -459,7 +535,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;object></span>
+<span class="param-type">Promise.&lt;Array.&lt;object>></span>
 
 
     </dd>
@@ -487,13 +563,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 30 2020 10:25:19 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

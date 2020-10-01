@@ -28,6 +28,8 @@
         <article>
             <pre class="prettyprint source linenums"><code>const Environment = require('./env');
 const BaseEntity = require('./baseentity');
+const Connection = require('./connection'); // jshint ignore:line
+const Stream = require('stream'); // jshint ignore:line
 
 /**
  * A File on the user workspace.
@@ -50,26 +52,35 @@ class File extends BaseEntity {
 	}
 
 	/**
-	 * Downloads a file from the user workspace.
+	 * Downloads a file from the user workspace into memory.
 	 * 
 	 * This method has different behaviour depending on the environment.
-	 * If the target is set to `null`, returns a stream in a NodeJS environment or a Blob in a browser environment.
-	 * If a target is specified, writes the downloaded file to the target location on the file system in a NodeJS environment.
+	 * Returns a stream in a NodeJS environment or a Blob in a browser environment.
+	 * 
+	 * @async
+	 * @returns {Promise&lt;Stream.Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+	 * @throws {Error}
+	 */
+	async retrieveFile() {
+		return await this.connection.download('/files/' + this.path, true);
+	}
+
+	/**
+	 * Downloads a file from the user workspace and saves it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a NodeJS environment writes the downloaded file to the target location on the file system.
 	 * In a browser environment offers the file for downloading using the specified name (folders are not supported).
 	 * 
 	 * @async
-	 * @param {string|null} target - The target, see method description for details.
-	 * @returns {Stream|Blob|void} - Return value depends on the target and environment, see method description for details.
+	 * @param {string} target - The target, see method description for details.
+	 * @returns {Promise&lt;string[]|void>} - Return value depends on the target and environment, see method description for details.
 	 * @throws {Error}
 	 */
-	async downloadFile(target = null) {
-		let response = await this.connection.download('/files/' + this.path, true);
-		if (target === null) {
-			return response.data;
-		}
-		else {
-			return await Environment.saveToFile(response.data, target);
-		}
+	async downloadFile(target) {
+		let data = await this.connection.download('/files/' + this.path, true);
+		// @ts-ignore
+		return await Environment.saveToFile(data, target);
 	}
 
 	/**
@@ -77,6 +88,7 @@ class File extends BaseEntity {
 	 * 
 	 * @callback uploadStatusCallback
 	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 * @param {File} file - The file object corresponding to the callback.
 	 */
 
 	/**
@@ -90,7 +102,7 @@ class File extends BaseEntity {
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {File}
+	 * @returns {Promise&lt;File>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {
@@ -135,13 +147,13 @@ module.exports = File;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 30 2020 10:25:19 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
