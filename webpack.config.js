@@ -15,9 +15,12 @@ module.exports = [
     },
     externals: {
         'axios': 'axios',
+        'buffer': 'Buffer',
+        'fs': 'fs',
         'oidc-client': 'oidc-client',
+        'path': 'path',
         'stream': 'Stream',
-        'buffer': 'Buffer'
+        'url': 'url'
     },
     resolve: {
       alias: {

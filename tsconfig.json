@@ -1,0 +1,19 @@
+{
+	"include": ["./src/"],
+	"typeAcquisition": {
+	  "enable": true
+	},
+	"compilerOptions": {
+		// Tells TypeScript to read JS files
+		"allowJs": true,
+		// Generate d.ts files
+		"declaration": true,
+		// This compiler run should only output d.ts files
+		"emitDeclarationOnly": true,
+		// see https://github.com/babel/babel/issues/10237#issuecomment-513028440
+		"moduleResolution": "node",
+		// Types should go into this directory.
+		"outFile": "openeo.d.ts",
+		"target": "es2017"
+	}
+}

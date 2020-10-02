@@ -32,6 +32,10 @@ class Capabilities {
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
 			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support gets better
 
+		/**
+		 * @private
+		 * @ignore
+		 */
 		this.featureMap = {
 			// Discovery
 			capabilities: true,
@@ -179,7 +183,7 @@ class Capabilities {
 	/**
 	 * Get the billing currency.
 	 * 
-	 * @returns {string|null} The billing currency or `null` if not available.
+	 * @returns {?string} The billing currency or `null` if not available.
 	 */
 	currency() {
 		return (Utils.isObject(this.data.billing) && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);
@@ -188,11 +192,11 @@ class Capabilities {
 	/**
 	 * @typedef BillingPlan
 	 * @type {object}
-	 * @property {string} name - Name of the billing plan.
-	 * @property {string} description - A description of the billing plan, may include CommonMark syntax.
-	 * @property {boolean} paid - `true` if it is a paid plan, otherwise `false`.
-	 * @property {string} url - A URL pointing to a page describing the billing plan.
-	 * @property {boolean} default - `true` if it is the default plan of the back-end, otherwise `false`.
+	 * @property {string} name Name of the billing plan.
+	 * @property {string} description A description of the billing plan, may include CommonMark syntax.
+	 * @property {boolean} paid `true` if it is a paid plan, otherwise `false`.
+	 * @property {string} url A URL pointing to a page describing the billing plan.
+	 * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
 	 */
 
 	/**

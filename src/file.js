@@ -20,7 +20,27 @@ class File extends BaseEntity {
 	 */
 	constructor(connection, path) {
 		super(connection, ["path", "size", "modified"]);
+		/**
+		 * Path to the file, relative to the user's directory.
+		 * @readonly
+		 * @public
+		 * @type {string}
+		 */
 		this.path = path;
+		/** 
+		 * File size in bytes as integer.
+		 * @readonly
+		 * @public
+		 * @type {number}
+		 */
+		this.size = undefined;
+		/**
+		 * Date and time the file has lastly been modified, formatted as a RFC 3339 date-time.
+		 * @readonly
+		 * @public
+		 * @type {string}
+		 */
+		this.modified = undefined;
 	}
 
 	/**
@@ -73,7 +93,7 @@ class File extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
-	 * @param {uploadStatusCallback|null} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
 	 * @returns {Promise<File>}
 	 * @throws {Error}
 	 */

@@ -426,13 +426,13 @@ describe('With earth-engine-driver', () => {
 		test('Add two minimal job', async () => {
 			job = await con.createJob(VALID_PROCESS);
 			expect(job instanceof Job).toBeTruthy();
-			expect(job.jobId).not.toBeNull();
-			expect(job.jobId).not.toBeUndefined();
+			expect(job.id).not.toBeNull();
+			expect(job.id).not.toBeUndefined();
 
 			var jobs = await con.listJobs();
 			expect(jobs).toHaveLength(1);
 			expect(jobs[0] instanceof Job).toBeTruthy();
-			expect(jobs[0].jobId).toBe(job.jobId);
+			expect(jobs[0].id).toBe(job.id);
 
 			job2 = await con.createJob(VALID_PROCESS);
 			expect(job2 instanceof Job).toBeTruthy();
@@ -442,10 +442,10 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Describe job', async () => {
-			var jobdetails = await con.getJob(job.jobId);
+			var jobdetails = await con.getJob(job.id);
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
-			expect(jobdetails.jobId).toBe(job.jobId);
+			expect(jobdetails.id).toBe(job.id);
 			expect(jobdetails.title).toBeNull();
 			expect(jobdetails.status).toBe('created');
 			expect(typeof jobdetails.created).toBe('string');
@@ -457,7 +457,7 @@ describe('With earth-engine-driver', () => {
 			var jobdetails = await job.describeJob();
 			expect(jobdetails).not.toBeNull();
 			expect(jobdetails).not.toBeUndefined();
-			expect(jobdetails.jobId).toBe(job.jobId);
+			expect(jobdetails.id).toBe(job.id);
 			expect(jobdetails.title).toBe('Test job');
 			expect(typeof jobdetails.created).toBe('string');
 		});
@@ -583,19 +583,19 @@ describe('With earth-engine-driver', () => {
 		test('Add minimal service', async () => {
 			svc = await con.createService(VALID_PROCESS, 'xyz');
 			expect(svc instanceof Service).toBeTruthy();
-			expect(svc.serviceId).not.toBeNull();
-			expect(svc.serviceId).not.toBeUndefined();
+			expect(svc.id).not.toBeNull();
+			expect(svc.id).not.toBeUndefined();
 			var svcs = await con.listServices();
 			expect(svcs).toHaveLength(1);
 			expect(svcs[0] instanceof Service).toBeTruthy();
-			expect(svcs[0].serviceId).toBe(svc.serviceId);
+			expect(svcs[0].id).toBe(svc.id);
 		});
 
 		test('Describe service', async () => {
-			var svcdetails = await con.getService(svc.serviceId);
+			var svcdetails = await con.getService(svc.id);
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
-			expect(svcdetails.serviceId).toBe(svc.serviceId);
+			expect(svcdetails.id).toBe(svc.id);
 			expect(svcdetails.title).toBeNull();
 			expect(typeof svcdetails.url).toBe('string');
 		});
@@ -606,7 +606,7 @@ describe('With earth-engine-driver', () => {
 			var svcdetails = await svc.describeService();
 			expect(svcdetails).not.toBeNull();
 			expect(svcdetails).not.toBeUndefined();
-			expect(svcdetails.serviceId).toBe(svc.serviceId);
+			expect(svcdetails.id).toBe(svc.id);
 			expect(svcdetails.title).toBe('Test service');
 			expect(typeof svcdetails.url).toBe('string');
 		});

@@ -3,7 +3,10 @@ const Utils = require('@openeo/js-commons/src/utils');
 const axios = require('axios').default;
 const Stream = require('stream'); // jshint ignore:line
 
-const { BasicProvider, OidcProvider, AuthProvider } = require('./authprovider');
+const AuthProvider = require('./authprovider');
+const BasicProvider = require('./basicprovider');
+const OidcProvider = require('./oidcprovider');
+
 const Capabilities = require('./capabilities');
 const FileTypes = require('./filetypes');
 const UserFile = require('./file');
@@ -148,7 +151,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} processId - Collection ID to request further metadata for.
-	 * @returns {Promise<object|null>} - A single process as object, or `null` if none is found.
+	 * @returns {Promise<?object>} - A single process as object, or `null` if none is found.
 	 * @throws {Error}
 	 * @see listProcesses()
 	 */
@@ -227,7 +230,7 @@ class Connection {
 	 *
 	 * @callback oidcProviderFactoryFunction
 	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-	 * @returns {AuthProvider|null}
+	 * @returns {?AuthProvider}
 	 */
 
 	/**
@@ -389,8 +392,8 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
-	 * @param {string|null} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
-	 * @param {uploadStatusCallback|null} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
+	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
+	 * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
 	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
@@ -414,6 +417,9 @@ class Connection {
 		return new UserFile(this, path);
 	}
 
+	/**
+	 * @protected
+	 */
 	_normalizeUserProcess(process, additional = {}) {
 		if (process instanceof UserProcess) {
 			process = process.toJSON();
@@ -492,9 +498,9 @@ class Connection {
 	/**
 	 * @typedef SyncResult
 	 * @type {object}
-	 * @property {Stream.Readable|Blob} data - The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-	 * @property {number|null} costs - The costs for the request in the currency exposed by the back-end.
-	 * @property {array} logs - Array of log entries as specified in the API.
+	 * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+	 * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+	 * @property {object[]} logs Array of log entries as specified in the API.
 	 */
 
 	/**

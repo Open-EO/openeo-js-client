@@ -67,7 +67,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {string|null} version 
+	 * @param {?string} version 
 	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
@@ -87,7 +87,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {string|null} url 
+	 * @param {?string} url 
 	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
@@ -102,7 +102,7 @@ class Builder {
 	 * Each process passed to the constructor is made available as object method.
 	 * 
 	 * @param {array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
-	 * @param {Builder|null} parent - The parent builder, usually only used by the Builder itself.
+	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
@@ -216,7 +216,7 @@ class Builder {
 	 * 
 	 * @param {string} processId - The id of the process to call.
 	 * @param {object|array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
-	 * @param {string|null} description - An optional description for the process call.
+	 * @param {?string} description - An optional description for the process call.
 	 * @returns {BuilderNode}
 	 */
 	process(processId, args = {}, description = null) {

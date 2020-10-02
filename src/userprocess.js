@@ -31,8 +31,87 @@ class UserProcess extends BaseEntity {
 			"links",
 			["process_graph", "processGraph"]
 		]);
+		/**
+		 * The identifier of the process.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
 		this.id = id;
-		this.connection = connection;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.summary = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.description = undefined;
+		/**
+		 * A list of categories.
+		 * @public
+		 * @readonly
+		 * @type {string[]}
+		 */
+		this.categories = undefined;
+		/**
+		 * A list of parameters.
+		 * 
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.parameters = undefined;
+		/**
+		 * Description of the data that is returned by this process.
+		 * @public
+		 * @readonly
+		 * @type {?object}
+		 */
+		this.returns = undefined;
+		/**
+		 * Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions. 
+		 * @public
+		 * @readonly
+		 * @type {boolean}
+		 */
+		this.deprecated = undefined;
+		/**
+		 * Declares the process or parameter to be experimental, which means that it is likely to change or may produce unpredictable behaviour. 
+		 * @public
+		 * @readonly
+		 * @type {boolean}
+		 */
+		this.experimental = undefined;
+		/**
+		 * Declares any exceptions (errors) that might occur during execution of this process.
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.exceptions = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {object[]}
+		 */
+		this.examples = undefined;
+		/**
+		 * Links related to this process.
+		 * @public
+		 * @readonly
+		 * @type {object[]}
+		 */
+		this.links = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.processGraph = undefined;
 	}
 
 	/**

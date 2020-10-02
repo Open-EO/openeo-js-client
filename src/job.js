@@ -22,9 +22,83 @@ class Job extends BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, jobId) {
-		super(connection, ["id", "title", "description", "process", "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
-		this.jobId = jobId;
+		super(connection, ["id", "title", "description", "process", "status", "progress", "created", "updated", "plan", "costs", "budget"]);
+		/**
+		 * The identifier of the batch job.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.id = jobId;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.title = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.description = undefined;
+		/**
+		 * The process chain to be executed.
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.process = undefined;
+		/**
+		 * The current status of a batch job.
+		 * One of "created", "queued", "running", "canceled", "finished" or "error".
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
 		this.status = undefined;
+		/**
+		 * Indicates the process of a running batch job in percent. 
+		 * @public
+		 * @readonly
+		 * @type {number}
+		 */
+		this.progress = undefined;
+		/**
+		 * Date and time of creation, formatted as a RFC 3339 date-time.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.created = undefined;
+		/**
+		 * Date and time of the last status change, formatted as a RFC 3339 date-time.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.updated = undefined;
+		/**
+		 * The billing plan to process and charge the batch job with.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.plan = undefined;
+		/**
+		 * An amount of money or credits in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.costs = undefined;
+		/**
+		 * Maximum amount of costs the request is allowed to produce in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.budget = undefined;
 	}
 
 	/**
@@ -35,7 +109,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async describeJob() {
-		let response = await this.connection._get('/jobs/' + this.jobId);
+		let response = await this.connection._get('/jobs/' + this.id);
 		return this.setAll(response.data);
 	}
 
@@ -53,7 +127,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
-		await this.connection._patch('/jobs/' + this.jobId, this._convertToRequest(parameters));
+		await this.connection._patch('/jobs/' + this.id, this._convertToRequest(parameters));
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -69,7 +143,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async deleteJob() {
-		await this.connection._delete('/jobs/' + this.jobId);
+		await this.connection._delete('/jobs/' + this.id);
 	}
 
 	/**
@@ -80,7 +154,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async estimateJob() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/estimate');
+		let response = await this.connection._get('/jobs/' + this.id + '/estimate');
 		return response.data;
 	}
 
@@ -90,7 +164,7 @@ class Job extends BaseEntity {
 	 * @returns {Logs}
 	 */
 	debugJob() {
-		return new Logs(this.connection, '/jobs/' + this.jobId + '/logs');
+		return new Logs(this.connection, '/jobs/' + this.id + '/logs');
 	}
 
 	/**
@@ -160,7 +234,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async startJob() {
-		await this.connection._post('/jobs/' + this.jobId + '/results', {});
+		await this.connection._post('/jobs/' + this.id + '/results', {});
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -175,7 +249,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async stopJob() {
-		await this.connection._delete('/jobs/' + this.jobId + '/results');
+		await this.connection._delete('/jobs/' + this.id + '/results');
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -190,7 +264,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async getResultsAsItem() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
+		let response = await this.connection._get('/jobs/' + this.id + '/results');
 		let data = response.data;
 		if (!Utils.isObject(data.properties)) {
 			data.properties = {};

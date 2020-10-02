@@ -19,8 +19,94 @@ class Service extends BaseEntity {
 	 */
 	constructor(connection, serviceId) {
 		super(connection, ["id", "title", "description", "process", "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
-		this.serviceId = serviceId;
+		/**
+		 * The identifier of the service.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.id = serviceId;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.title = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.description = undefined;
+		/**
+		 * The process chain to be executed.
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.process = undefined;
+		/**
+		 * URL at which the secondary web service is accessible
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.url = undefined;
+		/**
+		 * Web service type (protocol / standard) that is exposed.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.type = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {boolean}
+		 */
 		this.enabled = undefined;
+		/**
+		 * Map of configuration settings, i.e. the setting names supported by the secondary web service combined with actual values. 
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.configuration = undefined;
+		/**
+		 * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.attributes = undefined;
+		/**
+		 * Date and time of creation, formatted as a RFC 3339 date-time.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.created = undefined;
+		/**
+		 * The billing plan to process and charge the service with.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.plan = undefined;
+		/**
+		 * An amount of money or credits in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.costs = undefined;
+		/**
+		 * Maximum amount of costs the request is allowed to produce in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.budget = undefined;
 	}
 
 	/**
@@ -31,7 +117,7 @@ class Service extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async describeService() {
-		let response = await this.connection._get('/services/' + this.serviceId);
+		let response = await this.connection._get('/services/' + this.id);
 		return this.setAll(response.data);
 	}
 
@@ -51,7 +137,7 @@ class Service extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async updateService(parameters) {
-		await this.connection._patch('/services/' + this.serviceId, this._convertToRequest(parameters));
+		await this.connection._patch('/services/' + this.id, this._convertToRequest(parameters));
 		if (this._supports('describeService')) {
 			return await this.describeService();
 		}
@@ -67,7 +153,7 @@ class Service extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async deleteService() {
-		await this.connection._delete('/services/' + this.serviceId);
+		await this.connection._delete('/services/' + this.id);
 	}
 
 	/**
@@ -76,7 +162,7 @@ class Service extends BaseEntity {
 	 * @returns {Logs}
 	 */
 	debugService() {
-		return new Logs(this.connection, '/services/' + this.serviceId + '/logs');
+		return new Logs(this.connection, '/services/' + this.id + '/logs');
 	}
 
 	/**

@@ -16,6 +16,10 @@ class Logs {
 	 * @constructor
 	 */
 	constructor(connection, endpoint) {
+		/**
+		 * @protected
+		 * @type {Connection}
+		 */
 		this.connection = connection;
 		this.endpoint = endpoint;
 		this.lastId = "";

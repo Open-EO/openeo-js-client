@@ -1,8 +1,8 @@
 # openeo-js-client
 
-JavaScript client for the openEO API.
+JavaScript/TypeScript client for the openEO API.
 
-[![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
+* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/).
 
 The version of this client is **1.0.0-rc.3** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
 
@@ -10,7 +10,9 @@ The version of this client is **1.0.0-rc.3** and supports **openEO API versions 
 
 This library can run in node.js or any recent browser supporting ECMAScript 2017. This excludes Internet Explorer, but includes Edge >= 15.
 
-### Browser environment
+An *experimental* Typescript declaration file is available so that you can use the library also in your TypeScript projects.
+
+### Browser
 
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
@@ -19,22 +21,36 @@ To use it in a browser environment simply add the following code to your HTML fi
 <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@latest/openeo.min.js"></script>
 ```
 
-### NodeJS environment
+### NodeJS
 
-To install it in a NodeJS environment run: `npm install @openeo/js-client`
+To install it in a NodeJS environment run:
+`npm install @openeo/js-client`
 
-Afterwards, you can import the package: `const { OpenEO } = require('@openeo/js-client');`
+Afterwards, you can import the package:
+`const { OpenEO } = require('@openeo/js-client');`
+
+### TypeScript 
+
+Warning: The TypeScript integration is still **experimental**! Please help us improve it by opening issues or pull requests.
+
+To install it in a TypeScript environment run:
+`npm install @openeo/js-client`
+
+Afterwards, you can import the package:
+`improt { OpenEO } from '@openeo/js-client';`
 
 ### Examples
 
 * [Basic Discovery (promises)](examples/discovery.html)
 * [Run sync. job (async/await)](examples/workflow.html)
 
-More information can be found in the [**JS client documentation**](https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/).
+More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/).
 
-### Advanced options
+## Development
 
-Generate a build: `npm run build` (generates `openeo.js` and `openeo.min.js`)
+[![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
+
+Generate a build: `npm run build` (generates `openeo.js`, `openeo.min.js` and `openeo.d.ts`)
 
 Generate the documentation to the `docs/` folder: `npm run docs`
 
@@ -48,8 +64,8 @@ Run tests:
 * `npm test builder` (tests only the process builder)
 * `npm test earthengine` (full test suite using the Google Earth Engine back-end as server)
 
-## Interactive JS Editor
+## Interactive Web Editor
 
-There is an experimental interactive web-based editor for coding using the openEO API,
+There is an interactive web-based editor for coding using the openEO API,
 which is based on the JavaScript client.
 See [https://github.com/Open-EO/openeo-web-editor](https://github.com/Open-EO/openeo-web-editor) for more details.

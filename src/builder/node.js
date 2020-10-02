@@ -9,7 +9,16 @@ const Formula = require('./formula');
  */
 class BuilderNode {
 
-	constructor(parent, processId, args = {}, description = null) {
+	/**
+	 * Creates a new process node for the builder.
+	 * 
+	 * @constructor
+	 * @param {Builder} parent 
+	 * @param {string} processId 
+	 * @param {object} [processArguments={}]
+	 * @param {?string} [description=null]
+	 */
+	constructor(parent, processId, processArgs = {}, description = null) {
 		this.parent = parent; // parent builder
 		this.spec = this.parent.spec(processId);
 		if (!Utils.isObject(this.spec)) {
@@ -17,30 +26,38 @@ class BuilderNode {
 		}
 
 		this.id = parent.generateId(processId);
-		this.arguments = Array.isArray(args) ? this.namedArguments(args) : args;
+		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
 		this._description = description;
 		this.result = false;
 
 		this.addParametersToProcess(this.arguments);
 	}
 
-	namedArguments(args) {
-		if (Object.keys(args).length > (this.spec.parameters || []).length) {
+	/**
+	 * 
+	 * @param {object|array} processArgs 
+	 */
+	namedArguments(processArgs) {
+		if (Object.keys(processArgs).length > (this.spec.parameters || []).length) {
 			throw new Error("More arguments specified than parameters available.");
 		}
 		let obj = {};
 		if (Array.isArray(this.spec.parameters)) {
 			for(let i = 0; i < this.spec.parameters.length; i++) {
-				obj[this.spec.parameters[i].name] = args[i];
+				obj[this.spec.parameters[i].name] = processArgs[i];
 			}
 		}
 		return obj;
 	}
 
-	// Checks the arguments given for parameters and add them to the process
-	addParametersToProcess(args) {
-		for(let key in args) {
-			let arg = args[key];
+	/**
+	 * Checks the arguments given for parameters and add them to the process
+	 * 
+	 * @param {object|array} processArgs 
+	 */
+	addParametersToProcess(processArgs) {
+		for(let key in processArgs) {
+			let arg = processArgs[key];
 			if (arg instanceof Parameter) {
 				if (Utils.isObject(arg.spec.schema)) {
 					this.parent.addParameter(arg.spec);

@@ -24,6 +24,7 @@
   "files": [
     "openeo.js",
     "openeo.min.js",
+    "openeo.d.ts",
     "src/*"
   ],
   "devDependencies": {
@@ -48,7 +49,9 @@
   },
   "scripts": {
     "docs": "jsdoc -r -d docs/ -P package.json -R README.md -c .jsdoc",
-    "build": "npx webpack",
+    "build": "npm run build_js && npm run build_ts",
+    "build_js": "npx webpack",
+    "build_ts": "npx typescript --project tsconfig.json",
     "compat": "jshint src",
     "test": " jest --env=jsdom --runInBand",
     "test_node": " jest --env=node --runInBand"

@@ -16,6 +16,10 @@ class BaseEntity {
 	 * @constructor
 	 */
 	constructor(connection, properties = []) {
+		/**
+		 * @protected
+		 * @type {Connection}
+		 */
 		this.connection = connection;
 		this.apiToClientNames = {};
 		this.clientToApiNames = {};
@@ -99,6 +103,9 @@ class BaseEntity {
 		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
 	}
 
+	/**
+	 * @protected
+	 */
 	_convertToRequest(parameters) {
 		let request = {};
 		for(let key in parameters) {
@@ -112,6 +119,9 @@ class BaseEntity {
 		return request;
 	}
 
+	/**
+	 * @protected
+	 */
 	_supports(feature) {
 		return this.connection.capabilities().hasFeature(feature);
 	}

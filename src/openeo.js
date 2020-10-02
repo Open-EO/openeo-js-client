@@ -9,7 +9,11 @@ const Job = require('./job');
 const Logs = require('./logs');
 const UserProcess = require('./userprocess');
 const Service = require('./service');
-const { AuthProvider, BasicProvider, OidcProvider } = require('./authprovider');
+
+// Auth Providers
+const AuthProvider = require('./authprovider');
+const BasicProvider = require('./basicprovider');
+const OidcProvider = require('./oidcprovider');
 
 // Response wrapper
 const Capabilities = require('./capabilities');
