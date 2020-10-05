@@ -93,7 +93,7 @@ class Capabilities {
 	}
 
 	/**
-	 * Returns the capabilities response as a plain object.
+	 * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
 	 * 
 	 * @returns {object} - A reference to the capabilities response.
 	 */

@@ -24,6 +24,14 @@ class Environment {
 		return 'Node';
 	}
 
+	/**
+	 * Handles errors from the API that are returned as Streams.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {Stream.Readable} error 
+	 * @returns {Promise<void>}
+	 */
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let chunks = [];
@@ -60,10 +68,26 @@ class Environment {
 		return buffer.toString('base64');
 	}
 
+	/**
+	 * Detect the file name for the given data source.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {string} source - A path to a file as string.
+	 * @returns {string}
+	 */
 	static fileNameForUpload(source) {
 		return path.basename(source);
 	}
 
+	/**
+	 * Get the data from the source that should be uploaded.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {string} source - A path to a file as string.
+	 * @returns {Stream.Readable}
+	 */
 	static dataForUpload(source) {
 		return fs.createReadStream(source);
 	}

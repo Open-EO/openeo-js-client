@@ -15,10 +15,10 @@ class BuilderNode {
 	 * @constructor
 	 * @param {Builder} parent 
 	 * @param {string} processId 
-	 * @param {object} [processArguments={}]
-	 * @param {?string} [description=null]
+	 * @param {object} [processArgs={}]
+	 * @param {?string} [processDescription=null]
 	 */
-	constructor(parent, processId, processArgs = {}, description = null) {
+	constructor(parent, processId, processArgs = {}, processDescription = null) {
 		this.parent = parent; // parent builder
 		this.spec = this.parent.spec(processId);
 		if (!Utils.isObject(this.spec)) {
@@ -27,7 +27,7 @@ class BuilderNode {
 
 		this.id = parent.generateId(processId);
 		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
-		this._description = description;
+		this._description = processDescription;
 		this.result = false;
 
 		this.addParametersToProcess(this.arguments);
@@ -35,10 +35,10 @@ class BuilderNode {
 
 	/**
 	 * 
-	 * @param {object|array} processArgs 
+	 * @param {array} processArgs 
 	 */
 	namedArguments(processArgs) {
-		if (Object.keys(processArgs).length > (this.spec.parameters || []).length) {
+		if (processArgs.length > (this.spec.parameters || []).length) {
 			throw new Error("More arguments specified than parameters available.");
 		}
 		let obj = {};
@@ -160,6 +160,11 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object}
+	 */
 	toJSON() {
 		let obj = {
 			process_id: this.spec.id,

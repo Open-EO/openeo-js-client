@@ -20,6 +20,14 @@ class Environment {
 		return 'Browser';
 	}
 
+	/**
+	 * Handles errors from the API that are returned as Blobs.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {Blob} error 
+	 * @returns {Promise<void>}
+	 */
 	static handleErrorResponse(error) {
 		return new Promise((_, reject) => {
 			let fileReader = new FileReader();
@@ -59,10 +67,26 @@ class Environment {
 		return btoa(str);
 	}
 
+	/**
+	 * Detect the file name for the given data source.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {object} source - An object from a file upload form.
+	 * @returns {string}
+	 */
 	static fileNameForUpload(source) {
 		return source.name.split(/(\\|\/)/g).pop();
 	}
 
+	/**
+	 * Get the data from the source that should be uploaded.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {object} source - An object from a file upload form.
+	 * @returns {object}
+	 */
 	static dataForUpload(source) {
 		return source;
 	}

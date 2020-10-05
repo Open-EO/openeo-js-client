@@ -274,7 +274,7 @@ TapDigit.Parser = function () {
         while (true) {
             expr = parseExpression();
             if (typeof expr === 'undefined') {
-                // TODO maybe throw exception?
+                // @todo maybe throw exception?
                 break;
             }
             args.push(expr);

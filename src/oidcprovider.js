@@ -6,10 +6,7 @@ const Connection = require('./connection'); // jshint ignore:line
 /**
  * The Authentication Provider for OpenID Connect.
  * 
- * 
- * 
- * ToDo: Add how to use the OIDC Provider.
- * 
+ * @todo Add how to use the OIDC Provider.
  * @class
  * @extends {AuthProvider}
  */

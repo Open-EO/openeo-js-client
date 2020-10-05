@@ -152,8 +152,11 @@ class Builder {
 		return this.callbackParameterCache[parameterName];
 	}
 
+	/**
+	 * 
+	 * @todo Should this also pass callback parameters from parents until root is reached?
+	 */
 	getParentCallbackParameters() {
-		// ToDo: Should this also pass callback parameters from parents until root is reached?
 		let callbackParams = [];
 		if (this.parentNode && this.parentParameter) {
 			try {
@@ -225,6 +228,11 @@ class Builder {
 		return node;
 	}
 
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object}
+	 */
 	toJSON() {
 		let process = {
 			process_graph: Utils.mapObjectValues(this.nodes, node => node.toJSON())

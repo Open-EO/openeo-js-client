@@ -2,6 +2,7 @@
 	"include": ["./src/"],
 	"compilerOptions": {
 	  "checkJs": true,
+	  "strict": true,
 	  "target": "es2017"
 	}
 }

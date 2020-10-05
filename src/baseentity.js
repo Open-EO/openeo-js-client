@@ -40,6 +40,11 @@ class BaseEntity {
 		}
 	}
 
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object}
+	 */
 	toJSON() {
 		let obj = {};
 		for(let key in this.clientToApiNames) {
