@@ -148,6 +148,15 @@ class Builder {
 
 		for(let process of this.processes) {
 			if (typeof this[process.id] === 'undefined') {
+				/**
+				 * Implicitly calls the process with the given name on the back-end by adding it to the process.
+				 * 
+				 * This is a shortcut for {@link module:openeo~Builder#process}.
+				 * 
+				 * @param {...*} args - The arguments for the process.
+				 * @returns {module:openeo~BuilderNode}
+				 * @see module:openeo~Builder#process
+				 */
 				this[process.id] = function(...args) {
 					// Don't use arrow functions, they don't support the arguments keyword.
 					return this.process(process.id, args);
@@ -159,11 +168,24 @@ class Builder {
 		}
 	}
 
+	/**
+	 * Sets the parent for this Builder.
+	 * 
+	 * @param {module:openeo~BuilderNode} node 
+	 * @param {string} parameterName 
+	 */
 	setParent(node, parameterName) {
 		this.parentNode = node;
 		this.parentParameter = parameterName;
 	}
 
+	/**
+	 * Creates a callback parameter with the given name.
+	 * 
+	 * @protected
+	 * @param {string} parameterName 
+	 * @returns {object}
+	 */
 	createCallbackParameter(parameterName) {
 		if (!this.callbackParameterCache[parameterName]) {
 			this.callbackParameterCache[parameterName] = Parameter.create(this, parameterName);
@@ -189,6 +211,14 @@ class Builder {
 		return callbackParams;
 	}
 
+	/**
+	 * Adds a parameter to the list of process parameters.
+	 * 
+	 * Doesn't add the parameter if it has the same name as a callback parameter.
+	 * 
+	 * @param {object} parameter - The parameter spec to add, must comply to the API.
+	 * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
+	 */
 	addParameter(parameter, root = true) {
 		if (this.getParentCallbackParameters().find(p => p.name === parameter.name) !== undefined) {
 			return; // parameter refers to callback
@@ -215,6 +245,12 @@ class Builder {
 		}
 	}
 
+	/**
+	 * Returns the process specification for the given process identifier.
+	 * 
+	 * @param {string} id 
+	 * @returns {object}
+	 */
 	spec(id) {
 		return this.processes.find(process => process.id === id);
 	}
@@ -267,15 +303,24 @@ class Builder {
 		return process;
 	}
 	
-	generateId(name) {
-		name = name.replace("_", "").substr(0, 6);
-		if (!this.idCounter[name]) {
-			this.idCounter[name] = 1;
+	/**
+	 * Generates a unique identifier for the process nodes.
+	 * 
+	 * A prefix can be given to make the identifiers more human-readable.
+	 * If the given name is empty, the id is simply an incrementing number.
+	 * 
+	 * @param {string} [prefix=""]
+	 * @returns {string}
+	 */
+	generateId(prefix = "") {
+		prefix = prefix.replace("_", "").substr(0, 6);
+		if (!this.idCounter[prefix]) {
+			this.idCounter[prefix] = 1;
 		}
 		else {
-			this.idCounter[name]++;
+			this.idCounter[prefix]++;
 		}
-		return name + this.idCounter[name];
+		return prefix + this.idCounter[prefix];
 	}
 
 }

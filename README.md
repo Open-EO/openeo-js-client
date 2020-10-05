@@ -37,7 +37,7 @@ To install it in a TypeScript environment run:
 `npm install @openeo/js-client`
 
 Afterwards, you can import the package:
-`improt { OpenEO } from '@openeo/js-client';`
+`import { OpenEO } from '@openeo/js-client';`
 
 ### Examples
 

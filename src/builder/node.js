@@ -108,7 +108,8 @@ class BuilderNode {
 	 * `node.description()` - Returns the description.
 	 * `node.description("foo")` - Sets the description to "foo". Returns the node itself for method chaining.
 	 * 
-	 * You can also "replace" the function, then it acts as normal property and the function is not available any longer:
+	 * You can also "replace" the function (not supported in TypeScript!),
+	 * then it acts as normal property and the function is not available any longer:
 	 * `node.description = "foo"` - Sets the description to "foo".
 	 * Afterwards you can call `node.description` as normal object property.
 	 * 
@@ -125,6 +126,14 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Converts the given argument into something serializable...
+	 * 
+	 * @protected
+	 * @param {*} arg - Argument
+	 * @param {string} name - Parameter name
+	 * @returns {*}
+	 */
 	exportArgument(arg, name) {
 		const Formula = require('./formula');
 		if (Utils.isObject(arg)) {
@@ -165,6 +174,14 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Creates a new Builder, usually for a callback.
+	 * 
+	 * @protected
+	 * @param {?module:openeo~BuilerNode} [parentNode=null]
+	 * @param {?string} parentParameter
+	 * @returns {module:openeo~BuilderNode}
+	 */
 	createBuilder(parentNode = null, parentParameter = null) {
 		const Builder = require('./builder');
 		let builder = new Builder(this.parent.processes, this.parent);
@@ -174,6 +191,15 @@ class BuilderNode {
 		return builder;
 	}
 
+	/**
+	 * Returns the serializable process for the callback function given.
+	 * 
+	 * @protected
+	 * @param {Function} arg - callback function
+	 * @param {string} name - Parameter name
+	 * @returns {object}
+	 * @throws {Error}
+	 */
 	exportCallback(arg, name) {
 		let builder = this.createBuilder(this, name);
 		let params = builder.getParentCallbackParameters();
@@ -215,6 +241,19 @@ class BuilderNode {
 		return obj;
 	}
 
+	/**
+	 * Reference to a parameter.
+	 * 
+	 * @typedef FromNode
+	 * @type {object}
+	 * @property {string} from_node - The node identifier.
+	 */
+
+	/**
+	 * Returns the reference object for this node.
+	 * 
+	 * @returns {FromNode}
+	 */
 	ref() {
 		return { from_node: this.id };
 	}

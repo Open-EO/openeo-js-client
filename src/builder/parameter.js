@@ -30,12 +30,29 @@
  */
 class Parameter {
 
+	/**
+	 * Creates a new parameter instance, but proxies calls to it
+	 * so that array access is possible (see class description).
+	 * 
+	 * @static
+	 * @param {module:openeo~Builder} builder 
+	 * @param {string} parameterName 
+	 * @returns {Proxy<module:openeo~Parameter>}
+	 */
 	static create(builder, parameterName) {
 		let parameter = new Parameter(parameterName, null);
 		if (typeof Proxy !== "undefined") {
 			return new Proxy(parameter, {
 				// @ts-ignore
 				nodeCache: {},
+				/**
+				 * Getter for array access (see class description).
+				 * 
+				 * @param {object} target 
+				 * @param {string|number|symbol} name 
+				 * @param {?*} receiver 
+				 * @returns {*}
+				 */
 				get(target, name, receiver) {
 					if (!Reflect.has(target, name)) {
 						// @ts-ignore
@@ -59,6 +76,17 @@ class Parameter {
 					}
 					return Reflect.get(target, name, receiver);
 				},
+				/**
+				 * Setter for array access.
+				 * 
+				 * Usually fails as write access to arrays is not supported.
+				 * 
+				 * @param {object} target 
+				 * @param {string|number|symbol} name 
+				 * @param {*} value 
+				 * @param {?*} receiver 
+				 * @returns {boolean}
+				 */
 				set(target, name, value, receiver) {
 					if (!Reflect.has(target, name)) {
 						console.warn('Simplified array access is read-only');
@@ -104,6 +132,19 @@ class Parameter {
 		return this.spec;
 	}
 
+	/**
+	 * Reference to a parameter.
+	 * 
+	 * @typedef FromParameter
+	 * @type {object}
+	 * @property {string} from_parameter - The name of the parameter.
+	 */
+
+	/**
+	 * Returns the reference object for this parameter.
+	 * 
+	 * @returns {FromParameter}
+	 */
 	ref() {
 		return { from_parameter: this.name };
 	}

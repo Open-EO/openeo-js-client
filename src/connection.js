@@ -703,6 +703,31 @@ class Connection {
 		return await service.describeService();
 	}
 
+	/**
+	 * Response for a HTTP request.
+	 * 
+	 * @typedef AxiosResponse
+	 * 
+	 * @type {object}
+	 * @property {any} data
+	 * @property {number} status
+	 * @property {string} statusText
+	 * @property {*} headers
+	 * @property {object} config
+	 * @property {?any} request
+	 */
+
+	/**
+	 * Sends a GET request.
+	 * 
+	 * @async
+	 * @param {string} path 
+	 * @param {object} query 
+	 * @param {string} responseType - Response type according to axios, defaults to `json`.
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 * @see https://github.com/axios/axios#request-config
+	 */
 	async _get(path, query, responseType) {
 		return await this._send({
 			method: 'get',
@@ -715,6 +740,17 @@ class Connection {
 		});
 	}
 
+	/**
+	 * Sends a POST request.
+	 * 
+	 * @async
+	 * @param {string} path 
+	 * @param {*} body 
+	 * @param {string} responseType - Response type according to axios, defaults to `json`.
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 * @see https://github.com/axios/axios#request-config
+	 */
 	async _post(path, body, responseType) {
 		return await this._send({
 			method: 'post',
@@ -724,6 +760,15 @@ class Connection {
 		});
 	}
 
+	/**
+	 * Sends a PUT request.
+	 * 
+	 * @async
+	 * @param {string} path 
+	 * @param {*} body 
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 */
 	async _put(path, body) {
 		return await this._send({
 			method: 'put',
@@ -732,6 +777,15 @@ class Connection {
 		});
 	}
 
+	/**
+	 * Sends a PATCH request.
+	 * 
+	 * @async
+	 * @param {string} path 
+	 * @param {*} body 
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 */
 	async _patch(path, body) {
 		return await this._send({
 			method: 'patch',
@@ -740,6 +794,14 @@ class Connection {
 		});
 	}
 
+	/**
+	 * Sends a DELETE request.
+	 * 
+	 * @async
+	 * @param {string} path 
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 */
 	async _delete(path) {
 		return await this._send({
 			method: 'delete',
@@ -755,6 +817,7 @@ class Connection {
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
 	 * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+	 * @throws {Error}
 	 */
 	async download(url, authorize) {
 		let result = await this._send({
@@ -766,6 +829,24 @@ class Connection {
 		return result.data;
 	}
 
+	/**
+	 * Sends a HTTP request.
+	 * 
+	 * Options mostly conform to axios,
+	 * see {@link https://github.com/axios/axios#request-config}.
+	 * 
+	 * Automatically sets a baseUrl and the authorization information.
+	 * Default responseType is `json`.
+	 * 
+	 * Tries to smoothly handle error responses by providing an object for all response types,
+	 * instead of Streams or Blobs for non-JSON response types.
+	 * 
+	 * @async
+	 * @param {object} options 
+	 * @returns {Promise<AxiosResponse>}
+	 * @throws {Error}
+	 * @see https://github.com/axios/axios
+	 */
 	async _send(options) {
 		options.baseURL = this.baseUrl;
 		if (this.isAuthenticated() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {

@@ -118,8 +118,8 @@ class Environment {
 	 * @returns {Promise<void>}
 	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 	 */
-	/* istanbul ignore next */
 	static saveToFile(data, filename) {
+		/* istanbul ignore next */
 		return new Promise((resolve, reject) => {
 			try {
 				if (!(data instanceof Blob)) {

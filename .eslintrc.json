@@ -64,7 +64,16 @@
         "jsdoc/no-undefined-types": 1, // Recommended
         "jsdoc/require-description": 1,
         "jsdoc/require-hyphen-before-param-description": 1,
-        "jsdoc/require-jsdoc": 1, // Recommended
+        "jsdoc/require-jsdoc": ["error", {
+            "require": {
+                "ArrowFunctionExpression": false,
+                "ClassDeclaration": true,
+                "ClassExpression": true,
+                "FunctionDeclaration": true,
+                "FunctionExpression": true,
+                "MethodDefinition": true
+            }
+        }],
         "jsdoc/require-param": 1, // Recommended
         "jsdoc/require-param-name": 1, // Recommended
         "jsdoc/require-param-type": 1, // Recommended

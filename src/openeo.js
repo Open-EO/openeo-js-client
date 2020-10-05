@@ -114,6 +114,28 @@ class OpenEO {
 
 OpenEO.Environment = require('./env');
 
+/**
+ * The openEO JavaScript / TypeScript client.
+ * 
+ * What you usually want to import is `OpenEO`.
+ * 
+ * @type {object}
+ * @property {module:openeo~AuthProvider} AuthProvider
+ * @property {module:openeo~BasicProvider} BasicProvider
+ * @property {module:openeo~Capabilities} Capabilities
+ * @property {module:openeo~File} File
+ * @property {module:openeo~FileTypes} FileTypes
+ * @property {module:openeo~Job} Job
+ * @property {module:openeo~Logs} Logs
+ * @property {module:openeo~OidcProvider} OidcProvider
+ * @property {module:openeo~OpenEO} OpenEO
+ * @property {module:openeo~Service} Service
+ * @property {module:openeo~UserProcess} UserProcess
+ * @property {module:openeo~Builder} Builder
+ * @property {module:openeo~BuilderNode} BuilderNode
+ * @property {module:openeo~Parameter} Parameter
+ * @property {module:openeo~Formula} Formula
+ */
 module.exports = {
 	AuthProvider,
 	BasicProvider,
