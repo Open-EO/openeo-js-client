@@ -29,9 +29,11 @@ const MIN_API_VERSION = '1.0.0-rc.2';
 const MAX_API_VERSION = '1';
 
 /**
+ * @module openeo
+ */
+/**
  * Main class to start with openEO. Allows to connect to a server.
  * 
- * @class
  * @hideconstructor
  */
 class OpenEO {
@@ -44,7 +46,7 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @returns {Promise<Connection>}
+	 * @returns {Promise<module:openeo~Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
@@ -81,7 +83,7 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} versionedUrl - The server URL to connect to.
-	 * @returns {Promise<Connection>}
+	 * @returns {Promise<module:openeo~Connection>}
 	 * @throws {Error}
 	 * @static
 	 */

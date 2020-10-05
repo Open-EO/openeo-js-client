@@ -1,21 +1,21 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
-const Connection = require('./connection'); // jshint ignore:line
 
+/**
+ * @module openeo
+ */
 /**
  * The Authentication Provider for HTTP Basic.
  * 
- * @class
- * @extends {AuthProvider}
+ * @augments module:openeo~AuthProvider
  */
 class BasicProvider extends AuthProvider {
 
 	/**
 	 * Creates a new BasicProvider instance to authenticate using HTTP Basic.
 	 * 
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @constructor
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 */
 	constructor(connection) {
 		super("basic", connection, {
@@ -34,8 +34,7 @@ class BasicProvider extends AuthProvider {
 	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 */
-	async login(...args) {
-		const [username, password] = args;
+	async login(username, password) {
 		let response = await this.connection._send({
 			method: 'get',
 			responseType: 'json',

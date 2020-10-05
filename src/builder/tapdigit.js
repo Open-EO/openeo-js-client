@@ -1,3 +1,6 @@
+/**
+ * @module openeo
+ */
 /*
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -26,7 +29,11 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-var TapDigit = {
+/* eslint-disable jsdoc/require-jsdoc */
+/**
+ * @ignore
+ */
+let TapDigit = {
     Token: {
         Operator: 'Operator',
         Identifier: 'Identifier',
@@ -49,19 +56,19 @@ const SUP_MAPPING = {
 const SUP_STRING = Object.keys(SUP_MAPPING).join('');
 
 TapDigit.Lexer = function () {
-    var expression = '',
+    let expression = '',
         length = 0,
         index = 0,
         marker = 0,
         T = TapDigit.Token;
 
     function peekNextChar() {
-        var idx = index;
+        let idx = index;
         return ((idx < length) ? expression.charAt(idx) : '\x00');
     }
 
     function getNextChar() {
-        var ch = '\x00',
+        let ch = '\x00',
             idx = index;
         if (idx < length) {
             ch = expression.charAt(idx);
@@ -92,7 +99,7 @@ TapDigit.Lexer = function () {
     }
 
     function skipSpaces() {
-        var ch;
+        let ch;
 
         while (index < length) {
             ch = peekNextChar();
@@ -104,7 +111,7 @@ TapDigit.Lexer = function () {
     }
 
     function scanOperator() {
-        var ch = peekNextChar();
+        let ch = peekNextChar();
         if (('+-*/()^,' + SUP_STRING).indexOf(ch) >= 0) {
             return createToken(T.Operator, getNextChar());
         }
@@ -120,7 +127,8 @@ TapDigit.Lexer = function () {
     }
 
     function scanIdentifier() {
-        var ch, id;
+        let ch
+        let id;
 
         ch = peekNextChar();
         if (!isIdentifierStart(ch)) {
@@ -140,7 +148,8 @@ TapDigit.Lexer = function () {
     }
 
     function scanNumber() {
-        var ch, number;
+        let ch;
+        let number;
 
         ch = peekNextChar();
         if (!isDecimalDigit(ch) && (ch !== '.')) {
@@ -205,7 +214,7 @@ TapDigit.Lexer = function () {
     }
 
     function next() {
-        var token;
+        let token;
 
         skipSpaces();
         if (index >= length) {
@@ -234,9 +243,8 @@ TapDigit.Lexer = function () {
     }
 
     function peek() {
-        var token, idx;
-
-        idx = index;
+        let token;
+        let idx = index;
         try {
             token = next();
             delete token.start;
@@ -257,7 +265,7 @@ TapDigit.Lexer = function () {
 };
 
 TapDigit.Parser = function () {
-    var lexer = new TapDigit.Lexer(),
+    let lexer = new TapDigit.Lexer(),
     T = TapDigit.Token;
 
     function matchOp(token, op) {
@@ -269,7 +277,9 @@ TapDigit.Parser = function () {
     // ArgumentList := Expression |
     //                 Expression ',' ArgumentList
     function parseArgumentList() {
-        var token, expr, args = [];
+        let token;
+        let expr;
+        let args = [];
 
         while (true) {
             expr = parseExpression();
@@ -291,9 +301,8 @@ TapDigit.Parser = function () {
     // FunctionCall ::= Identifier '(' ')' ||
     //                  Identifier '(' ArgumentList ')'
     function parseFunctionCall(name) {
-        var args = [];
-
-        var token = lexer.next();
+        let args = [];
+        let token = lexer.next();
         if (!matchOp(token, '(')) {
             throw new SyntaxError('Expecting ( in a function call "' + name + '"');
         }
@@ -321,8 +330,8 @@ TapDigit.Parser = function () {
     //             '(' Expression ')' |
     //             FunctionCall
     function parsePrimary() {
-        var expr;
-        var token = lexer.peek();
+        let expr;
+        let token = lexer.peek();
         if (typeof token === 'undefined') {
             throw new SyntaxError('Unexpected termination of expression');
         }
@@ -363,8 +372,8 @@ TapDigit.Parser = function () {
     // Unary ::= Primary |
     //           '-' Unary
     function parseUnary() {
-        var expr;
-        var token = lexer.peek();
+        let expr;
+        let token = lexer.peek();
         if (matchOp(token, '-+')) {
             token = lexer.next();
             expr = parseUnary();
@@ -390,8 +399,8 @@ TapDigit.Parser = function () {
     //           Power '^' Unary |
     //           Power⁰¹²³⁴⁵⁶⁷⁸⁹
     function parsePower() {
-        var expr = parseUnary();
-        var token = lexer.peek();
+        let expr = parseUnary();
+        let token = lexer.peek();
         while (matchOp(token, '^' + SUP_STRING)) {
             token = lexer.next();
             expr = {
@@ -410,8 +419,8 @@ TapDigit.Parser = function () {
     //                    Multiplicative '*' Power |
     //                    Multiplicative '/' Power |
     function parseMultiplicative() {
-        var expr = parsePower();
-        var token = lexer.peek();
+        let expr = parsePower();
+        let token = lexer.peek();
         while (matchOp(token, '*/')) {
             token = lexer.next();
             expr = {
@@ -430,8 +439,8 @@ TapDigit.Parser = function () {
     //              Additive '+' Multiplicative |
     //              Additive '-' Multiplicative
     function parseAdditive() {
-        var expr = parseMultiplicative();
-        var token = lexer.peek();
+        let expr = parseMultiplicative();
+        let token = lexer.peek();
         while (matchOp(token, '+-')) {
             token = lexer.next();
             expr = {
@@ -453,8 +462,8 @@ TapDigit.Parser = function () {
 
     function parse(expression) {
         lexer.reset(expression);
-        var expr = parseExpression();
-        var token = lexer.next();
+        let expr = parseExpression();
+        let token = lexer.next();
         if (typeof token !== 'undefined') {
             throw new SyntaxError('Unexpected token ' + token.value);
         }

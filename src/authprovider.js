@@ -1,4 +1,6 @@
-const Connection = require('./connection'); // jshint ignore:line
+/**
+ * @module openeo
+ */
 
 /**
  * Authentication Provider details.
@@ -10,11 +12,9 @@ const Connection = require('./connection'); // jshint ignore:line
  * @property {string} description Description for the authentication method.
  */
 
-
 /**
  * The base class for authentication providers such as Basic and OpenID Connect.
  * 
- * @class
  * @abstract
  */
 class AuthProvider {
@@ -23,9 +23,8 @@ class AuthProvider {
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
 	 * @param {string} type - The type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {AuthProviderMeta} options - Options
-	 * @constructor
 	 */
 	constructor(type, connection, options) {
 		this.id = options.id || null;
@@ -34,7 +33,7 @@ class AuthProvider {
 		this.type = type;
 		/**
 		 * @protected
-		 * @type {Connection}
+		 * @type {module:openeo~Connection}
 		 */
 		this.connection = connection;
 		this.token = null;
@@ -124,6 +123,12 @@ class AuthProvider {
 		}
 	}
 
+	/**
+	 * Abstract method that extending classes implement the login process with.
+	 * 
+	 * @param  {...*} args 
+	 * @throws {Error}
+	 */
 	async login(...args) {
 		throw new Error("Not implemented.", args);
 	}

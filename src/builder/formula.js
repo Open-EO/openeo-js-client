@@ -1,7 +1,10 @@
 const TapDigit = require("./tapdigit");
 const Parameter = require("./parameter");
-const Builder = require("./builder"); // jshint ignore:line
+const BuilderNode = require('./node');
 
+/**
+ * @module openeo
+ */
 /**
  * This converts a mathematical formula into a openEO process for you.
  * 
@@ -17,15 +20,12 @@ const Builder = require("./builder"); // jshint ignore:line
  * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a $ in front, for example $B1 for the label B1 or $0 for the first element in the array. Numeric labels are not supported.
  * 
  * An example that computes an EVI (assuming the labels for the bands are `NIR`, `RED` and `BLUE`): `2.5 * ($NIR - $RED) / (1 + $NIR + 6 * $RED + (-7.5 * $BLUE))`
- * 
- * @class
  */
 class Formula {
 
 	/**
 	 * Creates a math formula object.
 	 * 
-	 * @constructor
 	 * @param {string} formula - A mathematical formula to parse.y
 	 */
 	constructor(formula) {
@@ -37,7 +37,7 @@ class Formula {
 	/**
 	 * The builder instance to use.
 	 * 
-	 * @param {Builder} builder - The builder instance to add the formula to.
+	 * @param {module:openeo~Builder} builder - The builder instance to add the formula to.
 	 */
 	setBuilder(builder) {
 		this.builder = builder;
@@ -49,12 +49,11 @@ class Formula {
 	 * Returns the last node that computes the result.
 	 * 
 	 * @param {boolean} setResultNode - Set the `result` flag to `true`.
-	 * @returns {BuilderNode}
+	 * @returns {module:openeo~BuilderNode}
 	 * @throws {Error}
 	 */
 	generate(setResultNode = true) {
 		let finalNode = this.parseTree(this.tree);
-		const BuilderNode = require('./node');
 		if (!(finalNode instanceof BuilderNode)) {
 			throw new Error('Invalid formula specified.');
 		}
@@ -74,19 +73,20 @@ class Formula {
 				return this.getRef(tree.Identifier);
 			case 'Expression':
 				return this.parseTree(tree.Expression);
-			case 'FunctionCall':
+			case 'FunctionCall': {
 				let args = [];
 				for(let i in tree.FunctionCall.args) {
 					args.push(this.parseTree(tree.FunctionCall.args[i]));
 				}
 				return this.builder.process(tree.FunctionCall.name, args);
+			}
 			case 'Binary':
 				return this.addOperatorProcess(
 					tree.Binary.operator,
 					this.parseTree(tree.Binary.left),
 					this.parseTree(tree.Binary.right)
 				);
-			case 'Unary':
+			case 'Unary': {
 				let val = this.parseTree(tree.Unary.expression);
 				if (tree.Unary.operator === '-') {
 					if (typeof val === 'number') {
@@ -99,10 +99,9 @@ class Formula {
 				else {
 					return val;
 				}
-			/* jshint ignore:start */
+			}
 			default:
 				throw new Error('Operation ' + key + ' not supported.');
-			/* jshint ignore:end */
 		}
 	}
 

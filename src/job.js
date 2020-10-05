@@ -2,24 +2,24 @@ const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
-const Connection = require('./connection'); // jshint ignore:line
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
 /**
+ * @module openeo
+ */
+/**
  * A Batch Job.
  * 
- * @class
- * @extends BaseEntity
+ * @augments BaseEntity
  */
 class Job extends BaseEntity {
 
 	/**
 	 * Creates an object representing a batch job stored at the back-end.
 	 * 
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} jobId - The batch job ID.
-	 * @constructor
 	 */
 	constructor(connection, jobId) {
 		super(connection, ["id", "title", "description", "process", "status", "progress", "created", "updated", "plan", "costs", "budget"]);
@@ -105,7 +105,7 @@ class Job extends BaseEntity {
 	 * Updates the batch job data stored in this object by requesting the metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<Job>} The update job object (this).
+	 * @returns {Promise<module:openeo~Job>} The update job object (this).
 	 * @throws {Error}
 	 */
 	async describeJob() {
@@ -123,7 +123,7 @@ class Job extends BaseEntity {
 	 * @param {string} parameters.description - A new description.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
-	 * @returns {Promise<Job>} The updated job object (this).
+	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
@@ -161,7 +161,7 @@ class Job extends BaseEntity {
 	/**
 	 * Get logs for the batch job from the back-end.
 	 * 
-	 * @returns {Logs}
+	 * @returns {module:openeo~Logs}
 	 */
 	debugJob() {
 		return new Logs(this.connection, '/jobs/' + this.id + '/logs');
@@ -181,10 +181,10 @@ class Job extends BaseEntity {
 	 * 
 	 * Returns a function that can be called to stop monitoring the job manually.
 	 * 
-	 * @param {function} callback 
+	 * @param {Function} callback 
 	 * @param {number} [interval=60] - Interval between update requests, in seconds as integer.
 	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
-	 * @returns {function}
+	 * @returns {Function}
 	 * @throws {Error}
 	 */
 	monitorJob(callback, interval = 60, requestLogs = true) {
@@ -212,7 +212,7 @@ class Job extends BaseEntity {
 			}
 			lastStatus = this.status;
 			if (STOP_STATUS.includes(this.status)) {
-				stopFn();
+				stopFn(); // eslint-disable-line no-use-before-define
 			}
 		};
 		setTimeout(monitorFn, 0);
@@ -230,7 +230,7 @@ class Job extends BaseEntity {
 	 * Starts / queues the batch job for processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<Job>} The updated job object (this).
+	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async startJob() {
@@ -245,7 +245,7 @@ class Job extends BaseEntity {
 	 * Stops / cancels the batch job processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<Job>} The updated job object (this).
+	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async stopJob() {

@@ -1,9 +1,9 @@
-const Connection = require("./connection"); // jshint ignore:line
-
+/**
+ * @module openeo
+ */
 /**
  * The base class for entities such as Job, Process Graph, Service etc.
  * 
- * @class
  * @abstract
  */
 class BaseEntity {
@@ -11,14 +11,13 @@ class BaseEntity {
 	/**
 	 * Creates an instance of this object.
 	 * 
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {object} properties 
-	 * @constructor
 	 */
 	constructor(connection, properties = []) {
 		/**
 		 * @protected
-		 * @type {Connection}
+		 * @type {module:openeo~Connection}
 		 */
 		this.connection = connection;
 		this.apiToClientNames = {};
@@ -60,7 +59,7 @@ class BaseEntity {
 	 * Converts the data from an API response into data suitable for our JS client models.
 	 * 
 	 * @param {object} metadata - JSON object originating from an API response.
-	 * @returns {this} Returns the object itself.
+	 * @returns {module:openeo~BaseEntity} Returns the object itself.
 	 */
 	setAll(metadata) {
 		for(let name in metadata) {
@@ -109,6 +108,10 @@ class BaseEntity {
 	}
 
 	/**
+	 * Converts the object to a valid objects for API requests.
+	 * 
+	 * @param {object} parameters
+	 * @returns {object}
 	 * @protected
 	 */
 	_convertToRequest(parameters) {
@@ -125,7 +128,12 @@ class BaseEntity {
 	}
 
 	/**
+	 * Checks whether a features is supported by the API.
+	 * 
+	 * @param {string} feature
+	 * @returns {boolean}
 	 * @protected
+	 * @see module:openeo~Capabilities#hasFeature
 	 */
 	_supports(feature) {
 		return this.connection.capabilities().hasFeature(feature);

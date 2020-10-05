@@ -1,24 +1,29 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
+/**
+ * @module openeo
+ */
+/**
+ * Manages the files types supported by the back-end.
+ */
 class FileTypes {
 
 	/**
 	 * Creates a new FileTypes object from an API-compatible JSON response.
 	 * 
 	 * @param {object} data - A capabilities response compatible to the API specification for `GET /file_formats`.
-	 * @constructor
 	 */
 	constructor(data) {
 		this.data = {
 			input: {},
 			output: {}
 		};
-		if  (!Utils.isObject(data)) {
+		if(!Utils.isObject(data)) {
 			return;
 		}
 		for(let io of ['input', 'output']) {
 			for(let type in data[io]) {
-				if  (!Utils.isObject(data[io])) {
+				if(!Utils.isObject(data[io])) {
 					continue;
 				}
 				this.data[io][type.toUpperCase()] = data[io][type];
@@ -78,6 +83,11 @@ class FileTypes {
 	}
 
 	/**
+	 * Get a file type object from the list of input or output file formats.
+	 * 
+	 * @param {string} type - Identifier of the file type
+	 * @param {string} io - Either `input` or `output`
+	 * @returns {?object}
 	 * @protected
 	 */
 	_findType(type, io) {

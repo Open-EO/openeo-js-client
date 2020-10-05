@@ -11,7 +11,7 @@ cache:
 
 script:
 # Run code checks
-  - npm run compat
+  - npm run lint
 # Run tests
   - npm run test
   - npm run test_node

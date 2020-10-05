@@ -1,41 +1,68 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
-const Formula = require('./formula');
 
 /**
+ * @module openeo
+ */
+/**
  * A class that represents a process node and also a result from a process.
- * 
- * @class
  */
 class BuilderNode {
 
 	/**
 	 * Creates a new process node for the builder.
 	 * 
-	 * @constructor
-	 * @param {Builder} parent 
+	 * @param {module:builder~Builder} parent
 	 * @param {string} processId 
 	 * @param {object} [processArgs={}]
 	 * @param {?string} [processDescription=null]
 	 */
 	constructor(parent, processId, processArgs = {}, processDescription = null) {
-		this.parent = parent; // parent builder
+		/**
+		 * The parent builder.
+		 * @type {module:builder~Builder}
+		 */
+		this.parent = parent;
+
+		/**
+		 * The specification of the process associated with this node.
+		 * @type {object}
+		 * @readonly
+		 */
 		this.spec = this.parent.spec(processId);
 		if (!Utils.isObject(this.spec)) {
 			throw new Error("Process doesn't exist: " + processId);
 		}
 
+		/**
+		 * The unique identifier for the node (not the process ID!).
+		 * @type {string}
+		 */
 		this.id = parent.generateId(processId);
+		/**
+		 * The arguments for the process.
+		 * @type {object}
+		 */
 		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
+		/**
+		 * @ignore
+		 */
 		this._description = processDescription;
+		/**
+		 * Is this the result node?
+		 * @type {boolean}
+		 */
 		this.result = false;
 
 		this.addParametersToProcess(this.arguments);
 	}
 
 	/**
+	 * Converts a sorted array of arguments to an object with the respective parameter names.
 	 * 
-	 * @param {array} processArgs 
+	 * @param {Array} processArgs 
+	 * @returns {object}
+	 * @throws {Error}
 	 */
 	namedArguments(processArgs) {
 		if (processArgs.length > (this.spec.parameters || []).length) {
@@ -51,9 +78,9 @@ class BuilderNode {
 	}
 
 	/**
-	 * Checks the arguments given for parameters and add them to the process
+	 * Checks the arguments given for parameters and add them to the process.
 	 * 
-	 * @param {object|array} processArgs 
+	 * @param {object|Array} processArgs 
 	 */
 	addParametersToProcess(processArgs) {
 		for(let key in processArgs) {
@@ -86,7 +113,7 @@ class BuilderNode {
 	 * Afterwards you can call `node.description` as normal object property.
 	 * 
 	 * @param {string|undefined} description - Optional: If given, set the value.
-	 * @returns {string|BuilderNode}
+	 * @returns {string|module:openeo~BuilderNode}
 	 */
 	description(description) {
 		if (typeof description === 'undefined') {
@@ -99,6 +126,7 @@ class BuilderNode {
 	}
 
 	exportArgument(arg, name) {
+		const Formula = require('./formula');
 		if (Utils.isObject(arg)) {
 			if (arg instanceof BuilderNode || arg instanceof Parameter) {
 				return arg.ref();

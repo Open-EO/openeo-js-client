@@ -4,6 +4,10 @@ const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
+/**
+ * @module openeo
+ */
+
 const PROCESS_META = [
 	"id", "summary", "description", "categories", "parameters", "returns",
 	"deprecated", "experimental", "exceptions", "examples", "links"
@@ -54,8 +58,6 @@ const PROCESS_META = [
  * 
  * var storedProcess = await con.setUserProcess("evi", datacube);
  * ```
- * 
- * @class
  */
 class Builder {
 
@@ -68,7 +70,7 @@ class Builder {
 	 * @async
 	 * @static
 	 * @param {?string} version 
-	 * @returns {Promise<Builder>}
+	 * @returns {Promise<module:openeo~Builder>}
 	 * @throws {Error}
 	 */
 	static async fromVersion(version = null) {
@@ -88,7 +90,7 @@ class Builder {
 	 * @async
 	 * @static
 	 * @param {?string} url 
-	 * @returns {Promise<Builder>}
+	 * @returns {Promise<module:openeo~Builder>}
 	 * @throws {Error}
 	 */
 	static async fromURL(url) {
@@ -101,14 +103,11 @@ class Builder {
 	 * 
 	 * Each process passed to the constructor is made available as object method.
 	 * 
-	 * @param {array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
-	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
+	 * @param {Array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+	 * @param {?module:openeo~Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
-		this.parent = parent; // parent builder
-		this.parentNode = null; // parent node
-		this.parentParameter = null; // parent parameter name
 		if (Array.isArray(processes)) {
 			this.processes = processes;
 		}
@@ -118,14 +117,35 @@ class Builder {
 		else {
 			throw new Error("Processes are invalid; must be array or object according to API.");
 		}
+
+		/**
+		 * The parent builder.
+		 * @type {?module:openeo~Builder}
+		 */
+		this.parent = parent;
+		/**
+		 * The parent node.
+		 * @type {?module:openeo~BuilderNode}
+		 */
+		this.parentNode = null;
+		/**
+		 * The parent parameter name.
+		 * @type {?string}
+		 */
+		this.parentParameter = null;
+		
 		this.nodes = {};
 		this.idCounter = {};
 		this.callbackParameterCache = {};
 		this.parameters = undefined;
 
+		/**
+		 * A unique identifier for the process.
+		 * @public
+		 * @type {string}
+		 */
 		this.id = id;
 
-		/* jshint ignore:start */
 		for(let process of this.processes) {
 			if (typeof this[process.id] === 'undefined') {
 				this[process.id] = function(...args) {
@@ -137,7 +157,6 @@ class Builder {
 				console.warn("Can't create function for process '" + process.id + "'. Already exists in Builder class.");
 			}
 		}
-		/* jshint ignore:end */
 	}
 
 	setParent(node, parameterName) {
@@ -153,7 +172,9 @@ class Builder {
 	}
 
 	/**
+	 * Gets the callback parameter specifics from the parent process.
 	 * 
+	 * @returns {Array}
 	 * @todo Should this also pass callback parameters from parents until root is reached?
 	 */
 	getParentCallbackParameters() {
@@ -174,7 +195,7 @@ class Builder {
 		}
 
 		/**
-		 * @type {Builder}
+		 * @type {module:openeo~Builder}
 		 */
 		let builder = this;
 		if (root) {
@@ -201,11 +222,12 @@ class Builder {
 	/**
 	 * Adds a mathematical formula to the process.
 	 * 
-	 * See the {@link Formula} class for more information.
+	 * See the {@link module:openeo~Formula} class for more information.
 	 * 
 	 * @param {string} formula 
-	 * @returns {BuilderNode}
+	 * @returns {module:openeo~BuilderNode}
 	 * @throws {Error}
+	 * @see module:openeo~Formula
 	 */
 	math(formula) {
 		const Formula = require('./formula');
@@ -218,12 +240,12 @@ class Builder {
 	 * Adds another process call to the process chain.
 	 * 
 	 * @param {string} processId - The id of the process to call.
-	 * @param {object|array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+	 * @param {object|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
 	 * @param {?string} description - An optional description for the process call.
-	 * @returns {BuilderNode}
+	 * @returns {module:openeo~BuilderNode}
 	 */
 	process(processId, args = {}, description = null) {
-		var node = new BuilderNode(this, processId, args, description);
+		let node = new BuilderNode(this, processId, args, description);
 		this.nodes[node.id] = node;
 		return node;
 	}

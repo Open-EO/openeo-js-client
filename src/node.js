@@ -2,14 +2,15 @@ const fs = require('fs');
 const url = require("url");
 const path = require("path");
 const Stream = require('stream');
-const Connection = require('./connection'); // jshint ignore:line
 
+/**
+ * @module openeo
+ */
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
  * Node.js implementation, don't use in other environments.
  * 
- * @class
  * @hideconstructor
  */
 class Environment {
@@ -36,7 +37,7 @@ class Environment {
 		return new Promise((_, reject) => {
 			let chunks = [];
 			error.response.data.on("data", chunk => chunks.push(chunk));
-			error.response.data.on("error", error => reject(error));
+			error.response.data.on("error", streamError => reject(streamError));
 			error.response.data.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
 		});
 	}
@@ -96,7 +97,7 @@ class Environment {
 	 * Downloads files to local storage and returns a list of file paths.
 	 * 
 	 * @static
-	 * @param {Connection} con 
+	 * @param {module:openeo~Connection} con 
 	 * @param {object[]} assets 
 	 * @param {string} targetFolder 
 	 * @returns {Promise<string[]>}
@@ -128,7 +129,7 @@ class Environment {
 	 * @async
 	 * @param {Stream.Readable} data - Data stream to read from.
 	 * @param {string} filename - File path to store the data at.
-	 * @returns {Promise}
+	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 */
 	static saveToFile(data, filename) {

@@ -1,21 +1,22 @@
 const Utils = require('@openeo/js-commons/src/utils');
 const OidcClient = require('oidc-client');
 const AuthProvider = require('./authprovider');
-const Connection = require('./connection'); // jshint ignore:line
 
+/**
+ * @module openeo
+ */
 /**
  * The Authentication Provider for OpenID Connect.
  * 
  * @todo Add how to use the OIDC Provider.
- * @class
- * @extends {AuthProvider}
+ * @augments module:openeo~AuthProvider
  */
 class OidcProvider extends AuthProvider {
 
 	/**
 	 * OpenID Connect Provider details as returned by the API.
 	 * 
-	 * @extends AuthProviderMeta
+	 * @augments AuthProviderMeta
 	 * @typedef OidcProviderMeta
 	 * @type {object} 
 	 * @property {string} id Provider identifier.
@@ -29,9 +30,8 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
-	 * @constructor
 	 */
 	constructor(connection, options) {
 		super("oidc", connection, options);
@@ -49,7 +49,7 @@ class OidcProvider extends AuthProvider {
 	 * @returns {boolean}
 	 */
 	static isSupported() {
-		return (Utils.isObject(OidcClient) && !!OidcClient.UserManager);
+		return Utils.isObject(OidcClient) && Boolean(OidcClient.UserManager);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class OidcProvider extends AuthProvider {
 	 * @throws Error
 	 */
 	static async signinCallback(provider = null) {
-		var oidc = new OidcClient.UserManager({});
+		let oidc = new OidcClient.UserManager({});
 		if (OidcProvider.uiMethod === 'popup') {
 			await oidc.signinPopupCallback();
 		}
@@ -99,8 +99,7 @@ class OidcProvider extends AuthProvider {
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
-	async login(...args) {
-		const [client_id, redirect_uri, options = {}] = args;
+	async login(client_id, redirect_uri, options = {}) {
 
 		if (!this.issuer || typeof this.issuer !== 'string') {
 			throw new Error("No Issuer URL available for OpenID Connect");

@@ -1,11 +1,11 @@
-const Connection = require("./connection"); // jshint ignore:line
-
+/**
+ * @module openeo
+ */
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
  * Browser implementation, don't use in other environments.
  * 
- * @class
  * @hideconstructor
  */
 class Environment {
@@ -97,12 +97,12 @@ class Environment {
 	 * Not supported in Browsers and only throws an Error!
 	 * 
 	 * @static
-	 * @param {Connection} con 
+	 * @param {module:openeo~Connection} con 
 	 * @param {object[]} assets 
 	 * @param {string} targetFolder 
 	 * @throws {Error}
 	 */
-	static async downloadResults(con, assets, targetFolder) { // jshint ignore:line
+	static async downloadResults(con, assets, targetFolder) { // eslint-disable-line no-unused-vars
 		throw new Error("downloadResults is not supported in a browser environment.");
 	}
 
@@ -115,7 +115,7 @@ class Environment {
 	 * @static
 	 * @param {*} data - Data to download.
 	 * @param {string} filename - File name that is suggested to the user.
-	 * @returns {Promise}
+	 * @returns {Promise<void>}
 	 * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
 	 */
 	/* istanbul ignore next */

@@ -1,6 +1,9 @@
 "use strict";
 
 /**
+ * @module openeo
+ */
+/**
  * A class that represents a process parameter. 
  * 
  * This is used for two things:
@@ -23,9 +26,7 @@
  * `this.array_element(data, 1)` respectively.
  * 
  * Simple access to numeric labels is not supported. You need to use `array_element` directly, e.g.
- * `this.array_element(data, undefined, 1)`
- * 
- * @class
+ * `this.array_element(data, undefined, 1)`.
  */
 class Parameter {
 

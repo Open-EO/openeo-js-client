@@ -1,9 +1,10 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
 /**
+ * @module openeo
+ */
+/**
  * Capabilities of a back-end.
- * 
- * @class
  */
 class Capabilities {
 
@@ -12,7 +13,6 @@ class Capabilities {
 	 * 
 	 * @param {object} data - A capabilities response compatible to the API specification for `GET /`.
 	 * @throws {Error}
-	 * @constructor
 	 */
 	constructor(data) {
 		if(!Utils.isObject(data)) {

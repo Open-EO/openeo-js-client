@@ -54,7 +54,7 @@ Generate a build: `npm run build` (generates `openeo.js`, `openeo.min.js` and `o
 
 Generate the documentation to the `docs/` folder: `npm run docs`
 
-Check against the coding guidelines: `npm run compat`
+Check against the coding guidelines: `npm run lint`
 
 Run tests:
 

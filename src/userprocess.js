@@ -1,20 +1,20 @@
 const BaseEntity = require('./baseentity');
-const Connection = require('./connection'); // jshint ignore:line
 
+/**
+ * @module openeo
+ */
 /**
  * A Stored Process Graph.
  * 
- * @class
- * @extends BaseEntity
+ * @augments BaseEntity
  */
 class UserProcess extends BaseEntity {
 
 	/**
 	 * Creates an object representing a process graph stored at the back-end.
 	 * 
-	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} id - ID of a stored process graph.
-	 * @constructor
 	 */
 	constructor(connection, id) {
 		super(connection, [
@@ -118,7 +118,7 @@ class UserProcess extends BaseEntity {
 	 * Updates the data stored in this object by requesting the process graph metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<UserProcess>} The updated process graph object (this).
+	 * @returns {Promise<module:openeo~UserProcess>} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async describeUserProcess() {
@@ -134,7 +134,7 @@ class UserProcess extends BaseEntity {
 	 * @param {object} parameters.process - A new process.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
-	 * @returns {Promise<UserProcess>} The updated process graph object (this).
+	 * @returns {Promise<module:openeo~UserProcess>} The updated process graph object (this).
 	 * @throws {Error}
 	 */
 	async replaceUserProcess(parameters) {

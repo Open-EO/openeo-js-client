@@ -1,0 +1,76 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "node": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 2017
+    },
+    "plugins": [
+        "jsdoc"
+    ],
+    "rules": {
+        "no-constant-condition": ["error", { "checkLoops": false }],
+        "no-template-curly-in-string": "error",
+        "block-scoped-var": "error",
+        "no-unreachable-loop": "error",
+        "require-atomic-updates": "error",
+        "max-classes-per-file": "error",
+        "no-alert": "error",
+        "no-caller": "error",
+        "eqeqeq": "error",
+        "no-constructor-return": "error",
+        "no-eval": "error",
+        "no-extend-native": "error",
+        "no-extra-bind": "error",
+        "no-implicit-coercion": "error",
+        "no-invalid-this": "error",
+        "no-multi-spaces": "error",
+        "no-multi-str": "error",
+        "no-return-assign": "error",
+        "no-self-compare": "error",
+        "no-sequences": "error",
+        "no-throw-literal": "error",
+        "no-unmodified-loop-condition": "error",
+        "no-unused-expressions": "error",
+        "no-useless-call": "error",
+        "no-useless-concat": "error",
+        "no-useless-return": "error",
+        "no-void": "error",
+        "no-warning-comments": "error",
+        "radix": "error",
+        "no-shadow": "error",
+        "no-use-before-define": ["error", { "functions": false }],
+        "arrow-spacing": "error",
+        "no-confusing-arrow": "error",
+        "no-duplicate-imports": "error",
+        "no-var": "error",
+
+        "jsdoc/check-access": 1,
+        "jsdoc/check-alignment": 1, // Recommended
+        "jsdoc/check-examples": 1,
+        "jsdoc/check-indentation": 1,
+        "jsdoc/check-param-names": 1, // Recommended
+        "jsdoc/check-syntax": 1,
+        "jsdoc/check-tag-names": 1, // Recommended
+        "jsdoc/check-types": 1, // Recommended
+        "jsdoc/implements-on-classes": 1, // Recommended
+        "jsdoc/match-description": 1,
+        "jsdoc/no-undefined-types": 1, // Recommended
+        "jsdoc/require-description": 1,
+        "jsdoc/require-hyphen-before-param-description": 1,
+        "jsdoc/require-jsdoc": 1, // Recommended
+        "jsdoc/require-param": 1, // Recommended
+        "jsdoc/require-param-name": 1, // Recommended
+        "jsdoc/require-param-type": 1, // Recommended
+        "jsdoc/require-returns": 1, // Recommended
+        "jsdoc/require-returns-check": 1, // Recommended
+        "jsdoc/require-returns-type": 1, // Recommended
+        "jsdoc/valid-types": 1 // Recommended
+    }
+}
