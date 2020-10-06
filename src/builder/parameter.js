@@ -1,9 +1,6 @@
 "use strict";
 
 /**
- * @module openeo
- */
-/**
  * A class that represents a process parameter. 
  * 
  * This is used for two things:
@@ -35,9 +32,9 @@ class Parameter {
 	 * so that array access is possible (see class description).
 	 * 
 	 * @static
-	 * @param {module:openeo~Builder} builder 
+	 * @param {Builder} builder 
 	 * @param {string} parameterName 
-	 * @returns {Proxy<module:openeo~Parameter>}
+	 * @returns {Proxy<Parameter>}
 	 */
 	static create(builder, parameterName) {
 		let parameter = new Parameter(parameterName, null);
@@ -48,6 +45,7 @@ class Parameter {
 				/**
 				 * Getter for array access (see class description).
 				 * 
+				 * @ignore
 				 * @param {object} target 
 				 * @param {string|number|symbol} name 
 				 * @param {?*} receiver 
@@ -81,6 +79,7 @@ class Parameter {
 				 * 
 				 * Usually fails as write access to arrays is not supported.
 				 * 
+				 * @ignore
 				 * @param {object} target 
 				 * @param {string|number|symbol} name 
 				 * @param {*} value 

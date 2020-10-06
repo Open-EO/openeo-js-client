@@ -2,9 +2,6 @@ const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 
 /**
- * @module openeo
- */
-/**
  * A Secondary Web Service.
  * 
  * @augments BaseEntity
@@ -14,7 +11,7 @@ class Service extends BaseEntity {
 	/**
 	 * Creates an object representing a secondary web service stored at the back-end.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} serviceId - The service ID.
 	 */
 	constructor(connection, serviceId) {
@@ -113,7 +110,7 @@ class Service extends BaseEntity {
 	 * Updates the data stored in this object by requesting the secondary web service metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Service>} The updates service object (this).
+	 * @returns {Promise<Service>} The updates service object (this).
 	 * @throws {Error}
 	 */
 	async describeService() {
@@ -133,7 +130,7 @@ class Service extends BaseEntity {
 	 * @param {object} parameters.configuration - A new set of configuration parameters to set for the service.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
-	 * @returns {Promise<module:openeo~Service>} The updated service object (this).
+	 * @returns {Promise<Service>} The updated service object (this).
 	 * @throws {Error}
 	 */
 	async updateService(parameters) {
@@ -159,7 +156,7 @@ class Service extends BaseEntity {
 	/**
 	 * Get logs for the secondary web service from the back-end.
 	 * 
-	 * @returns {module:openeo~Logs}
+	 * @returns {Logs}
 	 */
 	debugService() {
 		return new Logs(this.connection, '/services/' + this.id + '/logs');

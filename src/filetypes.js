@@ -1,9 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
 /**
- * @module openeo
- */
-/**
  * Manages the files types supported by the back-end.
  */
 class FileTypes {

@@ -1,6 +1,3 @@
-/**
- * @module openeo
- */
 /*
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>

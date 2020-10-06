@@ -1,7 +1,4 @@
 /**
- * @module openeo
- */
-/**
  * The base class for entities such as Job, Process Graph, Service etc.
  * 
  * @abstract
@@ -11,13 +8,13 @@ class BaseEntity {
 	/**
 	 * Creates an instance of this object.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {object} properties 
 	 */
 	constructor(connection, properties = []) {
 		/**
 		 * @protected
-		 * @type {module:openeo~Connection}
+		 * @type {Connection}
 		 */
 		this.connection = connection;
 		this.apiToClientNames = {};
@@ -59,7 +56,7 @@ class BaseEntity {
 	 * Converts the data from an API response into data suitable for our JS client models.
 	 * 
 	 * @param {object} metadata - JSON object originating from an API response.
-	 * @returns {module:openeo~BaseEntity} Returns the object itself.
+	 * @returns {BaseEntity} Returns the object itself.
 	 */
 	setAll(metadata) {
 		for(let name in metadata) {
@@ -133,7 +130,7 @@ class BaseEntity {
 	 * @param {string} feature
 	 * @returns {boolean}
 	 * @protected
-	 * @see module:openeo~Capabilities#hasFeature
+	 * @see Capabilities#hasFeature
 	 */
 	_supports(feature) {
 		return this.connection.capabilities().hasFeature(feature);

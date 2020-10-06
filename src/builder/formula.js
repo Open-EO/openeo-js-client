@@ -3,9 +3,6 @@ const Parameter = require("./parameter");
 const BuilderNode = require('./node');
 
 /**
- * @module openeo
- */
-/**
  * This converts a mathematical formula into a openEO process for you.
  * 
  * Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)
@@ -37,7 +34,7 @@ class Formula {
 	/**
 	 * The builder instance to use.
 	 * 
-	 * @param {module:openeo~Builder} builder - The builder instance to add the formula to.
+	 * @param {Builder} builder - The builder instance to add the formula to.
 	 */
 	setBuilder(builder) {
 		this.builder = builder;
@@ -49,7 +46,7 @@ class Formula {
 	 * Returns the last node that computes the result.
 	 * 
 	 * @param {boolean} setResultNode - Set the `result` flag to `true`.
-	 * @returns {module:openeo~BuilderNode}
+	 * @returns {BuilderNode}
 	 * @throws {Error}
 	 */
 	generate(setResultNode = true) {
@@ -162,7 +159,7 @@ class Formula {
 	 * @param {string} operator - The operator.
 	 * @param {number|object} left - The left part for the operator.
 	 * @param {number|object} right - The right part for the operator.
-	 * @returns {module:openeo~BuilderNode}
+	 * @returns {BuilderNode}
 	 * @throws {Error}
 	 */
 	addOperatorProcess(operator, left, right) {

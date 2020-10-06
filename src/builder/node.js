@@ -2,9 +2,6 @@ const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
 
 /**
- * @module openeo
- */
-/**
  * A class that represents a process node and also a result from a process.
  */
 class BuilderNode {
@@ -114,7 +111,7 @@ class BuilderNode {
 	 * Afterwards you can call `node.description` as normal object property.
 	 * 
 	 * @param {string|undefined} description - Optional: If given, set the value.
-	 * @returns {string|module:openeo~BuilderNode}
+	 * @returns {string|BuilderNode}
 	 */
 	description(description) {
 		if (typeof description === 'undefined') {
@@ -178,9 +175,9 @@ class BuilderNode {
 	 * Creates a new Builder, usually for a callback.
 	 * 
 	 * @protected
-	 * @param {?module:openeo~BuilerNode} [parentNode=null]
+	 * @param {?BuilerNode} [parentNode=null]
 	 * @param {?string} parentParameter
-	 * @returns {module:openeo~BuilderNode}
+	 * @returns {BuilderNode}
 	 */
 	createBuilder(parentNode = null, parentParameter = null) {
 		const Builder = require('./builder');

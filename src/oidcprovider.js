@@ -3,13 +3,10 @@ const OidcClient = require('oidc-client');
 const AuthProvider = require('./authprovider');
 
 /**
- * @module openeo
- */
-/**
  * The Authentication Provider for OpenID Connect.
  * 
  * @todo Add how to use the OIDC Provider.
- * @augments module:openeo~AuthProvider
+ * @augments AuthProvider
  */
 class OidcProvider extends AuthProvider {
 
@@ -30,7 +27,7 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
 	 */
 	constructor(connection, options) {

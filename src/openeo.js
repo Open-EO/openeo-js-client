@@ -29,9 +29,6 @@ const MIN_API_VERSION = '1.0.0-rc.2';
 const MAX_API_VERSION = '1';
 
 /**
- * @module openeo
- */
-/**
  * Main class to start with openEO. Allows to connect to a server.
  * 
  * @hideconstructor
@@ -46,7 +43,7 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
-	 * @returns {Promise<module:openeo~Connection>}
+	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
@@ -83,7 +80,7 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} versionedUrl - The server URL to connect to.
-	 * @returns {Promise<module:openeo~Connection>}
+	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
@@ -120,21 +117,21 @@ OpenEO.Environment = require('./env');
  * What you usually want to import is `OpenEO`.
  * 
  * @type {object}
- * @property {module:openeo~AuthProvider} AuthProvider
- * @property {module:openeo~BasicProvider} BasicProvider
- * @property {module:openeo~Capabilities} Capabilities
- * @property {module:openeo~File} File
- * @property {module:openeo~FileTypes} FileTypes
- * @property {module:openeo~Job} Job
- * @property {module:openeo~Logs} Logs
- * @property {module:openeo~OidcProvider} OidcProvider
- * @property {module:openeo~OpenEO} OpenEO
- * @property {module:openeo~Service} Service
- * @property {module:openeo~UserProcess} UserProcess
- * @property {module:openeo~Builder} Builder
- * @property {module:openeo~BuilderNode} BuilderNode
- * @property {module:openeo~Parameter} Parameter
- * @property {module:openeo~Formula} Formula
+ * @property {AuthProvider} AuthProvider
+ * @property {BasicProvider} BasicProvider
+ * @property {Capabilities} Capabilities
+ * @property {File} File
+ * @property {FileTypes} FileTypes
+ * @property {Job} Job
+ * @property {Logs} Logs
+ * @property {OidcProvider} OidcProvider
+ * @property {OpenEO} OpenEO
+ * @property {Service} Service
+ * @property {UserProcess} UserProcess
+ * @property {Builder} Builder
+ * @property {BuilderNode} BuilderNode
+ * @property {Parameter} Parameter
+ * @property {Formula} Formula
  */
 module.exports = {
 	AuthProvider,

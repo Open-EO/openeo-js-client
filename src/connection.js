@@ -18,9 +18,6 @@ const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 
 /**
- * @module openeo
- */
-/**
  * A connection to a back-end.
  */
 class Connection {
@@ -42,7 +39,7 @@ class Connection {
 	 * Initializes the connection by requesting the capabilities.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Capabilities>} Capabilities
+	 * @returns {Promise<Capabilities>} Capabilities
 	 */
 	async init() {
 		let response = await this._get('/');
@@ -62,7 +59,7 @@ class Connection {
 	/**
 	 * Returns the capabilities of the back-end.
 	 * 
-	 * @returns {module:openeo~Capabilities} Capabilities
+	 * @returns {Capabilities} Capabilities
 	 */
 	capabilities() {
 		return this.capabilitiesObject;
@@ -72,7 +69,7 @@ class Connection {
 	 * List the supported output file formats.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~FileTypes>} A response compatible to the API specification.
+	 * @returns {Promise<FileTypes>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listFileTypes() {
@@ -153,7 +150,7 @@ class Connection {
 	 * @param {string} processId - Collection ID to request further metadata for.
 	 * @returns {Promise<?object>} - A single process as object, or `null` if none is found.
 	 * @throws {Error}
-	 * @see module:openeo~Connection#listProcesses
+	 * @see Connection#listProcesses
 	 */
 	async describeProcess(processId) {
 		let response = await this.listProcesses();
@@ -171,9 +168,9 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - A name for the process.
-	 * @returns {Promise<module:openeo~Builder>}
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
-	 * @see module:openeo~Connection#listProcesses
+	 * @see Connection#listProcesses
 	 */
 	async buildProcess(id) {
 		let response = await this.listProcesses();
@@ -184,9 +181,9 @@ class Connection {
 	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~AuthProvider[]>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
+	 * @returns {Promise<AuthProvider[]>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
-	 * @see module:openeo~AuthProvider
+	 * @see AuthProvider
 	 */
 	async listAuthProviders() {
 		if (this.authProviderList !== null) {
@@ -230,7 +227,7 @@ class Connection {
 	 *
 	 * @callback oidcProviderFactoryFunction
 	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-	 * @returns {?module:openeo~AuthProvider}
+	 * @returns {?AuthProvider}
 	 */
 
 	/**
@@ -241,7 +238,7 @@ class Connection {
 	 * OIDC library other than oidc-client-js.
 	 * 
 	 * @param {oidcProviderFactoryFunction} providerFactoryFunc
-	 * @see module:openeo~AuthProvider
+	 * @see AuthProvider
 	 */
 	setOidcProviderFactory(providerFactoryFunc) {
 		this.oidcProviderFactory = providerFactoryFunc;
@@ -254,7 +251,7 @@ class Connection {
 	 * can't be created for whatever reason.
 	 * 
 	 * @returns {oidcProviderFactoryFunction}
-	 * @see module:openeo~AuthProvider
+	 * @see AuthProvider
 	 */
 	getOidcProviderFactory() {
 		if (typeof this.oidcProviderFactory === 'function') {
@@ -279,8 +276,8 @@ class Connection {
 	 * @deprecated
 	 * @param {string} username 
 	 * @param {string} password 
-	 * @see module:openeo~BasicProvider
-	 * @see module:openeo~Connection#listAuthProviders
+	 * @see BasicProvider
+	 * @see Connection#listAuthProviders
 	 */
 	async authenticateBasic(username, password) {
 		let basic = new BasicProvider(this);
@@ -299,7 +296,7 @@ class Connection {
 	/**
 	 * Returns the AuthProvider.
 	 * 
-	 * @returns {module:openeo~AuthProvider} 
+	 * @returns {AuthProvider} 
 	 */
 	getAuthProvider() {
 		return this.authProvider;
@@ -310,7 +307,7 @@ class Connection {
 	 * 
 	 * The provider must have a token set.
 	 * 
-	 * @param {module:openeo~AuthProvider} provider 
+	 * @param {AuthProvider} provider 
 	 * @throws {Error}
 	 */
 	setAuthProvider(provider) {
@@ -334,7 +331,7 @@ class Connection {
 	 * @param {string} type - The authentication type, e.g. `basic` or `oidc`.
 	 * @param {string} providerId - The provider identifier. For OIDC the `id` of the provider.
 	 * @param {string} token - The actual access token as given by the authentication method during the login process.
-	 * @returns {module:openeo~sAuthProvider}
+	 * @returns {sAuthProvider}
 	 */
 	setAuthToken(type, providerId, token) {
 		this.authProvider = new AuthProvider(type, this, {
@@ -364,7 +361,7 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~File[]>} A list of files.
+	 * @returns {Promise<File[]>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
@@ -394,7 +391,7 @@ class Connection {
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
 	 * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {Promise<module:openeo~File>}
+	 * @returns {Promise<File>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, targetPath = null, statusCallback = null) {
@@ -410,7 +407,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} path - Path to the file, relative to the user workspace.
-	 * @returns {Promise<module:openeo~File>} A file.
+	 * @returns {Promise<File>} A file.
 	 * @throws {Error}
 	 */
 	async getFile(path) {
@@ -421,7 +418,7 @@ class Connection {
 	 * Takes a UserProcess, BuilderNode or a plain object containing process nodes
 	 * and converts it to an API compliant object.
 	 * 
-	 * @param {module:openeo~UserProcess|module:openeo~BuilderNode|object} process - Process to be normalized.
+	 * @param {UserProcess|BuilderNode|object} process - Process to be normalized.
 	 * @param {object} additional - Additional properties to be merged with the resulting object.
 	 * @returns {object}
 	 * @protected
@@ -464,7 +461,7 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~UserProcess[]>} A list of user-defined processes.
+	 * @returns {Promise<UserProcess[]>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
 	async listUserProcesses() {
@@ -480,7 +477,7 @@ class Connection {
 	 * @async
 	 * @param {string} id - Unique identifier for the process.
 	 * @param {object} process - A user-defined process.
-	 * @returns {Promise<module:openeo~UserProcess>} The new user-defined process.
+	 * @returns {Promise<UserProcess>} The new user-defined process.
 	 * @throws {Error}
 	 */
 	async setUserProcess(id, process) {
@@ -493,7 +490,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Identifier of the user-defined process. 
-	 * @returns {Promise<module:openeo~UserProcess>} The user-defined process.
+	 * @returns {Promise<UserProcess>} The user-defined process.
 	 * @throws {Error}
 	 */
 	async getUserProcess(id) {
@@ -586,7 +583,7 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Job[]>} A list of jobs.
+	 * @returns {Promise<Job[]>} A list of jobs.
 	 * @throws {Error}
 	 */
 	async listJobs() {
@@ -606,7 +603,7 @@ class Connection {
 	 * @param {string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this batch job.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
-	 * @returns {Promise<module:openeo~Job>} The stored batch job.
+	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
 	async createJob(process, title = null, description = null, plan = null, budget = null, additional = {}) {
@@ -632,7 +629,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Batch Job ID. 
-	 * @returns {Promise<module:openeo~Job>} The batch job.
+	 * @returns {Promise<Job>} The batch job.
 	 * @throws {Error}
 	 */
 	async getJob(id) {
@@ -644,7 +641,7 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Job[]>} A list of services.
+	 * @returns {Promise<Job[]>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices() {
@@ -667,7 +664,7 @@ class Connection {
 	 * @param {string} [plan=null] - The billing plan to use for this service.
 	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
-	 * @returns {Promise<module:openeo~Service>} The stored service.
+	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */
 	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, plan = null, budget = null, additional = {}) {
@@ -695,7 +692,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Service ID. 
-	 * @returns {Promise<module:openeo~Service>} The service.
+	 * @returns {Promise<Service>} The service.
 	 * @throws {Error}
 	 */
 	async getService(id) {

@@ -4,9 +4,6 @@ const path = require("path");
 const Stream = require('stream');
 
 /**
- * @module openeo
- */
-/**
  * Platform dependant utilities for the openEO JS Client.
  * 
  * Node.js implementation, don't use in other environments.
@@ -97,7 +94,7 @@ class Environment {
 	 * Downloads files to local storage and returns a list of file paths.
 	 * 
 	 * @static
-	 * @param {module:openeo~Connection} con 
+	 * @param {Connection} con 
 	 * @param {object[]} assets 
 	 * @param {string} targetFolder 
 	 * @returns {Promise<string[]>}

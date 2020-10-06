@@ -1,9 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
 /**
- * @module openeo
- */
-/**
  * Interface to loop through the logs.
  */
 class Logs {
@@ -11,13 +8,13 @@ class Logs {
 	/**
 	 * Creates a new Logs instance to retrieve logs from a back-end.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
 	 */
 	constructor(connection, endpoint) {
 		/**
 		 * @protected
-		 * @type {module:openeo~Connection}
+		 * @type {Connection}
 		 */
 		this.connection = connection;
 		this.endpoint = endpoint;

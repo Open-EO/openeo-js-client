@@ -6,9 +6,6 @@ const Utils = require('@openeo/js-commons/src/utils');
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
 /**
- * @module openeo
- */
-/**
  * A Batch Job.
  * 
  * @augments BaseEntity
@@ -18,7 +15,7 @@ class Job extends BaseEntity {
 	/**
 	 * Creates an object representing a batch job stored at the back-end.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} jobId - The batch job ID.
 	 */
 	constructor(connection, jobId) {
@@ -105,7 +102,7 @@ class Job extends BaseEntity {
 	 * Updates the batch job data stored in this object by requesting the metadata from the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Job>} The update job object (this).
+	 * @returns {Promise<Job>} The update job object (this).
 	 * @throws {Error}
 	 */
 	async describeJob() {
@@ -123,7 +120,7 @@ class Job extends BaseEntity {
 	 * @param {string} parameters.description - A new description.
 	 * @param {string} parameters.plan - A new plan.
 	 * @param {number} parameters.budget - A new budget.
-	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
@@ -161,7 +158,7 @@ class Job extends BaseEntity {
 	/**
 	 * Get logs for the batch job from the back-end.
 	 * 
-	 * @returns {module:openeo~Logs}
+	 * @returns {Logs}
 	 */
 	debugJob() {
 		return new Logs(this.connection, '/jobs/' + this.id + '/logs');
@@ -230,7 +227,7 @@ class Job extends BaseEntity {
 	 * Starts / queues the batch job for processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async startJob() {
@@ -245,7 +242,7 @@ class Job extends BaseEntity {
 	 * Stops / cancels the batch job processing at the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<module:openeo~Job>} The updated job object (this).
+	 * @returns {Promise<Job>} The updated job object (this).
 	 * @throws {Error}
 	 */
 	async stopJob() {

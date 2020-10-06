@@ -4,9 +4,6 @@ const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
-/**
- * @module openeo
- */
 
 const PROCESS_META = [
 	"id", "summary", "description", "categories", "parameters", "returns",
@@ -70,7 +67,7 @@ class Builder {
 	 * @async
 	 * @static
 	 * @param {?string} version 
-	 * @returns {Promise<module:openeo~Builder>}
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
 	static async fromVersion(version = null) {
@@ -90,7 +87,7 @@ class Builder {
 	 * @async
 	 * @static
 	 * @param {?string} url 
-	 * @returns {Promise<module:openeo~Builder>}
+	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
 	static async fromURL(url) {
@@ -104,7 +101,7 @@ class Builder {
 	 * Each process passed to the constructor is made available as object method.
 	 * 
 	 * @param {Array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
-	 * @param {?module:openeo~Builder} parent - The parent builder, usually only used by the Builder itself.
+	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
@@ -120,12 +117,12 @@ class Builder {
 
 		/**
 		 * The parent builder.
-		 * @type {?module:openeo~Builder}
+		 * @type {?Builder}
 		 */
 		this.parent = parent;
 		/**
 		 * The parent node.
-		 * @type {?module:openeo~BuilderNode}
+		 * @type {?BuilderNode}
 		 */
 		this.parentNode = null;
 		/**
@@ -151,11 +148,11 @@ class Builder {
 				/**
 				 * Implicitly calls the process with the given name on the back-end by adding it to the process.
 				 * 
-				 * This is a shortcut for {@link module:openeo~Builder#process}.
+				 * This is a shortcut for {@link Builder#process}.
 				 * 
 				 * @param {...*} args - The arguments for the process.
-				 * @returns {module:openeo~BuilderNode}
-				 * @see module:openeo~Builder#process
+				 * @returns {BuilderNode}
+				 * @see Builder#process
 				 */
 				this[process.id] = function(...args) {
 					// Don't use arrow functions, they don't support the arguments keyword.
@@ -171,7 +168,7 @@ class Builder {
 	/**
 	 * Sets the parent for this Builder.
 	 * 
-	 * @param {module:openeo~BuilderNode} node 
+	 * @param {BuilderNode} node 
 	 * @param {string} parameterName 
 	 */
 	setParent(node, parameterName) {
@@ -225,7 +222,7 @@ class Builder {
 		}
 
 		/**
-		 * @type {module:openeo~Builder}
+		 * @type {Builder}
 		 */
 		let builder = this;
 		if (root) {
@@ -258,12 +255,12 @@ class Builder {
 	/**
 	 * Adds a mathematical formula to the process.
 	 * 
-	 * See the {@link module:openeo~Formula} class for more information.
+	 * See the {@link Formula} class for more information.
 	 * 
 	 * @param {string} formula 
-	 * @returns {module:openeo~BuilderNode}
+	 * @returns {BuilderNode}
 	 * @throws {Error}
-	 * @see module:openeo~Formula
+	 * @see Formula
 	 */
 	math(formula) {
 		const Formula = require('./formula');
@@ -278,7 +275,7 @@ class Builder {
 	 * @param {string} processId - The id of the process to call.
 	 * @param {object|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
 	 * @param {?string} description - An optional description for the process call.
-	 * @returns {module:openeo~BuilderNode}
+	 * @returns {BuilderNode}
 	 */
 	process(processId, args = {}, description = null) {
 		let node = new BuilderNode(this, processId, args, description);

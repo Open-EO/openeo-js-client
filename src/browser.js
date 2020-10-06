@@ -1,7 +1,4 @@
 /**
- * @module openeo
- */
-/**
  * Platform dependant utilities for the openEO JS Client.
  * 
  * Browser implementation, don't use in other environments.
@@ -97,7 +94,7 @@ class Environment {
 	 * Not supported in Browsers and only throws an Error!
 	 * 
 	 * @static
-	 * @param {module:openeo~Connection} con 
+	 * @param {Connection} con 
 	 * @param {object[]} assets 
 	 * @param {string} targetFolder 
 	 * @throws {Error}

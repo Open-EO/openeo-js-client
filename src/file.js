@@ -4,9 +4,6 @@ const BaseEntity = require('./baseentity');
 const Stream = require('stream'); // eslint-disable-line no-unused-vars
 
 /**
- * @module openeo
- */
-/**
  * A File on the user workspace.
  * 
  * @augments BaseEntity
@@ -16,7 +13,7 @@ class File extends BaseEntity {
 	/**
 	 * Creates an object representing a file on the user workspace.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} path - The path to the file, relative to the user workspace and without user ID.
 	 */
 	constructor(connection, path) {
@@ -95,7 +92,7 @@ class File extends BaseEntity {
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {Promise<module:openeo~File>}
+	 * @returns {Promise<File>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {

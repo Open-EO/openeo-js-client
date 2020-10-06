@@ -3,19 +3,16 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 
 /**
- * @module openeo
- */
-/**
  * The Authentication Provider for HTTP Basic.
  * 
- * @augments module:openeo~AuthProvider
+ * @augments AuthProvider
  */
 class BasicProvider extends AuthProvider {
 
 	/**
 	 * Creates a new BasicProvider instance to authenticate using HTTP Basic.
 	 * 
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 */
 	constructor(connection) {
 		super("basic", connection, {

@@ -1,8 +1,4 @@
 /**
- * @module openeo
- */
-
-/**
  * Authentication Provider details.
  * 
  * @typedef AuthProviderMeta
@@ -23,7 +19,7 @@ class AuthProvider {
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
 	 * @param {string} type - The type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
-	 * @param {module:openeo~Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {AuthProviderMeta} options - Options
 	 */
 	constructor(type, connection, options) {
@@ -33,7 +29,7 @@ class AuthProvider {
 		this.type = type;
 		/**
 		 * @protected
-		 * @type {module:openeo~Connection}
+		 * @type {Connection}
 		 */
 		this.connection = connection;
 		this.token = null;
