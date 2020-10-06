@@ -17,7 +17,7 @@ An *experimental* Typescript declaration file is available so that you can use t
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
 <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/oidc-client@1/lib/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+<script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
 <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@latest/openeo.min.js"></script>
 ```
 
