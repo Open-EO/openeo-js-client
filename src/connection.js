@@ -9,7 +9,7 @@ const OidcProvider = require('./oidcprovider');
 
 const Capabilities = require('./capabilities');
 const FileTypes = require('./filetypes');
-const UserFile = require('./file');
+const UserFile = require('./userfile');
 const Job = require('./job');
 const UserProcess = require('./userprocess');
 const Service = require('./service');
@@ -361,7 +361,7 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {Promise<File[]>} A list of files.
+	 * @returns {Promise<UserFile[]>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
@@ -391,7 +391,7 @@ class Connection {
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
 	 * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {Promise<File>}
+	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, targetPath = null, statusCallback = null) {
@@ -407,7 +407,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} path - Path to the file, relative to the user workspace.
-	 * @returns {Promise<File>} A file.
+	 * @returns {Promise<UserFile>} A file.
 	 * @throws {Error}
 	 */
 	async getFile(path) {

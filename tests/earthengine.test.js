@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, File, BasicProvider, Logs } = require('../src/openeo');
+const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 const waitForExpect = require("wait-for-expect");
 
@@ -662,14 +662,14 @@ describe('With earth-engine-driver', () => {
 		var f;
 		test('Upload file', async () => {
 			f = await con.getFile(fileName);
-			expect(f instanceof File).toBeTruthy();
+			expect(f instanceof UserFile).toBeTruthy();
 			expect(f.path).toBe(fileName);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(0); // Zero => getFile doesn't create a file yet
 			await f.uploadFile(isBrowserEnv ? fileContent : fileName);
 			var files = await con.listFiles();
 			expect(files).toHaveLength(1); // now it should be there
-			expect(files[0] instanceof File).toBeTruthy();
+			expect(files[0] instanceof UserFile).toBeTruthy();
 			expect(files[0].path).toBe(f.path);
 		});
 

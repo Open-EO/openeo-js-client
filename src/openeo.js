@@ -4,9 +4,9 @@ const Versions = require('@openeo/js-commons/src/versions');
 
 // API wrapper
 const Connection = require('./connection');
-const UserFile = require('./file');
 const Job = require('./job');
 const Logs = require('./logs');
+const UserFile = require('./userfile');
 const UserProcess = require('./userprocess');
 const Service = require('./service');
 
@@ -111,40 +111,18 @@ class OpenEO {
 
 OpenEO.Environment = require('./env');
 
-/**
- * The openEO JavaScript / TypeScript client.
- * 
- * What you usually want to import is `OpenEO`.
- * 
- * @type {object}
- * @property {AuthProvider} AuthProvider
- * @property {BasicProvider} BasicProvider
- * @property {Capabilities} Capabilities
- * @property {File} File
- * @property {FileTypes} FileTypes
- * @property {Job} Job
- * @property {Logs} Logs
- * @property {OidcProvider} OidcProvider
- * @property {OpenEO} OpenEO
- * @property {Service} Service
- * @property {UserProcess} UserProcess
- * @property {Builder} Builder
- * @property {BuilderNode} BuilderNode
- * @property {Parameter} Parameter
- * @property {Formula} Formula
- */
 module.exports = {
 	AuthProvider,
 	BasicProvider,
 	Capabilities,
 	Connection,
-	File: UserFile,
 	FileTypes,
 	Job,
 	Logs,
 	OidcProvider,
 	OpenEO,
 	Service,
+	UserFile,
 	UserProcess,
 	Builder,
 	BuilderNode,

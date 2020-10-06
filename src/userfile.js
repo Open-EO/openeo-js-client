@@ -8,7 +8,7 @@ const Stream = require('stream'); // eslint-disable-line no-unused-vars
  * 
  * @augments BaseEntity
  */
-class File extends BaseEntity {
+class UserFile extends BaseEntity {
 
 	/**
 	 * Creates an object representing a file on the user workspace.
@@ -78,7 +78,7 @@ class File extends BaseEntity {
 	 * 
 	 * @callback uploadStatusCallback
 	 * @param {number} percentCompleted - The percent (0-100) completed.
-	 * @param {File} file - The file object corresponding to the callback.
+	 * @param {UserFile} file - The file object corresponding to the callback.
 	 */
 
 	/**
@@ -92,7 +92,7 @@ class File extends BaseEntity {
 	 * @async
 	 * @param {string|object} source - The source, see method description for details.
 	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
-	 * @returns {Promise<File>}
+	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
 	async uploadFile(source, statusCallback = null) {
@@ -126,4 +126,4 @@ class File extends BaseEntity {
 	}
 }
 
-module.exports = File;
+module.exports = UserFile;
