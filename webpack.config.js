@@ -17,7 +17,7 @@ module.exports = [
         'axios': 'axios',
         'buffer': 'Buffer',
         'fs': 'fs',
-        'oidc-client': 'oidc-client',
+        'oidc-client': 'Oidc',
         'path': 'path',
         'stream': 'Stream',
         'url': 'url'
