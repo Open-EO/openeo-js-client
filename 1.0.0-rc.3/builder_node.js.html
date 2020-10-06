@@ -28,47 +28,88 @@
         <article>
             <pre class="prettyprint source linenums"><code>const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
-const Formula = require('./formula');
 
 /**
  * A class that represents a process node and also a result from a process.
- * 
- * @class
  */
 class BuilderNode {
 
-	constructor(parent, processId, args = {}, description = null) {
-		this.parent = parent; // parent builder
+	/**
+	 * Creates a new process node for the builder.
+	 * 
+	 * @param {module:builder~Builder} parent
+	 * @param {string} processId 
+	 * @param {object} [processArgs={}]
+	 * @param {?string} [processDescription=null]
+	 */
+	constructor(parent, processId, processArgs = {}, processDescription = null) {
+		/**
+		 * The parent builder.
+		 * @type {module:builder~Builder}
+		 */
+		this.parent = parent;
+
+		/**
+		 * The specification of the process associated with this node.
+		 * @type {object}
+		 * @readonly
+		 */
 		this.spec = this.parent.spec(processId);
 		if (!Utils.isObject(this.spec)) {
 			throw new Error("Process doesn't exist: " + processId);
 		}
 
+		/**
+		 * The unique identifier for the node (not the process ID!).
+		 * @type {string}
+		 */
 		this.id = parent.generateId(processId);
-		this.arguments = Array.isArray(args) ? this.namedArguments(args) : args;
-		this._description = description;
+		/**
+		 * The arguments for the process.
+		 * @type {object}
+		 */
+		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
+		/**
+		 * @ignore
+		 */
+		this._description = processDescription;
+		/**
+		 * Is this the result node?
+		 * @type {boolean}
+		 */
 		this.result = false;
 
 		this.addParametersToProcess(this.arguments);
 	}
 
-	namedArguments(args) {
-		if (Object.keys(args).length > (this.spec.parameters || []).length) {
+	/**
+	 * Converts a sorted array of arguments to an object with the respective parameter names.
+	 * 
+	 * @param {Array} processArgs 
+	 * @returns {object}
+	 * @throws {Error}
+	 */
+	namedArguments(processArgs) {
+		if (processArgs.length > (this.spec.parameters || []).length) {
 			throw new Error("More arguments specified than parameters available.");
 		}
 		let obj = {};
 		if (Array.isArray(this.spec.parameters)) {
 			for(let i = 0; i &lt; this.spec.parameters.length; i++) {
-				obj[this.spec.parameters[i].name] = args[i];
+				obj[this.spec.parameters[i].name] = processArgs[i];
 			}
 		}
 		return obj;
 	}
 
-	// Checks the arguments given for parameters and add them to the process
-	addParametersToProcess(args) {
-		for(let key in args) {
-			let arg = args[key];
+	/**
+	 * Checks the arguments given for parameters and add them to the process.
+	 * 
+	 * @param {object|Array} processArgs 
+	 */
+	addParametersToProcess(processArgs) {
+		for(let key in processArgs) {
+			let arg = processArgs[key];
 			if (arg instanceof Parameter) {
 				if (Utils.isObject(arg.spec.schema)) {
 					this.parent.addParameter(arg.spec);
@@ -92,7 +133,8 @@ class BuilderNode {
 	 * `node.description()` - Returns the description.
 	 * `node.description("foo")` - Sets the description to "foo". Returns the node itself for method chaining.
 	 * 
-	 * You can also "replace" the function, then it acts as normal property and the function is not available any longer:
+	 * You can also "replace" the function (not supported in TypeScript!),
+	 * then it acts as normal property and the function is not available any longer:
 	 * `node.description = "foo"` - Sets the description to "foo".
 	 * Afterwards you can call `node.description` as normal object property.
 	 * 
@@ -109,7 +151,16 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Converts the given argument into something serializable...
+	 * 
+	 * @protected
+	 * @param {*} arg - Argument
+	 * @param {string} name - Parameter name
+	 * @returns {*}
+	 */
 	exportArgument(arg, name) {
+		const Formula = require('./formula');
 		if (Utils.isObject(arg)) {
 			if (arg instanceof BuilderNode || arg instanceof Parameter) {
 				return arg.ref();
@@ -148,6 +199,14 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Creates a new Builder, usually for a callback.
+	 * 
+	 * @protected
+	 * @param {?BuilerNode} [parentNode=null]
+	 * @param {?string} parentParameter
+	 * @returns {BuilderNode}
+	 */
 	createBuilder(parentNode = null, parentParameter = null) {
 		const Builder = require('./builder');
 		let builder = new Builder(this.parent.processes, this.parent);
@@ -157,6 +216,15 @@ class BuilderNode {
 		return builder;
 	}
 
+	/**
+	 * Returns the serializable process for the callback function given.
+	 * 
+	 * @protected
+	 * @param {Function} arg - callback function
+	 * @param {string} name - Parameter name
+	 * @returns {object}
+	 * @throws {Error}
+	 */
 	exportCallback(arg, name) {
 		let builder = this.createBuilder(this, name);
 		let params = builder.getParentCallbackParameters();
@@ -171,6 +239,11 @@ class BuilderNode {
 		}
 	}
 
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object}
+	 */
 	toJSON() {
 		let obj = {
 			process_id: this.spec.id,
@@ -193,6 +266,19 @@ class BuilderNode {
 		return obj;
 	}
 
+	/**
+	 * Reference to a parameter.
+	 * 
+	 * @typedef FromNode
+	 * @type {object}
+	 * @property {string} from_node - The node identifier.
+	 */
+
+	/**
+	 * Returns the reference object for this node.
+	 * 
+	 * @returns {FromNode}
+	 */
 	ref() {
 		return { from_node: this.id };
 	}
@@ -210,13 +296,13 @@ module.exports = BuilderNode;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

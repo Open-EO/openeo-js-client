@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: logs.js</title>
+    <title>JSDoc: Source: basicprovider.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: logs.js</h1>
+    <h1 class="page-title">Source: basicprovider.js</h1>
 
     
 
@@ -26,75 +26,55 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const Utils = require('@openeo/js-commons/src/utils');
+            <pre class="prettyprint source linenums"><code>const Environment = require('./env');
+const Utils = require('@openeo/js-commons/src/utils');
+const AuthProvider = require('./authprovider');
 
 /**
- * Interface to loop through the logs.
+ * The Authentication Provider for HTTP Basic.
+ * 
+ * @augments AuthProvider
  */
-class Logs {
+class BasicProvider extends AuthProvider {
 
 	/**
-	 * Creates a new Logs instance to retrieve logs from a back-end.
+	 * Creates a new BasicProvider instance to authenticate using HTTP Basic.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
 	 */
-	constructor(connection, endpoint) {
-		/**
-		 * @protected
-		 * @type {Connection}
-		 */
-		this.connection = connection;
-		this.endpoint = endpoint;
-		this.lastId = "";
+	constructor(connection) {
+		super("basic", connection, {
+			id: null,
+			title: "HTTP Basic",
+			description: "Login with username and password using the method HTTP Basic."
+		});
 	}
 
 	/**
-	 * Retrieves the next log entries since the last request.
-	 * 
-	 * Retrieves log entries only.
+	 * Authenticate with HTTP Basic.
 	 * 
 	 * @async
-	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise&lt;object[]>}
+	 * @param {string} username 
+	 * @param {string} password 
+	 * @returns {Promise&lt;void>}
+	 * @throws {Error}
 	 */
-	async nextLogs(limit = null) {
-		let response = await this.next(limit);
-		return Array.isArray(response.logs) ? response.logs : [];
-	}
-
-	/**
-	 * Retrieves the next log entries since the last request.
-	 * 
-	 * Retrieves the full response compliant to the API, including log entries and links.
-	 * 
-	 * @async
-	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise&lt;object>}
-	 */
-	async next(limit = null) {
-		let query = {
-			offset: this.lastId
-		};
-		if (limit > 0) {
-			query.limit = limit;
+	async login(username, password) {
+		let response = await this.connection._send({
+			method: 'get',
+			responseType: 'json',
+			url: '/credentials/basic',
+			headers: {'Authorization': 'Basic ' + Environment.base64encode(username + ':' + password)}
+		});
+		if (!Utils.isObject(response.data) || typeof response.data.access_token !== 'string') {
+			throw new Error("No access_token returned.");
 		}
-		let response = await this.connection._get(this.endpoint, query);
-		if (Array.isArray(response.data.logs) &amp;&amp; response.data.logs.length > 0) {
-			response.data.logs = response.data.logs.filter(log => Utils.isObject(log) &amp;&amp; typeof log.id === 'string');
-			this.lastId = response.data.logs[response.data.logs.length - 1].id;
-		}
-		else {
-			response.data.logs = [];
-		}
-		response.data.links = Array.isArray(response.data.links) ? response.data.links : [];
-		return response.data;
+		this.setToken(response.data.access_token);
 	}
 
 }
 
-module.exports = Logs;
-</code></pre>
+module.exports = BasicProvider;</code></pre>
         </article>
     </section>
 

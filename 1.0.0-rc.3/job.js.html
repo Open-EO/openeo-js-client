@@ -30,15 +30,13 @@
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
-const Connection = require('./connection'); // jshint ignore:line
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
 /**
  * A Batch Job.
  * 
- * @class
- * @extends BaseEntity
+ * @augments BaseEntity
  */
 class Job extends BaseEntity {
 
@@ -47,12 +45,85 @@ class Job extends BaseEntity {
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} jobId - The batch job ID.
-	 * @constructor
 	 */
 	constructor(connection, jobId) {
-		super(connection, ["id", "title", "description", "process", "status", "progress", "error", "created", "updated", "plan", "costs", "budget"]);
-		this.jobId = jobId;
+		super(connection, ["id", "title", "description", "process", "status", "progress", "created", "updated", "plan", "costs", "budget"]);
+		/**
+		 * The identifier of the batch job.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.id = jobId;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.title = undefined;
+		/**
+		 * @public
+		 * @readonly
+		 * @type {?string}
+		 */
+		this.description = undefined;
+		/**
+		 * The process chain to be executed.
+		 * @public
+		 * @readonly
+		 * @type {object}
+		 */
+		this.process = undefined;
+		/**
+		 * The current status of a batch job.
+		 * One of "created", "queued", "running", "canceled", "finished" or "error".
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
 		this.status = undefined;
+		/**
+		 * Indicates the process of a running batch job in percent. 
+		 * @public
+		 * @readonly
+		 * @type {number}
+		 */
+		this.progress = undefined;
+		/**
+		 * Date and time of creation, formatted as a RFC 3339 date-time.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.created = undefined;
+		/**
+		 * Date and time of the last status change, formatted as a RFC 3339 date-time.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.updated = undefined;
+		/**
+		 * The billing plan to process and charge the batch job with.
+		 * @public
+		 * @readonly
+		 * @type {string}
+		 */
+		this.plan = undefined;
+		/**
+		 * An amount of money or credits in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.costs = undefined;
+		/**
+		 * Maximum amount of costs the request is allowed to produce in the currency specified by the back-end.
+		 * @public
+		 * @readonly
+		 * @type {?number}
+		 */
+		this.budget = undefined;
 	}
 
 	/**
@@ -63,7 +134,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async describeJob() {
-		let response = await this.connection._get('/jobs/' + this.jobId);
+		let response = await this.connection._get('/jobs/' + this.id);
 		return this.setAll(response.data);
 	}
 
@@ -81,7 +152,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async updateJob(parameters) {
-		await this.connection._patch('/jobs/' + this.jobId, this._convertToRequest(parameters));
+		await this.connection._patch('/jobs/' + this.id, this._convertToRequest(parameters));
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -97,7 +168,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async deleteJob() {
-		await this.connection._delete('/jobs/' + this.jobId);
+		await this.connection._delete('/jobs/' + this.id);
 	}
 
 	/**
@@ -108,7 +179,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async estimateJob() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/estimate');
+		let response = await this.connection._get('/jobs/' + this.id + '/estimate');
 		return response.data;
 	}
 
@@ -118,7 +189,7 @@ class Job extends BaseEntity {
 	 * @returns {Logs}
 	 */
 	debugJob() {
-		return new Logs(this.connection, '/jobs/' + this.jobId + '/logs');
+		return new Logs(this.connection, '/jobs/' + this.id + '/logs');
 	}
 
 	/**
@@ -135,10 +206,10 @@ class Job extends BaseEntity {
 	 * 
 	 * Returns a function that can be called to stop monitoring the job manually.
 	 * 
-	 * @param {function} callback 
+	 * @param {Function} callback 
 	 * @param {number} [interval=60] - Interval between update requests, in seconds as integer.
 	 * @param {boolean} [requestLogs=true] - Enables/Disables requesting logs
-	 * @returns {function}
+	 * @returns {Function}
 	 * @throws {Error}
 	 */
 	monitorJob(callback, interval = 60, requestLogs = true) {
@@ -166,7 +237,7 @@ class Job extends BaseEntity {
 			}
 			lastStatus = this.status;
 			if (STOP_STATUS.includes(this.status)) {
-				stopFn();
+				stopFn(); // eslint-disable-line no-use-before-define
 			}
 		};
 		setTimeout(monitorFn, 0);
@@ -188,7 +259,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async startJob() {
-		await this.connection._post('/jobs/' + this.jobId + '/results', {});
+		await this.connection._post('/jobs/' + this.id + '/results', {});
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -203,7 +274,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async stopJob() {
-		await this.connection._delete('/jobs/' + this.jobId + '/results');
+		await this.connection._delete('/jobs/' + this.id + '/results');
 		if (this._supports('describeJob')) {
 			return await this.describeJob();
 		}
@@ -218,7 +289,7 @@ class Job extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async getResultsAsItem() {
-		let response = await this.connection._get('/jobs/' + this.jobId + '/results');
+		let response = await this.connection._get('/jobs/' + this.id + '/results');
 		let data = response.data;
 		if (!Utils.isObject(data.properties)) {
 			data.properties = {};
@@ -277,13 +348,13 @@ module.exports = Job;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

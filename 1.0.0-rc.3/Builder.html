@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Builder<span class="signature">(processes, parent, id)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Builder<span class="signature">(processes, parent<span class="signature-attributes">nullable</span>, id)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>A class to construct processes easily.</p>
 <p>An example (<code>con</code> is a object of type <code>Connection</code>):</p>
@@ -85,7 +85,7 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
     
 
     
-    <h4 class="name" id="Builder"><span class="type-signature"></span>new Builder<span class="signature">(processes, parent, id)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Builder"><span class="type-signature"></span>new Builder<span class="signature">(processes, parent<span class="signature-attributes">nullable</span>, id)</span><span class="type-signature"></span></h4>
     
 
     
@@ -118,6 +118,8 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
         <th>Default</th>
@@ -138,7 +140,7 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
             <td class="type">
             
                 
-<span class="param-type">array</span>
+<span class="param-type">Array</span>
 |
 
 <span class="param-type">object</span>
@@ -147,6 +149,14 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -169,14 +179,21 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
             
                 
 <span class="param-type"><a href="Builder.html">Builder</a></span>
-|
-
-<span class="param-type">null</span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
             
@@ -206,6 +223,14 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -255,7 +280,7 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line108">line 108</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line107">line 107</a>
     </li></ul></dd>
     
 
@@ -301,6 +326,298 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="id"><span class="type-signature"></span>id<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>A unique identifier for the process.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line144">line 144</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="parent"><span class="type-signature">(nullable) </span>parent<span class="type-signature"> :<a href="Builder.html">Builder</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>The parent builder.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Builder.html">Builder</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line122">line 122</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="parentNode"><span class="type-signature">(nullable) </span>parentNode<span class="type-signature"> :<a href="BuilderNode.html">BuilderNode</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>The parent node.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="BuilderNode.html">BuilderNode</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line127">line 127</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="parentParameter"><span class="type-signature">(nullable) </span>parentParameter<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>The parent parameter name.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line132">line 132</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -311,7 +628,7 @@ var storedProcess = await con.setUserProcess(&quot;evi&quot;, datacube);
     
 
     
-    <h4 class="name" id=".fromURL"><span class="type-signature">(async, static) </span>fromURL<span class="signature">(url)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Builder.html">Builder</a>>}</span></h4>
+    <h4 class="name" id=".fromURL"><span class="type-signature">(async, static) </span>fromURL<span class="signature">(url<span class="signature-attributes">nullable</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Builder.html">Builder</a>>}</span></h4>
     
 
     
@@ -345,6 +662,8 @@ CORS needs to be implemented on the server-side for the URL given.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -364,14 +683,21 @@ CORS needs to be implemented on the server-side for the URL given.</p>
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">null</span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
             
@@ -417,7 +743,7 @@ CORS needs to be implemented on the server-side for the URL given.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line94">line 94</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -486,7 +812,7 @@ CORS needs to be implemented on the server-side for the URL given.</p>
     
 
     
-    <h4 class="name" id=".fromVersion"><span class="type-signature">(async, static) </span>fromVersion<span class="signature">(version)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Builder.html">Builder</a>>}</span></h4>
+    <h4 class="name" id=".fromVersion"><span class="type-signature">(async, static) </span>fromVersion<span class="signature">(version<span class="signature-attributes">nullable</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Builder.html">Builder</a>>}</span></h4>
     
 
     
@@ -520,6 +846,8 @@ Requests the latest version if no version number is passed.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
         <th>Default</th>
@@ -541,14 +869,21 @@ Requests the latest version if no version number is passed.</p>
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">null</span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
             
@@ -600,7 +935,7 @@ Requests the latest version if no version number is passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line74">line 74</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -652,6 +987,819 @@ Requests the latest version if no version number is passed.</p>
     <dd>
         
 <span class="param-type">Promise.&lt;<a href="Builder.html">Builder</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="%5Bundefined%5D"><span class="type-signature"></span>[undefined]<span class="signature">(&hellip;args)</span><span class="type-signature"> &rarr; {<a href="BuilderNode.html">BuilderNode</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Implicitly calls the process with the given name on the back-end by adding it to the process.</p>
+<p>This is a shortcut for <a href="Builder.html#process">Builder#process</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The arguments for the process.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line157">line 157</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Builder.html#process">Builder#process</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="BuilderNode.html">BuilderNode</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="addParameter"><span class="type-signature"></span>addParameter<span class="signature">(parameter, root<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Adds a parameter to the list of process parameters.</p>
+<p>Doesn't add the parameter if it has the same name as a callback parameter.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>parameter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>The parameter spec to add, must comply to the API.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>root</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last"><p>Adds the parameter to the root process if set to <code>true</code>, otherwise to the process constructed by this builder. Usually you want to add it to the root.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line219">line 219</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createCallbackParameter"><span class="type-signature">(protected) </span>createCallbackParameter<span class="signature">(parameterName)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Creates a callback parameter with the given name.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>parameterName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line186">line 186</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="generateId"><span class="type-signature"></span>generateId<span class="signature">(prefix<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Generates a unique identifier for the process nodes.</p>
+<p>A prefix can be given to make the identifiers more human-readable.
+If the given name is empty, the id is simply an incrementing number.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>prefix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    ""
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line312">line 312</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getParentCallbackParameters"><span class="type-signature"></span>getParentCallbackParameters<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Gets the callback parameter specifics from the parent process.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line199">line 199</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Should this also pass callback parameters from parents until root is reached?</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
 
 
     </dd>
@@ -771,12 +1919,19 @@ Requests the latest version if no version number is passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line207">line 207</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line265">line 265</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Formula.html">Formula</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -840,7 +1995,7 @@ Requests the latest version if no version number is passed.</p>
     
 
     
-    <h4 class="name" id="process"><span class="type-signature"></span>process<span class="signature">(processId, args, description)</span><span class="type-signature"> &rarr; {<a href="BuilderNode.html">BuilderNode</a>}</span></h4>
+    <h4 class="name" id="process"><span class="type-signature"></span>process<span class="signature">(processId, args, description<span class="signature-attributes">nullable</span>)</span><span class="type-signature"> &rarr; {<a href="BuilderNode.html">BuilderNode</a>}</span></h4>
     
 
     
@@ -872,6 +2027,8 @@ Requests the latest version if no version number is passed.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
         <th>Default</th>
@@ -899,6 +2056,14 @@ Requests the latest version if no version number is passed.</p>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
                 <td class="default">
@@ -922,12 +2087,20 @@ Requests the latest version if no version number is passed.</p>
 <span class="param-type">object</span>
 |
 
-<span class="param-type">array</span>
+<span class="param-type">Array</span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -950,14 +2123,21 @@ Requests the latest version if no version number is passed.</p>
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">null</span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
             
@@ -1009,7 +2189,7 @@ Requests the latest version if no version number is passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line222">line 222</a>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line280">line 280</a>
     </li></ul></dd>
     
 
@@ -1058,6 +2238,427 @@ Requests the latest version if no version number is passed.</p>
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id="setParent"><span class="type-signature"></span>setParent<span class="signature">(node, parameterName)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Sets the parent for this Builder.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="BuilderNode.html">BuilderNode</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>parameterName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line174">line 174</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="spec"><span class="type-signature"></span>spec<span class="signature">(id)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Returns the process specification for the given process identifier.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line251">line 251</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Returns a JSON serializable representation of the data that is API compliant.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="builder_builder.js.html">builder/builder.js</a>, <a href="builder_builder.js.html#line291">line 291</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -1073,13 +2674,13 @@ Requests the latest version if no version number is passed.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

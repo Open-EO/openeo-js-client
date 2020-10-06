@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: userfile.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: userfile.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Environment = require('./env');
+const BaseEntity = require('./baseentity');
+
+const Stream = require('stream'); // eslint-disable-line no-unused-vars
+
+/**
+ * A File on the user workspace.
+ * 
+ * @augments BaseEntity
+ */
+class UserFile extends BaseEntity {
+
+	/**
+	 * Creates an object representing a file on the user workspace.
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {string} path - The path to the file, relative to the user workspace and without user ID.
+	 */
+	constructor(connection, path) {
+		super(connection, ["path", "size", "modified"]);
+		/**
+		 * Path to the file, relative to the user's directory.
+		 * @readonly
+		 * @public
+		 * @type {string}
+		 */
+		this.path = path;
+		/** 
+		 * File size in bytes as integer.
+		 * @readonly
+		 * @public
+		 * @type {number}
+		 */
+		this.size = undefined;
+		/**
+		 * Date and time the file has lastly been modified, formatted as a RFC 3339 date-time.
+		 * @readonly
+		 * @public
+		 * @type {string}
+		 */
+		this.modified = undefined;
+	}
+
+	/**
+	 * Downloads a file from the user workspace into memory.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * Returns a stream in a NodeJS environment or a Blob in a browser environment.
+	 * 
+	 * @async
+	 * @returns {Promise&lt;Stream.Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+	 * @throws {Error}
+	 */
+	async retrieveFile() {
+		return await this.connection.download('/files/' + this.path, true);
+	}
+
+	/**
+	 * Downloads a file from the user workspace and saves it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a NodeJS environment writes the downloaded file to the target location on the file system.
+	 * In a browser environment offers the file for downloading using the specified name (folders are not supported).
+	 * 
+	 * @async
+	 * @param {string} target - The target, see method description for details.
+	 * @returns {Promise&lt;string[]|void>} - Return value depends on the target and environment, see method description for details.
+	 * @throws {Error}
+	 */
+	async downloadFile(target) {
+		let data = await this.connection.download('/files/' + this.path, true);
+		// @ts-ignore
+		return await Environment.saveToFile(data, target);
+	}
+
+	/**
+	 * A callback that is executed on upload progress updates.
+	 * 
+	 * @callback uploadStatusCallback
+	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 * @param {UserFile} file - The file object corresponding to the callback.
+	 */
+
+	/**
+	 * Uploads a file to the user workspace.
+	 * If a file with the name exists, overwrites it.
+	 * 
+	 * This method has different behaviour depending on the environment.
+	 * In a nodeJS environment the source must be a path to a file as string.
+	 * In a browser environment the source must be an object from a file upload form.
+	 * 
+	 * @async
+	 * @param {string|object} source - The source, see method description for details.
+	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @returns {Promise&lt;UserFile>}
+	 * @throws {Error}
+	 */
+	async uploadFile(source, statusCallback = null) {
+		let options = {
+			method: 'put',
+			url: '/files/' + this.path,
+			data: Environment.dataForUpload(source),
+			headers: {
+				'Content-Type': 'application/octet-stream'
+			}
+		};
+		if (typeof statusCallback === 'function') {
+			options.onUploadProgress = (progressEvent) => {
+				let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+				statusCallback(percentCompleted, this);
+			};
+		}
+
+		let response = await this.connection._send(options);
+		return this.setAll(response.data);
+	}
+
+	/**
+	 * Deletes the file from the user workspace.
+	 * 
+	 * @async
+	 * @throws {Error}
+	 */
+	async deleteFile() {
+		await this.connection._delete('/files/' + this.path);
+	}
+}
+
+module.exports = UserFile;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

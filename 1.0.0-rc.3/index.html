@@ -44,30 +44,42 @@
 
     <section>
         <article><h1>openeo-js-client</h1>
-<p>JavaScript client for the openEO API.</p>
-<p><a href="https://travis-ci.org/Open-EO/openeo-js-client"><img src="https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master" alt="Build Status"></a></p>
+<p>JavaScript/TypeScript client for the openEO API.</p>
+<ul>
+<li><a href="https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/">Documentation</a>.</li>
+</ul>
 <p>The version of this client is <strong>1.0.0-rc.3</strong> and supports <strong>openEO API versions 1.0.x</strong>. Legacy versions are available as releases.</p>
 <h2>Usage</h2>
 <p>This library can run in node.js or any recent browser supporting ECMAScript 2017. This excludes Internet Explorer, but includes Edge &gt;= 15.</p>
-<h3>Browser environment</h3>
+<p>An <em>experimental</em> Typescript declaration file is available so that you can use the library also in your TypeScript projects.</p>
+<h3>Browser</h3>
 <p>To use it in a browser environment simply add the following code to your HTML file:</p>
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js&quot;>&lt;/script>
-&lt;script src=&quot;https://cdn.jsdelivr.net/npm/oidc-client@1/lib/oidc-client.min.js&quot;>&lt;/script> &lt;!-- Only required if you'd like to enable authentication via OpenID Connect -->
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js&quot;>&lt;/script> &lt;!-- Only required if you'd like to enable authentication via OpenID Connect -->
 &lt;script src=&quot;https://cdn.jsdelivr.net/npm/@openeo/js-client@latest/openeo.min.js&quot;>&lt;/script>
 </code></pre>
-<h3>NodeJS environment</h3>
-<p>To install it in a NodeJS environment run: <code>npm install @openeo/js-client</code></p>
-<p>Afterwards, you can import the package: <code>const { OpenEO } = require('@openeo/js-client');</code></p>
+<h3>NodeJS</h3>
+<p>To install it in a NodeJS environment run:
+<code>npm install @openeo/js-client</code></p>
+<p>Afterwards, you can import the package:
+<code>const { OpenEO } = require('@openeo/js-client');</code></p>
+<h3>TypeScript</h3>
+<p>Warning: The TypeScript integration is still <strong>experimental</strong>! Please help us improve it by opening issues or pull requests.</p>
+<p>To install it in a TypeScript environment run:
+<code>npm install @openeo/js-client</code></p>
+<p>Afterwards, you can import the package:
+<code>import { OpenEO } from '@openeo/js-client';</code></p>
 <h3>Examples</h3>
 <ul>
 <li><a href="examples/discovery.html">Basic Discovery (promises)</a></li>
 <li><a href="examples/workflow.html">Run sync. job (async/await)</a></li>
 </ul>
-<p>More information can be found in the <a href="https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/"><strong>JS client documentation</strong></a>.</p>
-<h3>Advanced options</h3>
-<p>Generate a build: <code>npm run build</code> (generates <code>openeo.js</code> and <code>openeo.min.js</code>)</p>
+<p>More information can be found in the <a href="https://open-eo.github.io/openeo-js-client/1.0.0-rc.3/">documentation</a>.</p>
+<h2>Development</h2>
+<p><a href="https://travis-ci.org/Open-EO/openeo-js-client"><img src="https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master" alt="Build Status"></a></p>
+<p>Generate a build: <code>npm run build</code> (generates <code>openeo.js</code>, <code>openeo.min.js</code> and <code>openeo.d.ts</code>)</p>
 <p>Generate the documentation to the <code>docs/</code> folder: <code>npm run docs</code></p>
-<p>Check against the coding guidelines: <code>npm run compat</code></p>
+<p>Check against the coding guidelines: <code>npm run lint</code></p>
 <p>Run tests:</p>
 <ul>
 <li><code>npm test</code> (all tests)</li>
@@ -76,8 +88,8 @@
 <li><code>npm test builder</code> (tests only the process builder)</li>
 <li><code>npm test earthengine</code> (full test suite using the Google Earth Engine back-end as server)</li>
 </ul>
-<h2>Interactive JS Editor</h2>
-<p>There is an experimental interactive web-based editor for coding using the openEO API,
+<h2>Interactive Web Editor</h2>
+<p>There is an interactive web-based editor for coding using the openEO API,
 which is based on the JavaScript client.
 See <a href="https://github.com/Open-EO/openeo-web-editor">https://github.com/Open-EO/openeo-web-editor</a> for more details.</p></article>
     </section>
@@ -90,13 +102,13 @@ See <a href="https://github.com/Open-EO/openeo-web-editor">https://github.com/Op
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

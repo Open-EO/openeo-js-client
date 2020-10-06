@@ -32,6 +32,7 @@ const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
+
 const PROCESS_META = [
 	"id", "summary", "description", "categories", "parameters", "returns",
 	"deprecated", "experimental", "exceptions", "examples", "links"
@@ -82,8 +83,6 @@ const PROCESS_META = [
  * 
  * var storedProcess = await con.setUserProcess("evi", datacube);
  * ```
- * 
- * @class
  */
 class Builder {
 
@@ -95,7 +94,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {string|null} version 
+	 * @param {?string} version 
 	 * @returns {Promise&lt;Builder>}
 	 * @throws {Error}
 	 */
@@ -115,7 +114,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {string|null} url 
+	 * @param {?string} url 
 	 * @returns {Promise&lt;Builder>}
 	 * @throws {Error}
 	 */
@@ -129,14 +128,11 @@ class Builder {
 	 * 
 	 * Each process passed to the constructor is made available as object method.
 	 * 
-	 * @param {array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
-	 * @param {Builder|null} parent - The parent builder, usually only used by the Builder itself.
+	 * @param {Array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
-		this.parent = parent; // parent builder
-		this.parentNode = null; // parent node
-		this.parentParameter = null; // parent parameter name
 		if (Array.isArray(processes)) {
 			this.processes = processes;
 		}
@@ -146,16 +142,46 @@ class Builder {
 		else {
 			throw new Error("Processes are invalid; must be array or object according to API.");
 		}
+
+		/**
+		 * The parent builder.
+		 * @type {?Builder}
+		 */
+		this.parent = parent;
+		/**
+		 * The parent node.
+		 * @type {?BuilderNode}
+		 */
+		this.parentNode = null;
+		/**
+		 * The parent parameter name.
+		 * @type {?string}
+		 */
+		this.parentParameter = null;
+		
 		this.nodes = {};
 		this.idCounter = {};
 		this.callbackParameterCache = {};
 		this.parameters = undefined;
 
+		/**
+		 * A unique identifier for the process.
+		 * @public
+		 * @type {string}
+		 */
 		this.id = id;
 
-		/* jshint ignore:start */
 		for(let process of this.processes) {
 			if (typeof this[process.id] === 'undefined') {
+				/**
+				 * Implicitly calls the process with the given name on the back-end by adding it to the process.
+				 * 
+				 * This is a shortcut for {@link Builder#process}.
+				 * 
+				 * @param {...*} args - The arguments for the process.
+				 * @returns {BuilderNode}
+				 * @see Builder#process
+				 */
 				this[process.id] = function(...args) {
 					// Don't use arrow functions, they don't support the arguments keyword.
 					return this.process(process.id, args);
@@ -165,14 +191,26 @@ class Builder {
 				console.warn("Can't create function for process '" + process.id + "'. Already exists in Builder class.");
 			}
 		}
-		/* jshint ignore:end */
 	}
 
+	/**
+	 * Sets the parent for this Builder.
+	 * 
+	 * @param {BuilderNode} node 
+	 * @param {string} parameterName 
+	 */
 	setParent(node, parameterName) {
 		this.parentNode = node;
 		this.parentParameter = parameterName;
 	}
 
+	/**
+	 * Creates a callback parameter with the given name.
+	 * 
+	 * @protected
+	 * @param {string} parameterName 
+	 * @returns {object}
+	 */
 	createCallbackParameter(parameterName) {
 		if (!this.callbackParameterCache[parameterName]) {
 			this.callbackParameterCache[parameterName] = Parameter.create(this, parameterName);
@@ -180,8 +218,13 @@ class Builder {
 		return this.callbackParameterCache[parameterName];
 	}
 
+	/**
+	 * Gets the callback parameter specifics from the parent process.
+	 * 
+	 * @returns {Array}
+	 * @todo Should this also pass callback parameters from parents until root is reached?
+	 */
 	getParentCallbackParameters() {
-		// ToDo: Should this also pass callback parameters from parents until root is reached?
 		let callbackParams = [];
 		if (this.parentNode &amp;&amp; this.parentParameter) {
 			try {
@@ -193,6 +236,14 @@ class Builder {
 		return callbackParams;
 	}
 
+	/**
+	 * Adds a parameter to the list of process parameters.
+	 * 
+	 * Doesn't add the parameter if it has the same name as a callback parameter.
+	 * 
+	 * @param {object} parameter - The parameter spec to add, must comply to the API.
+	 * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
+	 */
 	addParameter(parameter, root = true) {
 		if (this.getParentCallbackParameters().find(p => p.name === parameter.name) !== undefined) {
 			return; // parameter refers to callback
@@ -219,6 +270,12 @@ class Builder {
 		}
 	}
 
+	/**
+	 * Returns the process specification for the given process identifier.
+	 * 
+	 * @param {string} id 
+	 * @returns {object}
+	 */
 	spec(id) {
 		return this.processes.find(process => process.id === id);
 	}
@@ -231,6 +288,7 @@ class Builder {
 	 * @param {string} formula 
 	 * @returns {BuilderNode}
 	 * @throws {Error}
+	 * @see Formula
 	 */
 	math(formula) {
 		const Formula = require('./formula');
@@ -243,16 +301,21 @@ class Builder {
 	 * Adds another process call to the process chain.
 	 * 
 	 * @param {string} processId - The id of the process to call.
-	 * @param {object|array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
-	 * @param {string|null} description - An optional description for the process call.
+	 * @param {object|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+	 * @param {?string} description - An optional description for the process call.
 	 * @returns {BuilderNode}
 	 */
 	process(processId, args = {}, description = null) {
-		var node = new BuilderNode(this, processId, args, description);
+		let node = new BuilderNode(this, processId, args, description);
 		this.nodes[node.id] = node;
 		return node;
 	}
 
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object}
+	 */
 	toJSON() {
 		let process = {
 			process_graph: Utils.mapObjectValues(this.nodes, node => node.toJSON())
@@ -265,15 +328,24 @@ class Builder {
 		return process;
 	}
 	
-	generateId(name) {
-		name = name.replace("_", "").substr(0, 6);
-		if (!this.idCounter[name]) {
-			this.idCounter[name] = 1;
+	/**
+	 * Generates a unique identifier for the process nodes.
+	 * 
+	 * A prefix can be given to make the identifiers more human-readable.
+	 * If the given name is empty, the id is simply an incrementing number.
+	 * 
+	 * @param {string} [prefix=""]
+	 * @returns {string}
+	 */
+	generateId(prefix = "") {
+		prefix = prefix.replace("_", "").substr(0, 6);
+		if (!this.idCounter[prefix]) {
+			this.idCounter[prefix] = 1;
 		}
 		else {
-			this.idCounter[name]++;
+			this.idCounter[prefix]++;
 		}
-		return name + this.idCounter[name];
+		return prefix + this.idCounter[prefix];
 	}
 
 }
@@ -288,13 +360,13 @@ module.exports = Builder;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="File.html">File</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 01 2020 15:20:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
