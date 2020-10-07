@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>openEO JS client - OpenID Connect example</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
+  <script src="./openeo.js"></script>
+  <script type="text/javascript">
+    const BACKEND = "https://openeo.vito.be"; // TODO: Set the back-end to authenticate against
+    const CLIENT_ID = "openeo-public"; // TODO: Set the client id
+    const REDIRECT_URI = "http://localhost/openid-connect-popup.html?signin"; // TODO: Set the redirect URI, should include ?signin - doesn't work with file://
+
+    // Set the UI method, here we open a popup
+    OidcProvider.setUiMethod("popup");
+
+    var con;
+    async function run() {
+      // Check that OIDC is correctly configured in the client
+      log("OpenID Connect available in Client: " + OidcProvider.isSupported());
+
+      try {
+        // Connect to the back-end
+        con = await OpenEO.connect(BACKEND);
+
+        // Show whether OIDC is supported by the back-end
+        var capabilities = con.capabilities();
+        log("OpenID Connect available on Server: " + capabilities.hasFeature("authenticateOIDC"));
+
+        // Check whether the page is the redirect URI and contains "signin" (see REDIRECT_URI)
+        if (window.location.search.includes('signin')) {
+          try {
+            // Check whether the page contains the authentication information and make them available to the openEO client
+            await OidcProvider.signinCallback();
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        else {
+          // List authentication providers so that the user can select which to authenticate with
+          var providers = await con.listAuthProviders();
+          // Only show OIDC providers here
+          var oidcProviders = providers.filter(provider => provider instanceof OidcProvider);
+          log("Select a provider to authenticate with: ");
+          var list = oidcProviders.map(provider => `<li><button onclick="login('${provider.getId()}')">${provider.getTitle()}</button></li>`);
+          log("<ul>" + list.join("") + "</ul>");
+        }
+      } catch (e) {
+        log("Error: " + e.message);
+      }
+    }
+
+    // Login function that is called after the button click
+    async function login(id) {
+      try {
+        // Get the authentication provider
+        var providers = await con.listAuthProviders();
+        var provider = providers.find(p => p.getId() === id);
+
+        // Start the login procedure (opens a popup as configured above)
+        // Then waits for the popup to be closed
+        await provider.login(CLIENT_ID, REDIRECT_URI);
+
+        // After the popup is closed, check whether the user is now authenticated
+        if (con.isAuthenticated()) {
+          // Retrieve user information from server and display them
+          var user = await con.describeAccount();
+          log("<b>Authentication details</b>");
+          log("User ID: " + user.user_id);
+          if (user.name) {
+            log("User Name: " + user.name);
+          }
+        }
+        else {
+          log("Authentication failed / aborted.");
+        }
+      } catch (e) {
+        log("Error: " + e.message);
+      }
+    }
+    function log(text, noPara = false) {
+      document.getElementById('console').innerHTML += noPara ? text : "<p>" + text + "</p>";
+    }
+  </script>
+</head>
+
+<body onload="run()">
+  <code id="console"></code>
+  <img id="image" />
+</body>
+
+</html>

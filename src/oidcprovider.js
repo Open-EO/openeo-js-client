@@ -5,8 +5,16 @@ const Oidc = require('oidc-client');
 /**
  * The Authentication Provider for OpenID Connect.
  * 
- * @todo Add how to use the OIDC Provider.
+ * See the openid-connect-popup.html and openid-connect-redirect.html files in
+ * the examples folder for usage examples in the browser.
+ * 
+ * If you want to implement OIDC in a non-browser environment, you can override 
+ * the OidcProvider or AuthProvider classes with custom behavior.
+ * In this case you must provide a function that creates your new class to the
+ * `Connection.setOidcProviderFactory()` method.
+ * 
  * @augments AuthProvider
+ * @see Connection#setOidcProviderFactory
  */
 class OidcProvider extends AuthProvider {
 
@@ -97,7 +105,6 @@ class OidcProvider extends AuthProvider {
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
 	async login(client_id, redirect_uri, options = {}) {
-
 		if (!this.issuer || typeof this.issuer !== 'string') {
 			throw new Error("No Issuer URL available for OpenID Connect");
 		}
