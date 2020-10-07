@@ -30,7 +30,13 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>OidcProvider<span class="signature">(connection, options)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>The Authentication Provider for OpenID Connect.</p></div>
+            <div class="class-description"><p>The Authentication Provider for OpenID Connect.</p>
+<p>See the openid-connect-popup.html and openid-connect-redirect.html files in
+the examples folder for usage examples in the browser.</p>
+<p>If you want to implement OIDC in a non-browser environment, you can override
+the OidcProvider or AuthProvider classes with custom behavior.
+In this case you must provide a function that creates your new class to the
+<code>Connection.setOidcProviderFactory()</code> method.</p></div>
         
     
 </header>
@@ -169,21 +175,21 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line33">line 33</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
     
 
     
-
-    
-    <dt class="tag-todo">To Do:</dt>
-    <dd class="tag-todo">
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
         <ul>
-            <li>Add how to use the OIDC Provider.</li>
+            <li><a href="Connection.html#setOidcProviderFactory">Connection#setOidcProviderFactory</a></li>
         </ul>
     </dd>
+    
+
     
 </dl>
 
@@ -372,7 +378,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line48">line 48</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -527,7 +533,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line58">line 58</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line66">line 66</a>
     </li></ul></dd>
     
 
@@ -673,7 +679,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line73">line 73</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line81">line 81</a>
     </li></ul></dd>
     
 
@@ -1017,7 +1023,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line141">line 141</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line148">line 148</a>
     </li></ul></dd>
     
 
@@ -1234,7 +1240,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line132">line 132</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line139">line 139</a>
     </li></ul></dd>
     
 
@@ -1674,7 +1680,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line150">line 150</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line157">line 157</a>
     </li></ul></dd>
     
 
@@ -1925,7 +1931,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line99">line 99</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line107">line 107</a>
     </li></ul></dd>
     
 
@@ -2058,7 +2064,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line176">line 176</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line183">line 183</a>
     </li></ul></dd>
     
 
@@ -2351,7 +2357,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line160">line 160</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line167">line 167</a>
     </li></ul></dd>
     
 
@@ -2410,7 +2416,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Tue Oct 06 2020 15:02:53 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Oct 07 2020 09:41:31 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
