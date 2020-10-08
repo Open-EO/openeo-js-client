@@ -7,10 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
-  <script src="./openeo.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1.0.0-rc.3/openeo.min.js"></script>
   <script type="text/javascript">
-    const BACKEND = "https://openeo.vito.be"; // TODO: Set the back-end to authenticate against
-    const CLIENT_ID = "openeo-public"; // TODO: Set the client id
+    const BACKEND = "https://example.openeo.org"; // TODO: Set the back-end to authenticate against
+    const CLIENT_ID = ""; // TODO: Set the client id
     const REDIRECT_URI = "http://localhost/openid-connect-popup.html?signin"; // TODO: Set the redirect URI, should include ?signin - doesn't work with file://
 
     // Set the UI method, here we open a popup
