@@ -90,12 +90,11 @@
         // Request a preview synchronously for the process
         if (syncSupport) {
           log("Running process...");
+          // This returns an object containing a binary PNG file in the data property you could further process or show.
           var preview = await con.computeResult(datacube);
 
-          // Show image in browser
-          var objectURL = URL.createObjectURL(preview.data);
-          document.getElementById('image').src = objectURL;
-          // This returns an object containing a binary PNG file in the data property you could further process or show.
+          // Show image in the browser
+          log('<img src="' + URL.createObjectURL(preview.data) + '" />');
         }
       } catch (e) {
         log("Error: " + e.message);
@@ -109,7 +108,6 @@
 
 <body onload="run()">
   <code id="console"></code>
-  <img id="image" />
 </body>
 
 </html>
