@@ -264,7 +264,7 @@
 
         
             
-<h4 class="name" id="authProviderList"><span class="type-signature">(nullable) </span>authProviderList<span class="type-signature"> :Array.&lt;<a href="AuthProvider.html">AuthProvider</a>></span></h4>
+<h4 class="name" id="authProviderList"><span class="type-signature"></span>authProviderList<span class="type-signature"> :Array.&lt;<a href="AuthProvider.html">AuthProvider</a>>|null</span></h4>
 
 
 
@@ -276,6 +276,9 @@
         <li>
             
 <span class="param-type">Array.&lt;<a href="AuthProvider.html">AuthProvider</a>></span>
+|
+
+<span class="param-type">null</span>
 
 
         </li>
@@ -2307,7 +2310,7 @@ instead of Streams or Blobs for non-JSON response types.</p>
     
 
     
-    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SyncResult">SyncResult</a>>}</span></h4>
+    <h4 class="name" id="computeResult"><span class="type-signature">(async) </span>computeResult<span class="signature">(process, plan<span class="signature-attributes">opt, nullable</span>, budget<span class="signature-attributes">opt, nullable</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SyncResult">SyncResult</a>>}</span></h4>
     
 
     
@@ -2410,6 +2413,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -2448,6 +2453,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -2563,7 +2570,7 @@ instead of Streams or Blobs for non-JSON response types.</p>
     
 
     
-    <h4 class="name" id="createJob"><span class="type-signature">(async) </span>createJob<span class="signature">(process, title<span class="signature-attributes">opt</span>, description<span class="signature-attributes">opt</span>, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>, additional<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Job.html">Job</a>>}</span></h4>
+    <h4 class="name" id="createJob"><span class="type-signature">(async) </span>createJob<span class="signature">(process, title<span class="signature-attributes">opt, nullable</span>, description<span class="signature-attributes">opt, nullable</span>, plan<span class="signature-attributes">opt, nullable</span>, budget<span class="signature-attributes">opt, nullable</span>, additional<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Job.html">Job</a>>}</span></h4>
     
 
     
@@ -2665,6 +2672,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -2703,6 +2712,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -2743,6 +2754,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -2781,6 +2794,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -2948,7 +2963,7 @@ instead of Streams or Blobs for non-JSON response types.</p>
     
 
     
-    <h4 class="name" id="createService"><span class="type-signature">(async) </span>createService<span class="signature">(process, type, title<span class="signature-attributes">opt</span>, description<span class="signature-attributes">opt</span>, enabled<span class="signature-attributes">opt</span>, configuration<span class="signature-attributes">opt</span>, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>, additional<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Service.html">Service</a>>}</span></h4>
+    <h4 class="name" id="createService"><span class="type-signature">(async) </span>createService<span class="signature">(process, type, title<span class="signature-attributes">opt, nullable</span>, description<span class="signature-attributes">opt, nullable</span>, enabled<span class="signature-attributes">opt</span>, configuration<span class="signature-attributes">opt</span>, plan<span class="signature-attributes">opt, nullable</span>, budget<span class="signature-attributes">opt, nullable</span>, additional<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Service.html">Service</a>>}</span></h4>
     
 
     
@@ -3085,6 +3100,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -3123,6 +3140,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -3241,6 +3260,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -3279,6 +3300,8 @@ instead of Streams or Blobs for non-JSON response types.</p>
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -4131,7 +4154,7 @@ instead of Streams or Blobs for non-JSON response types.</p>
     
 
     
-    <h4 class="name" id="downloadResult"><span class="type-signature">(async) </span>downloadResult<span class="signature">(process, targetPath, plan<span class="signature-attributes">opt</span>, budget<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="downloadResult"><span class="type-signature">(async) </span>downloadResult<span class="signature">(process, targetPath, plan<span class="signature-attributes">opt, nullable</span>, budget<span class="signature-attributes">opt, nullable</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -4272,6 +4295,8 @@ In a browser environment, offers the file for downloading using the specified na
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -4310,6 +4335,8 @@ In a browser environment, offers the file for downloading using the specified na
                     &lt;optional><br>
                 
 
+                
+                    &lt;nullable><br>
                 
 
                 
@@ -4416,7 +4443,7 @@ In a browser environment, offers the file for downloading using the specified na
     
 
     
-    <h4 class="name" id="getAuthProvider"><span class="type-signature"></span>getAuthProvider<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="AuthProvider.html">AuthProvider</a>}</span></h4>
+    <h4 class="name" id="getAuthProvider"><span class="type-signature"></span>getAuthProvider<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {<a href="AuthProvider.html">AuthProvider</a>}</span></h4>
     
 
     
@@ -4980,7 +5007,7 @@ In a browser environment, offers the file for downloading using the specified na
     
 
     
-    <h4 class="name" id="getOidcProviderFactory"><span class="type-signature"></span>getOidcProviderFactory<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="global.html#oidcProviderFactoryFunction">oidcProviderFactoryFunction</a>}</span></h4>
+    <h4 class="name" id="getOidcProviderFactory"><span class="type-signature"></span>getOidcProviderFactory<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {<a href="global.html#oidcProviderFactoryFunction">oidcProviderFactoryFunction</a>}</span></h4>
     
 
     
@@ -7281,7 +7308,7 @@ It is recommended to authenticate through <code>listAuthProviders</code> or rela
     
 
     
-    <h4 class="name" id="setOidcProviderFactory"><span class="type-signature"></span>setOidcProviderFactory<span class="signature">(providerFactoryFunc)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setOidcProviderFactory"><span class="type-signature"></span>setOidcProviderFactory<span class="signature">(providerFactoryFunc<span class="signature-attributes">nullable</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -7316,6 +7343,8 @@ OIDC library other than oidc-client-js.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -7340,6 +7369,16 @@ OIDC library other than oidc-client-js.</p>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
             
@@ -8090,7 +8129,7 @@ In a browser environment the source must be an object from a file upload form.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Oct 22 2020 10:55:00 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Oct 22 2020 11:18:23 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
