@@ -1,5 +1,10 @@
 {
-	"include": ["./src"],
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"**/*.d.ts"
+	],
 	"compilerOptions": {
 		// Tells TypeScript to read JS files
 		"allowJs": true,
@@ -8,6 +13,7 @@
 		// This compiler run should only output d.ts files
 		"emitDeclarationOnly": true,
 		// see https://github.com/babel/babel/issues/10237#issuecomment-513028440
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"noImplicitAny": true
 	}
 }

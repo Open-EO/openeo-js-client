@@ -10,10 +10,22 @@ declare class Connection {
      * @param {string} baseUrl - URL to the back-end
      */
     constructor(baseUrl: string);
-    baseUrl: any;
-    authProviderList: any[];
-    authProvider: import("./authprovider");
-    capabilitiesObject: import("./capabilities");
+    /**
+     * @type {string}
+     */
+    baseUrl: string;
+    /**
+     * @type {?AuthProvider[]}
+     */
+    authProviderList: import("./authprovider")[] | null;
+    /**
+     * @type {?AuthProvider}
+     */
+    authProvider: import("./authprovider") | null;
+    /**
+     * @type {?Capabilities}
+     */
+    capabilitiesObject: import("./capabilities") | null;
     processes: any;
     /**
      * Initializes the connection by requesting the capabilities.
@@ -196,9 +208,9 @@ declare class Connection {
      * @param {string} type - The authentication type, e.g. `basic` or `oidc`.
      * @param {string} providerId - The provider identifier. For OIDC the `id` of the provider.
      * @param {string} token - The actual access token as given by the authentication method during the login process.
-     * @returns {sAuthProvider}
+     * @returns {AuthProvider}
      */
-    setAuthToken(type: string, providerId: string, token: string): any;
+    setAuthToken(type: string, providerId: string, token: string): import("./authprovider");
     /**
      * Get information about the authenticated user.
      *

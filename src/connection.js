@@ -28,9 +28,21 @@ class Connection {
 	 * @param {string} baseUrl - URL to the back-end
 	 */
 	constructor(baseUrl) {
+		/**
+		 * @type {string}
+		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
+		/**
+		 * @type {?AuthProvider[]}
+		 */
 		this.authProviderList = null;
+		/**
+		 * @type {?AuthProvider}
+		 */
 		this.authProvider = null;
+		/**
+		 * @type {?Capabilities}
+		 */
 		this.capabilitiesObject = null;
 		this.processes = null;
 	}
@@ -331,7 +343,7 @@ class Connection {
 	 * @param {string} type - The authentication type, e.g. `basic` or `oidc`.
 	 * @param {string} providerId - The provider identifier. For OIDC the `id` of the provider.
 	 * @param {string} token - The actual access token as given by the authentication method during the login process.
-	 * @returns {sAuthProvider}
+	 * @returns {AuthProvider}
 	 */
 	setAuthToken(type, providerId, token) {
 		this.authProvider = new AuthProvider(type, this, {

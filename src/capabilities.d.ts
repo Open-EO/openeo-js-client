@@ -10,7 +10,7 @@ declare class Capabilities {
      * @throws {Error}
      */
     constructor(data: object);
-    data: any;
+    data: object;
     features: any;
     /**
      * @private

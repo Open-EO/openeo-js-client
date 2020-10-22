@@ -88,7 +88,7 @@ declare class OidcProvider extends OidcProvider_base {
     });
     issuer: string;
     scopes: string[];
-    links: any[];
+    links: object[];
     manager: Oidc.UserManager;
     user: Oidc.User;
     /**

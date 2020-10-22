@@ -47,7 +47,7 @@ declare class Parameter {
     name: string;
     spec: {
         name: string;
-        schema: any;
+        schema: object;
         description: string;
     };
     /**
