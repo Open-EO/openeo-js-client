@@ -120,9 +120,9 @@ declare class Builder {
      *
      * @protected
      * @param {string} parameterName
-     * @returns {object}
+     * @returns {Proxy<Parameter>}
      */
-    protected createCallbackParameter(parameterName: string): object;
+    protected createCallbackParameter(parameterName: string): ProxyConstructor;
     /**
      * Gets the callback parameter specifics from the parent process.
      *

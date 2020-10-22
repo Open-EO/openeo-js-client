@@ -181,7 +181,7 @@ class Builder {
 	 * 
 	 * @protected
 	 * @param {string} parameterName 
-	 * @returns {object}
+	 * @returns {Proxy<Parameter>}
 	 */
 	createCallbackParameter(parameterName) {
 		if (!this.callbackParameterCache[parameterName]) {

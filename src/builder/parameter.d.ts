@@ -34,7 +34,7 @@ declare class Parameter {
      * @param {string} parameterName
      * @returns {Proxy<Parameter>}
      */
-    static create(builder: any, parameterName: string): ProxyConstructor;
+    static create(builder: import('./builder'), parameterName: string): ProxyConstructor;
     /**
      * Creates a new process parameter.
      *

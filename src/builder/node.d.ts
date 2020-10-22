@@ -6,17 +6,17 @@ declare class BuilderNode {
     /**
      * Creates a new process node for the builder.
      *
-     * @param {module:builder~Builder} parent
+     * @param {Builder} parent
      * @param {string} processId
      * @param {object} [processArgs={}]
      * @param {?string} [processDescription=null]
      */
-    constructor(parent: any, processId: string, processArgs?: object, processDescription?: string | null);
+    constructor(parent: import('./builder'), processId: string, processArgs?: object, processDescription?: string | null);
     /**
      * The parent builder.
-     * @type {module:builder~Builder}
+     * @type {Builder}
      */
-    parent: any;
+    parent: import('./builder');
     /**
      * The specification of the process associated with this node.
      * @type {object}
@@ -87,11 +87,11 @@ declare class BuilderNode {
      * Creates a new Builder, usually for a callback.
      *
      * @protected
-     * @param {?BuilerNode} [parentNode=null]
+     * @param {?BuilderNode} [parentNode=null]
      * @param {?string} parentParameter
      * @returns {BuilderNode}
      */
-    protected createBuilder(parentNode?: any, parentParameter?: string | null): BuilderNode;
+    protected createBuilder(parentNode?: BuilderNode, parentParameter?: string | null): BuilderNode;
     /**
      * Returns the serializable process for the callback function given.
      *

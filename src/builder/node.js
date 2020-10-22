@@ -9,7 +9,7 @@ class BuilderNode {
 	/**
 	 * Creates a new process node for the builder.
 	 * 
-	 * @param {module:builder~Builder} parent
+	 * @param {Builder} parent
 	 * @param {string} processId 
 	 * @param {object} [processArgs={}]
 	 * @param {?string} [processDescription=null]
@@ -17,7 +17,7 @@ class BuilderNode {
 	constructor(parent, processId, processArgs = {}, processDescription = null) {
 		/**
 		 * The parent builder.
-		 * @type {module:builder~Builder}
+		 * @type {Builder}
 		 */
 		this.parent = parent;
 
@@ -175,7 +175,7 @@ class BuilderNode {
 	 * Creates a new Builder, usually for a callback.
 	 * 
 	 * @protected
-	 * @param {?BuilerNode} [parentNode=null]
+	 * @param {?BuilderNode} [parentNode=null]
 	 * @param {?string} parentParameter
 	 * @returns {BuilderNode}
 	 */

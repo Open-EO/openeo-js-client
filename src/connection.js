@@ -716,7 +716,6 @@ class Connection {
 	 * Response for a HTTP request.
 	 * 
 	 * @typedef AxiosResponse
-	 * 
 	 * @type {object}
 	 * @property {*} data
 	 * @property {number} status

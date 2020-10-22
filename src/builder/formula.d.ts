@@ -22,14 +22,20 @@ declare class Formula {
      * @param {string} formula - A mathematical formula to parse.y
      */
     constructor(formula: string);
-    tree: any;
-    builder: any;
+    /**
+     * @type {object}
+     */
+    tree: object;
+    /**
+     * @type {?Builder}
+     */
+    builder: import("./builder") | null;
     /**
      * The builder instance to use.
      *
      * @param {Builder} builder - The builder instance to add the formula to.
      */
-    setBuilder(builder: any): void;
+    setBuilder(builder: import("./builder")): void;
     /**
      * Generates the processes for the formula specified in the constructor.
      *
