@@ -11,7 +11,7 @@ declare class BuilderNode {
      * @param {object} [processArgs={}]
      * @param {?string} [processDescription=null]
      */
-    constructor(parent: any, processId: string, processArgs?: object, processDescription?: string | null, ...args: any[]);
+    constructor(parent: any, processId: string, processArgs?: object, processDescription?: string | null);
     /**
      * The parent builder.
      * @type {module:builder~Builder}
@@ -55,7 +55,7 @@ declare class BuilderNode {
      *
      * @param {object|Array} processArgs
      */
-    addParametersToProcess(processArgs: object | any[], ...args: any[]): void;
+    addParametersToProcess(processArgs: object | any[]): void;
     /**
      * Gets/Sets a description for the node.
      *
@@ -107,7 +107,7 @@ declare class BuilderNode {
      *
      * @returns {object}
      */
-    toJSON(...args: any[]): object;
+    toJSON(): object;
     /**
      * Reference to a parameter.
      *
