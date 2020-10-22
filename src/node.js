@@ -96,9 +96,9 @@ class Environment {
 	 * 
 	 * @static
 	 * @param {Connection} con 
-	 * @param {object[]} assets 
+	 * @param {Array.<object.<string, *>>} assets 
 	 * @param {string} targetFolder 
-	 * @returns {Promise<string[]>}
+	 * @returns {Promise<Array.<string>>}
 	 * @throws {Error}
 	 */
 	static async downloadResults(con, assets, targetFolder) {

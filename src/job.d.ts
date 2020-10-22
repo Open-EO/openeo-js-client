@@ -36,9 +36,9 @@ declare class Job extends Job_base {
      * The process chain to be executed.
      * @public
      * @readonly
-     * @type {object}
+     * @type {Process}
      */
-    public readonly process: object;
+    public readonly process: any;
     /**
      * The current status of a batch job.
      * One of "created", "queued", "running", "canceled", "finished" or "error".
@@ -102,7 +102,7 @@ declare class Job extends Job_base {
      *
      * @async
      * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
-     * @param {object} parameters.process - A new process.
+     * @param {Process} parameters.process - A new process.
      * @param {string} parameters.title - A new title.
      * @param {string} parameters.description - A new description.
      * @param {string} parameters.plan - A new plan.
@@ -111,7 +111,7 @@ declare class Job extends Job_base {
      * @throws {Error}
      */
     updateJob(parameters: {
-        process: object;
+        process: any;
         title: string;
         description: string;
         plan: string;
@@ -125,13 +125,34 @@ declare class Job extends Job_base {
      */
     deleteJob(): Promise<void>;
     /**
+     * @typedef JobEstimate
+     * @type {object}
+     * @property {?number} costs
+     * @property {string} duration
+     * @property {number} size in bytes as integer
+     * @property {?number} downloads_included integer
+     * @property {string} expires
+     */
+    /**
      * Calculate an estimate (potentially time/costs/volume) for a batch job.
      *
      * @async
-     * @returns {Promise<object>} A response compatible to the API specification.
+     * @returns {Promise<JobEstimate>} A response compatible to the API specification.
      * @throws {Error}
      */
-    estimateJob(): Promise<object>;
+    estimateJob(): Promise<{
+        costs: number | null;
+        duration: string;
+        /**
+         * in bytes as integer
+         */
+        size: number;
+        /**
+         * integer
+         */
+        downloads_included: number | null;
+        expires: string;
+    }>;
     /**
      * Get logs for the batch job from the back-end.
      *
@@ -179,18 +200,18 @@ declare class Job extends Job_base {
      * Retrieves the STAC Item produced for the job results.
      *
      * @async
-     * @returns {Promise<object>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+     * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
      * @throws {Error}
      */
-    getResultsAsItem(): Promise<object>;
+    getResultsAsItem(): Promise<any>;
     /**
      * Retrieves download links.
      *
      * @async
-     * @returns {Promise<object>} A list of links (object with href, rel, title and type).
+     * @returns {Promise<Array.<Link>>} A list of links (object with href, rel, title, type and roles).
      * @throws {Error}
      */
-    listResults(): Promise<object>;
+    listResults(): Promise<Link[]>;
     /**
      * Downloads the results to the specified target folder. The specified target folder must already exist!
      *
@@ -198,8 +219,8 @@ declare class Job extends Job_base {
      *
      * @async
      * @param {string} targetFolder - A target folder to store the file to, which must already exist.
-     * @returns {Promise<string[]|void>} Depending on the environment: A list of file paths of the newly created files (Node), throws in Browsers.
+     * @returns {Promise<Array.<string>|void>} Depending on the environment: A list of file paths of the newly created files (Node), throws in Browsers.
      * @throws {Error}
      */
-    downloadResults(targetFolder: string): Promise<string[] | void>;
+    downloadResults(targetFolder: string): Promise<Array<string> | void>;
 }

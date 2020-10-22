@@ -51,8 +51,8 @@ declare class OidcProvider extends OidcProvider_base {
      * @property {string} title Title for the authentication method.
      * @property {string} description Description for the authentication method.
      * @property {string} issuer The OpenID Connect issuer location (authority).
-     * @property {string[]} scopes OpenID Connect Scopes
-     * @property {object[]} links Links
+     * @property {Array.<string>} scopes OpenID Connect Scopes
+     * @property {Array.<Link>} links Links
      */
     /**
      * Creates a new OidcProvider instance to authenticate using OpenID Connect.
@@ -80,23 +80,23 @@ declare class OidcProvider extends OidcProvider_base {
         /**
          * OpenID Connect Scopes
          */
-        scopes: string[];
+        scopes: Array<string>;
         /**
          * Links
          */
-        links: object[];
+        links: Link[];
     });
     issuer: string;
     scopes: string[];
-    links: object[];
+    links: Link[];
     manager: Oidc.UserManager;
     user: Oidc.User;
     /**
      * Returns the OpenID Connect / OAuth scopes.
      *
-     * @returns {string[]}
+     * @returns {Array.<string>}
      */
-    getScopes(): string[];
+    getScopes(): Array<string>;
     /**
      * Returns the OpenID Connect / OAuth issuer.
      *

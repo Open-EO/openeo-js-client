@@ -4,58 +4,118 @@ export = FileTypes;
  */
 declare class FileTypes {
     /**
+     * @typedef FileTypesAPI
+     * @type {object}
+     * @property {object.<string, FileType>} input - File types supported to import
+     * @property {object.<string, FileType>} output - File types supported to export
+     */
+    /**
+     * @typedef FileType
+     * @type {object}
+     * @property {string} title
+     * @property {string} description
+     * @property {Array.<string>} gis_data_types
+     * @property {object.<string, *>} parameters
+     * @property {Array.<Link>} links
+     */
+    /**
      * Creates a new FileTypes object from an API-compatible JSON response.
      *
-     * @param {object} data - A capabilities response compatible to the API specification for `GET /file_formats`.
+     * @param {FileTypesAPI} data - A capabilities response compatible to the API specification for `GET /file_formats`.
      */
-    constructor(data: object);
+    constructor(data: {
+        /**
+         * - File types supported to import
+         */
+        input: any;
+        /**
+         * - File types supported to export
+         */
+        output: any;
+    });
+    /**
+     * @type {FileTypesAPI}
+     */
     data: {
-        input: {};
-        output: {};
+        /**
+         * - File types supported to import
+         */
+        input: any;
+        /**
+         * - File types supported to export
+         */
+        output: any;
     };
     /**
      * Returns the file types response as a JSON serializable representation of the data that is API compliant.
      *
-     * @returns {object} - A reference to the capabilities response.
+     * @returns {FileTypesAPI}
      */
-    toJSON(): any;
+    toJSON(): {
+        /**
+         * - File types supported to import
+         */
+        input: any;
+        /**
+         * - File types supported to export
+         */
+        output: any;
+    };
     /**
      * Returns the input file formats.
      *
-     * @returns {object}
+     * @returns {object.<string, FileType>}
      */
-    getInputTypes(): object;
+    getInputTypes(): any;
     /**
      * Returns the output file formats.
      *
-     * @returns {object}
+     * @returns {object.<string, FileType>}
      */
-    getOutputTypes(): object;
+    getOutputTypes(): any;
     /**
      * Returns a single input file format for a given identifier.
      *
      * Returns null if no input file format was found for the given identifier.
      *
      * @param {string} type - Case-insensitive file format identifier
-     * @returns {?object}
+     * @returns {?FileType}
      */
-    getInputType(type: string): object | null;
+    getInputType(type: string): {
+        title: string;
+        description: string;
+        gis_data_types: Array<string>;
+        parameters: any;
+        links: Link[];
+    };
     /**
      * Returns a single output file format for a given identifier.
      *
      * Returns null if no output file format was found for the given identifier.
      *
      * @param {string} type - Case-insensitive file format identifier
-     * @returns {?object}
+     * @returns {?FileType}
      */
-    getOutputType(type: string): object | null;
+    getOutputType(type: string): {
+        title: string;
+        description: string;
+        gis_data_types: Array<string>;
+        parameters: any;
+        links: Link[];
+    };
     /**
      * Get a file type object from the list of input or output file formats.
      *
      * @param {string} type - Identifier of the file type
      * @param {string} io - Either `input` or `output`
-     * @returns {?object}
+     * @returns {?FileType}
      * @protected
      */
-    protected _findType(type: string, io: string): object | null;
+    protected _findType(type: string, io: string): {
+        title: string;
+        description: string;
+        gis_data_types: Array<string>;
+        parameters: any;
+        links: Link[];
+    };
 }

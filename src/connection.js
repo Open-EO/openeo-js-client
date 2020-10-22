@@ -17,6 +17,8 @@ const Service = require('./service');
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 
+const { Link, Log, Process, ApiError } = require('./typedefs'); // eslint-disable-line no-unused-vars
+
 /**
  * A connection to a back-end.
  */
@@ -33,7 +35,7 @@ class Connection {
 		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		/**
-		 * @type {AuthProvider[]|null}
+		 * @type {?Array.<AuthProvider>}
 		 */
 		this.authProviderList = null;
 		/**
@@ -90,10 +92,15 @@ class Connection {
 	}
 
 	/**
+	 * @typedef ServiceType
+	 * @type {object.<string, *>}
+	 */
+
+	/**
 	 * List the supported secondary service types.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A response compatible to the API specification.
+	 * @returns {Promise<object.<string, ServiceType>>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listServiceTypes() {
@@ -102,10 +109,15 @@ class Connection {
 	}
 
 	/**
+	 * @typedef UdfRuntime
+	 * @type {object.<string, *>}
+	 */
+
+	/**
 	 * List the supported UDF runtimes.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A response compatible to the API specification.
+	 * @returns {Promise<object.<string, UdfRuntime>>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listUdfRuntimes() {
@@ -114,10 +126,17 @@ class Connection {
 	}
 
 	/**
+	 * @typedef Collections
+	 * @type {object}
+	 * @property {Array.<Collection>} collections
+	 * @property {Array.<Link>} links
+	 */
+
+	/**
 	 * List all collections available on the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A response compatible to the API specification.
+	 * @returns {Promise<Collections>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listCollections() {
@@ -126,11 +145,16 @@ class Connection {
 	}
 
 	/**
+	 * @typedef Collection
+	 * @type {object.<string, *>} 
+	 */
+
+	/**
 	 * Get further information about a single collection.
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
-	 * @returns {Promise<object>} - A response compatible to the API specification.
+	 * @returns {Promise<Collection>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeCollection(collectionId) {
@@ -139,12 +163,19 @@ class Connection {
 	}
 
 	/**
+	 * @typedef Processes
+	 * @type {object}
+	 * @property {Array.<Process>} processes
+	 * @property {Array.<Link>} links
+	 */
+
+	/**
 	 * List all processes available on the back-end.
 	 * 
 	 * Data is cached in memory.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} - A response compatible to the API specification.
+	 * @returns {Promise<Processes>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listProcesses() {
@@ -160,7 +191,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} processId - Collection ID to request further metadata for.
-	 * @returns {Promise<?object>} - A single process as object, or `null` if none is found.
+	 * @returns {Promise<?Process>} - A single process as object, or `null` if none is found.
 	 * @throws {Error}
 	 * @see Connection#listProcesses
 	 */
@@ -193,7 +224,7 @@ class Connection {
 	 * List all authentication methods supported by the back-end.
 	 * 
 	 * @async
-	 * @returns {Promise<AuthProvider[]>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
+	 * @returns {Promise<Array.<AuthProvider>>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
 	 * @see AuthProvider
 	 */
@@ -238,7 +269,7 @@ class Connection {
 	 * May return `null` if the instance can't be created.
 	 *
 	 * @callback oidcProviderFactoryFunction
-	 * @param {object} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
+	 * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
 	 * @returns {?AuthProvider}
 	 */
 
@@ -356,12 +387,29 @@ class Connection {
 	}
 
 	/**
+	 * @typedef AccountStorage
+	 * @type {object}
+	 * @property {number} free in bytes as integer
+	 * @property {number} quota in bytes as integer
+	 */
+	
+	/**
+	 * @typedef Account
+	 * @type {object}
+	 * @property {string} user_id
+	 * @property {string} name
+	 * @property {AccountStorage} storage
+	 * @property {?number} budget
+	 * @property {Array.<Link>} links
+	 */
+
+	/**
 	 * Get information about the authenticated user.
 	 * 
 	 * Updates the User ID if available.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A response compatible to the API specification.
+	 * @returns {Promise<Account>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeAccount() {
@@ -373,7 +421,7 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {Promise<UserFile[]>} A list of files.
+	 * @returns {Promise<Array.<UserFile>>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
@@ -400,7 +448,7 @@ class Connection {
 	 * In a browser environment the source must be an object from a file upload form.
 	 * 
 	 * @async
-	 * @param {string|object} source - The source, see method description for details.
+	 * @param {*} source - The source, see method description for details.
 	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
 	 * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
 	 * @returns {Promise<UserFile>}
@@ -430,9 +478,9 @@ class Connection {
 	 * Takes a UserProcess, BuilderNode or a plain object containing process nodes
 	 * and converts it to an API compliant object.
 	 * 
-	 * @param {UserProcess|BuilderNode|object} process - Process to be normalized.
-	 * @param {object} additional - Additional properties to be merged with the resulting object.
-	 * @returns {object}
+	 * @param {UserProcess|BuilderNode|object.<string, *>} process - Process to be normalized.
+	 * @param {object.<string, *>} additional - Additional properties to be merged with the resulting object.
+	 * @returns {object.<string, *>}
 	 * @protected
 	 */
 	_normalizeUserProcess(process, additional = {}) {
@@ -455,8 +503,8 @@ class Connection {
 	 * Validates a user-defined process at the back-end.
 	 * 
 	 * @async
-	 * @param {object} process - User-defined process to validate.
-	 * @returns {Promise<object[]>} errors - A list of API compatible error objects. A valid process returns an empty list.
+	 * @param {Process} process - User-defined process to validate.
+	 * @returns {Promise<Array.<ApiError>>} errors - A list of API compatible error objects. A valid process returns an empty list.
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
@@ -473,7 +521,7 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<UserProcess[]>} A list of user-defined processes.
+	 * @returns {Promise<Array.<UserProcess>>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
 	async listUserProcesses() {
@@ -488,7 +536,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} id - Unique identifier for the process.
-	 * @param {object} process - A user-defined process.
+	 * @param {Process} process - A user-defined process.
 	 * @returns {Promise<UserProcess>} The new user-defined process.
 	 * @throws {Error}
 	 */
@@ -515,7 +563,7 @@ class Connection {
 	 * @type {object}
 	 * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
 	 * @property {?number} costs The costs for the request in the currency exposed by the back-end.
-	 * @property {object[]} logs Array of log entries as specified in the API.
+	 * @property {Array.<Log>} logs Array of log entries as specified in the API.
 	 */
 
 	/**
@@ -524,7 +572,7 @@ class Connection {
 	 * Please note that requests can take a very long time of several minutes or even hours.
 	 * 
 	 * @async
-	 * @param {object} process - A user-defined process.
+	 * @param {Process} process - A user-defined process.
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
@@ -579,7 +627,7 @@ class Connection {
 	 * In a browser environment, offers the file for downloading using the specified name (folders are not supported).
 	 * 
 	 * @async
-	 * @param {object} process - A user-defined process.
+	 * @param {Process} process - A user-defined process.
 	 * @param {string} targetPath - The target, see method description for details.
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
@@ -595,7 +643,7 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<Job[]>} A list of jobs.
+	 * @returns {Promise<Array.<Job>>} A list of jobs.
 	 * @throws {Error}
 	 */
 	async listJobs() {
@@ -609,12 +657,12 @@ class Connection {
 	 * Creates a new batch job at the back-end.
 	 * 
 	 * @async
-	 * @param {object} process - A user-define process to execute.
+	 * @param {Process} process - A user-define process to execute.
 	 * @param {?string} [title=null] - A title for the batch job.
 	 * @param {?string} [description=null] - A description for the batch job.
 	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
@@ -653,7 +701,7 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<Job[]>} A list of services.
+	 * @returns {Promise<Array.<Job>>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices() {
@@ -667,15 +715,15 @@ class Connection {
 	 * Creates a new secondary web service at the back-end. 
 	 * 
 	 * @async
-	 * @param {object} process - A user-defined process.
+	 * @param {Process} process - A user-defined process.
 	 * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
 	 * @param {?string} [title=null] - A title for the service.
 	 * @param {?string} [description=null] - A description for the service.
 	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
-	 * @param {object} [configuration={}] - Configuration parameters to pass to the service.
+	 * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
 	 * @param {?string} [plan=null] - The billing plan to use for this service.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */
@@ -721,7 +769,7 @@ class Connection {
 	 * @property {number} status
 	 * @property {string} statusText
 	 * @property {*} headers
-	 * @property {object} config
+	 * @property {object.<string, *>} config
 	 * @property {*} request
 	 */
 
@@ -730,7 +778,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} path 
-	 * @param {object} query 
+	 * @param {object.<string, *>} query 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
@@ -850,7 +898,7 @@ class Connection {
 	 * instead of Streams or Blobs for non-JSON response types.
 	 * 
 	 * @async
-	 * @param {object} options 
+	 * @param {object.<string, *>} options 
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios

@@ -135,17 +135,17 @@ declare class Builder {
      *
      * Doesn't add the parameter if it has the same name as a callback parameter.
      *
-     * @param {object} parameter - The parameter spec to add, must comply to the API.
+     * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
      * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
      */
-    addParameter(parameter: object, root?: boolean): void;
+    addParameter(parameter: any, root?: boolean): void;
     /**
      * Returns the process specification for the given process identifier.
      *
      * @param {string} id
-     * @returns {object}
+     * @returns {Process}
      */
-    spec(id: string): object;
+    spec(id: string): any;
     /**
      * Adds a mathematical formula to the process.
      *
@@ -161,15 +161,15 @@ declare class Builder {
      * Adds another process call to the process chain.
      *
      * @param {string} processId - The id of the process to call.
-     * @param {object|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+     * @param {object.<string, *>|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
      * @param {?string} description - An optional description for the process call.
      * @returns {BuilderNode}
      */
-    process(processId: string, args?: object | any[], description?: string | null): import("./node");
+    process(processId: string, args?: any | any[], description?: string | null): import("./node");
     /**
      * Returns a JSON serializable representation of the data that is API compliant.
      *
-     * @returns {object}
+     * @returns {Process}
      */
     toJSON(): any;
     /**

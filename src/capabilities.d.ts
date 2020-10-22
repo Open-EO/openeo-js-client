@@ -6,21 +6,30 @@ declare class Capabilities {
     /**
      * Creates a new Capabilities object from an API-compatible JSON response.
      *
-     * @param {object} data - A capabilities response compatible to the API specification for `GET /`.
+     * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
      * @throws {Error}
      */
-    constructor(data: object);
-    data: object;
-    features: any;
+    constructor(data: any);
+    /**
+     * @private
+     * @type {object.<string, *>}
+     */
+    private data;
+    /**
+     * @private
+     * @type {Array.<string>}
+     */
+    private features;
     /**
      * @private
      * @ignore
+     * @type {object.<string, string>}
      */
     private featureMap;
     /**
      * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
      *
-     * @returns {object} - A reference to the capabilities response.
+     * @returns {object.<string, *>} - A reference to the capabilities response.
      */
     toJSON(): any;
     /**
@@ -56,15 +65,15 @@ declare class Capabilities {
     /**
      * Returns the links.
      *
-     * @returns {object[]} Array of link objects (href, title, rel, type)
+     * @returns {Array.<Link>} Array of link objects (href, title, rel, type)
      */
-    links(): object[];
+    links(): Link[];
     /**
      * Lists all supported features.
      *
-     * @returns {string[]} An array of supported features.
+     * @returns {Array.<string>} An array of supported features.
      */
-    listFeatures(): string[];
+    listFeatures(): Array<string>;
     /**
      * Check whether a feature is supported by the back-end.
      *
@@ -90,7 +99,7 @@ declare class Capabilities {
     /**
      * List all billing plans.
      *
-     * @returns {BillingPlan[]} Billing plans
+     * @returns {Array.<BillingPlan>} Billing plans
      */
     listPlans(): {
         /**

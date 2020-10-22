@@ -62,12 +62,12 @@ declare class Environment {
      *
      * @static
      * @param {Connection} con
-     * @param {object[]} assets
+     * @param {Array.<object.<string, *>>} assets
      * @param {string} targetFolder
-     * @returns {Promise<string[]>}
+     * @returns {Promise<Array.<string>>}
      * @throws {Error}
      */
-    static downloadResults(con: import("./connection"), assets: object[], targetFolder: string): Promise<string[]>;
+    static downloadResults(con: import("./connection"), assets: Array<any>, targetFolder: string): Promise<Array<string>>;
     /**
      * Streams data into a file.
      *

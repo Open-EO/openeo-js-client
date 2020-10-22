@@ -36,9 +36,9 @@ declare class Service extends Service_base {
      * The process chain to be executed.
      * @public
      * @readonly
-     * @type {object}
+     * @type {Process}
      */
-    public readonly process: object;
+    public readonly process: any;
     /**
      * URL at which the secondary web service is accessible
      * @public
@@ -63,16 +63,16 @@ declare class Service extends Service_base {
      * Map of configuration settings, i.e. the setting names supported by the secondary web service combined with actual values.
      * @public
      * @readonly
-     * @type {object}
+     * @type {object.<string, *>}
      */
-    public readonly configuration: object;
+    public readonly configuration: any;
     /**
      * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
      * @public
      * @readonly
-     * @type {object}
+     * @type {object.<string, *>}
      */
-    public readonly attributes: object;
+    public readonly attributes: any;
     /**
      * Date and time of creation, formatted as a RFC 3339 date-time.
      * @public
@@ -114,22 +114,22 @@ declare class Service extends Service_base {
      *
      * @async
      * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
-     * @param {object} parameters.process - A new process.
+     * @param {Process} parameters.process - A new process.
      * @param {string} parameters.title - A new title.
      * @param {string} parameters.description - A new description.
      * @param {boolean} parameters.enabled - Enables (`true`) or disables (`false`) the service.
-     * @param {object} parameters.configuration - A new set of configuration parameters to set for the service.
+     * @param {object.<string, *>} parameters.configuration - A new set of configuration parameters to set for the service.
      * @param {string} parameters.plan - A new plan.
      * @param {number} parameters.budget - A new budget.
      * @returns {Promise<Service>} The updated service object (this).
      * @throws {Error}
      */
     updateService(parameters: {
-        process: object;
+        process: any;
         title: string;
         description: string;
         enabled: boolean;
-        configuration: object;
+        configuration: any;
         plan: string;
         budget: number;
     }): Promise<Service>;

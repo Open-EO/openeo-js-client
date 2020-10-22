@@ -39,21 +39,21 @@ declare class Parameter {
      * Creates a new process parameter.
      *
      * @param {string} name - Name of the parameter.
-     * @param {object|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
+     * @param {object.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
      * @param {string} description - A description for the parameter
      * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
      */
-    constructor(name: string, schema?: object | string, description?: string, defaultValue?: any);
+    constructor(name: string, schema?: any | string, description?: string, defaultValue?: any);
     name: string;
     spec: {
         name: string;
-        schema: object;
+        schema: any;
         description: string;
     };
     /**
      * Returns a JSON serializable representation of the data that is API compliant.
      *
-     * @returns {object}
+     * @returns {object.<string, *>}
      */
     toJSON(): any;
     /**

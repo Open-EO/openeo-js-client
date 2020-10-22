@@ -43,19 +43,19 @@ declare class Environment {
      *
      * @ignore
      * @static
-     * @param {object} source - An object from a file upload form.
+     * @param {*} source - An object from a file upload form.
      * @returns {string}
      */
-    static fileNameForUpload(source: object): string;
+    static fileNameForUpload(source: any): string;
     /**
      * Get the data from the source that should be uploaded.
      *
      * @ignore
      * @static
-     * @param {object} source - An object from a file upload form.
-     * @returns {object}
+     * @param {*} source - An object from a file upload form.
+     * @returns {*}
      */
-    static dataForUpload(source: object): object;
+    static dataForUpload(source: any): any;
     /**
      * Downloads files to local storage and returns a list of file paths.
      *
@@ -63,11 +63,11 @@ declare class Environment {
      *
      * @static
      * @param {Connection} con
-     * @param {object[]} assets
+     * @param {Array.<object.<string, *>>} assets
      * @param {string} targetFolder
      * @throws {Error}
      */
-    static downloadResults(con: import("./connection"), assets: object[], targetFolder: string): Promise<void>;
+    static downloadResults(con: import("./connection"), assets: Array<any>, targetFolder: string): Promise<void>;
     /**
      * Offers data to download in the browser.
      *

@@ -11,7 +11,7 @@ class BaseEntity {
 	 * Creates an instance of this object.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {object} properties 
+	 * @param {Array} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
 	 */
 	constructor(connection, properties = []) {
 		/**
@@ -19,10 +19,29 @@ class BaseEntity {
 		 * @type {Connection}
 		 */
 		this.connection = connection;
+		/**
+		 * @protected
+		 * @type {object.<string, string>}
+		 */
 		this.apiToClientNames = {};
+		/**
+		 * @protected
+		 * @type {object.<string, string>}
+		 */
 		this.clientToApiNames = {};
+		/**
+		 * @protected
+		 * @type {number}
+		 */
 		this.lastRefreshTime = 0;
+		/**
+		 * Additional (non-standardized) properties received from the API.
+		 * 
+		 * @protected
+		 * @type {object.<string, *>}
+		 */
 		this.extra = {};
+		
 		for(let i in properties) {
 			let backend, client;
 			if (Array.isArray(properties[i])) {
@@ -41,7 +60,7 @@ class BaseEntity {
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 */
 	toJSON() {
 		let obj = {};
@@ -57,7 +76,7 @@ class BaseEntity {
 	/**
 	 * Converts the data from an API response into data suitable for our JS client models.
 	 * 
-	 * @param {object} metadata - JSON object originating from an API response.
+	 * @param {object.<string, *>} metadata - JSON object originating from an API response.
 	 * @returns {BaseEntity} Returns the object itself.
 	 */
 	setAll(metadata) {
@@ -85,7 +104,7 @@ class BaseEntity {
 	/**
 	 * Returns all data in the model.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 */
 	getAll() {
 		let obj = {};
@@ -109,8 +128,8 @@ class BaseEntity {
 	/**
 	 * Converts the object to a valid objects for API requests.
 	 * 
-	 * @param {object} parameters
-	 * @returns {object}
+	 * @param {object.<string, *>} parameters
+	 * @returns {object.<string, *>}
 	 * @protected
 	 */
 	_convertToRequest(parameters) {

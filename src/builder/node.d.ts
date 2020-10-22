@@ -8,10 +8,10 @@ declare class BuilderNode {
      *
      * @param {Builder} parent
      * @param {string} processId
-     * @param {object} [processArgs={}]
+     * @param {object.<string, *>} [processArgs={}]
      * @param {?string} [processDescription=null]
      */
-    constructor(parent: import('./builder'), processId: string, processArgs?: object, processDescription?: string | null);
+    constructor(parent: import('./builder'), processId: string, processArgs?: any, processDescription?: string | null);
     /**
      * The parent builder.
      * @type {Builder}
@@ -19,10 +19,10 @@ declare class BuilderNode {
     parent: import('./builder');
     /**
      * The specification of the process associated with this node.
-     * @type {object}
+     * @type {Process}
      * @readonly
      */
-    readonly spec: object;
+    readonly spec: any;
     /**
      * The unique identifier for the node (not the process ID!).
      * @type {string}
@@ -30,9 +30,9 @@ declare class BuilderNode {
     id: string;
     /**
      * The arguments for the process.
-     * @type {object}
+     * @type {object.<string, *>}
      */
-    arguments: object;
+    arguments: any;
     /**
      * @ignore
      */
@@ -46,16 +46,16 @@ declare class BuilderNode {
      * Converts a sorted array of arguments to an object with the respective parameter names.
      *
      * @param {Array} processArgs
-     * @returns {object}
+     * @returns {object.<string, *>}
      * @throws {Error}
      */
-    namedArguments(processArgs: any[]): object;
+    namedArguments(processArgs: any[]): any;
     /**
      * Checks the arguments given for parameters and add them to the process.
      *
-     * @param {object|Array} processArgs
+     * @param {object.<string, *>|Array} processArgs
      */
-    addParametersToProcess(processArgs: object | any[]): void;
+    addParametersToProcess(processArgs: any | any[]): void;
     /**
      * Gets/Sets a description for the node.
      *
@@ -91,21 +91,21 @@ declare class BuilderNode {
      * @param {?string} parentParameter
      * @returns {BuilderNode}
      */
-    protected createBuilder(parentNode?: BuilderNode, parentParameter?: string | null): BuilderNode;
+    protected createBuilder(parentNode?: BuilderNode | null, parentParameter?: string | null): BuilderNode;
     /**
      * Returns the serializable process for the callback function given.
      *
      * @protected
      * @param {Function} arg - callback function
      * @param {string} name - Parameter name
-     * @returns {object}
+     * @returns {object.<string, *>}
      * @throws {Error}
      */
-    protected exportCallback(arg: Function, name: string): object;
+    protected exportCallback(arg: Function, name: string): any;
     /**
      * Returns a JSON serializable representation of the data that is API compliant.
      *
-     * @returns {object}
+     * @returns {object.<string, *>}
      */
     toJSON(): any;
     /**

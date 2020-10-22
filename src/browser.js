@@ -71,7 +71,7 @@ class Environment {
 	 * 
 	 * @ignore
 	 * @static
-	 * @param {object} source - An object from a file upload form.
+	 * @param {*} source - An object from a file upload form.
 	 * @returns {string}
 	 */
 	static fileNameForUpload(source) {
@@ -83,8 +83,8 @@ class Environment {
 	 * 
 	 * @ignore
 	 * @static
-	 * @param {object} source - An object from a file upload form.
-	 * @returns {object}
+	 * @param {*} source - An object from a file upload form.
+	 * @returns {*}
 	 */
 	static dataForUpload(source) {
 		return source;
@@ -97,7 +97,7 @@ class Environment {
 	 * 
 	 * @static
 	 * @param {Connection} con 
-	 * @param {object[]} assets 
+	 * @param {Array.<object.<string, *>>} assets 
 	 * @param {string} targetFolder 
 	 * @throws {Error}
 	 */

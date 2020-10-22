@@ -2,6 +2,7 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
 const Connection = require('./connection'); // eslint-disable-line no-unused-vars
+const { Link } = require('./typedefs'); // eslint-disable-line no-unused-vars
 
 /**
  * The Authentication Provider for OpenID Connect.
@@ -24,13 +25,13 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @augments AuthProviderMeta
 	 * @typedef OidcProviderMeta
-	 * @type {object} 
+	 * @type {object}
 	 * @property {string} id Provider identifier.
 	 * @property {string} title Title for the authentication method.
 	 * @property {string} description Description for the authentication method.
 	 * @property {string} issuer The OpenID Connect issuer location (authority).
-	 * @property {string[]} scopes OpenID Connect Scopes
-	 * @property {object[]} links Links
+	 * @property {Array.<string>} scopes OpenID Connect Scopes
+	 * @property {Array.<Link>} links Links
 	 */
 
 	/**
@@ -100,7 +101,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @param {string} client_id - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {object} [options={}] - Object with authentication options.
+	 * @param {object.<string, *>} [options={}] - Object with authentication options.
 	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
@@ -135,7 +136,7 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Returns the OpenID Connect / OAuth scopes.
 	 * 
-	 * @returns {string[]}
+	 * @returns {Array.<string>}
 	 */
 	getScopes() {
 		return Array.isArray(this.scopes) && this.scopes.length > 0 ? this.scopes : ['openid'];

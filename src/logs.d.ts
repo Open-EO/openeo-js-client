@@ -24,9 +24,15 @@ declare class Logs {
      *
      * @async
      * @param {number} limit - The number of log entries to retrieve per request, as integer.
-     * @returns {Promise<object[]>}
+     * @returns {Promise<Array.<Log>>}
      */
-    nextLogs(limit?: number): Promise<object[]>;
+    nextLogs(limit?: number): Promise<Log[]>;
+    /**
+     * @typedef LogsAPI
+     * @type {object}
+     * @property {Array.<Log>} logs
+     * @property {Array.<Link>} links
+     */
     /**
      * Retrieves the next log entries since the last request.
      *
@@ -34,7 +40,10 @@ declare class Logs {
      *
      * @async
      * @param {number} limit - The number of log entries to retrieve per request, as integer.
-     * @returns {Promise<object>}
+     * @returns {Promise<LogsAPI>}
      */
-    next(limit?: number): Promise<object>;
+    next(limit?: number): Promise<{
+        logs: Log[];
+        links: Link[];
+    }>;
 }

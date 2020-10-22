@@ -1,5 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
 const Connection = require('./connection'); // eslint-disable-line no-unused-vars
+const { Link, Log } = require('./typedefs'); // eslint-disable-line no-unused-vars
 
 /**
  * Interface to loop through the logs.
@@ -29,12 +30,19 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise<object[]>}
+	 * @returns {Promise<Array.<Log>>}
 	 */
 	async nextLogs(limit = null) {
 		let response = await this.next(limit);
 		return Array.isArray(response.logs) ? response.logs : [];
 	}
+
+	/**
+	 * @typedef LogsAPI
+	 * @type {object}
+	 * @property {Array.<Log>} logs
+	 * @property {Array.<Link>} links
+	 */
 
 	/**
 	 * Retrieves the next log entries since the last request.
@@ -43,7 +51,7 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise<object>}
+	 * @returns {Promise<LogsAPI>}
 	 */
 	async next(limit = null) {
 		let query = {

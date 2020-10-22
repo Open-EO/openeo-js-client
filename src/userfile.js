@@ -65,7 +65,7 @@ class UserFile extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {string} target - The target, see method description for details.
-	 * @returns {Promise<string[]|void>} - Return value depends on the target and environment, see method description for details.
+	 * @returns {Promise<Array.<string>|void>} - Return value depends on the target and environment, see method description for details.
 	 * @throws {Error}
 	 */
 	async downloadFile(target) {
@@ -91,7 +91,7 @@ class UserFile extends BaseEntity {
 	 * In a browser environment the source must be an object from a file upload form.
 	 * 
 	 * @async
-	 * @param {string|object} source - The source, see method description for details.
+	 * @param {*} source - The source, see method description for details.
 	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
 	 * @returns {Promise<UserFile>}
 	 * @throws {Error}

@@ -3,6 +3,7 @@ const Parameter = require('./parameter');
 const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
+const { Process } = require('../typedefs'); // eslint-disable-line no-unused-vars
 
 
 const PROCESS_META = [
@@ -213,7 +214,7 @@ class Builder {
 	 * 
 	 * Doesn't add the parameter if it has the same name as a callback parameter.
 	 * 
-	 * @param {object} parameter - The parameter spec to add, must comply to the API.
+	 * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
 	 * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
 	 */
 	addParameter(parameter, root = true) {
@@ -246,7 +247,7 @@ class Builder {
 	 * Returns the process specification for the given process identifier.
 	 * 
 	 * @param {string} id 
-	 * @returns {object}
+	 * @returns {Process}
 	 */
 	spec(id) {
 		return this.processes.find(process => process.id === id);
@@ -273,7 +274,7 @@ class Builder {
 	 * Adds another process call to the process chain.
 	 * 
 	 * @param {string} processId - The id of the process to call.
-	 * @param {object|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+	 * @param {object.<string, *>|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
 	 * @param {?string} description - An optional description for the process call.
 	 * @returns {BuilderNode}
 	 */
@@ -286,7 +287,7 @@ class Builder {
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object}
+	 * @returns {Process}
 	 */
 	toJSON() {
 		let process = {

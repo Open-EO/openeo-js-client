@@ -1,4 +1,5 @@
 const Utils = require('@openeo/js-commons/src/utils');
+const { Link } = require('./typedefs'); // eslint-disable-line no-unused-vars
 
 /**
  * Capabilities of a back-end.
@@ -8,7 +9,7 @@ class Capabilities {
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
 	 * 
-	 * @param {object} data - A capabilities response compatible to the API specification for `GET /`.
+	 * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
 	 * @throws {Error}
 	 */
 	constructor(data) {
@@ -22,16 +23,25 @@ class Capabilities {
 			throw new Error("Invalid capabilities: No endpoints retrieved");
 		}
 
+		/**
+		 * @private
+		 * @type {object.<string, *>}
+		 */
 		this.data = data;
 
-		// Flatten features to be compatible with the feature map.
+		/**
+		 * @private
+		 * @type {Array.<string>}
+		 */
 		this.features = this.data.endpoints
+			// Flatten features to be compatible with the feature map.
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
 			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support gets better
 
 		/**
 		 * @private
 		 * @ignore
+		 * @type {object.<string, string>}
 		 */
 		this.featureMap = {
 			// Discovery
@@ -92,7 +102,7 @@ class Capabilities {
 	/**
 	 * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object} - A reference to the capabilities response.
+	 * @returns {object.<string, *>} - A reference to the capabilities response.
 	 */
 	toJSON() {
 		return this.data;
@@ -146,7 +156,7 @@ class Capabilities {
 	/**
 	 * Returns the links.
 	 * 
-	 * @returns {object[]} Array of link objects (href, title, rel, type)
+	 * @returns {Array.<Link>} Array of link objects (href, title, rel, type)
 	 */
 	links() {
 		return Array.isArray(this.data.links) ? this.data.links : [];
@@ -155,7 +165,7 @@ class Capabilities {
 	/**
 	 * Lists all supported features.
 	 * 
-	 * @returns {string[]} An array of supported features.
+	 * @returns {Array.<string>} An array of supported features.
 	 */
 	listFeatures() {
 		let features = [];
@@ -199,7 +209,7 @@ class Capabilities {
 	/**
 	 * List all billing plans.
 	 * 
-	 * @returns {BillingPlan[]} Billing plans
+	 * @returns {Array.<BillingPlan>} Billing plans
 	 */
 	listPlans() {
 		if (Utils.isObject(this.data.billing) && Array.isArray(this.data.billing.plans)) {
