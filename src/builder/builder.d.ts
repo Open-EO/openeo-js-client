@@ -171,7 +171,7 @@ declare class Builder {
      *
      * @returns {object}
      */
-    toJSON(): object;
+    toJSON(): any;
     /**
      * Generates a unique identifier for the process nodes.
      *

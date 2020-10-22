@@ -55,7 +55,7 @@ declare class Parameter {
      *
      * @returns {object}
      */
-    toJSON(): object;
+    toJSON(): any;
     /**
      * Reference to a parameter.
      *

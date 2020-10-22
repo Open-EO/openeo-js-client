@@ -26,7 +26,7 @@ declare class BaseEntity {
      *
      * @returns {object}
      */
-    toJSON(): object;
+    toJSON(): any;
     /**
      * Converts the data from an API response into data suitable for our JS client models.
      *

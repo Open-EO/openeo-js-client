@@ -22,7 +22,7 @@ declare class Capabilities {
      *
      * @returns {object} - A reference to the capabilities response.
      */
-    toJSON(): object;
+    toJSON(): any;
     /**
      * Returns the openEO API version implemented by the back-end.
      *

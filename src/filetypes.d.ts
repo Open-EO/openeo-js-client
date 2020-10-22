@@ -18,7 +18,7 @@ declare class FileTypes {
      *
      * @returns {object} - A reference to the capabilities response.
      */
-    toJSON(): object;
+    toJSON(): any;
     /**
      * Returns the input file formats.
      *
