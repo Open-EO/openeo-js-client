@@ -118,7 +118,7 @@
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array</span>
 
 
             
@@ -128,7 +128,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. <code>[&quot;id&quot;, &quot;title&quot;, [&quot;process_graph&quot;, &quot;processGraph&quot;]]</code></p></td>
         </tr>
 
     
@@ -219,6 +219,142 @@
 
         
             
+<h4 class="name" id="apiToClientNames"><span class="type-signature">(protected) </span>apiToClientNames<span class="type-signature"> :object.&lt;string, string></span></h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object.&lt;string, string></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="clientToApiNames"><span class="type-signature">(protected) </span>clientToApiNames<span class="type-signature"> :object.&lt;string, string></span></h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object.&lt;string, string></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
 <h4 class="name" id="connection"><span class="type-signature">(protected) </span>connection<span class="type-signature"> :<a href="Connection.html">Connection</a></span></h4>
 
 
@@ -286,6 +422,146 @@
 
 
         
+            
+<h4 class="name" id="extra"><span class="type-signature">(protected) </span>extra<span class="type-signature"> :object.&lt;string, *></span></h4>
+
+
+
+
+<div class="description">
+    <p>Additional (non-standardized) properties received from the API.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object.&lt;string, *></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line43">line 43</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="lastRefreshTime"><span class="type-signature">(protected) </span>lastRefreshTime<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
     
 
     
@@ -297,7 +573,7 @@
     
 
     
-    <h4 class="name" id="_convertToRequest"><span class="type-signature">(protected) </span>_convertToRequest<span class="signature">(parameters)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="_convertToRequest"><span class="type-signature">(protected) </span>_convertToRequest<span class="signature">(parameters)</span><span class="type-signature"> &rarr; {object.&lt;string, *>}</span></h4>
     
 
     
@@ -347,7 +623,7 @@
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">object.&lt;string, *></span>
 
 
             
@@ -398,7 +674,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line116">line 116</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -434,7 +710,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">object.&lt;string, *></span>
 
 
     </dd>
@@ -553,7 +829,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line137">line 137</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line156">line 156</a>
     </li></ul></dd>
     
 
@@ -715,7 +991,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line105">line 105</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -773,7 +1049,7 @@
     
 
     
-    <h4 class="name" id="getAll"><span class="type-signature"></span>getAll<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="getAll"><span class="type-signature"></span>getAll<span class="signature">()</span><span class="type-signature"> &rarr; {object.&lt;string, *>}</span></h4>
     
 
     
@@ -825,7 +1101,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line90">line 90</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line109">line 109</a>
     </li></ul></dd>
     
 
@@ -861,7 +1137,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">object.&lt;string, *></span>
 
 
     </dd>
@@ -931,7 +1207,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line81">line 81</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line100">line 100</a>
     </li></ul></dd>
     
 
@@ -1039,7 +1315,7 @@
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">object.&lt;string, *></span>
 
 
             
@@ -1090,7 +1366,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line63">line 63</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -1148,7 +1424,7 @@
     
 
     
-    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"> &rarr; {object.&lt;string, *>}</span></h4>
     
 
     
@@ -1200,7 +1476,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line46">line 46</a>
+        <a href="baseentity.js.html">baseentity.js</a>, <a href="baseentity.js.html#line65">line 65</a>
     </li></ul></dd>
     
 
@@ -1236,7 +1512,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">object.&lt;string, *></span>
 
 
     </dd>
@@ -1270,7 +1546,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Oct 22 2020 13:13:29 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Oct 22 2020 16:56:50 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
