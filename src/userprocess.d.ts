@@ -12,7 +12,7 @@ declare class UserProcess extends UserProcess_base {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} id - ID of a stored process graph.
      */
-    constructor(connection: any, id: string);
+    constructor(connection: import("./connection"), id: string);
     /**
      * The identifier of the process.
      * @public

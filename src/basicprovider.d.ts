@@ -11,5 +11,5 @@ declare class BasicProvider extends BasicProvider_base {
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      */
-    constructor(connection: any);
+    constructor(connection: import("./connection"));
 }

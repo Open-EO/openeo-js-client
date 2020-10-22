@@ -11,12 +11,12 @@ declare class BaseEntity {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {object} properties
      */
-    constructor(connection: any, properties?: object);
+    constructor(connection: import("./connection"), properties?: object);
     /**
      * @protected
      * @type {Connection}
      */
-    protected connection: any;
+    protected connection: import("./connection");
     apiToClientNames: {};
     clientToApiNames: {};
     lastRefreshTime: number;

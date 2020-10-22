@@ -12,7 +12,7 @@ declare class Service extends Service_base {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} serviceId - The service ID.
      */
-    constructor(connection: any, serviceId: string);
+    constructor(connection: import("./connection"), serviceId: string);
     /**
      * The identifier of the service.
      * @public

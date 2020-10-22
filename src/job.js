@@ -2,6 +2,7 @@ const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
+const Connection = require('./connection'); // eslint-disable-line no-unused-vars
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 

@@ -67,7 +67,7 @@ declare class Environment {
      * @param {string} targetFolder
      * @throws {Error}
      */
-    static downloadResults(con: any, assets: object[], targetFolder: string): Promise<void>;
+    static downloadResults(con: import("./connection"), assets: object[], targetFolder: string): Promise<void>;
     /**
      * Offers data to download in the browser.
      *

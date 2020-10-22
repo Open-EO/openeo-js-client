@@ -13,7 +13,7 @@ declare class UserFile extends UserFile_base {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} path - The path to the file, relative to the user workspace and without user ID.
      */
-    constructor(connection: any, path: string);
+    constructor(connection: import("./connection"), path: string);
     /**
      * Path to the file, relative to the user's directory.
      * @readonly

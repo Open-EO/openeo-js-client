@@ -33,7 +33,7 @@ class Connection {
 		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		/**
-		 * @type {?AuthProvider[]}
+		 * @type {AuthProvider[]|null}
 		 */
 		this.authProviderList = null;
 		/**
@@ -249,7 +249,7 @@ class Connection {
 	 * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
 	 * OIDC library other than oidc-client-js.
 	 * 
-	 * @param {oidcProviderFactoryFunction} providerFactoryFunc
+	 * @param {?oidcProviderFactoryFunction} providerFactoryFunc
 	 * @see AuthProvider
 	 */
 	setOidcProviderFactory(providerFactoryFunc) {
@@ -262,7 +262,7 @@ class Connection {
 	 * Returns `null` if OIDC is not supported by the client or an instance
 	 * can't be created for whatever reason.
 	 * 
-	 * @returns {oidcProviderFactoryFunction}
+	 * @returns {?oidcProviderFactoryFunction}
 	 * @see AuthProvider
 	 */
 	getOidcProviderFactory() {
@@ -308,7 +308,7 @@ class Connection {
 	/**
 	 * Returns the AuthProvider.
 	 * 
-	 * @returns {AuthProvider} 
+	 * @returns {?AuthProvider} 
 	 */
 	getAuthProvider() {
 		return this.authProvider;
@@ -525,8 +525,8 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {object} process - A user-defined process.
-	 * @param {string} [plan=null] - The billing plan to use for this computation.
-	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @param {?string} [plan=null] - The billing plan to use for this computation.
+	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
 	async computeResult(process, plan = null, budget = null) {
@@ -581,8 +581,8 @@ class Connection {
 	 * @async
 	 * @param {object} process - A user-defined process.
 	 * @param {string} targetPath - The target, see method description for details.
-	 * @param {string} [plan=null] - The billing plan to use for this computation.
-	 * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @param {?string} [plan=null] - The billing plan to use for this computation.
+	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @throws {Error}
 	 */
 	async downloadResult(process, targetPath, plan = null, budget = null) {
@@ -610,10 +610,10 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {object} process - A user-define process to execute.
-	 * @param {string} [title=null] - A title for the batch job.
-	 * @param {string} [description=null] - A description for the batch job.
-	 * @param {string} [plan=null] - The billing plan to use for this batch job.
-	 * @param {number} [budget=null] - The maximum budget allowed to spend for this batch job.
+	 * @param {?string} [title=null] - A title for the batch job.
+	 * @param {?string} [description=null] - A description for the batch job.
+	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
+	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
@@ -669,12 +669,12 @@ class Connection {
 	 * @async
 	 * @param {object} process - A user-defined process.
 	 * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
-	 * @param {string} [title=null] - A title for the service.
-	 * @param {string} [description=null] - A description for the service.
+	 * @param {?string} [title=null] - A title for the service.
+	 * @param {?string} [description=null] - A description for the service.
 	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
 	 * @param {object} [configuration={}] - Configuration parameters to pass to the service.
-	 * @param {string} [plan=null] - The billing plan to use for this service.
-	 * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
+	 * @param {?string} [plan=null] - The billing plan to use for this service.
+	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
 	 * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
 	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
@@ -718,12 +718,12 @@ class Connection {
 	 * @typedef AxiosResponse
 	 * 
 	 * @type {object}
-	 * @property {any} data
+	 * @property {*} data
 	 * @property {number} status
 	 * @property {string} statusText
 	 * @property {*} headers
 	 * @property {object} config
-	 * @property {?any} request
+	 * @property {*} request
 	 */
 
 	/**

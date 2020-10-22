@@ -67,7 +67,7 @@ declare class Environment {
      * @returns {Promise<string[]>}
      * @throws {Error}
      */
-    static downloadResults(con: any, assets: object[], targetFolder: string): Promise<string[]>;
+    static downloadResults(con: import("./connection"), assets: object[], targetFolder: string): Promise<string[]>;
     /**
      * Streams data into a file.
      *

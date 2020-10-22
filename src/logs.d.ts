@@ -9,12 +9,12 @@ declare class Logs {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
      */
-    constructor(connection: any, endpoint: string);
+    constructor(connection: import("./connection"), endpoint: string);
     /**
      * @protected
      * @type {Connection}
      */
-    protected connection: any;
+    protected connection: import("./connection");
     endpoint: string;
     lastId: string;
     /**

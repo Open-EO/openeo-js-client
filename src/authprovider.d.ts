@@ -21,7 +21,7 @@ declare class AuthProvider {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {AuthProviderMeta} options - Options
      */
-    constructor(type: string, connection: any, options: AuthProviderMeta);
+    constructor(type: string, connection: import("./connection"), options: AuthProviderMeta);
     id: string;
     title: string;
     description: string;
@@ -30,7 +30,7 @@ declare class AuthProvider {
      * @protected
      * @type {Connection}
      */
-    protected connection: any;
+    protected connection: import("./connection");
     token: string;
     /**
      * Get an identifier for the auth provider (combination of the type + provider identifier).

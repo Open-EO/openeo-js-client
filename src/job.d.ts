@@ -12,7 +12,7 @@ declare class Job extends Job_base {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} jobId - The batch job ID.
      */
-    constructor(connection: any, jobId: string);
+    constructor(connection: import("./connection"), jobId: string);
     /**
      * The identifier of the batch job.
      * @public

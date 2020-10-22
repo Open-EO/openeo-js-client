@@ -60,7 +60,7 @@ declare class OidcProvider extends OidcProvider_base {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
      */
-    constructor(connection: any, options: {
+    constructor(connection: import("./connection"), options: {
         /**
          * Provider identifier.
          */

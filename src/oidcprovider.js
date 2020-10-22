@@ -1,6 +1,7 @@
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
+const Connection = require('./connection'); // eslint-disable-line no-unused-vars
 
 /**
  * The Authentication Provider for OpenID Connect.

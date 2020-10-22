@@ -1,5 +1,6 @@
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
+const Connection = require('./connection'); // eslint-disable-line no-unused-vars
 
 /**
  * A Secondary Web Service.

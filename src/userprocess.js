@@ -1,4 +1,5 @@
 const BaseEntity = require('./baseentity');
+const Connection = require('./connection'); // eslint-disable-line no-unused-vars
 
 /**
  * A Stored Process Graph.

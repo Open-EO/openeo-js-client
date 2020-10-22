@@ -15,7 +15,7 @@ declare class Connection {
      */
     baseUrl: string;
     /**
-     * @type {?AuthProvider[]}
+     * @type {AuthProvider[]|null}
      */
     authProviderList: import("./authprovider")[] | null;
     /**
@@ -147,7 +147,7 @@ declare class Connection {
      * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
      * OIDC library other than oidc-client-js.
      *
-     * @param {oidcProviderFactoryFunction} providerFactoryFunc
+     * @param {?oidcProviderFactoryFunction} providerFactoryFunc
      * @see AuthProvider
      */
     setOidcProviderFactory(providerFactoryFunc: (providerInfo: object) => import("./authprovider") | null): void;
@@ -158,7 +158,7 @@ declare class Connection {
      * Returns `null` if OIDC is not supported by the client or an instance
      * can't be created for whatever reason.
      *
-     * @returns {oidcProviderFactoryFunction}
+     * @returns {?oidcProviderFactoryFunction}
      * @see AuthProvider
      */
     getOidcProviderFactory(): (providerInfo: object) => import("./authprovider") | null;
@@ -184,9 +184,9 @@ declare class Connection {
     /**
      * Returns the AuthProvider.
      *
-     * @returns {AuthProvider}
+     * @returns {?AuthProvider}
      */
-    getAuthProvider(): import("./authprovider");
+    getAuthProvider(): import("./authprovider") | null;
     /**
      * Sets the AuthProvider.
      *
@@ -320,11 +320,11 @@ declare class Connection {
      *
      * @async
      * @param {object} process - A user-defined process.
-     * @param {string} [plan=null] - The billing plan to use for this computation.
-     * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+     * @param {?string} [plan=null] - The billing plan to use for this computation.
+     * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
      * @returns {Promise<SyncResult>} - An object with the data and some metadata.
      */
-    computeResult(process: object, plan?: string, budget?: number): Promise<{
+    computeResult(process: object, plan?: string | null, budget?: number | null): Promise<{
         /**
          * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
          */
@@ -350,11 +350,11 @@ declare class Connection {
      * @async
      * @param {object} process - A user-defined process.
      * @param {string} targetPath - The target, see method description for details.
-     * @param {string} [plan=null] - The billing plan to use for this computation.
-     * @param {number} [budget=null] - The maximum budget allowed to spend for this computation.
+     * @param {?string} [plan=null] - The billing plan to use for this computation.
+     * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
      * @throws {Error}
      */
-    downloadResult(process: object, targetPath: string, plan?: string, budget?: number): Promise<void>;
+    downloadResult(process: object, targetPath: string, plan?: string | null, budget?: number | null): Promise<void>;
     /**
      * Lists all batch jobs of the authenticated user.
      *
@@ -368,15 +368,15 @@ declare class Connection {
      *
      * @async
      * @param {object} process - A user-define process to execute.
-     * @param {string} [title=null] - A title for the batch job.
-     * @param {string} [description=null] - A description for the batch job.
-     * @param {string} [plan=null] - The billing plan to use for this batch job.
-     * @param {number} [budget=null] - The maximum budget allowed to spend for this batch job.
+     * @param {?string} [title=null] - A title for the batch job.
+     * @param {?string} [description=null] - A description for the batch job.
+     * @param {?string} [plan=null] - The billing plan to use for this batch job.
+     * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
      * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
      * @returns {Promise<Job>} The stored batch job.
      * @throws {Error}
      */
-    createJob(process: object, title?: string, description?: string, plan?: string, budget?: number, additional?: object): Promise<import("./job")>;
+    createJob(process: object, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: object): Promise<import("./job")>;
     /**
      * Get all information about a batch job.
      *
@@ -400,17 +400,17 @@ declare class Connection {
      * @async
      * @param {object} process - A user-defined process.
      * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
-     * @param {string} [title=null] - A title for the service.
-     * @param {string} [description=null] - A description for the service.
+     * @param {?string} [title=null] - A title for the service.
+     * @param {?string} [description=null] - A description for the service.
      * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
      * @param {object} [configuration={}] - Configuration parameters to pass to the service.
-     * @param {string} [plan=null] - The billing plan to use for this service.
-     * @param {number} [budget=null] - The maximum budget allowed to spend for this service.
+     * @param {?string} [plan=null] - The billing plan to use for this service.
+     * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
      * @param {object} [additional={}] - Proprietary parameters to pass for the batch job.
      * @returns {Promise<Service>} The stored service.
      * @throws {Error}
      */
-    createService(process: object, type: string, title?: string, description?: string, enabled?: boolean, configuration?: object, plan?: string, budget?: number, additional?: object): Promise<import("./service")>;
+    createService(process: object, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: object, plan?: string | null, budget?: number | null, additional?: object): Promise<import("./service")>;
     /**
      * Get all information about a secondary web service.
      *
@@ -426,12 +426,12 @@ declare class Connection {
      * @typedef AxiosResponse
      *
      * @type {object}
-     * @property {any} data
+     * @property {*} data
      * @property {number} status
      * @property {string} statusText
      * @property {*} headers
      * @property {object} config
-     * @property {?any} request
+     * @property {*} request
      */
     /**
      * Sends a GET request.
@@ -450,7 +450,7 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
     /**
      * Sends a POST request.
@@ -469,7 +469,7 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
     /**
      * Sends a PUT request.
@@ -486,7 +486,7 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
     /**
      * Sends a PATCH request.
@@ -503,7 +503,7 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
     /**
      * Sends a DELETE request.
@@ -519,7 +519,7 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
     /**
      * Downloads data from a URL.
@@ -556,6 +556,6 @@ declare class Connection {
         statusText: string;
         headers: any;
         config: object;
-        request: any | null;
+        request: any;
     }>;
 }
