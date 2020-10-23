@@ -1,4 +1,10 @@
-export = AuthProvider;
+/**
+ * The base class for authentication providers such as Basic and OpenID Connect.
+ *
+ * @abstract
+ */
+import {Connection} from "./connection";
+
 /**
  * Authentication Provider details.
  *
@@ -8,12 +14,22 @@ export = AuthProvider;
  * @property {string} title Title for the authentication method.
  * @property {string} description Description for the authentication method.
  */
-/**
- * The base class for authentication providers such as Basic and OpenID Connect.
- *
- * @abstract
- */
-declare class AuthProvider {
+export declare class AuthProviderMeta {
+    /**
+     * Provider identifier, may not be used for all authentication methods.
+     */
+    id: string | null;
+    /**
+     * Title for the authentication method.
+     */
+    title: string;
+    /**
+     * Description for the authentication method.
+     */
+    description: string;
+}
+
+export declare class AuthProvider {
     /**
      * Creates a new OidcProvider instance to authenticate using OpenID Connect.
      *
@@ -21,7 +37,7 @@ declare class AuthProvider {
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {AuthProviderMeta} options - Options
      */
-    constructor(type: string, connection: import("./connection"), options: AuthProviderMeta);
+    constructor(type: string, connection: Connection, options: AuthProviderMeta);
     id: string;
     title: string;
     description: string;
@@ -30,7 +46,7 @@ declare class AuthProvider {
      * @protected
      * @type {Connection}
      */
-    protected connection: import("./connection");
+    protected connection: Connection;
     token: string;
     /**
      * Get an identifier for the auth provider (combination of the type + provider identifier).
@@ -97,23 +113,3 @@ declare class AuthProvider {
      */
     logout(): Promise<void>;
 }
-declare namespace AuthProvider {
-    export { AuthProviderMeta };
-}
-/**
- * Authentication Provider details.
- */
-type AuthProviderMeta = {
-    /**
-     * Provider identifier, may not be used for all authentication methods.
-     */
-    id: string | null;
-    /**
-     * Title for the authentication method.
-     */
-    title: string;
-    /**
-     * Description for the authentication method.
-     */
-    description: string;
-};

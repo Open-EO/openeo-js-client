@@ -1,22 +1,23 @@
-export = BaseEntity;
+import {Connection} from "./connection";
+
 /**
  * The base class for entities such as Job, Process Graph, Service etc.
  *
  * @abstract
  */
-declare class BaseEntity {
+export declare class BaseEntity {
     /**
      * Creates an instance of this object.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {Array} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
      */
-    constructor(connection: import("./connection"), properties?: any[]);
+    constructor(connection: Connection, properties?: any[]);
     /**
      * @protected
      * @type {Connection}
      */
-    protected connection: import("./connection");
+    protected connection: Connection;
     /**
      * @protected
      * @type {object.<string, string>}

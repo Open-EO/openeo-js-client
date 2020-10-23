@@ -1,20 +1,22 @@
-export = Logs;
+import {Link, Log} from "./typedefs";
+import {Connection} from "./connection";
+
 /**
  * Interface to loop through the logs.
  */
-declare class Logs {
+export declare class Logs {
     /**
      * Creates a new Logs instance to retrieve logs from a back-end.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
      */
-    constructor(connection: import("./connection"), endpoint: string);
+    constructor(connection: Connection, endpoint: string);
     /**
      * @protected
      * @type {Connection}
      */
-    protected connection: import("./connection");
+    protected connection: Connection;
     endpoint: string;
     lastId: string;
     /**

@@ -1,8 +1,9 @@
-export = Capabilities;
+import { Link } from './typedefs';
+
 /**
  * Capabilities of a back-end.
  */
-declare class Capabilities {
+export declare class Capabilities {
     /**
      * Creates a new Capabilities object from an API-compatible JSON response.
      *
@@ -96,6 +97,7 @@ declare class Capabilities {
      * @property {string} url A URL pointing to a page describing the billing plan.
      * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
      */
+
     /**
      * List all billing plans.
      *

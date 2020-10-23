@@ -1,4 +1,3 @@
-export = Builder;
 /**
  * A class to construct processes easily.
  *
@@ -45,7 +44,9 @@ export = Builder;
  * var storedProcess = await con.setUserProcess("evi", datacube);
  * ```
  */
-declare class Builder {
+import {BuilderNode} from "./node";
+
+export declare class Builder {
     /**
      * Creates a Builder instance that can be used without connecting to a back-end.
      *
@@ -92,7 +93,7 @@ declare class Builder {
      * The parent node.
      * @type {?BuilderNode}
      */
-    parentNode: import("./node") | null;
+    parentNode: BuilderNode | null;
     /**
      * The parent parameter name.
      * @type {?string}
@@ -114,7 +115,7 @@ declare class Builder {
      * @param {BuilderNode} node
      * @param {string} parameterName
      */
-    setParent(node: import("./node"), parameterName: string): void;
+    setParent(node: BuilderNode, parameterName: string): void;
     /**
      * Creates a callback parameter with the given name.
      *
@@ -156,7 +157,7 @@ declare class Builder {
      * @throws {Error}
      * @see Formula
      */
-    math(formula: string): import("./node");
+    math(formula: string): BuilderNode;
     /**
      * Adds another process call to the process chain.
      *
@@ -165,7 +166,7 @@ declare class Builder {
      * @param {?string} description - An optional description for the process call.
      * @returns {BuilderNode}
      */
-    process(processId: string, args?: any | any[], description?: string | null): import("./node");
+    process(processId: string, args?: any | any[], description?: string | null): BuilderNode;
     /**
      * Returns a JSON serializable representation of the data that is API compliant.
      *

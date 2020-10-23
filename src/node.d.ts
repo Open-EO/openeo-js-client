@@ -1,5 +1,6 @@
-/// <reference types="node" />
-export = Environment;
+import {Connection} from "./connection";
+import {Readable} from "stream";
+
 /**
  * Platform dependant utilities for the openEO JS Client.
  *
@@ -7,7 +8,7 @@ export = Environment;
  *
  * @hideconstructor
  */
-declare class Environment {
+export declare class Environment {
     /**
      * Returns the name of the Environment, here `Node`.
      *
@@ -20,10 +21,10 @@ declare class Environment {
      *
      * @ignore
      * @static
-     * @param {Stream.Readable} error
+     * @param {Readable} error
      * @returns {Promise<void>}
      */
-    static handleErrorResponse(error: import("stream").Readable): Promise<void>;
+    static handleErrorResponse(error: Readable): Promise<void>;
     /**
      * Returns how binary responses from the servers are returned (`stream` or `blob`).
      *
@@ -54,9 +55,9 @@ declare class Environment {
      * @ignore
      * @static
      * @param {string} source - A path to a file as string.
-     * @returns {Stream.Readable}
+     * @returns {Readable}
      */
-    static dataForUpload(source: string): import("stream").Readable;
+    static dataForUpload(source: string): Readable;
     /**
      * Downloads files to local storage and returns a list of file paths.
      *
@@ -67,16 +68,16 @@ declare class Environment {
      * @returns {Promise<Array.<string>>}
      * @throws {Error}
      */
-    static downloadResults(con: import("./connection"), assets: Array<any>, targetFolder: string): Promise<Array<string>>;
+    static downloadResults(con: Connection, assets: Array<any>, targetFolder: string): Promise<Array<string>>;
     /**
      * Streams data into a file.
      *
      * @static
      * @async
-     * @param {Stream.Readable} data - Data stream to read from.
+     * @param {Readable} data - Data stream to read from.
      * @param {string} filename - File path to store the data at.
      * @returns {Promise<void>}
      * @throws {Error}
      */
-    static saveToFile(data: import("stream").Readable, filename: string): Promise<void>;
+    static saveToFile(data: Readable, filename: string): Promise<void>;
 }

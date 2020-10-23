@@ -1,18 +1,20 @@
-export = UserProcess;
-declare const UserProcess_base: typeof import("./baseentity");
+import {BaseEntity} from "./baseentity";
+import {Connection} from "./connection";
+import {Link} from "./typedefs";
+
 /**
  * A Stored Process Graph.
  *
  * @augments BaseEntity
  */
-declare class UserProcess extends UserProcess_base {
+export declare class UserProcess extends BaseEntity {
     /**
      * Creates an object representing a process graph stored at the back-end.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} id - ID of a stored process graph.
      */
-    constructor(connection: import("./connection"), id: string);
+    constructor(connection: Connection, id: string);
     /**
      * The identifier of the process.
      * @public

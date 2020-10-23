@@ -1,18 +1,20 @@
-export = Service;
-declare const Service_base: typeof import("./baseentity");
+import {BaseEntity} from "./baseentity";
+import {Connection} from "./connection";
+import {Logs} from "./logs";
+
 /**
  * A Secondary Web Service.
  *
  * @augments BaseEntity
  */
-declare class Service extends Service_base {
+export declare class Service extends BaseEntity {
     /**
      * Creates an object representing a secondary web service stored at the back-end.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} serviceId - The service ID.
      */
-    constructor(connection: import("./connection"), serviceId: string);
+    constructor(connection: Connection, serviceId: string);
     /**
      * The identifier of the service.
      * @public
@@ -145,7 +147,7 @@ declare class Service extends Service_base {
      *
      * @returns {Logs}
      */
-    debugService(): import("./logs");
+    debugService(): Logs;
     /**
      * Checks for new log entries every x seconds.
      *

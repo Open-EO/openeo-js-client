@@ -1,9 +1,42 @@
-/// <reference types="node" />
-export = Connection;
+import {ApiError, Link, Log} from "./typedefs";
+import {AuthProvider} from "./authprovider";
+import {Capabilities} from "./capabilities";
+import {FileTypes} from "./filetypes";
+import {Builder} from "./builder/builder";
+import {UserFile} from "./userfile";
+import {UserProcess} from "./userprocess";
+import {BuilderNode} from "./builder/node";
+import {Job} from "./job";
+import {Service} from "./service";
+import {Readable} from "stream";
+import {AxiosResponse} from "axios";
+
+/**
+ * @typedef SyncResult
+ * @type {object}
+ * @property {Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+ * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+ * @property {Array.<Log>} logs Array of log entries as specified in the API.
+ */
+declare class SyncResult {
+    /**
+     * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+     */
+    data: Readable | Blob;
+    /**
+     * The costs for the request in the currency exposed by the back-end.
+     */
+    costs: number | null;
+    /**
+     * Array of log entries as specified in the API.
+     */
+    logs: Log[];
+}
+
 /**
  * A connection to a back-end.
  */
-declare class Connection {
+export declare class Connection {
     /**
      * Creates a new Connection.
      *
@@ -17,15 +50,15 @@ declare class Connection {
     /**
      * @type {?Array.<AuthProvider>}
      */
-    authProviderList: Array<import("./authprovider")> | null;
+    authProviderList: Array<AuthProvider> | null;
     /**
      * @type {?AuthProvider}
      */
-    authProvider: import("./authprovider") | null;
+    authProvider: AuthProvider | null;
     /**
      * @type {?Capabilities}
      */
-    capabilitiesObject: import("./capabilities") | null;
+    capabilitiesObject: Capabilities | null;
     processes: any;
     /**
      * Initializes the connection by requesting the capabilities.
@@ -33,7 +66,7 @@ declare class Connection {
      * @async
      * @returns {Promise<Capabilities>} Capabilities
      */
-    init(): Promise<import("./capabilities")>;
+    init(): Promise<Capabilities>;
     /**
      * Returns the URL of the back-end currently connected to.
      *
@@ -45,7 +78,7 @@ declare class Connection {
      *
      * @returns {Capabilities} Capabilities
      */
-    capabilities(): import("./capabilities");
+    capabilities(): Capabilities;
     /**
      * List the supported output file formats.
      *
@@ -53,7 +86,7 @@ declare class Connection {
      * @returns {Promise<FileTypes>} A response compatible to the API specification.
      * @throws {Error}
      */
-    listFileTypes(): Promise<import("./filetypes")>;
+    listFileTypes(): Promise<FileTypes>;
     /**
      * @typedef ServiceType
      * @type {object.<string, *>}
@@ -146,7 +179,7 @@ declare class Connection {
      * @throws {Error}
      * @see Connection#listProcesses
      */
-    buildProcess(id: string): Promise<import("./builder/builder")>;
+    buildProcess(id: string): Promise<Builder>;
     /**
      * List all authentication methods supported by the back-end.
      *
@@ -155,7 +188,7 @@ declare class Connection {
      * @throws {Error}
      * @see AuthProvider
      */
-    listAuthProviders(): Promise<Array<import("./authprovider")>>;
+    listAuthProviders(): Promise<Array<AuthProvider>>;
     /**
      * This function is meant to create the OIDC providers used for authentication.
      *
@@ -180,8 +213,8 @@ declare class Connection {
      * @param {?oidcProviderFactoryFunction} providerFactoryFunc
      * @see AuthProvider
      */
-    setOidcProviderFactory(providerFactoryFunc: (providerInfo: any) => import("./authprovider") | null): void;
-    oidcProviderFactory: (providerInfo: any) => import("./authprovider") | null;
+    setOidcProviderFactory(providerFactoryFunc: (providerInfo: any) => AuthProvider | null): void;
+    oidcProviderFactory: (providerInfo: any) => AuthProvider | null;
     /**
      * Get the OpenID Connect provider factory.
      *
@@ -191,7 +224,7 @@ declare class Connection {
      * @returns {?oidcProviderFactoryFunction}
      * @see AuthProvider
      */
-    getOidcProviderFactory(): (providerInfo: any) => import("./authprovider") | null;
+    getOidcProviderFactory(): (providerInfo: any) => AuthProvider | null;
     /**
      * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
      *
@@ -216,7 +249,7 @@ declare class Connection {
      *
      * @returns {?AuthProvider}
      */
-    getAuthProvider(): import("./authprovider") | null;
+    getAuthProvider(): AuthProvider | null;
     /**
      * Sets the AuthProvider.
      *
@@ -225,7 +258,7 @@ declare class Connection {
      * @param {AuthProvider} provider
      * @throws {Error}
      */
-    setAuthProvider(provider: import("./authprovider")): void;
+    setAuthProvider(provider: AuthProvider): void;
     /**
      * Sets the authentication token for the connection.
      *
@@ -240,7 +273,7 @@ declare class Connection {
      * @param {string} token - The actual access token as given by the authentication method during the login process.
      * @returns {AuthProvider}
      */
-    setAuthToken(type: string, providerId: string, token: string): import("./authprovider");
+    setAuthToken(type: string, providerId: string, token: string): AuthProvider;
     /**
      * @typedef AccountStorage
      * @type {object}
@@ -288,7 +321,7 @@ declare class Connection {
      * @returns {Promise<Array.<UserFile>>} A list of files.
      * @throws {Error}
      */
-    listFiles(): Promise<Array<import("./userfile")>>;
+    listFiles(): Promise<Array<UserFile>>;
     /**
      * A callback that is executed on upload progress updates.
      *
@@ -310,7 +343,7 @@ declare class Connection {
      * @returns {Promise<UserFile>}
      * @throws {Error}
      */
-    uploadFile(source: any, targetPath?: string | null, statusCallback?: (percentCompleted: number) => any): Promise<import("./userfile")>;
+    uploadFile(source: any, targetPath?: string | null, statusCallback?: (percentCompleted: number) => any): Promise<UserFile>;
     /**
      * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
      *
@@ -319,7 +352,7 @@ declare class Connection {
      * @returns {Promise<UserFile>} A file.
      * @throws {Error}
      */
-    getFile(path: string): Promise<import("./userfile")>;
+    getFile(path: string): Promise<UserFile>;
     /**
      * Takes a UserProcess, BuilderNode or a plain object containing process nodes
      * and converts it to an API compliant object.
@@ -329,7 +362,7 @@ declare class Connection {
      * @returns {object.<string, *>}
      * @protected
      */
-    protected _normalizeUserProcess(process: import("./userprocess") | import("./builder/node") | any, additional?: any): any;
+    protected _normalizeUserProcess(process: UserProcess | BuilderNode | any, additional?: any): any;
     /**
      * Validates a user-defined process at the back-end.
      *
@@ -346,7 +379,7 @@ declare class Connection {
      * @returns {Promise<Array.<UserProcess>>} A list of user-defined processes.
      * @throws {Error}
      */
-    listUserProcesses(): Promise<Array<import("./userprocess")>>;
+    listUserProcesses(): Promise<Array<UserProcess>>;
     /**
      * Creates a new stored user-defined process at the back-end.
      *
@@ -356,7 +389,7 @@ declare class Connection {
      * @returns {Promise<UserProcess>} The new user-defined process.
      * @throws {Error}
      */
-    setUserProcess(id: string, process: any): Promise<import("./userprocess")>;
+    setUserProcess(id: string, process: any): Promise<UserProcess>;
     /**
      * Get all information about a user-defined process.
      *
@@ -365,14 +398,7 @@ declare class Connection {
      * @returns {Promise<UserProcess>} The user-defined process.
      * @throws {Error}
      */
-    getUserProcess(id: string): Promise<import("./userprocess")>;
-    /**
-     * @typedef SyncResult
-     * @type {object}
-     * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-     * @property {?number} costs The costs for the request in the currency exposed by the back-end.
-     * @property {Array.<Log>} logs Array of log entries as specified in the API.
-     */
+    getUserProcess(id: string): Promise<UserProcess>;
     /**
      * Executes a process synchronously and returns the result as the response.
      *
@@ -384,20 +410,7 @@ declare class Connection {
      * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
      * @returns {Promise<SyncResult>} - An object with the data and some metadata.
      */
-    computeResult(process: any, plan?: string | null, budget?: number | null): Promise<{
-        /**
-         * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-         */
-        data: import("stream").Readable | Blob;
-        /**
-         * The costs for the request in the currency exposed by the back-end.
-         */
-        costs: number | null;
-        /**
-         * Array of log entries as specified in the API.
-         */
-        logs: Log[];
-    }>;
+    computeResult(process: any, plan?: string | null, budget?: number | null): Promise<SyncResult>;
     /**
      * Executes a process synchronously and downloads to result the given path.
      *
@@ -422,7 +435,7 @@ declare class Connection {
      * @returns {Promise<Array.<Job>>} A list of jobs.
      * @throws {Error}
      */
-    listJobs(): Promise<Array<import("./job")>>;
+    listJobs(): Promise<Array<Job>>;
     /**
      * Creates a new batch job at the back-end.
      *
@@ -436,7 +449,7 @@ declare class Connection {
      * @returns {Promise<Job>} The stored batch job.
      * @throws {Error}
      */
-    createJob(process: any, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: any): Promise<import("./job")>;
+    createJob(process: any, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: any): Promise<Job>;
     /**
      * Get all information about a batch job.
      *
@@ -445,7 +458,7 @@ declare class Connection {
      * @returns {Promise<Job>} The batch job.
      * @throws {Error}
      */
-    getJob(id: string): Promise<import("./job")>;
+    getJob(id: string): Promise<Job>;
     /**
      * Lists all secondary web services of the authenticated user.
      *
@@ -453,7 +466,7 @@ declare class Connection {
      * @returns {Promise<Array.<Job>>} A list of services.
      * @throws {Error}
      */
-    listServices(): Promise<Array<import("./job")>>;
+    listServices(): Promise<Array<Job>>;
     /**
      * Creates a new secondary web service at the back-end.
      *
@@ -470,7 +483,7 @@ declare class Connection {
      * @returns {Promise<Service>} The stored service.
      * @throws {Error}
      */
-    createService(process: any, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: any, plan?: string | null, budget?: number | null, additional?: any): Promise<import("./service")>;
+    createService(process: any, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: any, plan?: string | null, budget?: number | null, additional?: any): Promise<Service>;
     /**
      * Get all information about a secondary web service.
      *
@@ -479,19 +492,7 @@ declare class Connection {
      * @returns {Promise<Service>} The service.
      * @throws {Error}
      */
-    getService(id: string): Promise<import("./service")>;
-    /**
-     * Response for a HTTP request.
-     *
-     * @typedef AxiosResponse
-     * @type {object}
-     * @property {*} data
-     * @property {number} status
-     * @property {string} statusText
-     * @property {*} headers
-     * @property {object.<string, *>} config
-     * @property {*} request
-     */
+    getService(id: string): Promise<Service>;
     /**
      * Sends a GET request.
      *
@@ -503,14 +504,7 @@ declare class Connection {
      * @throws {Error}
      * @see https://github.com/axios/axios#request-config
      */
-    _get(path: string, query: any, responseType: string): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _get(path: string, query: any, responseType: string): Promise<AxiosResponse>;
     /**
      * Sends a POST request.
      *
@@ -522,14 +516,7 @@ declare class Connection {
      * @throws {Error}
      * @see https://github.com/axios/axios#request-config
      */
-    _post(path: string, body: any, responseType: string): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _post(path: string, body: any, responseType: string): Promise<AxiosResponse>;
     /**
      * Sends a PUT request.
      *
@@ -539,14 +526,7 @@ declare class Connection {
      * @returns {Promise<AxiosResponse>}
      * @throws {Error}
      */
-    _put(path: string, body: any): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _put(path: string, body: any): Promise<AxiosResponse>;
     /**
      * Sends a PATCH request.
      *
@@ -556,14 +536,7 @@ declare class Connection {
      * @returns {Promise<AxiosResponse>}
      * @throws {Error}
      */
-    _patch(path: string, body: any): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _patch(path: string, body: any): Promise<AxiosResponse>;
     /**
      * Sends a DELETE request.
      *
@@ -572,14 +545,7 @@ declare class Connection {
      * @returns {Promise<AxiosResponse>}
      * @throws {Error}
      */
-    _delete(path: string): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _delete(path: string): Promise<AxiosResponse>;
     /**
      * Downloads data from a URL.
      *
@@ -587,10 +553,10 @@ declare class Connection {
      *
      * @param {string} url - An absolute or relative URL to download data from.
      * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-     * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+     * @returns {Promise<Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
      * @throws {Error}
      */
-    download(url: string, authorize: boolean): Promise<import("stream").Readable | Blob>;
+    download(url: string, authorize: boolean): Promise<Readable | Blob>;
     /**
      * Sends a HTTP request.
      *
@@ -609,12 +575,5 @@ declare class Connection {
      * @throws {Error}
      * @see https://github.com/axios/axios
      */
-    _send(options: any): Promise<{
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: any;
-        request: any;
-    }>;
+    _send(options: any): Promise<AxiosResponse>;
 }

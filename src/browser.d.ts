@@ -1,4 +1,5 @@
-export = Environment;
+import {Connection} from "./connection";
+
 /**
  * Platform dependant utilities for the openEO JS Client.
  *
@@ -6,7 +7,7 @@ export = Environment;
  *
  * @hideconstructor
  */
-declare class Environment {
+export declare class Environment {
     /**
      * Returns the name of the Environment, here `Browser`.
      *
@@ -67,7 +68,7 @@ declare class Environment {
      * @param {string} targetFolder
      * @throws {Error}
      */
-    static downloadResults(con: import("./connection"), assets: Array<any>, targetFolder: string): Promise<void>;
+    static downloadResults(con: Connection, assets: Array<any>, targetFolder: string): Promise<void>;
     /**
      * Offers data to download in the browser.
      *

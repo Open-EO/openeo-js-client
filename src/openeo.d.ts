@@ -1,11 +1,5 @@
-export const AuthProvider: typeof import("./authprovider");
-export const BasicProvider: typeof import("./basicprovider");
-export const Capabilities: typeof import("./capabilities");
-export const Connection: typeof import("./connection");
-export const FileTypes: typeof import("./filetypes");
-export const Job: typeof import("./job");
-export const Logs: typeof import("./logs");
-export const OidcProvider: typeof import("./oidcprovider");
+import {Connection} from "./connection";
+
 /**
  * Main class to start with openEO. Allows to connect to a server.
  *
@@ -24,7 +18,7 @@ export class OpenEO {
      * @throws {Error}
      * @static
      */
-    static connect(url: string): Promise<import("./connection")>;
+    static connect(url: string): Promise<Connection>;
     /**
      * Connects directly to a back-end instance, without version discovery (NOT recommended).
      *
@@ -36,7 +30,7 @@ export class OpenEO {
      * @throws {Error}
      * @static
      */
-    static connectDirect(versionedUrl: string): Promise<import("./connection")>;
+    static connectDirect(versionedUrl: string): Promise<Connection>;
     /**
      * Returns the version number of the client.
      *
@@ -46,13 +40,7 @@ export class OpenEO {
      */
     static clientVersion(): string;
 }
+
 export namespace OpenEO {
     const Environment: typeof import("./node") | typeof import("./browser");
 }
-export const Service: typeof import("./service");
-export const UserFile: typeof import("./userfile");
-export const UserProcess: typeof import("./userprocess");
-export const Builder: typeof import("./builder/builder");
-export const BuilderNode: typeof import("./builder/node");
-export const Parameter: typeof import("./builder/parameter");
-export const Formula: typeof import("./builder/formula");

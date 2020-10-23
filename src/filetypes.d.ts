@@ -1,8 +1,9 @@
-export = FileTypes;
+import {Link} from "./typedefs";
+
 /**
  * Manages the files types supported by the back-end.
  */
-declare class FileTypes {
+export declare class FileTypes {
     /**
      * @typedef FileTypesAPI
      * @type {object}

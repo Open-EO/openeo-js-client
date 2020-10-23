@@ -1,19 +1,20 @@
-/// <reference types="node" />
-export = UserFile;
-declare const UserFile_base: typeof import("./baseentity");
+import {BaseEntity} from "./baseentity";
+import {Connection} from "./connection";
+import {Readable} from "stream";
+
 /**
  * A File on the user workspace.
  *
  * @augments BaseEntity
  */
-declare class UserFile extends UserFile_base {
+export declare class UserFile extends BaseEntity {
     /**
      * Creates an object representing a file on the user workspace.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} path - The path to the file, relative to the user workspace and without user ID.
      */
-    constructor(connection: import("./connection"), path: string);
+    constructor(connection: Connection, path: string);
     /**
      * Path to the file, relative to the user's directory.
      * @readonly
@@ -42,10 +43,10 @@ declare class UserFile extends UserFile_base {
      * Returns a stream in a NodeJS environment or a Blob in a browser environment.
      *
      * @async
-     * @returns {Promise<Stream.Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+     * @returns {Promise<Readable|Blob>} - Return value depends on the target and environment, see method description for details.
      * @throws {Error}
      */
-    retrieveFile(): Promise<import("stream").Readable | Blob>;
+    retrieveFile(): Promise<Readable | Blob>;
     /**
      * Downloads a file from the user workspace and saves it.
      *

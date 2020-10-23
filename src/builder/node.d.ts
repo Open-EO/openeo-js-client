@@ -1,8 +1,9 @@
-export = BuilderNode;
+import {Builder} from "./builder";
+
 /**
  * A class that represents a process node and also a result from a process.
  */
-declare class BuilderNode {
+export declare class BuilderNode {
     /**
      * Creates a new process node for the builder.
      *
@@ -11,12 +12,12 @@ declare class BuilderNode {
      * @param {object.<string, *>} [processArgs={}]
      * @param {?string} [processDescription=null]
      */
-    constructor(parent: import('./builder'), processId: string, processArgs?: any, processDescription?: string | null);
+    constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null);
     /**
      * The parent builder.
      * @type {Builder}
      */
-    parent: import('./builder');
+    parent: Builder;
     /**
      * The specification of the process associated with this node.
      * @type {Process}

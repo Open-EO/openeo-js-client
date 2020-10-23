@@ -1,4 +1,3 @@
-export = Parameter;
 /**
  * A class that represents a process parameter.
  *
@@ -24,7 +23,9 @@ export = Parameter;
  * Simple access to numeric labels is not supported. You need to use `array_element` directly, e.g.
  * `this.array_element(data, undefined, 1)`.
  */
-declare class Parameter {
+import {Builder} from "./builder";
+
+export declare class Parameter {
     /**
      * Creates a new parameter instance, but proxies calls to it
      * so that array access is possible (see class description).
@@ -34,7 +35,7 @@ declare class Parameter {
      * @param {string} parameterName
      * @returns {Proxy<Parameter>}
      */
-    static create(builder: import('./builder'), parameterName: string): ProxyConstructor;
+    static create(builder: Builder, parameterName: string): ProxyConstructor;
     /**
      * Creates a new process parameter.
      *

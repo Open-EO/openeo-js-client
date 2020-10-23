@@ -1,5 +1,52 @@
-export = OidcProvider;
-declare const OidcProvider_base: typeof import("./authprovider");
+import {User, UserManager} from 'oidc-client';
+import {Link} from "./typedefs";
+import {Connection} from "./connection";
+import {AuthProvider, AuthProviderMeta} from "./authprovider";
+
+export declare namespace OidcProvider {
+    const uiMethod: string;
+}
+
+/**
+ * OpenID Connect Provider details as returned by the API.
+ *
+ * @augments AuthProviderMeta
+ * @typedef OidcProviderMeta
+ * @type {object}
+ * @property {string} id Provider identifier.
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ * @property {string} issuer The OpenID Connect issuer location (authority).
+ * @property {Array.<string>} scopes OpenID Connect Scopes
+ * @property {Array.<Link>} links Links
+ */
+export declare class OidcProviderMeta extends AuthProviderMeta {
+    /**
+     * Provider identifier.
+     */
+    id: string;
+    /**
+     * Title for the authentication method.
+     */
+    title: string;
+    /**
+     * Description for the authentication method.
+     */
+    description: string;
+    /**
+     * The OpenID Connect issuer location (authority).
+     */
+    issuer: string;
+    /**
+     * OpenID Connect Scopes
+     */
+    scopes: Array<string>;
+    /**
+     * Links
+     */
+    links: Link[];
+}
+
 /**
  * The Authentication Provider for OpenID Connect.
  *
@@ -14,7 +61,7 @@ declare const OidcProvider_base: typeof import("./authprovider");
  * @augments AuthProvider
  * @see Connection#setOidcProviderFactory
  */
-declare class OidcProvider extends OidcProvider_base {
+export declare class OidcProvider extends AuthProvider {
     /**
      * Checks whether the required OIDC client library `openid-client-js` is available.
      *
@@ -37,60 +84,24 @@ declare class OidcProvider extends OidcProvider_base {
      * @async
      * @static
      * @param {OidcProvider} provider - A OIDC provider to assign the user to.
-     * @returns {Promise<Oidc.User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified).
+     * @returns {Promise<User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified).
      * @throws Error
      */
-    static signinCallback(provider?: OidcProvider): Promise<Oidc.User>;
-    /**
-     * OpenID Connect Provider details as returned by the API.
-     *
-     * @augments AuthProviderMeta
-     * @typedef OidcProviderMeta
-     * @type {object}
-     * @property {string} id Provider identifier.
-     * @property {string} title Title for the authentication method.
-     * @property {string} description Description for the authentication method.
-     * @property {string} issuer The OpenID Connect issuer location (authority).
-     * @property {Array.<string>} scopes OpenID Connect Scopes
-     * @property {Array.<Link>} links Links
-     */
+    static signinCallback(provider?: OidcProvider): Promise<User>;
+
     /**
      * Creates a new OidcProvider instance to authenticate using OpenID Connect.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
      */
-    constructor(connection: import("./connection"), options: {
-        /**
-         * Provider identifier.
-         */
-        id: string;
-        /**
-         * Title for the authentication method.
-         */
-        title: string;
-        /**
-         * Description for the authentication method.
-         */
-        description: string;
-        /**
-         * The OpenID Connect issuer location (authority).
-         */
-        issuer: string;
-        /**
-         * OpenID Connect Scopes
-         */
-        scopes: Array<string>;
-        /**
-         * Links
-         */
-        links: Link[];
-    });
+    constructor(connection: Connection, options: OidcProviderMeta);
+
     issuer: string;
     scopes: string[];
     links: Link[];
-    manager: Oidc.UserManager;
-    user: Oidc.User;
+    manager: UserManager;
+    user: User;
     /**
      * Returns the OpenID Connect / OAuth scopes.
      *
@@ -106,18 +117,14 @@ declare class OidcProvider extends OidcProvider_base {
     /**
      * Returns the OpenID Connect user instance retrieved from the OIDC client library.
      *
-     * @returns {Oidc.User}
+     * @returns {User}
      */
-    getUser(): Oidc.User;
+    getUser(): User;
     /**
      * Sets the OIDC User.
      *
      * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-     * @param {Oidc.User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
+     * @param {User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
      */
-    setUser(user: Oidc.User): void;
+    setUser(user: User): void;
 }
-declare namespace OidcProvider {
-    const uiMethod: string;
-}
-declare const Oidc_1: typeof globalThis.Oidc;

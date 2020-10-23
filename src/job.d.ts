@@ -1,18 +1,21 @@
-export = Job;
-declare const Job_base: typeof import("./baseentity");
+import {Link} from "./typedefs";
+import {BaseEntity} from "./baseentity";
+import {Connection} from "./connection";
+import {Logs} from "./logs";
+
 /**
  * A Batch Job.
  *
  * @augments BaseEntity
  */
-declare class Job extends Job_base {
+export declare class Job extends BaseEntity {
     /**
      * Creates an object representing a batch job stored at the back-end.
      *
      * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
      * @param {string} jobId - The batch job ID.
      */
-    constructor(connection: import("./connection"), jobId: string);
+    constructor(connection: Connection, jobId: string);
     /**
      * The identifier of the batch job.
      * @public
@@ -158,7 +161,7 @@ declare class Job extends Job_base {
      *
      * @returns {Logs}
      */
-    debugJob(): import("./logs");
+    debugJob(): Logs;
     /**
      * Checks for status changes and new log entries every x seconds.
      *

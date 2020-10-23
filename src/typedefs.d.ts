@@ -1,7 +1,7 @@
 /**
  * A link to another resource.
  */
-type Link = {
+export type Link = {
     /**
      * The URL to the resource.
      */
@@ -18,15 +18,17 @@ type Link = {
      * Human-readable title
      */
     title: string;
-};
+}
+
 /**
  * An openEO processing chain.
  */
-type Process = any;
+export type Process = any;
+
 /**
  * An error.
  */
-type ApiError = {
+export type ApiError = {
     id: string;
     code: string;
     message: string;
@@ -35,7 +37,7 @@ type ApiError = {
 /**
  * A log entry.
  */
-type Log = {
+export type Log = {
     id: string;
     code: string;
     level: string;
