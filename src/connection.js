@@ -1,7 +1,7 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const axios = require('axios').default;
-const Stream = require('stream'); // eslint-disable-line no-unused-vars
+
 
 const AuthProvider = require('./authprovider');
 const BasicProvider = require('./basicprovider');
@@ -17,7 +17,7 @@ const Service = require('./service');
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 
-const { Link, Log, Process, ApiError } = require('./typedefs'); // eslint-disable-line no-unused-vars
+
 
 /**
  * A connection to a back-end.

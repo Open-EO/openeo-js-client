@@ -1,6 +1,6 @@
 const BaseEntity = require('./baseentity');
-const Connection = require('./connection'); // eslint-disable-line no-unused-vars
-const { Link, Process } = require('./typedefs'); // eslint-disable-line no-unused-vars
+
+
 
 /**
  * A Stored Process Graph.

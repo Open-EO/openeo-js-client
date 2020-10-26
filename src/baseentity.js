@@ -1,5 +1,3 @@
-const Connection = require('./connection'); // eslint-disable-line no-unused-vars
-
 /**
  * The base class for entities such as Job, Process Graph, Service etc.
  * 

@@ -1,7 +1,7 @@
 const TapDigit = require("./tapdigit");
 const Parameter = require("./parameter");
 const BuilderNode = require('./node');
-const Builder = require('./builder'); // eslint-disable-line no-unused-vars
+
 
 /**
  * This converts a mathematical formula into a openEO process for you.

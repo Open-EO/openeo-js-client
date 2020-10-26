@@ -3,7 +3,7 @@ const Parameter = require('./parameter');
 const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
-const { Process } = require('../typedefs'); // eslint-disable-line no-unused-vars
+
 
 
 const PROCESS_META = [

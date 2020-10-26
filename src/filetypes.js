@@ -1,5 +1,5 @@
 const Utils = require('@openeo/js-commons/src/utils');
-const { Link } = require('./typedefs'); // eslint-disable-line no-unused-vars
+
 
 /**
  * Manages the files types supported by the back-end.

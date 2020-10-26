@@ -1,6 +1,6 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
-const { Process } = require('../typedefs'); // eslint-disable-line no-unused-vars
+
 
 /**
  * A class that represents a process node and also a result from a process.
