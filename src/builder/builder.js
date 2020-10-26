@@ -4,8 +4,6 @@ const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 
-
-
 const PROCESS_META = [
 	"id", "summary", "description", "categories", "parameters", "returns",
 	"deprecated", "experimental", "exceptions", "examples", "links"

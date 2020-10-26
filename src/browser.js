@@ -1,5 +1,3 @@
-
-
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 

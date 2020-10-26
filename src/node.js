@@ -3,7 +3,6 @@ const url = require("url");
 const path = require("path");
 const Stream = require('stream');
 
-
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 

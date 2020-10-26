@@ -1,6 +1,5 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
-
 /**
  * Capabilities of a back-end.
  */

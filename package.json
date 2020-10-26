@@ -21,12 +21,12 @@
     "url": "https://github.com/Open-EO/openeo-js-client.git"
   },
   "main": "src/openeo.js",
-  "types": "./openeo.d.ts",
+  "types": "openeo.d.ts",
   "files": [
     "openeo.js",
+    "openeo.d.ts",
     "openeo.min.js",
-    "src/*",
-    "openeo.d.ts"
+    "src/*"
   ],
   "devDependencies": {
     "@babel/core": "^7.9.6",

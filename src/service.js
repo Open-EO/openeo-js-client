@@ -1,8 +1,6 @@
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 
-
-
 /**
  * A Secondary Web Service.
  * 

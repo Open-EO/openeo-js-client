@@ -3,8 +3,6 @@ const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
 
-
-
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
 /**

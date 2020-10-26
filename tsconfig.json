@@ -2,9 +2,6 @@
 	"include": [
 		"src"
 	],
-	"exclude": [
-		"**/*.d.ts"
-	],
 	"compilerOptions": {
 		// Tells TypeScript to read JS files
 		"allowJs": true,
@@ -14,6 +11,7 @@
 		"emitDeclarationOnly": true,
 		// see https://github.com/babel/babel/issues/10237#issuecomment-513028440
 		"moduleResolution": "node",
-		"noImplicitAny": true
+		// Emit the declaration into a single file. The generated file is invalid and needs some manual adoptions.
+		"outFile": "openeo.d.ts"
 	}
 }

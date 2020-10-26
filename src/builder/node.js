@@ -1,7 +1,6 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
 
-
 /**
  * A class that represents a process node and also a result from a process.
  */

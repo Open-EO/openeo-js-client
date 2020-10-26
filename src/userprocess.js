@@ -1,7 +1,5 @@
 const BaseEntity = require('./baseentity');
 
-
-
 /**
  * A Stored Process Graph.
  * 

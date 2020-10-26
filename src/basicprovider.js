@@ -2,7 +2,6 @@ const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 
-
 /**
  * The Authentication Provider for HTTP Basic.
  * 

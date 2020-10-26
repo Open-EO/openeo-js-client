@@ -2,7 +2,6 @@ const TapDigit = require("./tapdigit");
 const Parameter = require("./parameter");
 const BuilderNode = require('./node');
 
-
 /**
  * This converts a mathematical formula into a openEO process for you.
  * 

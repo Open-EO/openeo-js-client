@@ -2,7 +2,6 @@ const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const axios = require('axios').default;
 
-
 const AuthProvider = require('./authprovider');
 const BasicProvider = require('./basicprovider');
 const OidcProvider = require('./oidcprovider');
@@ -16,8 +15,6 @@ const Service = require('./service');
 
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
-
-
 
 /**
  * A connection to a back-end.

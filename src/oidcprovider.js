@@ -2,8 +2,6 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
 
-
-
 /**
  * The Authentication Provider for OpenID Connect.
  * 

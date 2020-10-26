@@ -1,9 +1,6 @@
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 
-
-
-
 /**
  * A File on the user workspace.
  * 

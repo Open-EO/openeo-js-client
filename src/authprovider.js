@@ -1,15 +1,3 @@
-
-
-/**
- * Authentication Provider details.
- * 
- * @typedef AuthProviderMeta
- * @type {object}
- * @property {?string} id Provider identifier, may not be used for all authentication methods. 
- * @property {string} title Title for the authentication method.
- * @property {string} description Description for the authentication method.
- */
-
 /**
  * The base class for authentication providers such as Basic and OpenID Connect.
  * 
