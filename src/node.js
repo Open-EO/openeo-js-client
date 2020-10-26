@@ -2,7 +2,7 @@ const fs = require('fs');
 const url = require("url");
 const path = require("path");
 const Stream = require('stream');
-const Connection = require('./connection'); // eslint-disable-line no-unused-vars
+
 
 /**
  * Platform dependant utilities for the openEO JS Client.

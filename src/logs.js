@@ -1,6 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
-const Connection = require('./connection'); // eslint-disable-line no-unused-vars
-const { Link, Log } = require('./typedefs'); // eslint-disable-line no-unused-vars
+
+
 
 /**
  * Interface to loop through the logs.

@@ -1,7 +1,7 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
-const Connection = require('./connection'); // eslint-disable-line no-unused-vars
+
 
 /**
  * The Authentication Provider for HTTP Basic.
