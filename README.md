@@ -41,8 +41,12 @@ Afterwards, you can import the package:
 
 ### Examples
 
+In the browser:
 * [Basic Discovery (promises)](examples/web/discovery.html)
 * [Run sync. job (async/await)](examples/web/workflow.html)
+
+In Node.js:
+* [Basic Discovery (promises)](examples/node/discovery.js)
 
 More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.4/).
 
