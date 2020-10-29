@@ -105,6 +105,9 @@ class Builder {
 	 */
 	constructor(processes, parent = null, id = undefined) {
 		if (Array.isArray(processes)) {
+			/**
+			 * @type {Array.<Process>}
+			 */
 			this.processes = processes;
 		}
 		else if (Utils.isObject(processes) && Array.isArray(processes.processes)) {
