@@ -377,41 +377,11 @@ declare module OpenEO {
          */
         currency(): string | null;
         /**
-         * @typedef BillingPlan
-         * @type {object}
-         * @property {string} name Name of the billing plan.
-         * @property {string} description A description of the billing plan, may include CommonMark syntax.
-         * @property {boolean} paid `true` if it is a paid plan, otherwise `false`.
-         * @property {string} url A URL pointing to a page describing the billing plan.
-         * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
-         */
-        /**
          * List all billing plans.
          *
          * @returns {Array.<BillingPlan>} Billing plans
          */
-        listPlans(): {
-            /**
-             * Name of the billing plan.
-             */
-            name: string;
-            /**
-             * A description of the billing plan, may include CommonMark syntax.
-             */
-            description: string;
-            /**
-             * `true` if it is a paid plan, otherwise `false`.
-             */
-            paid: boolean;
-            /**
-             * A URL pointing to a page describing the billing plan.
-             */
-            url: string;
-            /**
-             * `true` if it is the default plan of the back-end, otherwise `false`.
-             */
-            default: boolean;
-        }[];
+        listPlans(): Array<BillingPlan>;
     }
     /**
      * The Authentication Provider for OpenID Connect.
@@ -455,63 +425,12 @@ declare module OpenEO {
          */
         static signinCallback(provider?: OidcProvider): Promise<User>;
         /**
-         * Authenticate with OpenID Connect (OIDC).
-         * 
-         * Supported only in Browser environments.
-         * 
-         * @param {string} client_id - Your client application's identifier as registered with the OIDC provider
-         * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
-         * @param {object.<string, *>} [options={}] - Object with authentication options.
-         * @returns {Promise<void>}
-         * @throws {Error}
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
-         */
-        login(client_id: string, redirect_uri: string, options: any) : Promise<void>;
-        /**
-         * OpenID Connect Provider details as returned by the API.
-         *
-         * @augments AuthProviderMeta
-         * @typedef OidcProviderMeta
-         * @type {object}
-         * @property {string} id Provider identifier.
-         * @property {string} title Title for the authentication method.
-         * @property {string} description Description for the authentication method.
-         * @property {string} issuer The OpenID Connect issuer location (authority).
-         * @property {Array.<string>} scopes OpenID Connect Scopes
-         * @property {Array.<Link>} links Links
-         */
-        /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
          * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
          * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
          */
-        constructor(connection: Connection, options: {
-            /**
-             * Provider identifier.
-             */
-            id: string;
-            /**
-             * Title for the authentication method.
-             */
-            title: string;
-            /**
-             * Description for the authentication method.
-             */
-            description: string;
-            /**
-             * The OpenID Connect issuer location (authority).
-             */
-            issuer: string;
-            /**
-             * OpenID Connect Scopes
-             */
-            scopes: Array<string>;
-            /**
-             * Links
-             */
-            links: Array<Link>;
-        });
+        constructor(connection: Connection, options: OidcProviderMeta);
         issuer: string;
         scopes: string[];
         links: Link[];
@@ -551,63 +470,21 @@ declare module OpenEO {
      */
     export class FileTypes {
         /**
-         * @typedef FileTypesAPI
-         * @type {object}
-         * @property {object.<string, FileType>} input - File types supported to import
-         * @property {object.<string, FileType>} output - File types supported to export
-         */
-        /**
-         * @typedef FileType
-         * @type {object}
-         * @property {string} title
-         * @property {string} description
-         * @property {Array.<string>} gis_data_types
-         * @property {object.<string, *>} parameters
-         * @property {Array.<Link>} links
-         */
-        /**
          * Creates a new FileTypes object from an API-compatible JSON response.
          *
          * @param {FileTypesAPI} data - A capabilities response compatible to the API specification for `GET /file_formats`.
          */
-        constructor(data: {
-            /**
-             * - File types supported to import
-             */
-            input: any;
-            /**
-             * - File types supported to export
-             */
-            output: any;
-        });
+        constructor(data: FileTypesAPI);
         /**
          * @type {FileTypesAPI}
          */
-        data: {
-            /**
-             * - File types supported to import
-             */
-            input: any;
-            /**
-             * - File types supported to export
-             */
-            output: any;
-        };
+        data: FileTypesAPI;
         /**
          * Returns the file types response as a JSON serializable representation of the data that is API compliant.
          *
          * @returns {FileTypesAPI}
          */
-        toJSON(): {
-            /**
-             * - File types supported to import
-             */
-            input: any;
-            /**
-             * - File types supported to export
-             */
-            output: any;
-        };
+        toJSON(): FileTypesAPI;
         /**
          * Returns the input file formats.
          *
@@ -628,13 +505,7 @@ declare module OpenEO {
          * @param {string} type - Case-insensitive file format identifier
          * @returns {?FileType}
          */
-        getInputType(type: string): {
-            title: string;
-            description: string;
-            gis_data_types: Array<string>;
-            parameters: any;
-            links: Array<Link>;
-        };
+        getInputType(type: string): FileType | null;
         /**
          * Returns a single output file format for a given identifier.
          *
@@ -643,13 +514,7 @@ declare module OpenEO {
          * @param {string} type - Case-insensitive file format identifier
          * @returns {?FileType}
          */
-        getOutputType(type: string): {
-            title: string;
-            description: string;
-            gis_data_types: Array<string>;
-            parameters: any;
-            links: Array<Link>;
-        };
+        getOutputType(type: string): FileType | null;
         /**
          * Get a file type object from the list of input or output file formats.
          *
@@ -658,13 +523,7 @@ declare module OpenEO {
          * @returns {?FileType}
          * @protected
          */
-        protected _findType(type: string, io: string): {
-            title: string;
-            description: string;
-            gis_data_types: Array<string>;
-            parameters: any;
-            links: Array<Link>;
-        };
+        protected _findType(type: string, io: string): FileType | null;
     }
     /**
      * A File on the user workspace.
@@ -783,12 +642,6 @@ declare module OpenEO {
          */
         nextLogs(limit?: number): Promise<Array<Log>>;
         /**
-         * @typedef LogsAPI
-         * @type {object}
-         * @property {Array.<Log>} logs
-         * @property {Array.<Link>} links
-         */
-        /**
          * Retrieves the next log entries since the last request.
          *
          * Retrieves the full response compliant to the API, including log entries and links.
@@ -797,10 +650,7 @@ declare module OpenEO {
          * @param {number} limit - The number of log entries to retrieve per request, as integer.
          * @returns {Promise<LogsAPI>}
          */
-        next(limit?: number): Promise<{
-            logs: Array<Log>;
-            links: Array<Link>;
-        }>;
+        next(limit?: number): Promise<LogsAPI>;
     }
     /**
      * A Batch Job.
@@ -927,34 +777,13 @@ declare module OpenEO {
          */
         deleteJob(): Promise<void>;
         /**
-         * @typedef JobEstimate
-         * @type {object}
-         * @property {?number} costs
-         * @property {string} duration
-         * @property {number} size in bytes as integer
-         * @property {?number} downloads_included integer
-         * @property {string} expires
-         */
-        /**
          * Calculate an estimate (potentially time/costs/volume) for a batch job.
          *
          * @async
          * @returns {Promise<JobEstimate>} A response compatible to the API specification.
          * @throws {Error}
          */
-        estimateJob(): Promise<{
-            costs: number | null;
-            duration: string;
-            /**
-             * in bytes as integer
-             */
-            size: number;
-            /**
-             * integer
-             */
-            downloads_included: number | null;
-            expires: string;
-        }>;
+        estimateJob(): Promise<JobEstimate>;
         /**
          * Get logs for the batch job from the back-end.
          *
@@ -1377,23 +1206,11 @@ declare module OpenEO {
          */
         toJSON(): any;
         /**
-         * Reference to a parameter.
-         *
-         * @typedef FromParameter
-         * @type {object}
-         * @property {string} from_parameter - The name of the parameter.
-         */
-        /**
          * Returns the reference object for this parameter.
          *
          * @returns {FromParameter}
          */
-        ref(): {
-            /**
-             * - The name of the parameter.
-             */
-            from_parameter: string;
-        };
+        ref(): FromParameter;
     }
     export function Lexer(): {
         reset: (str: any) => void;
@@ -1603,23 +1420,11 @@ declare module OpenEO {
          */
         toJSON(): any;
         /**
-         * Reference to a parameter.
-         *
-         * @typedef FromNode
-         * @type {object}
-         * @property {string} from_node - The node identifier.
-         */
-        /**
          * Returns the reference object for this node.
          *
          * @returns {FromNode}
          */
-        ref(): {
-            /**
-             * - The node identifier.
-             */
-            from_node: string;
-        };
+        ref(): FromNode;
     }
     /**
      * A class to construct processes easily.
@@ -1699,12 +1504,15 @@ declare module OpenEO {
          *
          * Each process passed to the constructor is made available as object method.
          *
-         * @param {Array|object} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+         * @param {Array.<Process>|Processes} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
          * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
          * @param {string} id - A unique identifier for the process.
          */
-        constructor(processes: any[] | any, parent?: Builder | null, id?: string);
-        processes: any;
+        constructor(processes: Array<Process> | Processes, parent?: Builder | null, id?: string);
+        /**
+         * @type {Array.<Process>}
+         */
+        processes: Array<Process>;
         /**
          * The parent builder.
          * @type {?Builder}
@@ -1860,10 +1668,6 @@ declare module OpenEO {
          */
         listFileTypes(): Promise<FileTypes>;
         /**
-         * @typedef ServiceType
-         * @type {object.<string, *>}
-         */
-        /**
          * List the supported secondary service types.
          *
          * @async
@@ -1871,10 +1675,6 @@ declare module OpenEO {
          * @throws {Error}
          */
         listServiceTypes(): Promise<any>;
-        /**
-         * @typedef UdfRuntime
-         * @type {object.<string, *>}
-         */
         /**
          * List the supported UDF runtimes.
          *
@@ -1884,26 +1684,13 @@ declare module OpenEO {
          */
         listUdfRuntimes(): Promise<any>;
         /**
-         * @typedef Collections
-         * @type {object}
-         * @property {Array.<Collection>} collections
-         * @property {Array.<Link>} links
-         */
-        /**
          * List all collections available on the back-end.
          *
          * @async
          * @returns {Promise<Collections>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listCollections(): Promise<{
-            collections: any[];
-            links: Array<Link>;
-        }>;
-        /**
-         * @typedef Collection
-         * @type {object.<string, *>}
-         */
+        listCollections(): Promise<Collections>;
         /**
          * Get further information about a single collection.
          *
@@ -1912,13 +1699,7 @@ declare module OpenEO {
          * @returns {Promise<Collection>} - A response compatible to the API specification.
          * @throws {Error}
          */
-        describeCollection(collectionId: string): Promise<any>;
-        /**
-         * @typedef Processes
-         * @type {object}
-         * @property {Array.<Process>} processes
-         * @property {Array.<Link>} links
-         */
+        describeCollection(collectionId: string): Promise<Collection>;
         /**
          * List all processes available on the back-end.
          *
@@ -1928,10 +1709,7 @@ declare module OpenEO {
          * @returns {Promise<Processes>} - A response compatible to the API specification.
          * @throws {Error}
          */
-        listProcesses(): Promise<{
-            processes: Array<Process>;
-            links: Array<Link>;
-        }>;
+        listProcesses(): Promise<Processes>;
         /**
          * Get information about a single process.
          *
@@ -2047,21 +1825,6 @@ declare module OpenEO {
          */
         setAuthToken(type: string, providerId: string, token: string): AuthProvider;
         /**
-         * @typedef AccountStorage
-         * @type {object}
-         * @property {number} free in bytes as integer
-         * @property {number} quota in bytes as integer
-         */
-        /**
-         * @typedef Account
-         * @type {object}
-         * @property {string} user_id
-         * @property {string} name
-         * @property {AccountStorage} storage
-         * @property {?number} budget
-         * @property {Array.<Link>} links
-         */
-        /**
          * Get information about the authenticated user.
          *
          * Updates the User ID if available.
@@ -2070,22 +1833,7 @@ declare module OpenEO {
          * @returns {Promise<Account>} A response compatible to the API specification.
          * @throws {Error}
          */
-        describeAccount(): Promise<{
-            user_id: string;
-            name: string;
-            storage: {
-                /**
-                 * in bytes as integer
-                 */
-                free: number;
-                /**
-                 * in bytes as integer
-                 */
-                quota: number;
-            };
-            budget: number | null;
-            links: Array<Link>;
-        }>;
+        describeAccount(): Promise<UserAccount>;
         /**
          * Lists all files from the user workspace.
          *
@@ -2172,13 +1920,6 @@ declare module OpenEO {
          */
         getUserProcess(id: string): Promise<UserProcess>;
         /**
-         * @typedef SyncResult
-         * @type {object}
-         * @property {Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-         * @property {?number} costs The costs for the request in the currency exposed by the back-end.
-         * @property {Array.<Log>} logs Array of log entries as specified in the API.
-         */
-        /**
          * Executes a process synchronously and returns the result as the response.
          *
          * Please note that requests can take a very long time of several minutes or even hours.
@@ -2189,20 +1930,7 @@ declare module OpenEO {
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
-        computeResult(process: Process, plan?: string | null, budget?: number | null): Promise<{
-            /**
-             * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-             */
-            data: Readable | Blob;
-            /**
-             * The costs for the request in the currency exposed by the back-end.
-             */
-            costs: number | null;
-            /**
-             * Array of log entries as specified in the API.
-             */
-            logs: Array<Log>;
-        }>;
+        computeResult(process: Process, plan?: string | null, budget?: number | null): Promise<SyncResult>;
         /**
          * Executes a process synchronously and downloads to result the given path.
          *
@@ -2286,18 +2014,6 @@ declare module OpenEO {
          */
         getService(id: string): Promise<Service>;
         /**
-         * Response for a HTTP request.
-         *
-         * @typedef AxiosResponse
-         * @type {object}
-         * @property {*} data
-         * @property {number} status
-         * @property {string} statusText
-         * @property {*} headers
-         * @property {object.<string, *>} config
-         * @property {*} request
-         */
-        /**
          * Sends a GET request.
          *
          * @async
@@ -2308,14 +2024,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _get(path: string, query: any, responseType: string): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _get(path: string, query: any, responseType: string): Promise<AxiosResponse>;
         /**
          * Sends a POST request.
          *
@@ -2327,14 +2036,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _post(path: string, body: any, responseType: string): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _post(path: string, body: any, responseType: string): Promise<AxiosResponse>;
         /**
          * Sends a PUT request.
          *
@@ -2344,14 +2046,7 @@ declare module OpenEO {
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _put(path: string, body: any): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _put(path: string, body: any): Promise<AxiosResponse>;
         /**
          * Sends a PATCH request.
          *
@@ -2361,14 +2056,7 @@ declare module OpenEO {
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _patch(path: string, body: any): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _patch(path: string, body: any): Promise<AxiosResponse>;
         /**
          * Sends a DELETE request.
          *
@@ -2377,14 +2065,7 @@ declare module OpenEO {
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _delete(path: string): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _delete(path: string): Promise<AxiosResponse>;
         /**
          * Downloads data from a URL.
          *
@@ -2414,14 +2095,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios
          */
-        _send(options: any): Promise<{
-            data: any;
-            status: number;
-            statusText: string;
-            headers: any;
-            config: any;
-            request: any;
-        }>;
+        _send(options: any): Promise<AxiosResponse>;
     }
     /**
      * Main class to start with openEO. Allows to connect to a server.
@@ -2466,6 +2140,119 @@ declare module OpenEO {
     export namespace OpenEO {
         const Environment: Environment;
     }
+
+    /**
+     * An error.
+     */
+    export type ApiError = {
+        id: string;
+        code: string;
+        message: string;
+        links: Array<Link>;
+    };
+    /**
+     * Authentication Provider details.
+     */
+    export type AuthProviderMeta = {
+        /**
+         * Provider identifier, may not be used for all authentication methods.
+         */
+        id: string | null;
+        /**
+         * Title for the authentication method.
+         */
+        title: string;
+        /**
+         * Description for the authentication method.
+         */
+        description: string;
+    };
+    /**
+     * Response for a HTTP request.
+     */
+    export type AxiosResponse = {
+        data: any;
+        status: number;
+        statusText: string;
+        headers: any;
+        config: any;
+        request: any;
+    };
+    export type BillingPlan = {
+        /**
+         * Name of the billing plan.
+         */
+        name: string;
+        /**
+         * A description of the billing plan, may include CommonMark syntax.
+         */
+        description: string;
+        /**
+         * `true` if it is a paid plan, otherwise `false`.
+         */
+        paid: boolean;
+        /**
+         * A URL pointing to a page describing the billing plan.
+         */
+        url: string;
+        /**
+         * `true` if it is the default plan of the back-end, otherwise `false`.
+         */
+        default: boolean;
+    };
+    export type Collections = {
+        collections: Array<Collection>;
+        links: Array<Link>;
+    };
+    export type Collection = any;
+    export type FileTypesAPI = {
+        /**
+         * - File types supported to import
+         */
+        input: any;
+        /**
+         * - File types supported to export
+         */
+        output: any;
+    };
+    export type FileType = {
+        title: string;
+        description: string;
+        gis_data_types: Array<string>;
+        parameters: any;
+        links: Array<Link>;
+    };
+    /**
+     * Reference to a parameter.
+     */
+    export type FromNode = {
+        /**
+         * - The node identifier.
+         */
+        from_node: string;
+    };
+    /**
+     * Reference to a parameter.
+     */
+    export type FromParameter = {
+        /**
+         * - The name of the parameter.
+         */
+        from_parameter: string;
+    };
+    export type JobEstimate = {
+        costs: number | null;
+        duration: string;
+        /**
+         * in bytes as integer
+         */
+        size: number;
+        /**
+         * integer
+         */
+        downloads_included: number | null;
+        expires: string;
+    };
     /**
      * A link to another resource.
      */
@@ -2487,17 +2274,8 @@ declare module OpenEO {
          */
         title: string;
     };
-    /**
-     * An openEO processing chain.
-     */
-    export type Process = any;
-    /**
-     * An error.
-     */
-    export type ApiError = {
-        id: string;
-        code: string;
-        message: string;
+    export type LogsAPI = {
+        logs: Array<Log>;
         links: Array<Link>;
     };
     /**
@@ -2513,13 +2291,13 @@ declare module OpenEO {
         links: Array<Link>;
     };
     /**
-     * Authentication Provider details.
+     * OpenID Connect Provider details as returned by the API.
      */
-    export type AuthProviderMeta = {
+    export type OidcProviderMeta = {
         /**
-         * Provider identifier, may not be used for all authentication methods.
+         * Provider identifier.
          */
-        id: string | null;
+        id: string;
         /**
          * Title for the authentication method.
          */
@@ -2528,7 +2306,61 @@ declare module OpenEO {
          * Description for the authentication method.
          */
         description: string;
+        /**
+         * The OpenID Connect issuer location (authority).
+         */
+        issuer: string;
+        /**
+         * OpenID Connect Scopes
+         */
+        scopes: Array<string>;
+        /**
+         * Links
+         */
+        links: Array<Link>;
     };
+    export type Processes = {
+        processes: Array<Process>;
+        links: Array<Link>;
+    };
+    /**
+     * An openEO processing chain.
+     */
+    export type Process = any;
+    export type ServiceType = any;
+    export type SyncResult = {
+        /**
+         * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+         */
+        data: any | Blob;
+        /**
+         * The costs for the request in the currency exposed by the back-end.
+         */
+        costs: number | null;
+        /**
+         * Array of log entries as specified in the API.
+         */
+        logs: Array<Log>;
+    };
+    export type UdfRuntime = any;
+    export type UserAccountStorage = {
+        /**
+         * in bytes as integer
+         */
+        free: number;
+        /**
+         * in bytes as integer
+         */
+        quota: number;
+    };
+    export type UserAccount = {
+        user_id: string;
+        name: string;
+        storage: UserAccountStorage;
+        budget: number | null;
+        links: Array<Link>;
+    };
+
 }
 
 export = OpenEO;

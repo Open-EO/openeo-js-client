@@ -19,20 +19,6 @@ const Oidc = require('oidc-client');
 class OidcProvider extends AuthProvider {
 
 	/**
-	 * OpenID Connect Provider details as returned by the API.
-	 * 
-	 * @augments AuthProviderMeta
-	 * @typedef OidcProviderMeta
-	 * @type {object}
-	 * @property {string} id Provider identifier.
-	 * @property {string} title Title for the authentication method.
-	 * @property {string} description Description for the authentication method.
-	 * @property {string} issuer The OpenID Connect issuer location (authority).
-	 * @property {Array.<string>} scopes OpenID Connect Scopes
-	 * @property {Array.<Link>} links Links
-	 */
-
-	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.

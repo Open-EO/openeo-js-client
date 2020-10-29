@@ -36,13 +36,6 @@ class Logs {
 	}
 
 	/**
-	 * @typedef LogsAPI
-	 * @type {object}
-	 * @property {Array.<Log>} logs
-	 * @property {Array.<Link>} links
-	 */
-
-	/**
 	 * Retrieves the next log entries since the last request.
 	 * 
 	 * Retrieves the full response compliant to the API, including log entries and links.
