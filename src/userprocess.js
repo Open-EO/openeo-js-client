@@ -51,7 +51,7 @@ class UserProcess extends BaseEntity {
 		 * A list of categories.
 		 * @public
 		 * @readonly
-		 * @type {string[]}
+		 * @type {Array.<string>}
 		 */
 		this.categories = undefined;
 		/**
@@ -59,14 +59,14 @@ class UserProcess extends BaseEntity {
 		 * 
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?Array.<object.<string, *>>}
 		 */
 		this.parameters = undefined;
 		/**
 		 * Description of the data that is returned by this process.
 		 * @public
 		 * @readonly
-		 * @type {?object}
+		 * @type {?object.<string, *>}
 		 */
 		this.returns = undefined;
 		/**
@@ -87,26 +87,26 @@ class UserProcess extends BaseEntity {
 		 * Declares any exceptions (errors) that might occur during execution of this process.
 		 * @public
 		 * @readonly
-		 * @type {object}
+		 * @type {object.<string, *>}
 		 */
 		this.exceptions = undefined;
 		/**
 		 * @public
 		 * @readonly
-		 * @type {object[]}
+		 * @type {Array.<object.<string, *>>}
 		 */
 		this.examples = undefined;
 		/**
 		 * Links related to this process.
 		 * @public
 		 * @readonly
-		 * @type {object[]}
+		 * @type {Array.<Link>}
 		 */
 		this.links = undefined;
 		/**
 		 * @public
 		 * @readonly
-		 * @type {object}
+		 * @type {object.<string, *>}
 		 */
 		this.processGraph = undefined;
 	}
@@ -128,7 +128,7 @@ class UserProcess extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
-	 * @param {object} parameters.process - A new process.
+	 * @param {Process} parameters.process - A new process.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
 	 * @returns {Promise<UserProcess>} The updated process graph object (this).

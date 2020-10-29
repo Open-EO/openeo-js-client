@@ -9,21 +9,21 @@ class BuilderNode {
 	/**
 	 * Creates a new process node for the builder.
 	 * 
-	 * @param {module:builder~Builder} parent
+	 * @param {Builder} parent
 	 * @param {string} processId 
-	 * @param {object} [processArgs={}]
+	 * @param {object.<string, *>} [processArgs={}]
 	 * @param {?string} [processDescription=null]
 	 */
 	constructor(parent, processId, processArgs = {}, processDescription = null) {
 		/**
 		 * The parent builder.
-		 * @type {module:builder~Builder}
+		 * @type {Builder}
 		 */
 		this.parent = parent;
 
 		/**
 		 * The specification of the process associated with this node.
-		 * @type {object}
+		 * @type {Process}
 		 * @readonly
 		 */
 		this.spec = this.parent.spec(processId);
@@ -38,7 +38,7 @@ class BuilderNode {
 		this.id = parent.generateId(processId);
 		/**
 		 * The arguments for the process.
-		 * @type {object}
+		 * @type {object.<string, *>}
 		 */
 		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
 		/**
@@ -58,7 +58,7 @@ class BuilderNode {
 	 * Converts a sorted array of arguments to an object with the respective parameter names.
 	 * 
 	 * @param {Array} processArgs 
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 * @throws {Error}
 	 */
 	namedArguments(processArgs) {
@@ -77,7 +77,7 @@ class BuilderNode {
 	/**
 	 * Checks the arguments given for parameters and add them to the process.
 	 * 
-	 * @param {object|Array} processArgs 
+	 * @param {object.<string, *>|Array} processArgs 
 	 */
 	addParametersToProcess(processArgs) {
 		for(let key in processArgs) {
@@ -175,7 +175,7 @@ class BuilderNode {
 	 * Creates a new Builder, usually for a callback.
 	 * 
 	 * @protected
-	 * @param {?BuilerNode} [parentNode=null]
+	 * @param {?BuilderNode} [parentNode=null]
 	 * @param {?string} parentParameter
 	 * @returns {BuilderNode}
 	 */
@@ -194,7 +194,7 @@ class BuilderNode {
 	 * @protected
 	 * @param {Function} arg - callback function
 	 * @param {string} name - Parameter name
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 * @throws {Error}
 	 */
 	exportCallback(arg, name) {
@@ -214,7 +214,7 @@ class BuilderNode {
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 */
 	toJSON() {
 		let obj = {
@@ -237,14 +237,6 @@ class BuilderNode {
 		}
 		return obj;
 	}
-
-	/**
-	 * Reference to a parameter.
-	 * 
-	 * @typedef FromNode
-	 * @type {object}
-	 * @property {string} from_node - The node identifier.
-	 */
 
 	/**
 	 * Returns the reference object for this node.

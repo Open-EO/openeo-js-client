@@ -104,7 +104,7 @@ class Parameter {
 	 * Creates a new process parameter.
 	 * 
 	 * @param {string} name - Name of the parameter.
-	 * @param {object|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
+	 * @param {object.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
 	 * @param {string} description - A description for the parameter
 	 * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
 	 */
@@ -125,19 +125,11 @@ class Parameter {
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, *>}
 	 */
 	toJSON() {
 		return this.spec;
 	}
-
-	/**
-	 * Reference to a parameter.
-	 * 
-	 * @typedef FromParameter
-	 * @type {object}
-	 * @property {string} from_parameter - The name of the parameter.
-	 */
 
 	/**
 	 * Returns the reference object for this parameter.
