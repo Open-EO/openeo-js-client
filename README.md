@@ -2,9 +2,9 @@
 
 JavaScript/TypeScript client for the openEO API.
 
-* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.4/).
+* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.5/).
 
-The version of this client is **1.0.0-rc.4** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
+The version of this client is **1.0.0-rc.5** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
 
 ## Usage
 
@@ -44,7 +44,7 @@ Afterwards, you can import the package:
 * [Basic Discovery (promises)](examples/discovery.html)
 * [Run sync. job (async/await)](examples/workflow.html)
 
-More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.4/).
+More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.5/).
 
 ## Development
 
