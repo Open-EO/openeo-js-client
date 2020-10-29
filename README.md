@@ -48,6 +48,9 @@ In the browser:
 In Node.js:
 * [Basic Discovery (promises)](examples/node/discovery.js)
 
+In Typescript:
+* [Basic Discovery (promises)](examples/typescript/discovery.ts)
+
 More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.4/).
 
 ## Development
