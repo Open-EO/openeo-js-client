@@ -2338,6 +2338,10 @@ declare module OpenEO {
          */
         costs: number | null;
         /**
+         * The content media type returned by the back-end.
+         */
+        type: string | null;
+        /**
          * Array of log entries as specified in the API.
          */
         logs: Array<Log>;

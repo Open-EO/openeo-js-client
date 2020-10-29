@@ -167,6 +167,7 @@
  * @type {object}
  * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
  * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+ * @property {?string} type The content media type returned by the back-end.
  * @property {Array.<Log>} logs Array of log entries as specified in the API.
  */
 

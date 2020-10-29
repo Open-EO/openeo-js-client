@@ -532,11 +532,16 @@ class Connection {
 		let syncResult = {
 			data: response.data,
 			costs: null,
+			type: null,
 			logs: []
 		};
 		
 		if (typeof response.headers['openeo-costs'] === 'number') {
 			syncResult.costs = response.headers['openeo-costs'];
+		}
+		
+		if (typeof response.headers['content-type'] === 'string') {
+			syncResult.type = response.headers['content-type'];
 		}
 
 		let links = Array.isArray(response.headers.link) ? response.headers.link : [response.headers.link];
