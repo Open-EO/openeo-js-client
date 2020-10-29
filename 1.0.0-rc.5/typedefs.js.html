@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: typedefs.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: typedefs.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * An error.
+ * 
+ * @typedef ApiError
+ * @type {object}
+ * @property {string} id 
+ * @property {string} code 
+ * @property {string} message 
+ * @property {Array.&lt;Link>} links 
+ */
+
+/**
+ * Authentication Provider details.
+ * 
+ * @typedef AuthProviderMeta
+ * @type {object}
+ * @property {?string} id Provider identifier, may not be used for all authentication methods. 
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ */
+
+/**
+ * Response for a HTTP request.
+ * 
+ * @typedef AxiosResponse
+ * @type {object}
+ * @property {*} data
+ * @property {number} status
+ * @property {string} statusText
+ * @property {*} headers
+ * @property {object.&lt;string, *>} config
+ * @property {*} request
+ */
+
+/**
+ * @typedef BillingPlan
+ * @type {object}
+ * @property {string} name Name of the billing plan.
+ * @property {string} description A description of the billing plan, may include CommonMark syntax.
+ * @property {boolean} paid `true` if it is a paid plan, otherwise `false`.
+ * @property {string} url A URL pointing to a page describing the billing plan.
+ * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
+ */
+
+/**
+ * @typedef Collections
+ * @type {object}
+ * @property {Array.&lt;Collection>} collections
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * @typedef Collection
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef FileTypesAPI
+ * @type {object}
+ * @property {object.&lt;string, FileType>} input - File types supported to import
+ * @property {object.&lt;string, FileType>} output - File types supported to export
+ */
+
+/**
+ * @typedef FileType
+ * @type {object}
+ * @property {string} title
+ * @property {string} description
+ * @property {Array.&lt;string>} gis_data_types
+ * @property {object.&lt;string, *>} parameters
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromNode
+ * @type {object}
+ * @property {string} from_node - The node identifier.
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromParameter
+ * @type {object}
+ * @property {string} from_parameter - The name of the parameter.
+ */
+
+/**
+ * @typedef JobEstimate
+ * @type {object}
+ * @property {?number} costs
+ * @property {string} duration
+ * @property {number} size in bytes as integer
+ * @property {?number} downloads_included integer
+ * @property {string} expires
+ */
+
+/**
+ * A link to another resource.
+ * 
+ * @typedef Link
+ * @type {object}
+ * @property {string} href The URL to the resource.
+ * @property {string} rel Relation type
+ * @property {string} type Media type
+ * @property {string} title Human-readable title
+ */
+
+/**
+ * @typedef LogsAPI
+ * @type {object}
+ * @property {Array.&lt;Log>} logs
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * A log entry.
+ * 
+ * @typedef Log
+ * @type {object}
+ * @property {string} id 
+ * @property {string} code 
+ * @property {string} level
+ * @property {string} message 
+ * @property {*} data
+ * @property {Array.&lt;object.&lt;string, ?string>>} path
+ * @property {Array.&lt;Link>} links 
+ */
+
+/**
+ * OpenID Connect Provider details as returned by the API.
+ * 
+ * @augments AuthProviderMeta
+ * @typedef OidcProviderMeta
+ * @type {object}
+ * @property {string} id Provider identifier.
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ * @property {string} issuer The OpenID Connect issuer location (authority).
+ * @property {Array.&lt;string>} scopes OpenID Connect Scopes
+ * @property {Array.&lt;Link>} links Links
+ */
+
+/**
+ * @typedef Processes
+ * @type {object}
+ * @property {Array.&lt;Process>} processes
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * An openEO processing chain.
+ * 
+ * @typedef Process
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef ServiceType
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef SyncResult
+ * @type {object}
+ * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+ * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+ * @property {?string} type The content media type returned by the back-end.
+ * @property {Array.&lt;Log>} logs Array of log entries as specified in the API.
+ */
+
+/**
+ * @typedef UdfRuntime
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef UserAccountStorage
+ * @type {object}
+ * @property {number} free in bytes as integer
+ * @property {number} quota in bytes as integer
+ */
+
+/**
+ * @typedef UserAccount
+ * @type {object}
+ * @property {string} user_id
+ * @property {string} name
+ * @property {UserAccountStorage} storage
+ * @property {?number} budget
+ * @property {Array.&lt;Link>} links
+ */</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Oct 29 2020 20:06:31 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
