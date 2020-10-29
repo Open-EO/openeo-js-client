@@ -6,23 +6,6 @@ const Utils = require('@openeo/js-commons/src/utils');
 class FileTypes {
 
 	/**
-	 * @typedef FileTypesAPI
-	 * @type {object}
-	 * @property {object.<string, FileType>} input - File types supported to import
-	 * @property {object.<string, FileType>} output - File types supported to export
-	 */
-
-	/**
-	 * @typedef FileType
-	 * @type {object}
-	 * @property {string} title
-	 * @property {string} description
-	 * @property {Array.<string>} gis_data_types
-	 * @property {object.<string, *>} parameters
-	 * @property {Array.<Link>} links
-	 */
-
-	/**
 	 * Creates a new FileTypes object from an API-compatible JSON response.
 	 * 
 	 * @param {FileTypesAPI} data - A capabilities response compatible to the API specification for `GET /file_formats`.

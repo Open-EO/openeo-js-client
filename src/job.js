@@ -144,16 +144,6 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * @typedef JobEstimate
-	 * @type {object}
-	 * @property {?number} costs
-	 * @property {string} duration
-	 * @property {number} size in bytes as integer
-	 * @property {?number} downloads_included integer
-	 * @property {string} expires
-	 */
-
-	/**
 	 * Calculate an estimate (potentially time/costs/volume) for a batch job.
 	 * 
 	 * @async

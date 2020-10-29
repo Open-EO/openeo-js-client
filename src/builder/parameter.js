@@ -132,14 +132,6 @@ class Parameter {
 	}
 
 	/**
-	 * Reference to a parameter.
-	 * 
-	 * @typedef FromParameter
-	 * @type {object}
-	 * @property {string} from_parameter - The name of the parameter.
-	 */
-
-	/**
 	 * Returns the reference object for this parameter.
 	 * 
 	 * @returns {FromParameter}

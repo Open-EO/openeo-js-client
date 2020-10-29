@@ -89,11 +89,6 @@ class Connection {
 	}
 
 	/**
-	 * @typedef ServiceType
-	 * @type {object.<string, *>}
-	 */
-
-	/**
 	 * List the supported secondary service types.
 	 * 
 	 * @async
@@ -104,11 +99,6 @@ class Connection {
 		let response = await this._get('/service_types');
 		return response.data;
 	}
-
-	/**
-	 * @typedef UdfRuntime
-	 * @type {object.<string, *>}
-	 */
 
 	/**
 	 * List the supported UDF runtimes.
@@ -123,13 +113,6 @@ class Connection {
 	}
 
 	/**
-	 * @typedef Collections
-	 * @type {object}
-	 * @property {Array.<Collection>} collections
-	 * @property {Array.<Link>} links
-	 */
-
-	/**
 	 * List all collections available on the back-end.
 	 * 
 	 * @async
@@ -140,11 +123,6 @@ class Connection {
 		let response = await this._get('/collections');
 		return response.data;
 	}
-
-	/**
-	 * @typedef Collection
-	 * @type {object.<string, *>} 
-	 */
 
 	/**
 	 * Get further information about a single collection.
@@ -158,13 +136,6 @@ class Connection {
 		let response = await this._get('/collections/' + collectionId);
 		return response.data;
 	}
-
-	/**
-	 * @typedef Processes
-	 * @type {object}
-	 * @property {Array.<Process>} processes
-	 * @property {Array.<Link>} links
-	 */
 
 	/**
 	 * List all processes available on the back-end.
@@ -384,29 +355,12 @@ class Connection {
 	}
 
 	/**
-	 * @typedef AccountStorage
-	 * @type {object}
-	 * @property {number} free in bytes as integer
-	 * @property {number} quota in bytes as integer
-	 */
-	
-	/**
-	 * @typedef Account
-	 * @type {object}
-	 * @property {string} user_id
-	 * @property {string} name
-	 * @property {AccountStorage} storage
-	 * @property {?number} budget
-	 * @property {Array.<Link>} links
-	 */
-
-	/**
 	 * Get information about the authenticated user.
 	 * 
 	 * Updates the User ID if available.
 	 * 
 	 * @async
-	 * @returns {Promise<Account>} A response compatible to the API specification.
+	 * @returns {Promise<UserAccount>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async describeAccount() {
@@ -554,14 +508,6 @@ class Connection {
 		let pg = new UserProcess(this, id);
 		return await pg.describeUserProcess();
 	}
-
-	/**
-	 * @typedef SyncResult
-	 * @type {object}
-	 * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-	 * @property {?number} costs The costs for the request in the currency exposed by the back-end.
-	 * @property {Array.<Log>} logs Array of log entries as specified in the API.
-	 */
 
 	/**
 	 * Executes a process synchronously and returns the result as the response.
@@ -756,19 +702,6 @@ class Connection {
 		let service = new Service(this, id);
 		return await service.describeService();
 	}
-
-	/**
-	 * Response for a HTTP request.
-	 * 
-	 * @typedef AxiosResponse
-	 * @type {object}
-	 * @property {*} data
-	 * @property {number} status
-	 * @property {string} statusText
-	 * @property {*} headers
-	 * @property {object.<string, *>} config
-	 * @property {*} request
-	 */
 
 	/**
 	 * Sends a GET request.

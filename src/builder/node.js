@@ -239,14 +239,6 @@ class BuilderNode {
 	}
 
 	/**
-	 * Reference to a parameter.
-	 * 
-	 * @typedef FromNode
-	 * @type {object}
-	 * @property {string} from_node - The node identifier.
-	 */
-
-	/**
 	 * Returns the reference object for this node.
 	 * 
 	 * @returns {FromNode}
