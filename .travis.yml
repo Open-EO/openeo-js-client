@@ -12,6 +12,8 @@ cache:
 script:
 # Run code checks
   - npm run lint
+# Build once to check it's all working
+  - npm run build
 # Run tests
   - npm run test
   - npm run test_node

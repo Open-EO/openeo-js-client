@@ -8,9 +8,12 @@ class FileTypes {
 	/**
 	 * Creates a new FileTypes object from an API-compatible JSON response.
 	 * 
-	 * @param {object} data - A capabilities response compatible to the API specification for `GET /file_formats`.
+	 * @param {FileTypesAPI} data - A capabilities response compatible to the API specification for `GET /file_formats`.
 	 */
 	constructor(data) {
+		/**
+		 * @type {FileTypesAPI}
+		 */
 		this.data = {
 			input: {},
 			output: {}
@@ -31,7 +34,7 @@ class FileTypes {
 	/**
 	 * Returns the file types response as a JSON serializable representation of the data that is API compliant.
 	 * 
-	 * @returns {object} - A reference to the capabilities response.
+	 * @returns {FileTypesAPI}
 	 */
 	toJSON() {
 		return this.data;
@@ -40,7 +43,7 @@ class FileTypes {
 	/**
 	 * Returns the input file formats.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, FileType>}
 	 */
 	getInputTypes() {
 		return this.data.input;
@@ -49,7 +52,7 @@ class FileTypes {
 	/**
 	 * Returns the output file formats.
 	 * 
-	 * @returns {object}
+	 * @returns {object.<string, FileType>}
 	 */
 	getOutputTypes() {
 		return this.data.output;
@@ -61,7 +64,7 @@ class FileTypes {
 	 * Returns null if no input file format was found for the given identifier.
 	 * 
 	 * @param {string} type - Case-insensitive file format identifier
-	 * @returns {?object}
+	 * @returns {?FileType}
 	 */
 	getInputType(type) {
 		return this._findType(type, 'input');
@@ -73,7 +76,7 @@ class FileTypes {
 	 * Returns null if no output file format was found for the given identifier.
 	 * 
 	 * @param {string} type - Case-insensitive file format identifier
-	 * @returns {?object}
+	 * @returns {?FileType}
 	 */
 	getOutputType(type) {
 		return this._findType(type, 'output');
@@ -84,7 +87,7 @@ class FileTypes {
 	 * 
 	 * @param {string} type - Identifier of the file type
 	 * @param {string} io - Either `input` or `output`
-	 * @returns {?object}
+	 * @returns {?FileType}
 	 * @protected
 	 */
 	_findType(type, io) {

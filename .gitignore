@@ -8,7 +8,6 @@ node_modules/
 /openeo.min.js
 /openeo.node.js
 /openeo.node.min.js
-types/
 
 # Reports
 coverage/

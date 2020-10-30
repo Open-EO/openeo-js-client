@@ -6,7 +6,7 @@ const Oidc = require('oidc-client');
  * The Authentication Provider for OpenID Connect.
  * 
  * See the openid-connect-popup.html and openid-connect-redirect.html files in
- * the examples folder for usage examples in the browser.
+ * the `/examples/oidc` folder for usage examples in the browser.
  * 
  * If you want to implement OIDC in a non-browser environment, you can override 
  * the OidcProvider or AuthProvider classes with custom behavior.
@@ -17,20 +17,6 @@ const Oidc = require('oidc-client');
  * @see Connection#setOidcProviderFactory
  */
 class OidcProvider extends AuthProvider {
-
-	/**
-	 * OpenID Connect Provider details as returned by the API.
-	 * 
-	 * @augments AuthProviderMeta
-	 * @typedef OidcProviderMeta
-	 * @type {object} 
-	 * @property {string} id Provider identifier.
-	 * @property {string} title Title for the authentication method.
-	 * @property {string} description Description for the authentication method.
-	 * @property {string} issuer The OpenID Connect issuer location (authority).
-	 * @property {string[]} scopes OpenID Connect Scopes
-	 * @property {object[]} links Links
-	 */
 
 	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
@@ -99,7 +85,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @param {string} client_id - Your client application's identifier as registered with the OIDC provider
 	 * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
-	 * @param {object} [options={}] - Object with authentication options.
+	 * @param {object.<string, *>} [options={}] - Object with authentication options.
 	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
@@ -134,7 +120,7 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Returns the OpenID Connect / OAuth scopes.
 	 * 
-	 * @returns {string[]}
+	 * @returns {Array.<string>}
 	 */
 	getScopes() {
 		return Array.isArray(this.scopes) && this.scopes.length > 0 ? this.scopes : ['openid'];

@@ -7,11 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1.0.0-rc.4/openeo.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1.0.0-rc.5/openeo.min.js"></script>
   <script type="text/javascript">
     const BACKEND = "https://example.openeo.org"; // TODO: Set the back-end to authenticate against
     const CLIENT_ID = ""; // TODO: Set the client id
-    const REDIRECT_URI = "http://localhost/openid-connect-redirect.html?signin="; // TODO: Set the redirect URI, should include ?signin= at the end so that the provider ID can be appended - doesn't work with file://
+    const REDIRECT_URI = "http://localhost/openid-connect-popup.html?signin"; // TODO: Set the redirect URI, should include ?signin - doesn't work with file://
+
+    // Set the UI method, here we open a popup
+    OidcProvider.setUiMethod("popup");
 
     var con;
     async function run() {
@@ -26,40 +29,18 @@
         var capabilities = con.capabilities();
         log("OpenID Connect available on Server: " + capabilities.hasFeature("authenticateOIDC"));
 
-        // Get the list of authentication providers
-        var providers = await con.listAuthProviders();
-
-        // Check whether the page is the redirect URI and has the "signin" parameter set (see REDIRECT_URI)
-        var urlParams = new URLSearchParams(window.location.search);
-        var providerId = urlParams.get('signin');
-        // If the signin parameter is given..
-        if (providerId) {
+        // Check whether the page is the redirect URI and contains "signin" (see REDIRECT_URI)
+        if (window.location.search.includes('signin')) {
           try {
-            // ... get the provider from the list of providers
-            var provider = providers.find(p => p.getId() === providerId);
-
             // Check whether the page contains the authentication information and make them available to the openEO client
-            await OidcProvider.signinCallback(provider);
-
-            // Check whether the user is now authenticated
-            if (con.isAuthenticated()) {
-              // Retrieve user information from server and display them
-              var user = await con.describeAccount();
-              log("<b>Authentication details</b>");
-              log("User ID: " + user.user_id);
-              if (user.name) {
-                log("User Name: " + user.name);
-              }
-            }
-            else {
-              log("Authentication failed / aborted.");
-            }
+            await OidcProvider.signinCallback();
           } catch (error) {
             console.log(error);
           }
         }
         else {
           // List authentication providers so that the user can select which to authenticate with
+          var providers = await con.listAuthProviders();
           // Only show OIDC providers here
           var oidcProviders = providers.filter(provider => provider instanceof OidcProvider);
           log("Select a provider to authenticate with: ");
@@ -78,8 +59,23 @@
         var providers = await con.listAuthProviders();
         var provider = providers.find(p => p.getId() === id);
 
-        // Start the login procedure (redirects to the identity provider by default)
-        await provider.login(CLIENT_ID, REDIRECT_URI + id);
+        // Start the login procedure (opens a popup as configured above)
+        // Then waits for the popup to be closed
+        await provider.login(CLIENT_ID, REDIRECT_URI);
+
+        // After the popup is closed, check whether the user is now authenticated
+        if (con.isAuthenticated()) {
+          // Retrieve user information from server and display them
+          var user = await con.describeAccount();
+          log("<b>Authentication details</b>");
+          log("User ID: " + user.user_id);
+          if (user.name) {
+            log("User Name: " + user.name);
+          }
+        }
+        else {
+          log("Authentication failed / aborted.");
+        }
       } catch (e) {
         log("Error: " + e.message);
       }

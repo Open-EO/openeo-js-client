@@ -28,7 +28,7 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise<object[]>}
+	 * @returns {Promise<Array.<Log>>}
 	 */
 	async nextLogs(limit = null) {
 		let response = await this.next(limit);
@@ -42,7 +42,7 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @returns {Promise<object>}
+	 * @returns {Promise<LogsAPI>}
 	 */
 	async next(limit = null) {
 		let query = {

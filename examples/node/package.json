@@ -1,0 +1,30 @@
+{
+  "name": "@openeo/js-client-example-node",
+  "version": "0.1.0",
+  "author": "openEO Consortium",
+  "contributors": [
+    {
+      "name": "Christoph Friedrich"
+    },
+    {
+      "name": "Matthias Mohr"
+    }
+  ],
+  "description": "Example showcasing the usage of the openEO JavaScript client in Node.js",
+  "license": "Apache-2.0",
+  "homepage": "http://openeo.org",
+  "bugs": {
+    "url": "https://github.com/Open-EO/openeo-js-client/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Open-EO/openeo-js-client.git"
+  },
+  "main": "discovery.js",
+  "dependencies": {
+    "@openeo/js-client": "1.0.0-rc.5"
+  },
+  "scripts": {
+    "start": "node discovery.js"
+  }
+}

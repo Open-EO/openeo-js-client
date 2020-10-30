@@ -43,7 +43,7 @@ class Job extends BaseEntity {
 		 * The process chain to be executed.
 		 * @public
 		 * @readonly
-		 * @type {object}
+		 * @type {Process}
 		 */
 		this.process = undefined;
 		/**
@@ -115,7 +115,7 @@ class Job extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {object} parameters - An object with properties to update, each of them is optional, but at least one of them must be specified. Additional properties can be set if the server supports them.
-	 * @param {object} parameters.process - A new process.
+	 * @param {Process} parameters.process - A new process.
 	 * @param {string} parameters.title - A new title.
 	 * @param {string} parameters.description - A new description.
 	 * @param {string} parameters.plan - A new plan.
@@ -147,7 +147,7 @@ class Job extends BaseEntity {
 	 * Calculate an estimate (potentially time/costs/volume) for a batch job.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A response compatible to the API specification.
+	 * @returns {Promise<JobEstimate>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async estimateJob() {
@@ -257,7 +257,7 @@ class Job extends BaseEntity {
 	 * Retrieves the STAC Item produced for the job results.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+	 * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
 	 * @throws {Error}
 	 */
 	async getResultsAsItem() {
@@ -280,7 +280,7 @@ class Job extends BaseEntity {
 	 * Retrieves download links.
 	 * 
 	 * @async
-	 * @returns {Promise<object>} A list of links (object with href, rel, title and type).
+	 * @returns {Promise<Array.<Link>>} A list of links (object with href, rel, title, type and roles).
 	 * @throws {Error}
 	 */
 	async listResults() {
@@ -289,7 +289,7 @@ class Job extends BaseEntity {
 			return Object.values(item.assets);
 		}
 		else {
-			return {};
+			return [];
 		}
 	}
 
@@ -300,7 +300,7 @@ class Job extends BaseEntity {
 	 * 
 	 * @async
 	 * @param {string} targetFolder - A target folder to store the file to, which must already exist.
-	 * @returns {Promise<string[]|void>} Depending on the environment: A list of file paths of the newly created files (Node), throws in Browsers.
+	 * @returns {Promise<Array.<string>|void>} Depending on the environment: A list of file paths of the newly created files (Node), throws in Browsers.
 	 * @throws {Error}
 	 */
 	async downloadResults(targetFolder) {
