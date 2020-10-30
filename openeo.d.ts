@@ -387,7 +387,7 @@ declare module OpenEO {
      * The Authentication Provider for OpenID Connect.
      *
      * See the openid-connect-popup.html and openid-connect-redirect.html files in
-     * the examples folder for usage examples in the browser.
+     * the `/examples/oidc` folder for usage examples in the browser.
      *
      * If you want to implement OIDC in a non-browser environment, you can override
      * the OidcProvider or AuthProvider classes with custom behavior.
