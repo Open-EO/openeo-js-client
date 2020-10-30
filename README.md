@@ -50,7 +50,10 @@ More information can be found in the [documentation](https://open-eo.github.io/o
 
 [![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
 
-Generate a build: `npm run build` (generates `openeo.js`, `openeo.min.js` and `openeo.d.ts`)
+Always make sure to adapt changes in the *.js files to the openeo.d.ts file.
+If changes are larger you may want to run `npm run tsd` and regenerate the declaration file and cherry-pick your changes from there.
+
+Generate a build: `npm run build` (generates `openeo.js` and `openeo.min.js`)
 
 Generate the documentation to the `docs/` folder: `npm run docs`
 
