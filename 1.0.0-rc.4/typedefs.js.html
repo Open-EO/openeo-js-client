@@ -27,6 +27,105 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
+ * An error.
+ * 
+ * @typedef ApiError
+ * @type {object}
+ * @property {string} id 
+ * @property {string} code 
+ * @property {string} message 
+ * @property {Array.&lt;Link>} links 
+ */
+
+/**
+ * Authentication Provider details.
+ * 
+ * @typedef AuthProviderMeta
+ * @type {object}
+ * @property {?string} id Provider identifier, may not be used for all authentication methods. 
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ */
+
+/**
+ * Response for a HTTP request.
+ * 
+ * @typedef AxiosResponse
+ * @type {object}
+ * @property {*} data
+ * @property {number} status
+ * @property {string} statusText
+ * @property {*} headers
+ * @property {object.&lt;string, *>} config
+ * @property {*} request
+ */
+
+/**
+ * @typedef BillingPlan
+ * @type {object}
+ * @property {string} name Name of the billing plan.
+ * @property {string} description A description of the billing plan, may include CommonMark syntax.
+ * @property {boolean} paid `true` if it is a paid plan, otherwise `false`.
+ * @property {string} url A URL pointing to a page describing the billing plan.
+ * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
+ */
+
+/**
+ * @typedef Collections
+ * @type {object}
+ * @property {Array.&lt;Collection>} collections
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * @typedef Collection
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef FileTypesAPI
+ * @type {object}
+ * @property {object.&lt;string, FileType>} input - File types supported to import
+ * @property {object.&lt;string, FileType>} output - File types supported to export
+ */
+
+/**
+ * @typedef FileType
+ * @type {object}
+ * @property {string} title
+ * @property {string} description
+ * @property {Array.&lt;string>} gis_data_types
+ * @property {object.&lt;string, *>} parameters
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromNode
+ * @type {object}
+ * @property {string} from_node - The node identifier.
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromParameter
+ * @type {object}
+ * @property {string} from_parameter - The name of the parameter.
+ */
+
+/**
+ * @typedef JobEstimate
+ * @type {object}
+ * @property {?number} costs
+ * @property {string} duration
+ * @property {number} size in bytes as integer
+ * @property {?number} downloads_included integer
+ * @property {string} expires
+ */
+
+/**
  * A link to another resource.
  * 
  * @typedef Link
@@ -38,21 +137,10 @@
  */
 
 /**
- * An openEO processing chain.
- * 
- * @typedef Process
- * @type {object.&lt;string, *>} 
- */
-
-/**
- * An error.
- * 
- * @typedef ApiError
+ * @typedef LogsAPI
  * @type {object}
- * @property {string} id 
- * @property {string} code 
- * @property {string} message 
- * @property {Array.&lt;Link>} links 
+ * @property {Array.&lt;Log>} logs
+ * @property {Array.&lt;Link>} links
  */
 
 /**
@@ -70,13 +158,66 @@
  */
 
 /**
- * Authentication Provider details.
+ * OpenID Connect Provider details as returned by the API.
  * 
- * @typedef AuthProviderMeta
+ * @augments AuthProviderMeta
+ * @typedef OidcProviderMeta
  * @type {object}
- * @property {?string} id Provider identifier, may not be used for all authentication methods. 
+ * @property {string} id Provider identifier.
  * @property {string} title Title for the authentication method.
  * @property {string} description Description for the authentication method.
+ * @property {string} issuer The OpenID Connect issuer location (authority).
+ * @property {Array.&lt;string>} scopes OpenID Connect Scopes
+ * @property {Array.&lt;Link>} links Links
+ */
+
+/**
+ * @typedef Processes
+ * @type {object}
+ * @property {Array.&lt;Process>} processes
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * An openEO processing chain.
+ * 
+ * @typedef Process
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef ServiceType
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef SyncResult
+ * @type {object}
+ * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+ * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+ * @property {Array.&lt;Log>} logs Array of log entries as specified in the API.
+ */
+
+/**
+ * @typedef UdfRuntime
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef UserAccountStorage
+ * @type {object}
+ * @property {number} free in bytes as integer
+ * @property {number} quota in bytes as integer
+ */
+
+/**
+ * @typedef UserAccount
+ * @type {object}
+ * @property {string} user_id
+ * @property {string} name
+ * @property {UserAccountStorage} storage
+ * @property {?number} budget
+ * @property {Array.&lt;Link>} links
  */</code></pre>
         </article>
     </section>
@@ -93,7 +234,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Oct 29 2020 15:49:57 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri Oct 30 2020 10:23:11 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
