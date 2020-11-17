@@ -623,6 +623,9 @@ class Connection {
 		});
 		let requestBody = this._normalizeUserProcess(process, additional);
 		let response = await this._post('/jobs', requestBody);
+		if (typeof response.headers['openeo-identifier'] !== 'string') {
+			throw new Error("Response did not contain a Job ID. Job has likely been created, but may not show up yet.");
+		}
 		let job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeJob')) {
 			return await job.describeJob();
@@ -686,6 +689,9 @@ class Connection {
 			budget: budget
 		}, additional));
 		let response = await this._post('/services', requestBody);
+		if (typeof response.headers['openeo-identifier'] !== 'string') {
+			throw new Error("Response did not contain a Service ID. Service has likely been created, but may not show up yet.");
+		}
 		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilitiesObject.hasFeature('describeService')) {
 			return service.describeService();

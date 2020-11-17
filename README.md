@@ -2,9 +2,11 @@
 
 JavaScript/TypeScript client for the openEO API.
 
-* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.5/).
+* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.0/).
 
-The version of this client is **1.0.0-rc.5** and supports **openEO API versions 1.0.x**. Legacy versions are available as releases.
+The version of this client is **1.0.0** and supports **openEO API versions 1.0.x**.
+Legacy versions are available as releases.
+See the [CHANGELOG](CHANGELOG.md) for recent changes.
 
 ## Usage
 
@@ -51,7 +53,7 @@ In Node.js:
 In Typescript:
 * [Basic Discovery (promises)](examples/typescript/discovery.ts)
 
-More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0-rc.5/).
+More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.0/).
 
 ## Development
 
