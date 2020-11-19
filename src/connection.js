@@ -821,7 +821,7 @@ class Connection {
 			method: 'get',
 			responseType: Environment.getResponseType(),
 			url: url,
-			withCredentials: authorize
+			authorization: authorize
 		});
 		return result.data;
 	}
@@ -846,8 +846,7 @@ class Connection {
 	 */
 	async _send(options) {
 		options.baseURL = this.baseUrl;
-		if (this.isAuthenticated() && (typeof options.withCredentials === 'undefined' || options.withCredentials === true)) {
-			options.withCredentials = true;
+		if (this.isAuthenticated() && (typeof options.authorization === 'undefined' || options.authorization === true)) {
 			if (!options.headers) {
 				options.headers = {};
 			}
