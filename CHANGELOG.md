@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2020-12-02
+
+### Changed
+- Make client more flexible to allow setting the client to use OIDC Authentication Code Flow with PKCE instead of Implicit Flow in the future
+
+### Fixed
+- Client doesn't throw errors on back-ends with version numbers >= 1.0.1
+
 ## [1.0.1] - 2020-11-19
 
 ### Fixed
@@ -21,5 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
 [Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...HEAD
+[1.0.2]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0-rc.5...v1.0.0
