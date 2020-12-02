@@ -26,7 +26,7 @@ const Parameter = require('./builder/parameter');
 const Formula = require('./builder/formula');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
-const MAX_API_VERSION = '1';
+const MAX_API_VERSION = '1.0.x';
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
