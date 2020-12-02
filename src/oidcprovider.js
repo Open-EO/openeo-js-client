@@ -2,6 +2,12 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
 
+//Oidc.Log.logger = console;
+
+const UserManagerOptions = {
+	response_type: 'token id_token'
+};
+
 /**
  * The Authentication Provider for OpenID Connect.
  * 
@@ -61,21 +67,18 @@ class OidcProvider extends AuthProvider {
 	 * @async
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
+	 * @param {object.<string, *>} [options={}] - Object with additional options.
 	 * @returns {Promise<Oidc.User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
 	 * @throws Error
+	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
-	static async signinCallback(provider = null) {
-		let oidc = new Oidc.UserManager({});
-		if (OidcProvider.uiMethod === 'popup') {
-			await oidc.signinPopupCallback();
+	static async signinCallback(provider = null, options = {}) {
+		let oidc = new Oidc.UserManager(Object.assign({}, UserManagerOptions, options));
+		let user = await oidc.signinCallback();
+		if (provider && user) {
+			provider.setUser(user);
 		}
-		else {
-			let user = await oidc.signinRedirectCallback();
-			if (provider) {
-				provider.setUser(user);
-			}
-			return user;
-		}
+		return user;
 	}
 
 	/**
@@ -105,9 +108,8 @@ class OidcProvider extends AuthProvider {
 			client_id: client_id,
 			redirect_uri: redirect_uri,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
-			response_type: 'token id_token',
 			scope: this.getScopes().join(' ')
-		}, options));
+		}, UserManagerOptions, options));
 
 		if (OidcProvider.uiMethod === 'popup') {
 			this.setUser(await this.manager.signinPopup());

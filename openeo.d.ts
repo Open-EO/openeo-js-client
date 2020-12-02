@@ -420,10 +420,12 @@ declare module OpenEO {
          * @async
          * @static
          * @param {OidcProvider} provider - A OIDC provider to assign the user to.
-         * @returns {Promise<User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified).
+         * @param {object.<string, *>} [options={}] - Object with additional options.
+         * @returns {Promise<User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
          * @throws Error
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          */
-        static signinCallback(provider?: OidcProvider): Promise<User>;
+        static signinCallback(provider?: OidcProvider, options?: any): Promise<User>;
         /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
