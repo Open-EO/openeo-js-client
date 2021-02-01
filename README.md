@@ -2,9 +2,9 @@
 
 JavaScript/TypeScript client for the openEO API.
 
-* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.2/).
+* [Documentation](https://open-eo.github.io/openeo-js-client/1.0.3/).
 
-The version of this client is **1.0.2** and supports **openEO API versions 1.x.x**.
+The version of this client is **1.0.3** and supports **openEO API versions 1.x.x**.
 Legacy versions are available as releases.
 See the [CHANGELOG](CHANGELOG.md) for recent changes.
 
@@ -18,9 +18,9 @@ An *experimental* Typescript declaration file is available so that you can use t
 
 To use it in a browser environment simply add the following code to your HTML file:
 ```html
-<script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.21/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
-<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@latest/openeo.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1/openeo.min.js"></script>
 ```
 
 ### NodeJS
@@ -53,7 +53,7 @@ In Node.js:
 In Typescript:
 * [Basic Discovery (promises)](examples/typescript/discovery.ts)
 
-More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.2/).
+More information can be found in the [documentation](https://open-eo.github.io/openeo-js-client/1.0.3/).
 
 ## Development
 
