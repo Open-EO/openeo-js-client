@@ -2,10 +2,9 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
 
-//Oidc.Log.logger = console;
-
 const UserManagerOptions = {
-	response_type: 'token id_token'
+	response_type: 'token id_token' // Implicit
+//	response_tyoe: 'core' // AuthCode w/ PKCE
 };
 
 /**

@@ -51,7 +51,7 @@
   "dependencies": {
     "@openeo/js-commons": "^1.2.0",
     "axios": "^0.21.1",
-    "oidc-client": "^1.10.1"
+    "oidc-client": "^1.11.3"
   },
   "scripts": {
     "docs": "jsdoc -r -d docs/ -P package.json -R README.md -c .jsdoc",
