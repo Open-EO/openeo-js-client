@@ -4,7 +4,7 @@ const Oidc = require('oidc-client');
 
 const UserManagerOptions = {
 	response_type: 'token id_token' // Implicit
-//	response_tyoe: 'core' // AuthCode w/ PKCE
+//	response_type: 'core' // AuthCode w/ PKCE
 };
 
 /**
