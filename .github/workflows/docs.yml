@@ -1,0 +1,22 @@
+name: JS Client Documentation
+on:
+  release:
+    types: [published]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: npm run docs
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/@openeo/js-client
+          keep_files: true
+          user_name: 'openEO CI'
+          user_email: openeo.ci@uni-muenster.de

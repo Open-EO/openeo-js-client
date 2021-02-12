@@ -57,7 +57,7 @@ More information can be found in the [documentation](https://open-eo.github.io/o
 
 ## Development
 
-[![Build Status](https://travis-ci.org/Open-EO/openeo-js-client.svg?branch=master)](https://travis-ci.org/Open-EO/openeo-js-client)
+![JS Client Tests](https://github.com/Open-EO/openeo-js-client/workflows/JS%20Client%20Tests/badge.svg)
 
 Always make sure to adapt changes in the *.js files to the openeo.d.ts file.
 If changes are larger you may want to run `npm run tsd` and regenerate the declaration file and cherry-pick your changes from there.

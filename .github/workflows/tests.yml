@@ -1,0 +1,17 @@
+name: JS Client Tests
+on: [push, pull_request]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run docs
+      - run: npm run test
+      - run: npm run test_node
