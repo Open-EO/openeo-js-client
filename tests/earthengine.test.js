@@ -497,15 +497,12 @@ describe('With earth-engine-driver', () => {
 				expect(finishedJob).not.toBeNull();
 			}, timeout * 5/6, 5000);
 
-			// Get STAC Item
-			var res = await job.getResultsAsItem();
+			// Get STAC
+			var res = await job.getResultsAsStac();
 			expect(res).not.toBeNull();
 			expect(res).toHaveProperty("stac_version");
-			expect(res).toHaveProperty("id");
-			expect(res).toHaveProperty("type");
-			expect(res).toHaveProperty("geometry");
-			expect(res).toHaveProperty("properties");
 			expect(res).toHaveProperty("assets");
+			expect(Utils.size(res)).toBeGreaterThan(0);
 			expect(res).toHaveProperty("links");
 
 			// Get links

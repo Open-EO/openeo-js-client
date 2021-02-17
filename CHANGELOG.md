@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added new method `getResultsAsStac` for Jobs, which includes support for STAC Collections returned by the API for batch job results.
+
+### Deprecated
+
+- Deprecated method `getResultsAsItem` in favor of `getResultsAsStac`.
+
 ### Fixed
 
 - TypeScript declaration for Links has been fixed

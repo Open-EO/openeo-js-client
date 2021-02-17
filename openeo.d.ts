@@ -835,8 +835,17 @@ declare module OpenEO {
          * @async
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
          * @throws {Error}
+         * @deprecated
          */
         getResultsAsItem(): Promise<any>;
+        /**
+         * Retrieves the STAC Item or Collection produced for the job results.
+         *
+         * @async
+         * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+         * @throws {Error}
+         */
+        getResultsAsStac(): Promise<any>;
         /**
          * Retrieves download links.
          *
