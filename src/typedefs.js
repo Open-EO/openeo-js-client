@@ -103,9 +103,10 @@
  * @typedef Link
  * @type {object}
  * @property {string} href The URL to the resource.
- * @property {string} rel Relation type
- * @property {string} type Media type
- * @property {string} title Human-readable title
+ * @property {?string} rel Relation type
+ * @property {?string} type Media type
+ * @property {?string} title Human-readable title
+ * @property {?Array.<string>} roles A list of roles, if link is originating from an asset.
  */
 
 /**

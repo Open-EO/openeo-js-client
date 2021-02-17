@@ -2266,15 +2266,19 @@ declare module OpenEO {
         /**
          * Relation type
          */
-        rel: string;
+        rel: string | null;
         /**
          * Media type
          */
-        type: string;
+        type: string | null;
         /**
          * Human-readable title
          */
-        title: string;
+        title: string | null;
+        /**
+         * A list of roles, if link is originating from an asset.
+         */
+        roles: Array<string> | null;
     };
     export type LogsAPI = {
         logs: Array<Log>;
