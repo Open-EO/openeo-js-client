@@ -138,6 +138,62 @@ class Connection {
 	}
 
 	/**
+	 * Loads items for a specific image collection.
+	 * May not be available for all collections.
+	 * 
+	 * This is an experimental API and is subject to change.
+	 * 
+	 * @async
+	 * @param {string} collectionId - Collection ID to request items for.
+	 * @param {?Array.<number>} spatialExtent - Limits the items to the given bounding box in WGS84:
+	 * 1. Lower left corner, coordinate axis 1
+	 * 2. Lower left corner, coordinate axis 2
+	 * 3. Upper right corner, coordinate axis 1
+	 * 4. Upper right corner, coordinate axis 2
+	 * @param {?Array.<*>} temporalExtent - Limits the items to the specified temporal interval.
+	 * The interval has to be specified as an array with exactly two elements (start, end) and
+	 * each must be either an RFC 3339 compatible string or a Date object.
+	 * Also supports open intervals by setting one of the boundaries to `null`, but never both.
+	 * @param {?number} limit - The amount of items per request/page as integer. If `null` (default), the back-end decides.
+	 * @yields {Promise<ItemCollection>} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async * listCollectionItems(collectionId, spatialExtent = null, temporalExtent = null, limit = null) {
+		let page = 1;
+		let nextUrl = '/collections/' + collectionId + '/items';
+		while(nextUrl) {
+			let params = {};
+			if (page === 1) {
+				if (Array.isArray(spatialExtent)) {
+					params.bbox = spatialExtent.join(',');
+				}
+				if (Array.isArray(temporalExtent)) {
+					params.datetime = temporalExtent
+						.map(e => {
+							if (e instanceof Date) {
+								return e.toISOString();
+							}
+							else if (typeof e === 'string') {
+								return e;
+							}
+							return '..'; // Open date range
+						})
+						.join('/');
+				}
+				if (limit > 0) {
+					params.limit = limit;
+				}
+			}
+
+			let response = await this._get(nextUrl, params);
+			yield response.data;
+
+			page++;
+			nextUrl = this._getLinkHref(response.data.links);
+		}
+	}
+
+	/**
 	 * List all processes available on the back-end.
 	 * 
 	 * Data is cached in memory.
@@ -712,6 +768,24 @@ class Connection {
 	async getService(id) {
 		let service = new Service(this, id);
 		return await service.describeService();
+	}
+
+	/**
+	 * Get the a link with the given rel type.
+	 * 
+	 * @param {Array.<Link>} links - An array of links.
+	 * @param {string} rel - Relation type to find, defaults to `next`.
+	 * @returns {?string}
+	 * @throws {Error}
+	 */
+	_getLinkHref(links, rel = 'next') {
+		if (Array.isArray(links)) {
+			let nextLink = links.find(link => Utils.isObject(link) && link.rel === rel && typeof link.href === 'string');
+			if (nextLink) {
+				return nextLink.href;
+			}
+		}
+		return null;
 	}
 
 	/**

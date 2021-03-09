@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added new method `listCollectionItems` for searching and retrieving Items from `GET /collections/{collectionId}/items`.
+
 ## [1.1.0] - 2021-02-18
 
 ### Added

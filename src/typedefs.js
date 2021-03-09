@@ -88,6 +88,21 @@
  */
 
 /**
+ * @typedef Item
+ * @type {object.<string, *>} 
+ */
+
+/**
+ * @typedef ItemCollection
+ * @type {object}
+ * @property {Array.<Item>} features - The items in the collection.
+ * @property {?Array.<Link>} links - Additional links, e.g. for pagination.
+ * @property {?string} timeStamp This property indicates the time and date when the response was generated.
+ * @property {?number} numberMatched The number (integer) of features of the feature type that match the selection parameters.
+ * @property {?number} numberReturned The number (integer) of features in the feature collection.
+ */
+
+/**
  * @typedef JobEstimate
  * @type {object}
  * @property {?number} costs

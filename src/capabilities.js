@@ -35,7 +35,7 @@ class Capabilities {
 		this.features = this.data.endpoints
 			// Flatten features to be compatible with the feature map.
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
-			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support gets better
+			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support for ECMAscript 10/2019 gets better
 
 		/**
 		 * @private
@@ -51,6 +51,7 @@ class Capabilities {
 			// Collections
 			listCollections: 'get /collections',
 			describeCollection: 'get /collections/{collection_id}',
+			listCollectionItems: 'get /collections/{collection_id}/items',
 			// Processes
 			listProcesses: 'get /processes',
 			describeProcess: 'get /processes',

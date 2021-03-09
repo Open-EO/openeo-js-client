@@ -1712,6 +1712,28 @@ declare module OpenEO {
          */
         describeCollection(collectionId: string): Promise<Collection>;
         /**
+         * Loads items for a specific image collection.
+         * May not be available for all collections.
+         *
+         * This is an experimental API and is subject to change.
+         *
+         * @async
+         * @param {string} collectionId - Collection ID to request items for.
+         * @param {?Array.<number>} spatialExtent - Limits the items to the given bounding box in WGS84:
+         * 1. Lower left corner, coordinate axis 1
+         * 2. Lower left corner, coordinate axis 2
+         * 3. Upper right corner, coordinate axis 1
+         * 4. Upper right corner, coordinate axis 2
+         * @param {?Array.<*>} temporalExtent - Limits the items to the specified temporal interval.
+         * The interval has to be specified as an array with exactly two elements (start, end) and
+         * each must be either an RFC 3339 compatible string or a Date object.
+         * Also supports open intervals by setting one of the boundaries to `null`, but never both.
+         * @param {?number} limit - The amount of items per request/page as integer. If `null` (default), the back-end decides.
+         * @yields {Promise<ItemCollection>} A response compatible to the API specification.
+         * @throws {Error}
+         */
+        listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: Array<any> | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
+        /**
          * List all processes available on the back-end.
          *
          * Data is cached in memory.
@@ -1841,7 +1863,7 @@ declare module OpenEO {
          * Updates the User ID if available.
          *
          * @async
-         * @returns {Promise<Account>} A response compatible to the API specification.
+         * @returns {Promise<UserAccount>} A response compatible to the API specification.
          * @throws {Error}
          */
         describeAccount(): Promise<UserAccount>;
@@ -2024,6 +2046,15 @@ declare module OpenEO {
          * @throws {Error}
          */
         getService(id: string): Promise<Service>;
+        /**
+         * Get the a link with the given rel type.
+         *
+         * @param {Array.<Link>} links - An array of links.
+         * @param {string} rel - Relation type to find, defaults to `next`.
+         * @returns {?string}
+         * @throws {Error}
+         */
+        _getLinkHref(links: Array<Link>, rel?: string): string | null;
         /**
          * Sends a GET request.
          *
@@ -2250,6 +2281,29 @@ declare module OpenEO {
          * - The name of the parameter.
          */
         from_parameter: string;
+    };
+    export type Item = any;
+    export type ItemCollection = {
+        /**
+         * - The items in the collection.
+         */
+        features: Array<Item>;
+        /**
+         * - Additional links, e.g. for pagination.
+         */
+        links: Array<Link> | null;
+        /**
+         * This property indicates the time and date when the response was generated.
+         */
+        timeStamp: string | null;
+        /**
+         * The number (integer) of features of the feature type that match the selection parameters.
+         */
+        numberMatched: number | null;
+        /**
+         * The number (integer) of features in the feature collection.
+         */
+        numberReturned: number | null;
     };
     export type JobEstimate = {
         costs: number | null;
