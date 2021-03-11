@@ -7,7 +7,7 @@ var timeout = 2*60*1000;
 jest.setTimeout(timeout); // Give Google some time to process data
 
 describe('With earth-engine-driver', () => {
-	const { TESTBACKEND } = require('./config.js');
+	const { TESTBACKEND, STAC_MIGRATE_VERSION } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
 	const TESTUSERNAME = 'group5';
 	const TESTPASSWORD = 'test123';
@@ -183,8 +183,8 @@ describe('With earth-engine-driver', () => {
 
 		test('Collections in detail', async () => {
 			var coll = await con.describeCollection(TESTCOLLECTION.id);
-			expect(coll.stac_version).toBe(TESTCOLLECTION.stac_version);
-			expect(coll.stac_extensions).toEqual(TESTCOLLECTION.stac_extensions);
+			expect(coll.stac_version).toBe(STAC_MIGRATE_VERSION);
+			expect(coll.stac_extensions).toEqual([]);
 			expect(coll.id).toBe(TESTCOLLECTION.id);
 			expect(coll).toHaveProperty('description');
 			expect(coll.license).toBe(TESTCOLLECTION.license);
@@ -500,7 +500,7 @@ describe('With earth-engine-driver', () => {
 			// Get STAC
 			var res = await job.getResultsAsStac();
 			expect(res).not.toBeNull();
-			expect(res).toHaveProperty("stac_version");
+			expect(res.stac_version).toBe(STAC_MIGRATE_VERSION);
 			expect(res).toHaveProperty("assets");
 			expect(Utils.size(res)).toBeGreaterThan(0);
 			expect(res).toHaveProperty("links");

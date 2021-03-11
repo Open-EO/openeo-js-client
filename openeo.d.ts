@@ -831,6 +831,8 @@ declare module OpenEO {
         stopJob(): Promise<Job>;
         /**
          * Retrieves the STAC Item produced for the job results.
+         * 
+         * The Item returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
          *
          * @async
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
@@ -840,6 +842,8 @@ declare module OpenEO {
         getResultsAsItem(): Promise<any>;
         /**
          * Retrieves the STAC Item or Collection produced for the job results.
+         * 
+         * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
          *
          * @async
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
@@ -1696,6 +1700,8 @@ declare module OpenEO {
         listUdfRuntimes(): Promise<any>;
         /**
          * List all collections available on the back-end.
+         * 
+         * The collections returned always comply to the latest STAC version (currently 1.0.0-rc.1).
          *
          * @async
          * @returns {Promise<Collections>} A response compatible to the API specification.
@@ -1704,6 +1710,8 @@ declare module OpenEO {
         listCollections(): Promise<Collections>;
         /**
          * Get further information about a single collection.
+         * 
+         * The collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
          *
          * @async
          * @param {string} collectionId - Collection ID to request further metadata for.
@@ -1714,6 +1722,8 @@ declare module OpenEO {
         /**
          * Loads items for a specific image collection.
          * May not be available for all collections.
+         * 
+         * The items returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
          *
          * This is an experimental API and is subject to change.
          *

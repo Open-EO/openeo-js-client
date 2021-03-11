@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added new method `listCollectionItems` for searching and retrieving Items from `GET /collections/{collectionId}/items`.
 
+### Changed
+
+- Methods returning STAC (e.g. `listCollections`, `describeCollection`, `getResultAsStac`, `listCollectionItems`) always return the data compliant to the latest STAC version (currently 1.0.0-rc.1).
+
 ## [1.1.0] - 2021-02-18
 
 ### Added

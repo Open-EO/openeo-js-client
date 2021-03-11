@@ -2,6 +2,7 @@ const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
 const Utils = require('@openeo/js-commons/src/utils');
+const StacMigrate = require('@radiantearth/stac-migrate');
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
 
@@ -256,6 +257,8 @@ class Job extends BaseEntity {
 	/**
 	 * Retrieves the STAC Item produced for the job results.
 	 * 
+	 * The Item returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+	 * 
 	 * @async
 	 * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
 	 * @throws {Error}
@@ -282,12 +285,14 @@ class Job extends BaseEntity {
 					item.properties.datetime = temp[0] || temp[1];
 				}
 			}
-			return item;
+			return StacMigrate.item(item);
 		}
 	}
 
 	/**
 	 * Retrieves the STAC Item or Collection produced for the job results.
+	 * 
+	 * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
 	 * 
 	 * @async
 	 * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
@@ -295,14 +300,11 @@ class Job extends BaseEntity {
 	 */
 	async getResultsAsStac() {
 		let response = await this.connection._get('/jobs/' + this.id + '/results');
-		let data = response.data;
+		let data = StacMigrate.stac(response.data);
 		if (!Utils.isObject(data.assets)) {
 			data.assets = {};
 		}
 		if (data.type === 'Feature') { // Item
-			if (!Utils.isObject(data.properties)) {
-				data.properties = {};
-			}
 			if (typeof response.headers['openeo-costs'] === 'number') {
 				data.properties.costs = response.headers['openeo-costs'];
 			}
