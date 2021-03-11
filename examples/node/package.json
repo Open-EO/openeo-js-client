@@ -22,7 +22,7 @@
   },
   "main": "discovery.js",
   "dependencies": {
-    "@openeo/js-client": "^1.1.0"
+    "@openeo/js-client": "^1.2.0"
   },
   "scripts": {
     "start": "node discovery.js"
