@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The process builder supports implicitly using `array_create` to wrap an array returned from a callback.
+
 ## [1.2.0] - 2021-03-11
 
 ### Added

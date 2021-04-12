@@ -1525,6 +1525,7 @@ declare module OpenEO {
          */
         constructor(processes: Array<Process> | Processes, parent?: Builder | null, id?: string);
         /**
+         * List of all process specifications.
          * @type {Array.<Process>}
          */
         processes: Array<Process>;
@@ -1553,6 +1554,13 @@ declare module OpenEO {
          * @type {string}
          */
         public id: string;
+        /**
+         * Adds a process specification to the builder so that it can be used to create a process graph.
+         *
+         * @param {Process} process - Process specification compliant to openEO API
+         * @throws {Error}
+         */
+        addProcessSpec(process: Process): void;
         /**
          * Sets the parent for this Builder.
          *
@@ -1602,6 +1610,13 @@ declare module OpenEO {
          * @see Formula
          */
         math(formula: string): BuilderNode;
+        /**
+         * Checks whether a process with the given id is supported by the back-end.
+         *
+         * @param {string} processId - The id of the process to call.
+         * @returns {boolean}
+         */
+        supports(processId: string): boolean;
         /**
          * Adds another process call to the process chain.
          *
