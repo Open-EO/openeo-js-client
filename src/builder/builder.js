@@ -104,19 +104,11 @@ class Builder {
 	 * @param {string} id - A unique identifier for the process.
 	 */
 	constructor(processes, parent = null, id = undefined) {
-		if (Array.isArray(processes)) {
-			/**
-			 * @type {Array.<Process>}
-			 */
-			this.processes = processes;
-		}
-		else if (Utils.isObject(processes) && Array.isArray(processes.processes)) {
-			this.processes = processes.processes;
-		}
-		else {
-			throw new Error("Processes are invalid; must be array or object according to API.");
-		}
-
+		/**
+		 * List of all process specifications.
+		 * @type {Array.<Process>}
+		 */
+		this.processes = [];
 		/**
 		 * The parent builder.
 		 * @type {?Builder}
@@ -145,25 +137,51 @@ class Builder {
 		 */
 		this.id = id;
 
-		for(let process of this.processes) {
-			if (typeof this[process.id] === 'undefined') {
-				/**
-				 * Implicitly calls the process with the given name on the back-end by adding it to the process.
-				 * 
-				 * This is a shortcut for {@link Builder#process}.
-				 * 
-				 * @param {...*} args - The arguments for the process.
-				 * @returns {BuilderNode}
-				 * @see Builder#process
-				 */
-				this[process.id] = function(...args) {
-					// Don't use arrow functions, they don't support the arguments keyword.
-					return this.process(process.id, args);
-				};
+		if (Utils.isObject(processes) && Array.isArray(processes.processes)) {
+			processes = processes.processes;
+		}
+		if (Array.isArray(processes)) {
+			for(let process of processes) {
+				try {
+					this.addProcessSpec(process);
+				} catch (error) {
+					console.warn(error);
+				}
 			}
-			else {
-				console.warn("Can't create function for process '" + process.id + "'. Already exists in Builder class.");
-			}
+		}
+		else {
+			throw new Error("Processes are invalid; must be array or object according to the API.");
+		}
+	}
+
+	/**
+	 * Adds a process specification to the builder so that it can be used to create a process graph.
+	 * 
+	 * @param {Process} process - Process specification compliant to openEO API
+	 * @throws {Error}
+	 */
+	addProcessSpec(process) {
+		if (!Utils.isObject(process)) {
+			throw new Error("Process '" + process.id + "' must be an object.");
+		}
+		if (typeof this[process.id] === 'undefined') {
+			this.processes.push(process);
+			/**
+			 * Implicitly calls the process with the given name on the back-end by adding it to the process.
+			 * 
+			 * This is a shortcut for {@link Builder#process}.
+			 * 
+			 * @param {...*} args - The arguments for the process.
+			 * @returns {BuilderNode}
+			 * @see Builder#process
+			 */
+			this[process.id] = function(...args) {
+				// Don't use arrow functions, they don't support the arguments keyword.
+				return this.process(process.id, args);
+			};
+		}
+		else {
+			throw new Error("Can't create function for process '" + process.id + "'. Already exists in Builder class.");
 		}
 	}
 
