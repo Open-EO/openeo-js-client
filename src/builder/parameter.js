@@ -58,7 +58,7 @@ class Parameter {
 							let args = {
 								data: parameter
 							};
-							if ((typeof name === 'string' && name.match(/^(0|[1-9]\d*)$/))) {
+							if (typeof name === 'string' && name.match(/^(0|[1-9]\d*)$/)) {
 								args.index = parseInt(name, 10);
 							}
 							else {
