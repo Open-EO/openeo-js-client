@@ -2,11 +2,6 @@ const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Oidc = require('oidc-client');
 
-const UserManagerOptions = {
-	response_type: 'token id_token' // Implicit
-//	response_type: 'core' // AuthCode w/ PKCE
-};
-
 /**
  * The Authentication Provider for OpenID Connect.
  * 
@@ -31,9 +26,11 @@ class OidcProvider extends AuthProvider {
 	 */
 	constructor(connection, options) {
 		super("oidc", connection, options);
+		this.grant = options.grant || 'implicit';
 		this.issuer = options.issuer;
 		this.scopes = options.scopes;
 		this.links = options.links;
+		this.defaultClients = Array.isArray(options.default_clients) ? options.default_clients : [];
 		this.manager = null;
 		this.user = null;
 	}
@@ -59,6 +56,26 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
+	 * Get the response_type based on the grant type.
+	 * 
+	 * @static
+	 * @param {?string} [grant={}] - Grant Type
+	 * @returns {string}
+	 * @throws {Error}
+	 */
+	static getResponseType(grant) {
+		switch(grant) {
+			case 'authorization_code+pkce':
+				return 'code';
+			case 'refresh_token':
+			case 'urn:ietf:params:oauth:grant-type:device_code+pkce':
+				throw new Error('Grant Type not supported');
+			default: // = implicit
+				return 'token id_token';
+		}
+	}
+
+	/**
 	 * Finishes the OpenID Connect sign in (authentication) workflow.
 	 * 
 	 * Must be called in the page that OpenID Connect redirects to after logging in.
@@ -72,7 +89,7 @@ class OidcProvider extends AuthProvider {
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
 	static async signinCallback(provider = null, options = {}) {
-		let oidc = new Oidc.UserManager(Object.assign({}, UserManagerOptions, options));
+		let oidc = new Oidc.UserManager(options);
 		let user = await oidc.signinCallback();
 		if (provider && user) {
 			provider.setUser(user);
@@ -107,8 +124,9 @@ class OidcProvider extends AuthProvider {
 			client_id: client_id,
 			redirect_uri: redirect_uri,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
-			scope: this.getScopes().join(' ')
-		}, UserManagerOptions, options));
+			scope: this.getScopes().join(' '),
+			response_type: OidcProvider.getResponseType(options.grant)
+		}, options));
 
 		if (OidcProvider.uiMethod === 'popup') {
 			this.setUser(await this.manager.signinPopup());
@@ -143,6 +161,21 @@ class OidcProvider extends AuthProvider {
 	 */
 	getUser() {
 		return this.user;
+	}
+
+	/**
+	 * Returns the default OIDC client ID for the grant and redirect URL given.
+	 * 
+	 * @param {string} grant - Grant Type
+	 * @param {string} redirectUrl - Redirect URL
+	 * @returns {?string}
+	 */
+	getDefaultClientId(grant, redirectUrl) {
+		let clients = this.defaultClients.filter(client => Boolean(client.grant_types.includes(grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(redirectUrl))));
+		if (clients.length > 0) {
+			return clients[0].id;
+		}
+		return null;
 	}
 
 	/**
