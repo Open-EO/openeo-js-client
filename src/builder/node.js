@@ -202,8 +202,11 @@ class BuilderNode {
 		let params = builder.getParentCallbackParameters();
 		// Bind builder to this, so that this.xxx can be used for processes
 		let node = arg.bind(builder)(...params);
-		if (builder.supports('array_create') && Array.isArray(node)) {
+		if (Array.isArray(node) && builder.supports('array_create')) {
 			node = builder.array_create(node);
+		}
+		else if (!Utils.isObject(node) && builder.supports('constant')) {
+			node = builder.constant(node);
 		}
 		if (node instanceof BuilderNode) {
 			node.result = true;

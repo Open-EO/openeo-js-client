@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Custom process specifications can be added to the process builder after first initialization.
-- The process builder supports implicitly wrapping an array returned from a callback using `array_create` process.
+- The process builder supports implicitly wrapping:
+  - an array returned from a callback using the `array_create` process.
+  - non-objects (e.g. numbers) returned from a callback using the `constant` process.
 
 ## [1.2.0] - 2021-03-11
 
