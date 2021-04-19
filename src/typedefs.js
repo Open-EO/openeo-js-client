@@ -146,6 +146,16 @@
  */
 
 /**
+ * Default OpenID Connect Client as returned by the API.
+ * 
+ * @typedef OidcClient
+ * @type {object}
+ * @property {string} id Client ID
+ * @property {Array.<string>} grant_types Supported Grant Types
+ * @property {Array.<string>} redirect_urls Allowed Redirect URLs
+ */
+
+/**
  * OpenID Connect Provider details as returned by the API.
  * 
  * @augments AuthProviderMeta
@@ -156,6 +166,7 @@
  * @property {string} description Description for the authentication method.
  * @property {string} issuer The OpenID Connect issuer location (authority).
  * @property {Array.<string>} scopes OpenID Connect Scopes
+ * @property {Array.<OidcClient>} default_clients Default OpenID Connect Clients
  * @property {Array.<Link>} links Links
  */
 

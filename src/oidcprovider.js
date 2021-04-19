@@ -26,13 +26,13 @@ class OidcProvider extends AuthProvider {
 	 */
 	constructor(connection, options) {
 		super("oidc", connection, options);
-		this.grant = options.grant || 'implicit';
 		this.issuer = options.issuer;
 		this.scopes = options.scopes;
 		this.links = options.links;
 		this.defaultClients = Array.isArray(options.default_clients) ? options.default_clients : [];
 		this.manager = null;
 		this.user = null;
+		this.setGrant();
 	}
 
 	/**
@@ -59,7 +59,7 @@ class OidcProvider extends AuthProvider {
 	 * Get the response_type based on the grant type.
 	 * 
 	 * @static
-	 * @param {?string} [grant={}] - Grant Type
+	 * @param {string} grant - Grant Type
 	 * @returns {string}
 	 * @throws {Error}
 	 */
@@ -102,30 +102,30 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * Supported only in Browser environments.
 	 * 
-	 * @param {string} client_id - Your client application's identifier as registered with the OIDC provider
-	 * @param {string} redirect_uri - The redirect URI of your client application to receive a response from the OIDC provider.
+	 * @param {string} clientId - Your client application's identifier as registered with the OIDC provider
+	 * @param {string} redirectUrl - The redirect URI of your client application to receive a response from the OIDC provider.
 	 * @param {object.<string, *>} [options={}] - Object with authentication options.
 	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
-	async login(client_id, redirect_uri, options = {}) {
+	async login(clientId, redirectUrl, options = {}) {
 		if (!this.issuer || typeof this.issuer !== 'string') {
 			throw new Error("No Issuer URL available for OpenID Connect");
 		}
-		else if (!client_id || typeof client_id !== 'string') {
+		else if (!clientId || typeof clientId !== 'string') {
 			throw new Error("No Client ID specified for OpenID Connect");
 		}
-		else if (!redirect_uri || typeof redirect_uri !== 'string') {
+		else if (!redirectUrl || typeof redirectUrl !== 'string') {
 			throw new Error("No Redirect URI specified for OpenID Connect");
 		}
 
 		this.manager = new Oidc.UserManager(Object.assign({
-			client_id: client_id,
-			redirect_uri: redirect_uri,
+			client_id: clientId,
+			redirect_uri: redirectUrl,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
 			scope: this.getScopes().join(' '),
-			response_type: OidcProvider.getResponseType(options.grant)
+			response_type: OidcProvider.getResponseType(this.grant)
 		}, options));
 
 		if (OidcProvider.uiMethod === 'popup') {
@@ -134,6 +134,35 @@ class OidcProvider extends AuthProvider {
 		else {
 			await this.manager.signinRedirect();
 		}
+	}
+
+	/**
+	 * Sets the grant type (flow) used for OIDC authentication.
+	 * 
+	 * Supported grant types: `authorization_code+pkce`, `implicit` (default).
+	 * 
+	 * @param {string} [grant=implicit] - Grant Type
+	 * @throws {Error}
+	 * @todo In 2.0 the default should be replaced with `authorization_code+pkce`
+	 */
+	setGrant(grant = 'implicit') { // 
+		switch(grant) {
+			case 'authorization_code+pkce':
+			case 'implicit':
+				this.grant = grant;
+				break;
+			default:
+				throw new Error('Grant Type not supported');
+		}
+	}
+
+	/**
+	 * Returns the grant type (flow) used for OIDC authentication.
+	 * 
+	 * @returns {string}
+	 */
+	getGrant() {
+		return this.grant;
 	}
 
 	/**
@@ -164,14 +193,13 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
-	 * Returns the default OIDC client ID for the grant and redirect URL given.
+	 * Returns the default OIDC client ID for the configured grant type and given redirect URL.
 	 * 
-	 * @param {string} grant - Grant Type
 	 * @param {string} redirectUrl - Redirect URL
 	 * @returns {?string}
 	 */
-	getDefaultClientId(grant, redirectUrl) {
-		let clients = this.defaultClients.filter(client => Boolean(client.grant_types.includes(grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(redirectUrl))));
+	getDefaultClientId(redirectUrl) {
+		let clients = this.defaultClients.filter(client => Boolean(client.grant_types.includes(this.grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(redirectUrl))));
 		if (clients.length > 0) {
 			return clients[0].id;
 		}

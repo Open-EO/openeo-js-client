@@ -413,6 +413,15 @@ declare module OpenEO {
          */
         static setUiMethod(method: string): void;
         /**
+         * Get the response_type based on the grant type.
+         *
+         * @static
+         * @param {string} grant - Grant Type
+         * @returns {string}
+         * @throws {Error}
+         */
+        static getResponseType(grant: string): string;
+        /**
          * Finishes the OpenID Connect sign in (authentication) workflow.
          *
          * Must be called in the page that OpenID Connect redirects to after logging in.
@@ -436,8 +445,26 @@ declare module OpenEO {
         issuer: string;
         scopes: string[];
         links: Link[];
+        defaultClients: OidcClient[];
         manager: UserManager;
         user: User;
+        /**
+         * Sets the grant type (flow) used for OIDC authentication.
+         *
+         * Supported grant types: `authorization_code+pkce`, `implicit` (default).
+         *
+         * @param {string} [grant=implicit] - Grant Type
+         * @throws {Error}
+         * @todo In 2.0 the default should be replaced with `authorization_code+pkce`
+         */
+        setGrant(grant?: string): void;
+        grant: "authorization_code+pkce" | "implicit";
+        /**
+         * Returns the grant type (flow) used for OIDC authentication.
+         *
+         * @returns {string}
+         */
+        getGrant(): string;
         /**
          * Returns the OpenID Connect / OAuth scopes.
          *
@@ -456,6 +483,13 @@ declare module OpenEO {
          * @returns {User}
          */
         getUser(): User;
+        /**
+         * Returns the default OIDC client ID for the configured grant type and given redirect URL.
+         *
+         * @param {string} redirectUrl - Redirect URL
+         * @returns {?string}
+         */
+        getDefaultClientId(redirectUrl: string): string | null;
         /**
          * Sets the OIDC User.
          *
@@ -831,8 +865,8 @@ declare module OpenEO {
         stopJob(): Promise<Job>;
         /**
          * Retrieves the STAC Item produced for the job results.
-         * 
-         * The Item returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+         *
+         * The Item returned always complies to the latest STAC version (currently 1.0.0-rc.1).
          *
          * @async
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
@@ -842,8 +876,8 @@ declare module OpenEO {
         getResultsAsItem(): Promise<any>;
         /**
          * Retrieves the STAC Item or Collection produced for the job results.
-         * 
-         * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+         *
+         * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0-rc.1).
          *
          * @async
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
@@ -1708,7 +1742,7 @@ declare module OpenEO {
         listUdfRuntimes(): Promise<any>;
         /**
          * List all collections available on the back-end.
-         * 
+         *
          * The collections returned always comply to the latest STAC version (currently 1.0.0-rc.1).
          *
          * @async
@@ -1718,8 +1752,8 @@ declare module OpenEO {
         listCollections(): Promise<Collections>;
         /**
          * Get further information about a single collection.
-         * 
-         * The collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+         *
+         * The collection returned always complies to the latest STAC version (currently 1.0.0-rc.1).
          *
          * @async
          * @param {string} collectionId - Collection ID to request further metadata for.
@@ -1730,8 +1764,8 @@ declare module OpenEO {
         /**
          * Loads items for a specific image collection.
          * May not be available for all collections.
-         * 
-         * The items returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
+         *
+         * The items returned always comply to the latest STAC version (currently 1.0.0-rc.1).
          *
          * This is an experimental API and is subject to change.
          *
@@ -2376,6 +2410,23 @@ declare module OpenEO {
         data: any;
         path: Array<any>;
         links: Array<Link>;
+    };
+    /**
+     * Default OpenID Connect Client as returned by the API.
+     */
+    export type OidcClient = {
+        /**
+         * Client ID
+         */
+        id: string;
+        /**
+         * Supported Grant Types
+         */
+        grant_types: Array<string>;
+        /**
+         * Allowed Redirect URLs
+         */
+        redirect_urls: Array<string>;
     };
     /**
      * OpenID Connect Provider details as returned by the API.
