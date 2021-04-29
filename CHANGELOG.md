@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - an array returned from a callback using the `array_create` process.
   - non-objects (e.g. numbers) returned from a callback using the `constant` process.
 
+### Fixed
+
+- Arrow functions can be used as callbacks in process graph building.
+
 ## [1.2.0] - 2021-03-11
 
 ### Added
