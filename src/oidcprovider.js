@@ -15,6 +15,7 @@ const Oidc = require('oidc-client');
  * 
  * @augments AuthProvider
  * @see Connection#setOidcProviderFactory
+ * @todo Default grant is "implicit" in JS Client 1.0, change to "authorization_code+pkce" in 2.0.
  */
 class OidcProvider extends AuthProvider {
 
@@ -30,9 +31,9 @@ class OidcProvider extends AuthProvider {
 		this.scopes = options.scopes;
 		this.links = options.links;
 		this.defaultClients = Array.isArray(options.default_clients) ? options.default_clients : [];
+		this.grant = "implicit"; // Default grant is "implicit" in JS Client 1.0, change to "authorization_code+pkce" in 2.0.
 		this.manager = null;
 		this.user = null;
-		this.setGrant();
 	}
 
 	/**
@@ -67,12 +68,23 @@ class OidcProvider extends AuthProvider {
 		switch(grant) {
 			case 'authorization_code+pkce':
 				return 'code';
-			case 'refresh_token':
-			case 'urn:ietf:params:oauth:grant-type:device_code+pkce':
-				throw new Error('Grant Type not supported');
-			default: // = implicit
+			case 'implicit':
 				return 'token id_token';
+			default:
+				throw new Error('Grant Type not supported');
 		}
+	}
+	
+	/**
+	 * Globally sets the supported OpenID Connect grants (flows) to use.
+	 * 
+	 * Lists them by priority so that the first grant is the default grant.
+	 * 
+	 * @static
+	 * @param {Array.<string>} grants - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
+	 */
+	static setSupportedGrants(grants) {
+		OidcProvider.grants = grants;
 	}
 
 	/**
@@ -85,7 +97,7 @@ class OidcProvider extends AuthProvider {
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
 	 * @param {object.<string, *>} [options={}] - Object with additional options.
 	 * @returns {Promise<Oidc.User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
-	 * @throws Error
+	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
 	static async signinCallback(provider = null, options = {}) {
@@ -139,13 +151,10 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Sets the grant type (flow) used for OIDC authentication.
 	 * 
-	 * Supported grant types: `authorization_code+pkce`, `implicit` (default).
-	 * 
-	 * @param {string} [grant=implicit] - Grant Type
+	 * @param {string} grant - Grant Type
 	 * @throws {Error}
-	 * @todo In 2.0 the default should be replaced with `authorization_code+pkce`
 	 */
-	setGrant(grant = 'implicit') { // 
+	setGrant(grant) { // 
 		switch(grant) {
 			case 'authorization_code+pkce':
 			case 'implicit':
@@ -193,16 +202,23 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
-	 * Returns the default OIDC client ID for the configured grant type and given redirect URL.
+	 * Detects the default OIDC client ID for the given redirect URL.
+	 * 
+	 * Sets the grant accordingly.
 	 * 
 	 * @param {string} redirectUrl - Redirect URL
 	 * @returns {?string}
+	 * @see OidcProvider#setGrant
 	 */
-	getDefaultClientId(redirectUrl) {
-		let clients = this.defaultClients.filter(client => Boolean(client.grant_types.includes(this.grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(redirectUrl))));
-		if (clients.length > 0) {
-			return clients[0].id;
+	detectDefaultClient(redirectUrl) {
+		for(let grant of OidcProvider.grants) {
+			let defaultClient = this.defaultClients.find(client => Boolean(client.grant_types.includes(grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(redirectUrl))));
+			if (defaultClient) {
+				this.setGrant(grant);
+				return defaultClient.id;
+			}
 		}
+
 		return null;
 	}
 
@@ -242,6 +258,13 @@ class OidcProvider extends AuthProvider {
 	}
 
 }
+
 OidcProvider.uiMethod = 'redirect';
+
+// Default grant is "implicit" in JS Client 1.0, change to "authorization_code+pkce" in 2.0 by moving it up in the list.
+OidcProvider.grants = [
+	'implicit',
+	'authorization_code+pkce'
+];
 
 module.exports = OidcProvider;

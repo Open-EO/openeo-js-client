@@ -396,6 +396,7 @@ declare module OpenEO {
      *
      * @augments AuthProvider
      * @see Connection#setOidcProviderFactory
+     * @todo Default grant is "implicit" in JS Client 1.0, change to "authorization_code+pkce" in 2.0.
      */
     export class OidcProvider extends AuthProvider {
         /**
@@ -422,6 +423,15 @@ declare module OpenEO {
          */
         static getResponseType(grant: string): string;
         /**
+         * Globally sets the supported OpenID Connect grants (flows) to use.
+         *
+         * Lists them by priority so that the first grant is the default grant.
+         *
+         * @static
+         * @param {Array.<string>} grants - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
+         */
+        static setSupportedGrants(grants: Array<string>): void;
+        /**
          * Finishes the OpenID Connect sign in (authentication) workflow.
          *
          * Must be called in the page that OpenID Connect redirects to after logging in.
@@ -431,7 +441,7 @@ declare module OpenEO {
          * @param {OidcProvider} provider - A OIDC provider to assign the user to.
          * @param {object.<string, *>} [options={}] - Object with additional options.
          * @returns {Promise<User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
-         * @throws Error
+         * @throws {Error}
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          */
         static signinCallback(provider?: OidcProvider, options?: any): Promise<User>;
@@ -446,19 +456,16 @@ declare module OpenEO {
         scopes: string[];
         links: Link[];
         defaultClients: OidcClient[];
+        grant: string;
         manager: UserManager;
         user: User;
         /**
          * Sets the grant type (flow) used for OIDC authentication.
          *
-         * Supported grant types: `authorization_code+pkce`, `implicit` (default).
-         *
-         * @param {string} [grant=implicit] - Grant Type
+         * @param {string} grant - Grant Type
          * @throws {Error}
-         * @todo In 2.0 the default should be replaced with `authorization_code+pkce`
          */
-        setGrant(grant?: string): void;
-        grant: "authorization_code+pkce" | "implicit";
+        setGrant(grant: string): void;
         /**
          * Returns the grant type (flow) used for OIDC authentication.
          *
@@ -484,12 +491,15 @@ declare module OpenEO {
          */
         getUser(): User;
         /**
-         * Returns the default OIDC client ID for the configured grant type and given redirect URL.
+         * Detects the default OIDC client ID for the given redirect URL.
+         *
+         * Sets the grant accordingly.
          *
          * @param {string} redirectUrl - Redirect URL
          * @returns {?string}
+         * @see OidcProvider#setGrant
          */
-        getDefaultClientId(redirectUrl: string): string | null;
+        detectDefaultClient(redirectUrl: string): string | null;
         /**
          * Sets the OIDC User.
          *
@@ -500,6 +510,7 @@ declare module OpenEO {
     }
     export namespace OidcProvider {
         const uiMethod: string;
+        const grants: string[];
     }
     /**
      * Manages the files types supported by the back-end.
