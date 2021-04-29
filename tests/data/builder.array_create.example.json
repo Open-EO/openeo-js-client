@@ -1,0 +1,47 @@
+{
+	"process_graph": {
+		"loadco1": {
+			"process_id": "load_collection",
+			"arguments": {
+				"id": "EXAMPLE",
+				"spatial_extent": null,
+				"temporal_extent": null
+			}
+		},
+		"applyd1": {
+			"process_id": "apply_dimension",
+			"arguments": {
+				"data": {
+					"from_node": "loadco1"
+				},
+				"process": {
+					"process_graph": {
+						"arraye1": {
+							"process_id": "array_element",
+							"arguments": {
+								"data": {
+									"from_parameter": "data"
+								},
+								"index": 0
+							}
+						},
+						"arrayc1": {
+							"process_id": "array_create",
+							"arguments": {
+								"data": [
+									{
+										"from_node": "arraye1"
+									},
+									1
+								]
+							},
+							"result": true
+						}
+					}
+				},
+				"dimension": "bands"
+			},
+			"result": true
+		}
+	}
+}

@@ -308,6 +308,16 @@ class Builder {
 	}
 
 	/**
+	 * Checks whether a process with the given id is supported by the back-end.
+	 * 
+	 * @param {string} processId - The id of the process to call.
+	 * @returns {boolean}
+	 */
+	supports(processId) {
+		return Utils.isObject(this.spec(processId));
+	}
+
+	/**
 	 * Adds another process call to the process chain.
 	 * 
 	 * @param {string} processId - The id of the process to call.
