@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: node.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: node.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs');
+const url = require("url");
+const path = require("path");
+const Stream = require('stream');
+
+/**
+ * Platform dependant utilities for the openEO JS Client.
+ * 
+ * Node.js implementation, don't use in other environments.
+ * 
+ * @hideconstructor
+ */
+class Environment {
+
+	/**
+	 * Returns the name of the Environment, here `Node`.
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
+	static getName() {
+		return 'Node';
+	}
+
+	/**
+	 * Handles errors from the API that are returned as Streams.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {Stream.Readable} error 
+	 * @returns {Promise&lt;void>}
+	 */
+	static handleErrorResponse(error) {
+		return new Promise((_, reject) => {
+			let chunks = [];
+			error.response.data.on("data", chunk => chunks.push(chunk));
+			error.response.data.on("error", streamError => reject(streamError));
+			error.response.data.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
+		});
+	}
+
+	/**
+	 * Returns how binary responses from the servers are returned (`stream` or `blob`).
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
+	static getResponseType() {
+		return 'stream';
+	}
+
+	/**
+	 * Encodes a string into Base64 encoding.
+	 * 
+	 * @static
+	 * @param {string|Buffer} str - String to encode.
+	 * @returns {string} String encoded in Base64.
+	 */
+	static base64encode(str) {
+		let buffer;
+		if (str instanceof Buffer) {
+			buffer = str;
+		} else {
+			buffer = Buffer.from(str.toString(), 'binary');
+		}
+		return buffer.toString('base64');
+	}
+
+	/**
+	 * Detect the file name for the given data source.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {string} source - A path to a file as string.
+	 * @returns {string}
+	 */
+	static fileNameForUpload(source) {
+		return path.basename(source);
+	}
+
+	/**
+	 * Get the data from the source that should be uploaded.
+	 * 
+	 * @ignore
+	 * @static
+	 * @param {string} source - A path to a file as string.
+	 * @returns {Stream.Readable}
+	 */
+	static dataForUpload(source) {
+		return fs.createReadStream(source);
+	}
+
+	/**
+	 * Downloads files to local storage and returns a list of file paths.
+	 * 
+	 * @static
+	 * @param {Connection} con 
+	 * @param {Array.&lt;object.&lt;string, *>>} assets 
+	 * @param {string} targetFolder 
+	 * @returns {Promise&lt;Array.&lt;string>>}
+	 * @throws {Error}
+	 */
+	static async downloadResults(con, assets, targetFolder) {
+		let files = [];
+		const promises = assets.map(async (link) => {
+			let parsedUrl = url.parse(link.href);
+			let targetPath = path.join(targetFolder, path.basename(parsedUrl.pathname));
+			let data = await con.download(link.href, false);
+			if (data instanceof Stream.Readable) {
+				await Environment.saveToFile(data, targetPath);
+				files.push(targetPath);
+			}
+			else {
+				throw new Error("Data retrieved is not a Stream");
+			}
+		});
+
+		await Promise.all(promises);
+		return files;
+	}
+
+	/**
+	 * Streams data into a file.
+	 *
+	 * @static
+	 * @async
+	 * @param {Stream.Readable} data - Data stream to read from.
+	 * @param {string} filename - File path to store the data at.
+	 * @returns {Promise&lt;void>}
+	 * @throws {Error}
+	 */
+	static saveToFile(data, filename) {
+		return new Promise((resolve, reject) => {
+			let writeStream = fs.createWriteStream(filename);
+			writeStream.on('close', (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+			data.pipe(writeStream);
+		});
+	}
+}
+
+module.exports = Environment;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 29 2021 18:27:35 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
