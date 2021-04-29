@@ -4,10 +4,11 @@ describe('Process Graph Builder (S1)', () => {
 	const { Builder, Formula } = require('../src/openeo');
 	const expectedProcess = require('./data/builder.s1.example.json');
 
-	test('S1 with callback', async () => build(false));
+	test('S1 with callback (function)', async () => build(false));
+	test('S1 with callback (arrow function)', async () => build(false, true));
 	test('S1 with Formula', async () => build(true));
 
-	async function build(useFormula) {
+	async function build(useFormula, useArrow = false) {
 		// Create builder
 		var builder = await Builder.fromVersion('1.0.0');	
 		expect(builder instanceof Builder).toBeTruthy();
@@ -48,6 +49,9 @@ describe('Process Graph Builder (S1)', () => {
 		let scale;
 		if (useFormula) {
 			scale = new Formula("linear_scale_range(x, -20, -5, 0, 255)");
+		}
+		else if (useArrow) {
+			scale = (x, c, b) => b.linear_scale_range(x, -20, -5, 0, 255);
 		}
 		else {
 			scale = function(x) {

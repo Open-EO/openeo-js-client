@@ -1486,6 +1486,24 @@ declare module OpenEO {
      *
      * var storedProcess = await con.setUserProcess("evi", datacube);
      * ```
+     * 
+     * As you can see above, the builder in callback functions is available as `this`.
+     * Arrow functions do not support rebinding this and therefore the builder is passed as the last argument.
+     * 
+     * So a normal function can be defined as follows:
+     * ```
+     * let callback = function(data) {
+     *   return this.mean(data);
+     * }
+     * ```
+     * 
+     * An arrow function on the other hand has to use the builder that is passed as the last parameter:
+     * ```
+     * let callback = (data, c, builder) => builder.mean(data);
+     * ```
+     * 
+     * Using arrow functions is available only since JS client version 1.3.0.
+     * Beforehand it was not possible to use arrow functions in this context.
      */
     export class Builder {
         /**
