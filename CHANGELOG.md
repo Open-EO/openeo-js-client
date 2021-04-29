@@ -6,12 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-04-29
+
 ### Added
 
 - Custom process specifications can be added to the process builder after first initialization.
 - The process builder supports implicitly wrapping:
   - an array returned from a callback using the `array_create` process.
   - non-objects (e.g. numbers) returned from a callback using the `constant` process.
+- Support for "Default OpenID Connect Clients" (detecting default client IDs).
 
 ### Fixed
 
@@ -71,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.3...v1.1.0
 [1.0.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.2...v1.0.3
