@@ -235,10 +235,7 @@ class Connection {
 	async describeProcess(processId) {
 		let response = await this.listProcesses();
 		if (Array.isArray(response.processes)) {
-			let processes = response.processes.filter(process => process.id === processId);
-			if (processes.length > 0) {
-				return processes[0];
-			}
+			return response.processes.find(process => Utils.isObject(process) && process.id === processId) || null;
 		}
 		return null;
 	}
