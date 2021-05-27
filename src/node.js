@@ -31,11 +31,11 @@ class Environment {
 	 * @returns {Promise<void>}
 	 */
 	static handleErrorResponse(error) {
-		return new Promise((_, reject) => {
+		return new Promise((resolve, reject) => {
 			let chunks = [];
 			error.response.data.on("data", chunk => chunks.push(chunk));
 			error.response.data.on("error", streamError => reject(streamError));
-			error.response.data.on("end", () => reject(JSON.parse(Buffer.concat(chunks).toString())));
+			error.response.data.on("end", () => resolve(JSON.parse(Buffer.concat(chunks).toString())));
 		});
 	}
 

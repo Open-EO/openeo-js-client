@@ -943,14 +943,31 @@ class Connection {
 		try {
 			return await axios(options);
 		} catch(error) {
-			if (Utils.isObject(error.response) && Utils.isObject(error.response.data) && ((typeof error.response.data.type === 'string' && error.response.data.type.indexOf('/json') !== -1) || (Utils.isObject(error.response.data.headers) && typeof error.response.data.headers['content-type'] === 'string' && error.response.data.headers['content-type'].indexOf('/json') !== -1))) {
+			const checkContentType = type => (typeof type === 'string' && type.indexOf('/json') !== -1);
+			const enrichError = (origin, response) => {
+				if (typeof response.message === 'string') {
+					origin.message = response.message;
+				}
+				origin.code = typeof response.code === 'string' ? response.code : "";
+				origin.id = response.id;
+				origin.links = Array.isArray(response.links) ? response.links : [];
+				return origin;
+			};
+			if (Utils.isObject(error.response) && Utils.isObject(error.response.data) && (checkContentType(error.response.data.type) || (Utils.isObject(error.response.headers) && checkContentType(error.response.headers['content-type'])))) {
+				// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
+				// See: https://github.com/axios/axios/issues/815
 				if (options.responseType === Environment.getResponseType()) {
-					// JSON error responses are Blobs and streams if responseType is set as such, so convert to JSON if required.
-					// See: https://github.com/axios/axios/issues/815
-					return Environment.handleErrorResponse(error);
+					try {
+						let errorResponse = await Environment.handleErrorResponse(error);
+						throw enrichError(error, errorResponse);
+					} catch (error2) {
+						console.error(error2);
+					}
+				}
+				else {
+					throw enrichError(error, error.response.data);
 				}
 			}
-			// Re-throw error if it was not handled yet.
 			throw error;
 		}
 	}

@@ -26,7 +26,7 @@ class Environment {
 	 * @returns {Promise<void>}
 	 */
 	static handleErrorResponse(error) {
-		return new Promise((_, reject) => {
+		return new Promise((resolve, reject) => {
 			let fileReader = new FileReader();
 			fileReader.onerror = event => {
 				fileReader.abort();
@@ -36,7 +36,7 @@ class Environment {
 				// ArrayBuffer to String conversion is from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
 				let res = fileReader.result instanceof ArrayBuffer ? String.fromCharCode.apply(null, new Uint16Array(fileReader.result)) : fileReader.result;
 				let obj = typeof res === 'string' ? JSON.parse(res) : res;
-				reject(obj);
+				resolve(obj);
 			};
 			fileReader.readAsText(error.response.data);
 		});
