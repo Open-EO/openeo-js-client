@@ -39,28 +39,31 @@ class OidcProvider extends AuthProvider {
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
 	 * @param {object.<string, *>} [options={}] - Object with additional options.
-	 * @returns {Promise<Oidc.User>} For uiMethod = 'redirect' only: OIDC User 
+	 * @returns {Promise<?Oidc.User>} For uiMethod = 'redirect' only: OIDC User 
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
 	static async signinCallback(provider = null, options = {}) {
-		let providerOptions;
-		if (provider) {
-			providerOptions = provider.getOptions(options);
+		let url = window.location.toString();
+		if (!provider) {
+			// No provider options available, try to detect response mode from URL
+			provider = new OidcProvider(null, {});
+			provider.setGrant(url.includes('?') ? 'authorization_code+pkce' : 'implicit');
+		}
+		let providerOptions = provider.getOptions(options);
+		console.log(providerOptions);
+		let oidc = new Oidc.UserManager(providerOptions);
+		if (OidcProvider.uiMethod === 'popup') {
+			await oidc.signinPopupCallback(url);
+			return null;
 		}
 		else {
-			// No provider options available, try to detect response mode from URL
-			providerOptions = Object.assign({
-				response_type: window.location.toString().includes('?') ? 'code' : 'token id_token'
-//				response_mode: window.location.toString().includes('?') ? 'query' : 'fragment'
-			}, options);
+			let user = await oidc.signinRedirectCallback(url);
+			if (provider) {
+				provider.setUser(user);
+			}
+			return user;
 		}
-		let oidc = new Oidc.UserManager(Object.assign(providerOptions, options));
-		let user = await oidc.signinCallback();
-		if (provider && user) {
-			provider.setUser(user);
-		}
-		return user;
 	}
 
 	/**
@@ -102,7 +105,7 @@ class OidcProvider extends AuthProvider {
 		 * 
 		 * @type {string}
 		 */
-		this.issuer = options.issuer;
+		this.issuer = options.issuer || "";
 
 		/**
 		 * The scopes to be requested.
@@ -168,7 +171,14 @@ class OidcProvider extends AuthProvider {
 	async logout() {
 		if (this.manager !== null) {
 			try {
-				await this.manager.signoutRedirect();
+				if (OidcProvider.uiMethod === 'popup') {
+					await this.manager.signoutPopup();
+				}
+				else {
+					await this.manager.signoutRedirect({
+						popup_redirect_uri: window.location.toString()
+					});
+				}
 			} catch (error) {
 				console.warn(error);
 			}
@@ -188,12 +198,14 @@ class OidcProvider extends AuthProvider {
 	 * @returns {object.<string, *>}
 	 */
 	getOptions(options = {}) {
+		let response_type = this.getResponseType();
 		return Object.assign({
 			client_id: this.clientId,
 			redirect_uri: OidcProvider.redirectUrl,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
 			scope: this.scopes.join(' '),
-			response_type: this.getResponseType()
+			response_type,
+			response_mode: response_type.includes('code') ? 'query' : 'fragment'
 		}, options);
 	}
 
