@@ -51,19 +51,12 @@ class OidcProvider extends AuthProvider {
 			provider.setGrant(url.includes('?') ? 'authorization_code+pkce' : 'implicit');
 		}
 		let providerOptions = provider.getOptions(options);
-		console.log(providerOptions);
 		let oidc = new Oidc.UserManager(providerOptions);
-		if (OidcProvider.uiMethod === 'popup') {
-			await oidc.signinPopupCallback(url);
-			return null;
+		let user = await oidc.signinCallback(url);
+		if (provider && user) {
+			provider.setUser(user);
 		}
-		else {
-			let user = await oidc.signinRedirectCallback(url);
-			if (provider) {
-				provider.setUser(user);
-			}
-			return user;
-		}
+		return user;
 	}
 
 	/**
@@ -112,7 +105,7 @@ class OidcProvider extends AuthProvider {
 		 * 
 		 * @type {Array.<string>}
 		 */
-		this.scopes = Array.isArray(options.scopes) && options.scopes.length > 0 ? options.scopes.concat(['openid']) : ['openid'];
+		this.scopes = Array.isArray(options.scopes) && options.scopes.length > 0 ? options.scopes : ['openid'];
 
 		/**
 		 * Any additional links.
@@ -138,6 +131,31 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
+	 * Adds a listener to one of the following events:
+	 * 
+	 * - AccessTokenExpiring: Raised prior to the access token expiring.
+	 * - accessTokenExpired: Raised after the access token has expired.
+	 * - silentRenewError: Raised when the automatic silent renew has failed.
+	 * 
+	 * @param {string} event 
+	 * @param {function} callback
+	 */
+	addListener(event, callback) {
+		this.manager.events[`add${event}`](callback);
+	}
+
+	/**
+	 * Removes a listener that has been set with addListener.
+	 * 
+	 * @param {string} event 
+	 * @param {function} callback 
+     * @see OidcProvider#addListener
+	 */
+	removeListener(event, callback) {
+		this.manager.events[`remove${event}`](callback);
+	}
+
+	/**
 	 * Authenticate with OpenID Connect (OIDC).
 	 * 
 	 * Supported only in Browser environments.
@@ -153,8 +171,6 @@ class OidcProvider extends AuthProvider {
 		}
 
 		this.manager = new Oidc.UserManager(this.getOptions(options));
-
-		console.log(this.getOptions(options));
 		if (OidcProvider.uiMethod === 'popup') {
 			this.setUser(await this.manager.signinPopup());
 		}
@@ -204,6 +220,7 @@ class OidcProvider extends AuthProvider {
 			redirect_uri: OidcProvider.redirectUrl,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
 			scope: this.scopes.join(' '),
+			validateSubOnSilentRenew: true,
 			response_type,
 			response_mode: response_type.includes('code') ? 'query' : 'fragment'
 		}, options);
