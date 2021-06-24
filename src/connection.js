@@ -45,6 +45,7 @@ class Connection {
 		 */
 		this.capabilitiesObject = null;
 		this.processes = null;
+		this.listeners = {};
 	}
 
 	/**
@@ -371,6 +372,43 @@ class Connection {
 	}
 
 	/**
+	 * Emits the given event.
+	 * 
+	 * @protected
+	 * @param {string} event 
+	 * @param {object} args 
+	 */
+	emit(event, ...args) {
+		if (typeof this.listeners[event] === 'function') {
+			this.listeners[event](...args);
+		}
+	}
+
+	/**
+	 * Registers a listener with the given event.
+	 * 
+	 * Currently supported:
+	 * - authProviderChanged(provider)
+	 * - tokenChanged(token)
+	 * 
+	 * @param {string} event 
+	 * @param {function} callback 
+	 */
+	on(event, callback) {
+		this.listeners[event] = callback;
+	}
+
+	/**
+	 * Removes a listener from the given event.
+	 * 
+	 * @param {string} event 
+	 * @param {function} callback 
+	 */
+	off(event) {
+		delete this.listeners[event];
+	}
+
+	/**
 	 * Returns the AuthProvider.
 	 * 
 	 * @returns {?AuthProvider} 
@@ -382,18 +420,19 @@ class Connection {
 	/**
 	 * Sets the AuthProvider.
 	 * 
-	 * The provider must have a token set.
-	 * 
-	 * @param {AuthProvider} provider 
-	 * @throws {Error}
+	 * @param {AuthProvider} provider
 	 */
 	setAuthProvider(provider) {
-		if (provider instanceof AuthProvider && provider.getToken() !== null) {
+		if (provider === this.authProvider) {
+			return;
+		}
+		if (provider instanceof AuthProvider) {
 			this.authProvider = provider;
 		}
 		else {
-			throw new Error("Invalid auth provider given or no token set.");
+			this.authProvider = null;
 		}
+		this.emit('authProviderChanged', this.authProvider);
 	}
 
 	/**
@@ -411,13 +450,14 @@ class Connection {
 	 * @returns {AuthProvider}
 	 */
 	setAuthToken(type, providerId, token) {
-		this.authProvider = new AuthProvider(type, this, {
+		let provider = new AuthProvider(type, this, {
 			id: providerId,
 			title: "Custom",
 			description: ""
 		});
-		this.authProvider.setToken(token);
-		return this.authProvider;
+		provider.setToken(token);
+		this.setAuthProvider(provider);
+		return provider;
 	}
 
 	/**

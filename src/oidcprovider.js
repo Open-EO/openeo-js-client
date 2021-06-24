@@ -39,7 +39,7 @@ class OidcProvider extends AuthProvider {
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
 	 * @param {object.<string, *>} [options={}] - Object with additional options.
-	 * @returns {Promise<?Oidc.User>} For uiMethod = 'redirect' only: OIDC User 
+	 * @returns {Promise<?Oidc.User>} For uiMethod = 'redirect' only: OIDC User
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
@@ -52,11 +52,7 @@ class OidcProvider extends AuthProvider {
 		}
 		let providerOptions = provider.getOptions(options);
 		let oidc = new Oidc.UserManager(providerOptions);
-		let user = await oidc.signinCallback(url);
-		if (provider && user) {
-			provider.setUser(user);
-		}
-		return user;
+		return await oidc.signinCallback(url);
 	}
 
 	/**
@@ -69,6 +65,7 @@ class OidcProvider extends AuthProvider {
 		super("oidc", connection, options);
 
 		this.manager = null;
+		this.listeners = {};
 
 		/**
 		 * The authenticated OIDC user.
@@ -139,20 +136,23 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @param {string} event 
 	 * @param {function} callback
+	 * @param {string} [scope="default"]
 	 */
-	addListener(event, callback) {
+	addListener(event, callback, scope = 'default') {
 		this.manager.events[`add${event}`](callback);
+		this.listeners[`${scope}:${event}`] = callback;
 	}
 
 	/**
-	 * Removes a listener that has been set with addListener.
+	 * Removes the listener for the given event that has been set with addListener.
 	 * 
 	 * @param {string} event 
-	 * @param {function} callback 
+	 * @param {string} [scope="default"]
      * @see OidcProvider#addListener
 	 */
-	removeListener(event, callback) {
-		this.manager.events[`remove${event}`](callback);
+	removeListener(event, scope = 'default') {
+		this.manager.events[`remove${event}`](this.listeners[event]);
+		delete this.listeners[`${scope}:${event}`];
 	}
 
 	/**
@@ -171,8 +171,10 @@ class OidcProvider extends AuthProvider {
 		}
 
 		this.manager = new Oidc.UserManager(this.getOptions(options));
+		this.addListener('UserLoaded', async () => this.setUser(await this.manager.getUser()), 'js-client');
+		this.addListener('AccessTokenExpired', () => this.setUser(null), 'js-client');
 		if (OidcProvider.uiMethod === 'popup') {
-			this.setUser(await this.manager.signinPopup());
+			await this.manager.signinPopup();
 		}
 		else {
 			await this.manager.signinRedirect();
@@ -199,6 +201,8 @@ class OidcProvider extends AuthProvider {
 				console.warn(error);
 			}
 			super.logout();
+			this.removeListener('UserLoaded', 'js-client');
+			this.removeListener('AccessTokenExpired', 'js-client');
 			this.manager = null;
 			this.setUser(null);
 		}
@@ -276,7 +280,7 @@ class OidcProvider extends AuthProvider {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {Oidc.User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
+	 * @param {Oidc.User} user - The OIDC User. Passing `null` resets OIDC authentication details.
 	 */
 	setUser(user) {
 		if (!user) {
