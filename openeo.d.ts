@@ -396,7 +396,6 @@ declare module OpenEO {
      *
      * @augments AuthProvider
      * @see Connection#setOidcProviderFactory
-     * @todo Default grant is "implicit" in JS Client 1.0, change to "authorization_code+pkce" in 2.0.
      */
     export class OidcProvider extends AuthProvider {
         /**
@@ -407,44 +406,21 @@ declare module OpenEO {
          */
         static isSupported(): boolean;
         /**
-         * Globally sets the UI method (redirect, popup) to use for OIDC authentication.
-         *
-         * @static
-         * @param {string} method - Method how to load and show the authentication process. Either `popup` (opens a popup window) or `redirect` (HTTP redirects, default).
-         */
-        static setUiMethod(method: string): void;
-        /**
-         * Get the response_type based on the grant type.
-         *
-         * @static
-         * @param {string} grant - Grant Type
-         * @returns {string}
-         * @throws {Error}
-         */
-        static getResponseType(grant: string): string;
-        /**
-         * Globally sets the supported OpenID Connect grants (flows) to use.
-         *
-         * Lists them by priority so that the first grant is the default grant.
-         *
-         * @static
-         * @param {Array.<string>} grants - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
-         */
-        static setSupportedGrants(grants: Array<string>): void;
-        /**
          * Finishes the OpenID Connect sign in (authentication) workflow.
          *
          * Must be called in the page that OpenID Connect redirects to after logging in.
+         *
+         * Supported only in Browser environments.
          *
          * @async
          * @static
          * @param {OidcProvider} provider - A OIDC provider to assign the user to.
          * @param {object.<string, *>} [options={}] - Object with additional options.
-         * @returns {Promise<User>} For uiMethod = 'redirect' only: OIDC User (to be assigned to the Connection via setUser if no provider has been specified). 
+         * @returns {Promise<?User>} For uiMethod = 'redirect' only: OIDC User
          * @throws {Error}
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          */
-        static signinCallback(provider?: OidcProvider, options?: any): Promise<User>;
+        static signinCallback(provider?: OidcProvider, options?: any): Promise<User | null>;
         /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
@@ -452,13 +428,97 @@ declare module OpenEO {
          * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
          */
         constructor(connection: Connection, options: OidcProviderMeta);
-        issuer: string;
-        scopes: string[];
-        links: Link[];
-        defaultClients: OidcClient[];
-        grant: string;
         manager: UserManager;
-        user: User;
+        listeners: {};
+        /**
+         * The authenticated OIDC user.
+         *
+         * @type {User}
+         */
+        user: Oidc.User;
+        /**
+         * The client ID to use for authentication.
+         *
+         * @type {?string}
+         */
+        clientId: string | null;
+        /**
+         * The grant type (flow) to use for this provider.
+         *
+         * Either "authorization_code+pkce" (default) or "implicit"
+         *
+         * @type {string}
+         */
+        grant: string;
+        /**
+         * The issuer, i.e. the link to the identity provider.
+         *
+         * @type {string}
+         */
+        issuer: string;
+        /**
+         * The scopes to be requested.
+         *
+         * @type {Array.<string>}
+         */
+        scopes: Array<string>;
+        /**
+         * Any additional links.
+         *
+         *
+         * @type {Array.<Link>}
+         */
+        links: Array<Link>;
+        /**
+         * The default clients made available by the back-end.
+         *
+         * @type {Array.<OidcClient>}
+         */
+        defaultClients: Array<OidcClient>;
+        /**
+         * The detected default Client.
+         *
+         * @type {OidcClient}
+         */
+        defaultClient: OidcClient;
+        /**
+         * Adds a listener to one of the following events:
+         *
+         * - AccessTokenExpiring: Raised prior to the access token expiring.
+         * - accessTokenExpired: Raised after the access token has expired.
+         * - silentRenewError: Raised when the automatic silent renew has failed.
+         *
+         * @param {string} event
+         * @param {Function} callback
+         * @param {string} [scope="default"]
+         */
+        addListener(event: string, callback: Function, scope?: string): void;
+        /**
+         * Removes the listener for the given event that has been set with addListener.
+         *
+         * @param {string} event
+         * @param {string} [scope="default"]
+         * @see OidcProvider#addListener
+         */
+        removeListener(event: string, scope?: string): void;
+        /**
+         * Returns the options for the OIDC client library.
+         *
+         * Options can be overridden by custom options via the options parameter.
+         *
+         * @protected
+         * @param {object.<string, *>} options
+         * @returns {object.<string, *>}
+         */
+        protected getOptions(options?: any): any;
+        /**
+         * Get the response_type based on the grant type.
+         *
+         * @protected
+         * @returns {string}
+         * @throws {Error}
+         */
+        protected getResponseType(): string;
         /**
          * Sets the grant type (flow) used for OIDC authentication.
          *
@@ -467,50 +527,35 @@ declare module OpenEO {
          */
         setGrant(grant: string): void;
         /**
-         * Returns the grant type (flow) used for OIDC authentication.
+         * Sets the Client ID for OIDC authentication.
          *
-         * @returns {string}
+         * This may override a detected default client ID.
+         *
+         * @param {?string} clientId
          */
-        getGrant(): string;
-        /**
-         * Returns the OpenID Connect / OAuth scopes.
-         *
-         * @returns {Array.<string>}
-         */
-        getScopes(): Array<string>;
-        /**
-         * Returns the OpenID Connect / OAuth issuer.
-         *
-         * @returns {string}
-         */
-        getIssuer(): string;
-        /**
-         * Returns the OpenID Connect user instance retrieved from the OIDC client library.
-         *
-         * @returns {User}
-         */
-        getUser(): User;
-        /**
-         * Detects the default OIDC client ID for the given redirect URL.
-         *
-         * Sets the grant accordingly.
-         *
-         * @param {string} redirectUrl - Redirect URL
-         * @returns {?string}
-         * @see OidcProvider#setGrant
-         */
-        detectDefaultClient(redirectUrl: string): string | null;
+        setClientId(clientId: string | null): void;
         /**
          * Sets the OIDC User.
          *
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-         * @param {User} user - The OIDC User returned by OidcProvider.signinCallback(). Passing `null` resets OIDC authentication details.
+         * @param {?User} user - The OIDC User. Passing `null` resets OIDC authentication details.
          */
-        setUser(user: User): void;
+        setUser(user: User | null): void;
+        /**
+         * Detects the default OIDC client ID for the given redirect URL.
+         *
+         * Sets the grant and client ID accordingly.
+         *
+         * @returns {?OidcClient}
+         * @see OidcProvider#setGrant
+         * @see OidcProvider#setClientId
+         */
+        detectDefaultClient(): OidcClient | null;
     }
     export namespace OidcProvider {
         const uiMethod: string;
-        const grants: string[];
+        const redirectUrl: string;
+        const grants: Array<string>;
     }
     /**
      * Manages the files types supported by the back-end.
@@ -1531,22 +1576,22 @@ declare module OpenEO {
      *
      * var storedProcess = await con.setUserProcess("evi", datacube);
      * ```
-     * 
+     *
      * As you can see above, the builder in callback functions is available as `this`.
      * Arrow functions do not support rebinding this and therefore the builder is passed as the last argument.
-     * 
+     *
      * So a normal function can be defined as follows:
      * ```
      * let callback = function(data) {
      *   return this.mean(data);
      * }
      * ```
-     * 
+     *
      * An arrow function on the other hand has to use the builder that is passed as the last parameter:
      * ```
      * let callback = (data, c, builder) => builder.mean(data);
      * ```
-     * 
+     *
      * Using arrow functions is available only since JS client version 1.3.0.
      * Beforehand it was not possible to use arrow functions in this context.
      */
@@ -1733,6 +1778,7 @@ declare module OpenEO {
          */
         capabilitiesObject: Capabilities | null;
         processes: any;
+        listeners: {};
         /**
          * Initializes the connection by requesting the capabilities.
          *
@@ -1916,6 +1962,31 @@ declare module OpenEO {
          */
         isAuthenticated(): boolean;
         /**
+         * Emits the given event.
+         *
+         * @protected
+         * @param {string} event
+         * @param {...*} args
+         */
+        protected emit(event: string, ...args: any[]): void;
+        /**
+         * Registers a listener with the given event.
+         *
+         * Currently supported:
+         * - authProviderChanged(provider): Raised when the auth provider has changed.
+         * - tokenChanged(token): Raised when the access token has changed.
+         *
+         * @param {string} event
+         * @param {Function} callback
+         */
+        on(event: string, callback: Function): void;
+        /**
+         * Removes a listener from the given event.
+         *
+         * @param {string} event
+         */
+        off(event: string): void;
+        /**
          * Returns the AuthProvider.
          *
          * @returns {?AuthProvider}
@@ -1924,10 +1995,7 @@ declare module OpenEO {
         /**
          * Sets the AuthProvider.
          *
-         * The provider must have a token set.
-         *
          * @param {AuthProvider} provider
-         * @throws {Error}
          */
         setAuthProvider(provider: AuthProvider): void;
         /**
@@ -2488,6 +2556,10 @@ declare module OpenEO {
          * OpenID Connect Scopes
          */
         scopes: Array<string>;
+        /**
+         * Default OpenID Connect Clients
+         */
+        default_clients: Array<OidcClient>;
         /**
          * Links
          */

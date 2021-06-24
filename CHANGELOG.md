@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default grant type for OpenID Connect is "AuthCode w/ PKCE" instead of "Implicit".
 - Support for OpenID Connect session renewal via refresh tokens.
 
+### Removed
+
+- `OidcProvider`: Methods `getGrant`, `getScopes`, `getIssuer` and `getUser` removed. Use the properties `grant`, `scopes`, `issuer` and `user` instead.
+
 ## [1.3.2] - 2021-05-27
 
 ### Fixed

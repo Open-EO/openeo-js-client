@@ -280,7 +280,7 @@ class OidcProvider extends AuthProvider {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {Oidc.User} user - The OIDC User. Passing `null` resets OIDC authentication details.
+	 * @param {?Oidc.User} user - The OIDC User. Passing `null` resets OIDC authentication details.
 	 */
 	setUser(user) {
 		if (!user) {
