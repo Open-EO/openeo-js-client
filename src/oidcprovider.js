@@ -135,7 +135,7 @@ class OidcProvider extends AuthProvider {
 	 * - silentRenewError: Raised when the automatic silent renew has failed.
 	 * 
 	 * @param {string} event 
-	 * @param {function} callback
+	 * @param {Function} callback
 	 * @param {string} [scope="default"]
 	 */
 	addListener(event, callback, scope = 'default') {
@@ -148,7 +148,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @param {string} event 
 	 * @param {string} [scope="default"]
-     * @see OidcProvider#addListener
+	 * @see OidcProvider#addListener
 	 */
 	removeListener(event, scope = 'default') {
 		this.manager.events[`remove${event}`](this.listeners[event]);
@@ -270,7 +270,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * This may override a detected default client ID.
 	 * 
-	 * @returns {string}
+	 * @param {?string} clientId
 	 */
 	setClientId(clientId) {
 		this.clientId = clientId;
@@ -344,7 +344,7 @@ OidcProvider.redirectUrl = window.location.toString().split('#')[0].split('?')[0
  * Lists them by priority so that the first grant is the default grant.
  * The default grant type since client version 2.0.0 is 'authorization_code+pkce'.
  * 
- * @type {Árray.<string>} - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
+ * @type {Array.<string>} - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
  */
 OidcProvider.grants = [
 	'authorization_code+pkce',

@@ -376,7 +376,7 @@ class Connection {
 	 * 
 	 * @protected
 	 * @param {string} event 
-	 * @param {object} args 
+	 * @param {...*} args
 	 */
 	emit(event, ...args) {
 		if (typeof this.listeners[event] === 'function') {
@@ -388,11 +388,11 @@ class Connection {
 	 * Registers a listener with the given event.
 	 * 
 	 * Currently supported:
-	 * - authProviderChanged(provider)
-	 * - tokenChanged(token)
+	 * - authProviderChanged(provider): Raised when the auth provider has changed.
+	 * - tokenChanged(token): Raised when the access token has changed.
 	 * 
 	 * @param {string} event 
-	 * @param {function} callback 
+	 * @param {Function} callback 
 	 */
 	on(event, callback) {
 		this.listeners[event] = callback;
@@ -402,7 +402,6 @@ class Connection {
 	 * Removes a listener from the given event.
 	 * 
 	 * @param {string} event 
-	 * @param {function} callback 
 	 */
 	off(event) {
 		delete this.listeners[event];
