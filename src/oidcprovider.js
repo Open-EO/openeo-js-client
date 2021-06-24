@@ -192,7 +192,7 @@ class OidcProvider extends AuthProvider {
 				}
 				else {
 					await this.manager.signoutRedirect({
-						popup_redirect_uri: window.location.toString()
+						post_logout_redirect_uri: window.location.toString()
 					});
 				}
 			} catch (error) {
