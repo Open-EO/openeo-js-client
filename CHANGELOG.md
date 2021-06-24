@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added events to `Connection` populate changes for Auth Tokens (`tokenChanged`) and Auth Providers (`authProviderChanged`).
+- Added new methods to `Connection` for working with events: `on`, `off` and `emit`.
+
+### Changed
+
+- OpenID Connect authentication has been rewritten.
+- Support for OpenID Connect session renewal via refresh tokens.
+
 ## [1.3.2] - 2021-05-27
 
 ### Fixed
