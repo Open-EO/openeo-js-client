@@ -79,7 +79,7 @@ declare module OpenEO {
         /**
          * Abstract method that extending classes implement the login process with.
          *
-         * @param  {...*} args
+         * @param {...*} args
          * @throws {Error}
          */
         login(...args: any[]): Promise<void>;
