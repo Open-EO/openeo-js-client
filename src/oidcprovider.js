@@ -341,10 +341,13 @@ OidcProvider.redirectUrl = window.location.toString().split('#')[0].split('?')[0
 /**
  * The supported OpenID Connect grants (flows).
  * 
- * Lists them by priority so that the first grant is the default grant.
+ * The grants are given as defined in openEO API, e.g. `implicit` and/or `authorization_code+pkce`
+ * If not defined there, consult the OpenID Connect Discovery documentation.
+ * 
+ * Lists the grants by priority so that the first grant is the default grant.
  * The default grant type since client version 2.0.0 is 'authorization_code+pkce'.
  * 
- * @type {Array.<string>} - Grants as defined in OpenID Connect Discovery, e.g. `implicit` and/or `authorization_code+pkce`
+ * @type {Array.<string>}
  */
 OidcProvider.grants = [
 	'authorization_code+pkce',

@@ -184,7 +184,7 @@ describe('With earth-engine-driver', () => {
 		test('Collections in detail', async () => {
 			var coll = await con.describeCollection(TESTCOLLECTION.id);
 			expect(coll.stac_version).toBe(STAC_MIGRATE_VERSION);
-			expect(coll.stac_extensions).toEqual([]);
+			expect(coll.stac_extensions).toEqual(["collection-assets"]);
 			expect(coll.id).toBe(TESTCOLLECTION.id);
 			expect(coll).toHaveProperty('description');
 			expect(coll.license).toBe(TESTCOLLECTION.license);
