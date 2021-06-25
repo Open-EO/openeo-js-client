@@ -18,10 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenID Connect authentication has been rewritten.
 - Default grant type for OpenID Connect is "AuthCode w/ PKCE" instead of "Implicit".
 - Support for OpenID Connect session renewal via refresh tokens.
+- Updated STAC support to STAC v1.0.0.
 
 ### Removed
 
 - `OidcProvider`: Methods `getGrant`, `getScopes`, `getIssuer` and `getUser` removed. Use the properties `grant`, `scopes`, `issuer` and `user` instead.
+- Removed deprecated method `getResultsAsItem` in favor of `getResultsAsStac`.
 
 ## [1.3.2] - 2021-05-27
 

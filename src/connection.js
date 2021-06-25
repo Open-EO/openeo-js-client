@@ -117,7 +117,7 @@ class Connection {
 	/**
 	 * List all collections available on the back-end.
 	 * 
-	 * The collections returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * @async
 	 * @returns {Promise<Collections>} A response compatible to the API specification.
@@ -134,7 +134,7 @@ class Connection {
 	/**
 	 * Get further information about a single collection.
 	 * 
-	 * The collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The collection returned always complies to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
@@ -150,7 +150,7 @@ class Connection {
 	 * Loads items for a specific image collection.
 	 * May not be available for all collections.
 	 * 
-	 * The items returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The items returned always comply to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * This is an experimental API and is subject to change.
 	 * 
