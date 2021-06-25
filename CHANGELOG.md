@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added events to `Connection` populate changes for Auth Tokens (`tokenChanged`) and Auth Providers (`authProviderChanged`).
+- Added events to `Connection` to populate changes for Auth Tokens (`tokenChanged`) and Auth Providers (`authProviderChanged`).
 - Added new methods to `Connection` for working with events: `on`, `off` and `emit`.
 
 ### Changed
