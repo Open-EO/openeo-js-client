@@ -101,18 +101,19 @@ class AuthProvider {
 	 */
 	setToken(token) {
 		this.token = token;
+		this.connection.emit('tokenChanged', token);
 		if (this.token !== null) {
-			this.connection.authProvider = this;
+			this.connection.setAuthProvider(this);
 		}
 		else {
-			this.connection.authProvider = null;
+			this.connection.setAuthProvider(null);
 		}
 	}
 
 	/**
 	 * Abstract method that extending classes implement the login process with.
 	 * 
-	 * @param  {...*} args 
+	 * @param {...*} args 
 	 * @throws {Error}
 	 */
 	async login(...args) {

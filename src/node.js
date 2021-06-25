@@ -23,6 +23,26 @@ class Environment {
 	}
 
 	/**
+	 * Returns the URL of the server instance.
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
+	static getUrl() {
+		return Environment.url;
+	}
+
+	/**
+	 * Sets the URL of the server instance.
+	 * 
+	 * @param {string} uri
+	 * @static
+	 */
+	static setUrl(uri) {
+		Environment.url = uri;
+	}
+
+	/**
 	 * Handles errors from the API that are returned as Streams.
 	 * 
 	 * @ignore
@@ -142,5 +162,7 @@ class Environment {
 		});
 	}
 }
+
+Environment.url = '';
 
 module.exports = Environment;

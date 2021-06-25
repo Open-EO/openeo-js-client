@@ -7,14 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1/openeo.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
   <script type="text/javascript">
     const BACKEND = "https://example.openeo.org"; // TODO: Set the back-end to authenticate against
     const CLIENT_ID = ""; // TODO: Set the client id
-    const REDIRECT_URI = "http://localhost/openid-connect-popup.html?signin"; // TODO: Set the redirect URI, should include ?signin - doesn't work with file://
-
+    OidcProvider.redirectUrl = "http://localhost/openid-connect-popup.html?signin"; // TODO: Set the redirect URI, should include ?signin - doesn't work with file://
     // Set the UI method, here we open a popup
-    OidcProvider.setUiMethod("popup");
+    OidcProvider.uiMethod = "popup";
 
     var con;
     async function run() {
@@ -59,9 +58,12 @@
         var providers = await con.listAuthProviders();
         var provider = providers.find(p => p.getId() === id);
 
+        // Set the client ID
+        provider.setClientId(CLIENT_ID);
+
         // Start the login procedure (opens a popup as configured above)
         // Then waits for the popup to be closed
-        await provider.login(CLIENT_ID, REDIRECT_URI);
+        await provider.login();
 
         // After the popup is closed, check whether the user is now authenticated
         if (con.isAuthenticated()) {
