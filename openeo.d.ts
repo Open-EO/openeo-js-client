@@ -197,6 +197,20 @@ declare module OpenEO {
          */
         static getName(): string;
         /**
+         * Returns the URL of the Environment.
+         *
+         * @returns {string}
+         * @static
+         */
+        static getUrl(): string;
+        /**
+         * Sets the URL of the Environment.
+         *
+         * @param {string} uri
+         * @static
+         */
+        static setUrl(uri: string): void;
+        /**
          * Handles errors from the API that are returned as Blobs/Streams.
          *
          * @ignore

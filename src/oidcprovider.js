@@ -1,5 +1,6 @@
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
+const Environment = require('./env');
 const Oidc = require('oidc-client');
 
 /**
@@ -44,7 +45,7 @@ class OidcProvider extends AuthProvider {
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
 	 */
 	static async signinCallback(provider = null, options = {}) {
-		let url = window.location.toString();
+		let url = Environment.getUrl();
 		if (!provider) {
 			// No provider options available, try to detect response mode from URL
 			provider = new OidcProvider(null, {});
@@ -194,7 +195,7 @@ class OidcProvider extends AuthProvider {
 				}
 				else {
 					await this.manager.signoutRedirect({
-						post_logout_redirect_uri: window.location.toString()
+						post_logout_redirect_uri: Environment.getUrl()
 					});
 				}
 			} catch (error) {
@@ -336,7 +337,7 @@ OidcProvider.uiMethod = 'redirect';
  * 
  * @type {string}
  */
-OidcProvider.redirectUrl = window.location.toString().split('#')[0].split('?')[0].replace(/\/$/, '');
+OidcProvider.redirectUrl = Environment.getUrl().split('#')[0].split('?')[0].replace(/\/$/, '');
 
 /**
  * The supported OpenID Connect grants (flows).

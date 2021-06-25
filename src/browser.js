@@ -18,6 +18,28 @@ class Environment {
 	}
 
 	/**
+	 * Returns the current URL of the browser window.
+	 * 
+	 * @returns {string}
+	 * @static
+	 */
+	static getUrl() {
+		return window.location.toString();
+	}
+
+	/**
+	 * Sets the URL.
+	 * 
+	 * Not supported in Browsers and only throws an Error!
+	 * 
+	 * @param {string} uri
+	 * @static
+	 */
+	static setUrl(uri) { // eslint-disable-line no-unused-vars
+		throw new Error("setUrl is not supported in a browser environment.");
+	}
+
+	/**
 	 * Handles errors from the API that are returned as Blobs.
 	 * 
 	 * @ignore
