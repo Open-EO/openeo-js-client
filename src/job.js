@@ -255,44 +255,9 @@ class Job extends BaseEntity {
 	}
 
 	/**
-	 * Retrieves the STAC Item produced for the job results.
-	 * 
-	 * The Item returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
-	 * 
-	 * @async
-	 * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
-	 * @throws {Error}
-	 * @deprecated
-	 */
-	async getResultsAsItem() {
-		let data = await this.getResultsAsStac();
-		if (data.type === 'Feature') { // Item
-			return data;
-		}
-		else { // We got a Collection, try to make a minimal Item from it for backward-compatibility
-			let item = Utils.pickFromObject(data, ['stac_version', 'id', 'assets', 'links']);
-			item.type = 'Feature';
-			item.geometry = null;
-			item.properties = Utils.pickFromObject(data, ['title', 'description', 'license', 'providers', 'created', 'updated', 'expires', 'costs']);
-			item.properties.datetime = null;
-			if (Utils.isObject(data.extent) && Utils.isObject(data.extent.temporal) && Array.isArray(data.extent.temporal.interval) && Array.isArray(data.extent.temporal.interval[0])) {
-				let temp = data.extent.temporal.interval[0];
-				if (typeof temp[0] === 'string' && temp[1] === 'string') {
-					item.properties.start_datetime = temp[0];
-					item.properties.end_datetime = temp[1];
-				}
-				else {
-					item.properties.datetime = temp[0] || temp[1];
-				}
-			}
-			return StacMigrate.item(item);
-		}
-	}
-
-	/**
 	 * Retrieves the STAC Item or Collection produced for the job results.
 	 * 
-	 * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * @async
 	 * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.

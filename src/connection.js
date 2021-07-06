@@ -45,6 +45,7 @@ class Connection {
 		 */
 		this.capabilitiesObject = null;
 		this.processes = null;
+		this.listeners = {};
 	}
 
 	/**
@@ -116,7 +117,7 @@ class Connection {
 	/**
 	 * List all collections available on the back-end.
 	 * 
-	 * The collections returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * @async
 	 * @returns {Promise<Collections>} A response compatible to the API specification.
@@ -133,7 +134,7 @@ class Connection {
 	/**
 	 * Get further information about a single collection.
 	 * 
-	 * The collection returned always complies to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The collection returned always complies to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
@@ -149,7 +150,7 @@ class Connection {
 	 * Loads items for a specific image collection.
 	 * May not be available for all collections.
 	 * 
-	 * The items returned always comply to the latest STAC version (currently 1.0.0-rc.1). 
+	 * The items returned always comply to the latest STAC version (currently 1.0.0). 
 	 * 
 	 * This is an experimental API and is subject to change.
 	 * 
@@ -371,6 +372,42 @@ class Connection {
 	}
 
 	/**
+	 * Emits the given event.
+	 * 
+	 * @protected
+	 * @param {string} event 
+	 * @param {...*} args
+	 */
+	emit(event, ...args) {
+		if (typeof this.listeners[event] === 'function') {
+			this.listeners[event](...args);
+		}
+	}
+
+	/**
+	 * Registers a listener with the given event.
+	 * 
+	 * Currently supported:
+	 * - authProviderChanged(provider): Raised when the auth provider has changed.
+	 * - tokenChanged(token): Raised when the access token has changed.
+	 * 
+	 * @param {string} event 
+	 * @param {Function} callback 
+	 */
+	on(event, callback) {
+		this.listeners[event] = callback;
+	}
+
+	/**
+	 * Removes a listener from the given event.
+	 * 
+	 * @param {string} event 
+	 */
+	off(event) {
+		delete this.listeners[event];
+	}
+
+	/**
 	 * Returns the AuthProvider.
 	 * 
 	 * @returns {?AuthProvider} 
@@ -382,18 +419,19 @@ class Connection {
 	/**
 	 * Sets the AuthProvider.
 	 * 
-	 * The provider must have a token set.
-	 * 
-	 * @param {AuthProvider} provider 
-	 * @throws {Error}
+	 * @param {AuthProvider} provider
 	 */
 	setAuthProvider(provider) {
-		if (provider instanceof AuthProvider && provider.getToken() !== null) {
+		if (provider === this.authProvider) {
+			return;
+		}
+		if (provider instanceof AuthProvider) {
 			this.authProvider = provider;
 		}
 		else {
-			throw new Error("Invalid auth provider given or no token set.");
+			this.authProvider = null;
 		}
+		this.emit('authProviderChanged', this.authProvider);
 	}
 
 	/**
@@ -411,13 +449,14 @@ class Connection {
 	 * @returns {AuthProvider}
 	 */
 	setAuthToken(type, providerId, token) {
-		this.authProvider = new AuthProvider(type, this, {
+		let provider = new AuthProvider(type, this, {
 			id: providerId,
 			title: "Custom",
 			description: ""
 		});
-		this.authProvider.setToken(token);
-		return this.authProvider;
+		provider.setToken(token);
+		this.setAuthProvider(provider);
+		return provider;
 	}
 
 	/**

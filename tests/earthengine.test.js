@@ -6,10 +6,13 @@ const waitForExpect = require("wait-for-expect");
 var timeout = 2*60*1000;
 jest.setTimeout(timeout); // Give Google some time to process data
 
+// Generate random int
+const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
 describe('With earth-engine-driver', () => {
 	const { TESTBACKEND, STAC_MIGRATE_VERSION } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
-	const TESTUSERNAME = 'group5';
+	const TESTUSERNAME = `group${random(20,29)}`;
 	const TESTPASSWORD = 'test123';
 	
 	const FREE_PLAN = {"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details.","paid":false};
@@ -184,7 +187,7 @@ describe('With earth-engine-driver', () => {
 		test('Collections in detail', async () => {
 			var coll = await con.describeCollection(TESTCOLLECTION.id);
 			expect(coll.stac_version).toBe(STAC_MIGRATE_VERSION);
-			expect(coll.stac_extensions).toEqual([]);
+			expect(coll.stac_extensions).toEqual(["collection-assets"]);
 			expect(coll.id).toBe(TESTCOLLECTION.id);
 			expect(coll).toHaveProperty('description');
 			expect(coll.license).toBe(TESTCOLLECTION.license);

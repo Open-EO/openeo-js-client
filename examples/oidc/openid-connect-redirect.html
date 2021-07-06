@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios@0.19/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@1/openeo.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
   <script type="text/javascript">
     const BACKEND = "https://example.openeo.org"; // TODO: Set the back-end to authenticate against
     const CLIENT_ID = ""; // TODO: Set the client id
@@ -78,8 +78,12 @@
         var providers = await con.listAuthProviders();
         var provider = providers.find(p => p.getId() === id);
 
-        // Start the login procedure (redirects to the identity provider by default)
-        await provider.login(CLIENT_ID, REDIRECT_URI + id);
+        // Set the client ID and redirect URI
+        provider.setClientId(CLIENT_ID);
+        OidcProvider.redirectUri = REDIRECT_URI + id;
+
+        // Start the login procedure (redirects to the identity provider)
+        await provider.login();
       } catch (e) {
         log("Error: " + e.message);
       }

@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2021-07-06
+
+### Added
+
+- Added events to `Connection` to populate changes for Auth Tokens (`tokenChanged`) and Auth Providers (`authProviderChanged`).
+- Added new methods to `Connection` for working with events: `on`, `off` and `emit`.
+
+### Changed
+
+- OpenID Connect authentication has been rewritten.
+- Default grant type for OpenID Connect is "AuthCode w/ PKCE" instead of "Implicit".
+- Support for OpenID Connect session renewal via refresh tokens.
+- Updated STAC support to STAC v1.0.0.
+
+### Removed
+
+- `OidcProvider`: Methods `getGrant`, `getScopes`, `getIssuer` and `getUser` removed. Use the properties `grant`, `scopes`, `issuer` and `user` instead.
+- Removed deprecated method `getResultsAsItem` in favor of `getResultsAsStac`.
+
 ## [1.3.2] - 2021-05-27
 
 ### Fixed
@@ -86,13 +105,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.3.2...HEAD
-[1.3.2]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.3.1...v1.3.2
-[1.3.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.3.0...v1.3.1
-[1.3.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.3...v1.1.0
-[1.0.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.2...v1.0.3
-[1.0.2]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0-rc.5...v1.0.0
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.2...v2.0.0
+[1.3.2]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.0.3...v1.1.0
+[1.0.3]: https://github.com/Open-EO/openeo-js-client/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Open-EO/openeo-js-client/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Open-EO/openeo-js-client/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.0.0-rc.5...v1.0.0
