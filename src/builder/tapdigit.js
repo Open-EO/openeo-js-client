@@ -124,18 +124,21 @@ TapDigit.Lexer = function () {
     }
 
     function scanIdentifier() {
-        let ch
-        let id;
-
-        ch = peekNextChar();
-        if (!isIdentifierStart(ch)) {
+        let startCh = peekNextChar();
+        if (!isIdentifierStart(startCh)) {
             return undefined;
         }
 
-        id = getNextChar();
+        let id = getNextChar();
         while (true) {
-            ch = peekNextChar();
-            if (!isIdentifierPart(ch)) {
+            let ch = peekNextChar();
+            // If the first character is a $, it is allowed that more $ follow directly after
+            if (startCh === '$') {
+                if (ch !== '$') {
+                    startCh = ''; // Stop allowing $ once the first non-$ has been found
+                } // else: allowed
+            }
+            else if (!isIdentifierPart(ch)) {
                 break;
             }
             id += getNextChar();

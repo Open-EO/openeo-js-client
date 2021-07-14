@@ -14,7 +14,8 @@ const BuilderNode = require('./node');
  * 
  * Only available if a parent node is set via `setNode()`:
  * Parameters can be accessed simply by name. 
- * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a $ in front, for example $B1 for the label B1 or $0 for the first element in the array. Numeric labels are not supported.
+ * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a `$` in front, for example `$B1` for the label `B1` or `$0` for the first element in the array. Numeric labels are not supported.
+ * You can access subsequent parameters by adding additional `$` at the beginning, e.g. `$$0` to access the first element of an array in the second parameter, `$$$0` for the same in the third parameter etc.
  * 
  * An example that computes an EVI (assuming the labels for the bands are `NIR`, `RED` and `BLUE`): `2.5 * ($NIR - $RED) / (1 + $NIR + 6 * $RED + (-7.5 * $BLUE))`
  */
@@ -145,18 +146,20 @@ class Formula {
 
 		let callbackParams = this.builder.getParentCallbackParameters();
 		// Array labels / indices
-		if (typeof value === 'string' && value.startsWith('$') && callbackParams.length > 0) {
-			let ref = value.substring(1);
-			// Array access always refers to the first parameter passed
-			return callbackParams[0][ref];
+		if (typeof value === 'string' && callbackParams.length > 0) {
+			let prefix = value.match(/^\$+/);
+			let count = prefix ? prefix[0].length : 0;
+			if (count > 0 && callbackParams.length >= count) {
+				let ref = value.substring(count);
+				return callbackParams[count-1][ref];
+			}
 		}
+
 		// Everything else is a parameter
-		else {
-			let parameter = new Parameter(value);
-			// Add new parameter if it doesn't exist
-			this.builder.addParameter(parameter);
-			return parameter;
-		}
+		let parameter = new Parameter(value);
+		// Add new parameter if it doesn't exist
+		this.builder.addParameter(parameter);
+		return parameter;
 	}
 
 	/**

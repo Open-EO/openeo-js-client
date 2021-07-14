@@ -26,7 +26,7 @@
     },
     "reduce1": {
       "process_id": "reduce_dimension",
-      "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
+      "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / ($offset + NIR + 6*RED + -7.5*BLUE)",
       "arguments": {
         "data": {"from_node": "loadco1"},
         "dimension": "bands",
@@ -53,6 +53,13 @@
                 "label": "B02"
               }
             },
+            "arraye4": {
+              "process_id": "array_element",
+              "arguments": {
+                "data": {"from_parameter": "context"},
+                "label": "offset"
+              }
+            },
             "subtra1": {
               "process_id": "subtract",
               "arguments": {
@@ -77,7 +84,7 @@
             "sum1": {
               "process_id": "sum",
               "arguments": {
-                "data": [1, {"from_node": "arraye1"}, {"from_node": "multip1"}, {"from_node": "multip2"}]
+                "data": [{"from_node": "arraye4"}, {"from_node": "arraye1"}, {"from_node": "multip1"}, {"from_node": "multip2"}]
               }
             },
             "divide1": {
@@ -96,6 +103,9 @@
               "result": true
             }
           }
+        },
+        "context": {
+          "offset": 1
         }
       }
     },

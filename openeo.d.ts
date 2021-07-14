@@ -1351,8 +1351,9 @@ declare module OpenEO {
      * You can refer to output from processes with a leading `#`, e.g. `#loadco1` if the node to refer to has the key `loadco1`.
      *
      * Only available if a parent node is set via `setNode()`:
-     * Parameters can be accessed simply by name.
-     * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a $ in front, for example $B1 for the label B1 or $0 for the first element in the array. Numeric labels are not supported.
+     * Parameters can be accessed simply by name. 
+     * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a `$` in front, for example `$B1` for the label `B1` or `$0` for the first element in the array. Numeric labels are not supported.
+     * You can access subsequent parameters by adding additional `$` at the beginning, e.g. `$$0` to access the first element of an array in the second parameter, `$$$0` for the same in the third parameter etc.
      *
      * An example that computes an EVI (assuming the labels for the bands are `NIR`, `RED` and `BLUE`): `2.5 * ($NIR - $RED) / (1 + $NIR + 6 * $RED + (-7.5 * $BLUE))`
      */

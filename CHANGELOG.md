@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2021-07-14
+
+### Fixed
+
+- `Formula`: Formulas can reference more then just the first parameter by adding additional `$` at the beginning, e.g. `$$0` to access the first element of an array in the second parameter.
+
 ## [2.0.0] - 2021-07-06
 
 ### Added
@@ -105,7 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.2...v2.0.0
 [1.3.2]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/Open-EO/openeo-js-client/compare/v1.3.0...v1.3.1

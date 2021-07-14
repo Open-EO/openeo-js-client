@@ -68,11 +68,11 @@ describe('Process Graph Builder (EVI)', () => {
 		var expectedProcess;
 		if (math) {
 			expectedProcess = require('./data/builder.math.evi.example.json');
-			eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
+			eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / ($$offset + $B08 + 6 * $B04 + -7.5 * $B02))');
 		}
 		else {
 			expectedProcess = expectedProcessEvi;
-			eviAlgorithm = function(data) {
+			eviAlgorithm = function(data, context) {
 				var nir = data["B08"];
 				var red = data["B04"];
 				var blue = data["B02"];
@@ -82,7 +82,7 @@ describe('Process Graph Builder (EVI)', () => {
 					this.divide(
 						this.subtract(nir, red),
 						this.sum([
-							1,
+							context["offset"],
 							nir,
 							this.multiply(6, red),
 							this.multiply(-7.5, blue)
@@ -91,7 +91,7 @@ describe('Process Graph Builder (EVI)', () => {
 				);
 			};
 		}
-		var evi = builder.reduce_dimension(datacube, eviAlgorithm, "bands").description("Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)");
+		var evi = builder.reduce_dimension(datacube, eviAlgorithm, "bands", {offset: 1}).description("Compute the EVI. Formula: 2.5 * (NIR - RED) / ($offset + NIR + 6*RED + -7.5*BLUE)");
 
 		var minTime = builder.reduce_dimension(
 			evi,
