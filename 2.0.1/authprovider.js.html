@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: authprovider.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: authprovider.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The base class for authentication providers such as Basic and OpenID Connect.
+ * 
+ * @abstract
+ */
+class AuthProvider {
+
+	/**
+	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
+	 * 
+	 * @param {string} type - The type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {AuthProviderMeta} options - Options
+	 */
+	constructor(type, connection, options) {
+		this.id = options.id || null;
+		this.title = options.title || "";
+		this.description = options.description || "";
+		this.type = type;
+		/**
+		 * @protected
+		 * @type {Connection}
+		 */
+		this.connection = connection;
+		this.token = null;
+	}
+
+	/**
+	 * Get an identifier for the auth provider (combination of the type + provider identifier).
+	 * 
+	 * @returns {string}
+	 */
+	getId() {
+		let id = this.getType();
+		if (this.getProviderId().length > 0) {
+			id += '.' + this.getProviderId();
+		}
+		return id;
+	}
+
+	/**
+	 * Returns the type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
+	 * 
+	 * @returns {string}
+	 */
+	getType() {
+		return this.type;
+	}
+
+	/**
+	 * Returns the provider identifier, may not be available for all authentication methods.
+	 * 
+	 * @returns {string}
+	 */
+	getProviderId() {
+		return typeof this.id === 'string' ? this.id : "";
+	}
+
+	/**
+	 * Returns the human-readable title for the authentication method / provider.
+	 * 
+	 * @returns {string}
+	 */
+	getTitle() {
+		return this.title;
+	}
+
+	/**
+	 * Returns the human-readable description for the authentication method / provider.
+	 * 
+	 * @returns {string}
+	 */
+	getDescription() {
+		return this.description;
+	}
+
+	/**
+	 * Returns the access token that is used as Bearer Token in API requests.
+	 * 
+	 * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
+	 * 
+	 * @returns {?string}
+	 */
+	getToken() {
+		if (typeof this.token === 'string') {
+			return this.getType() + "/" + this.getProviderId() + "/" + this.token;
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Sets the access token that is used as Bearer Token in API requests.
+	 * 
+	 * Set to `null` to remove the access token.
+	 * 
+	 * This also manages which auth provider is set for the connection.
+	 * 
+	 * @param {?string} token 
+	 */
+	setToken(token) {
+		this.token = token;
+		this.connection.emit('tokenChanged', token);
+		if (this.token !== null) {
+			this.connection.setAuthProvider(this);
+		}
+		else {
+			this.connection.setAuthProvider(null);
+		}
+	}
+
+	/**
+	 * Abstract method that extending classes implement the login process with.
+	 * 
+	 * @param {...*} args 
+	 * @throws {Error}
+	 */
+	async login(...args) {
+		throw new Error("Not implemented.", args);
+	}
+
+	/**
+	 * Logout from the established session.
+	 * 
+	 * This is experimental and just removes the token for now.
+	 * May need to be overridden by sub-classes.
+	 * 
+	 * @async
+	 */
+	async logout() {
+		this.setToken(null);
+	}
+
+}
+
+module.exports = AuthProvider;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Jul 14 2021 17:55:03 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
