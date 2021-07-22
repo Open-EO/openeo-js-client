@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Return a better error message if issues with reading batch job results occur in `Job.getResultsAsStac`
+
 ## [2.0.1] - 2021-07-14
 
 ### Fixed

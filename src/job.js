@@ -265,6 +265,9 @@ class Job extends BaseEntity {
 	 */
 	async getResultsAsStac() {
 		let response = await this.connection._get('/jobs/' + this.id + '/results');
+		if (!Utils.isObject(response) || !Utils.isObject(response.data)) {
+			throw new Error("Results received from the back-end are invalid");
+		}
 		let data = StacMigrate.stac(response.data);
 		if (!Utils.isObject(data.assets)) {
 			data.assets = {};
