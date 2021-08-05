@@ -13,8 +13,9 @@ class BuilderNode {
 	 * @param {string} processId 
 	 * @param {object.<string, *>} [processArgs={}]
 	 * @param {?string} [processDescription=null]
+	 * @param {?string} [processNamespace=null]
 	 */
-	constructor(parent, processId, processArgs = {}, processDescription = null) {
+	constructor(parent, processId, processArgs = {}, processDescription = null, processNamespace = null) {
 		/**
 		 * The parent builder.
 		 * @type {Builder}
@@ -26,7 +27,7 @@ class BuilderNode {
 		 * @type {Process}
 		 * @readonly
 		 */
-		this.spec = this.parent.spec(processId);
+		this.spec = this.parent.spec(processId, processNamespace);
 		if (!Utils.isObject(this.spec)) {
 			throw new Error("Process doesn't exist: " + processId);
 		}
@@ -36,6 +37,11 @@ class BuilderNode {
 		 * @type {string}
 		 */
 		this.id = parent.generateId(processId);
+		/**
+		 * The namespace of the process - EXPERIMENTAL!
+		 * @type {string}
+		 */
+		this.namespace = processNamespace;
 		/**
 		 * The arguments for the process.
 		 * @type {object.<string, *>}
@@ -176,7 +182,7 @@ class BuilderNode {
 	 * 
 	 * @protected
 	 * @param {?BuilderNode} [parentNode=null]
-	 * @param {?string} parentParameter
+	 * @param {?string} [parentParameter=null]
 	 * @returns {BuilderNode}
 	 */
 	createBuilder(parentNode = null, parentParameter = null) {
@@ -228,6 +234,9 @@ class BuilderNode {
 			process_id: this.spec.id,
 			arguments: {}
 		};
+		if (this.namespace) {
+			obj.namespace = this.namespace;
+		}
 		for(let name in this.arguments) {
 			if (typeof this.arguments[name] !== 'undefined') {
 				obj.arguments[name] = this.exportArgument(this.arguments[name], name);

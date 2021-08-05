@@ -208,20 +208,35 @@ class Connection {
 	}
 
 	/**
-	 * List all processes available on the back-end.
+	 * List processes available on the back-end.
 	 * 
-	 * Data is cached in memory.
+	 * Requests pre-defined processes by default.
+	 * Set the namespace parameter to request processes from a specific namespace.
+	 * 
+	 * Pre-defined processes are cached in memory.
 	 * 
 	 * @async
+	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Promise<Processes>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
-	async listProcesses() {
-		if (this.processes === null) {
-			let response = await this._get('/processes');
+	async listProcesses(namespace = null) {
+		let isPredefined = (!namespace || namespace === 'backend');
+
+		// Load pre-defined processes from cache
+		if (isPredefined && this.processes !== null) {
+			return this.processes;
+		}
+
+		let path = isPredefined ? '/processes' : `/processes/${namespace}`;
+		let response = await this._get(path);
+
+		// Store pre-defined processes in cache
+		if (isPredefined) {
 			this.processes = response.data;
 		}
-		return this.processes;
+		
+		return response.data;
 	}
 
 	/**
@@ -229,20 +244,27 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} processId - Collection ID to request further metadata for.
+	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Promise<?Process>} - A single process as object, or `null` if none is found.
 	 * @throws {Error}
 	 * @see Connection#listProcesses
 	 */
-	async describeProcess(processId) {
-		let response = await this.listProcesses();
-		if (Array.isArray(response.processes)) {
-			return response.processes.find(process => Utils.isObject(process) && process.id === processId) || null;
+	async describeProcess(processId, namespace = null) {
+		if (!namespace || namespace === 'backend') {
+			let response = await this.listProcesses();
+			if (Array.isArray(response.processes)) {
+				return response.processes.find(process => Utils.isObject(process) && process.id === processId) || null;
+			}
+			return null;
 		}
-		return null;
+		else {
+			let response = await this._get(`/processes/${namespace}/${processId}`);
+			return response.data;
+		}
 	}
 
 	/**
-	 * Returns an object to simply build user-defined processes.
+	 * Returns an object to simply build user-defined processes based upon pre-defined processes.
 	 * 
 	 * @async
 	 * @param {string} id - A name for the process.

@@ -175,6 +175,7 @@
  * @type {object}
  * @property {Array.<Process>} processes
  * @property {Array.<Link>} links
+ * @property {?Array.<string>} namespaces EXPERIMENTAL!
  */
 
 /**

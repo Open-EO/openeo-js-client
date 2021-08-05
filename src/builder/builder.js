@@ -83,7 +83,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {?string} version 
+	 * @param {?string} [version=null]
 	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
@@ -123,10 +123,15 @@ class Builder {
 	 */
 	constructor(processes, parent = null, id = undefined) {
 		/**
-		 * List of all process specifications.
+		 * List of all non-namespaced process specifications.
 		 * @type {Array.<Process>}
 		 */
 		this.processes = [];
+		/**
+		 * Namespaced process specifications. EXPERIMENTAL!
+		 * @type {object.<string, Array.<Process>>}
+		 */
+		this.namespacedProcesses = {};
 		/**
 		 * The parent builder.
 		 * @type {?Builder}
@@ -176,13 +181,20 @@ class Builder {
 	 * Adds a process specification to the builder so that it can be used to create a process graph.
 	 * 
 	 * @param {Process} process - Process specification compliant to openEO API
+	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @throws {Error}
 	 */
-	addProcessSpec(process) {
+	addProcessSpec(process, namespace = null) {
 		if (!Utils.isObject(process)) {
 			throw new Error("Process '" + process.id + "' must be an object.");
 		}
-		if (typeof this[process.id] === 'undefined') {
+		if (namespace && namespace !== 'backend' && namespace !== 'user') {
+			if (!this.namespacedProcesses[namespace]) {
+				this.namespacedProcesses[namespace] = [];
+			}
+			this.namespacedProcesses[namespace].push(process);
+		}
+		else if (typeof this[process.id] === 'undefined') {
 			this.processes.push(process);
 			/**
 			 * Implicitly calls the process with the given name on the back-end by adding it to the process.
@@ -281,13 +293,22 @@ class Builder {
 	}
 
 	/**
-	 * Returns the process specification for the given process identifier.
+	 * Returns the process specification for the given process identifier and namespace.
 	 * 
-	 * @param {string} id 
+	 * @param {string} id - Process identifier
+	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Process}
 	 */
-	spec(id) {
-		return this.processes.find(process => process.id === id);
+	spec(id, namespace = null) {
+		if (namespace && namespace !== 'backend' && namespace !== 'user') {
+			if (!this.namespacedProcesses[namespace]) {
+				return;
+			}
+			return this.namespacedProcesses[namespace].find(process => process.id === id);
+		}
+		else {
+			return this.processes.find(process => process.id === id);
+		}
 	}
 
 	/**
@@ -308,25 +329,32 @@ class Builder {
 	}
 
 	/**
-	 * Checks whether a process with the given id is supported by the back-end.
+	 * Checks whether a process with the given id and namespace is supported by the back-end.
 	 * 
-	 * @param {string} processId - The id of the process to call.
+	 * @param {string} processId - The id of the process.
+	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {boolean}
 	 */
-	supports(processId) {
-		return Utils.isObject(this.spec(processId));
+	supports(processId, namespace = null) {
+		return Utils.isObject(this.spec(processId, namespace));
 	}
 
 	/**
 	 * Adds another process call to the process chain.
 	 * 
-	 * @param {string} processId - The id of the process to call.
-	 * @param {object.<string, *>|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
-	 * @param {?string} description - An optional description for the process call.
+	 * @param {string} processId - The id of the process to call. To access a namespaced process, use the `process@namespace` notation.
+	 * @param {object.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+	 * @param {?string} [description=null] - An optional description for the process call.a
 	 * @returns {BuilderNode}
 	 */
 	process(processId, args = {}, description = null) {
-		let node = new BuilderNode(this, processId, args, description);
+		let namespace = null;
+		if (processId.includes('@')) {
+			let rest;
+			[processId, ...rest] = processId.split('@');
+			namespace = rest.join('@');
+		}
+		let node = new BuilderNode(this, processId, args, description, namespace);
 		this.nodes[node.id] = node;
 		return node;
 	}

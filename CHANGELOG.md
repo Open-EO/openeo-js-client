@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Experimental support for process namespaces, see [API#348](https://github.com/Open-EO/openeo-api/pull/348).
+
 ### Fixed
 
 - Return a better error message if issues with reading batch job results occur in `Job.getResultsAsStac`

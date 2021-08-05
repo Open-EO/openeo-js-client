@@ -1346,12 +1346,13 @@ declare module OpenEO {
      * Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)
      *
      * It supports all mathematical functions (i.e. expects a number and returns a number) the back-end implements, e.g. `sqrt(x)`.
+     * For namespaced processes, use for example `process#namespace(x)` - EXPERIMENTAL!
      *
      * Only available if a builder is specified in the constructor:
      * You can refer to output from processes with a leading `#`, e.g. `#loadco1` if the node to refer to has the key `loadco1`.
      *
      * Only available if a parent node is set via `setNode()`:
-     * Parameters can be accessed simply by name. 
+     * Parameters can be accessed simply by name.
      * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a `$` in front, for example `$B1` for the label `B1` or `$0` for the first element in the array. Numeric labels are not supported.
      * You can access subsequent parameters by adding additional `$` at the beginning, e.g. `$$0` to access the first element of an array in the second parameter, `$$$0` for the same in the third parameter etc.
      *
@@ -1430,8 +1431,9 @@ declare module OpenEO {
          * @param {string} processId
          * @param {object.<string, *>} [processArgs={}]
          * @param {?string} [processDescription=null]
+         * @param {?string} [processNamespace=null]
          */
-        constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null);
+        constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null, processNamespace?: string | null);
         /**
          * The parent builder.
          * @type {Builder}
@@ -1448,6 +1450,11 @@ declare module OpenEO {
          * @type {string}
          */
         id: string;
+        /**
+         * The namespace of the process - EXPERIMENTAL!
+         * @type {string}
+         */
+        namespace: string;
         /**
          * The arguments for the process.
          * @type {object.<string, *>}
@@ -1508,7 +1515,7 @@ declare module OpenEO {
          *
          * @protected
          * @param {?BuilderNode} [parentNode=null]
-         * @param {?string} parentParameter
+         * @param {?string} [parentParameter=null]
          * @returns {BuilderNode}
          */
         protected createBuilder(parentNode?: BuilderNode | null, parentParameter?: string | null): BuilderNode;
@@ -1608,7 +1615,7 @@ declare module OpenEO {
          *
          * @async
          * @static
-         * @param {?string} version
+         * @param {?string} [version=null]
          * @returns {Promise<Builder>}
          * @throws {Error}
          */
@@ -1637,10 +1644,17 @@ declare module OpenEO {
          */
         constructor(processes: Array<Process> | Processes, parent?: Builder | null, id?: string);
         /**
-         * List of all process specifications.
+         * List of all non-namespaced process specifications.
          * @type {Array.<Process>}
          */
         processes: Array<Process>;
+        /**
+         * Namespaced process specifications. EXPERIMENTAL!
+         * @type {object.<string, Array.<Process>>}
+         */
+        namespacedProcesses: {
+            [x: string]: Array<Process>;
+        };
         /**
          * The parent builder.
          * @type {?Builder}
@@ -1670,9 +1684,10 @@ declare module OpenEO {
          * Adds a process specification to the builder so that it can be used to create a process graph.
          *
          * @param {Process} process - Process specification compliant to openEO API
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @throws {Error}
          */
-        addProcessSpec(process: Process): void;
+        addProcessSpec(process: Process, namespace?: string | null): void;
         /**
          * Sets the parent for this Builder.
          *
@@ -1705,12 +1720,13 @@ declare module OpenEO {
          */
         addParameter(parameter: any, root?: boolean): void;
         /**
-         * Returns the process specification for the given process identifier.
+         * Returns the process specification for the given process identifier and namespace.
          *
-         * @param {string} id
+         * @param {string} id - Process identifier
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Process}
          */
-        spec(id: string): Process;
+        spec(id: string, namespace?: string | null): Process;
         /**
          * Adds a mathematical formula to the process.
          *
@@ -1723,18 +1739,19 @@ declare module OpenEO {
          */
         math(formula: string): BuilderNode;
         /**
-         * Checks whether a process with the given id is supported by the back-end.
+         * Checks whether a process with the given id and namespace is supported by the back-end.
          *
-         * @param {string} processId - The id of the process to call.
+         * @param {string} processId - The id of the process.
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {boolean}
          */
-        supports(processId: string): boolean;
+        supports(processId: string, namespace?: string | null): boolean;
         /**
          * Adds another process call to the process chain.
          *
-         * @param {string} processId - The id of the process to call.
-         * @param {object.<string, *>|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
-         * @param {?string} description - An optional description for the process call.
+         * @param {string} processId - The id of the process to call. To access a namespaced process, use the `process@namespace` notation.
+         * @param {object.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+         * @param {?string} [description=null] - An optional description for the process call.
          * @returns {BuilderNode}
          */
         process(processId: string, args?: any | any[], description?: string | null): BuilderNode;
@@ -1872,27 +1889,32 @@ declare module OpenEO {
          */
         listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: Array<any> | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
-         * List all processes available on the back-end.
+         * List processes available on the back-end.
          *
-         * Data is cached in memory.
+         * Requests pre-defined processes by default.
+         * Set the namespace parameter to request processes from a specific namespace.
+         *
+         * Pre-defined processes are cached in memory.
          *
          * @async
+         * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Promise<Processes>} - A response compatible to the API specification.
          * @throws {Error}
          */
-        listProcesses(): Promise<Processes>;
+        listProcesses(namespace?: string | null): Promise<Processes>;
         /**
          * Get information about a single process.
          *
          * @async
          * @param {string} processId - Collection ID to request further metadata for.
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Promise<?Process>} - A single process as object, or `null` if none is found.
          * @throws {Error}
          * @see Connection#listProcesses
          */
-        describeProcess(processId: string): Promise<Process | null>;
+        describeProcess(processId: string, namespace?: string | null): Promise<Process | null>;
         /**
-         * Returns an object to simply build user-defined processes.
+         * Returns an object to simply build user-defined processes based upon pre-defined processes.
          *
          * @async
          * @param {string} id - A name for the process.
@@ -2572,6 +2594,10 @@ declare module OpenEO {
     export type Processes = {
         processes: Array<Process>;
         links: Array<Link>;
+        /**
+         * EXPERIMENTAL!
+         */
+        namespaces: Array<string> | null;
     };
     /**
      * An openEO processing chain.

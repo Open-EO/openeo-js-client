@@ -119,8 +119,12 @@ TapDigit.Lexer = function () {
         return (ch === '_') || (ch === '#') || (ch === '$') || isLetter(ch);
     }
 
-    function isIdentifierPart(ch) {
-        return (ch === '_') || isLetter(ch) || isDecimalDigit(ch);
+    function isAdditionalNamespaceChar(ch) {
+        return (ch === '-') || (ch === '.') || (ch === '~') || (ch === '@');
+    }
+
+    function isIdentifierPart(ch, ns = false) {
+        return (ch === '_') || isLetter(ch) || isDecimalDigit(ch) || (ns && isAdditionalNamespaceChar(ch));
     }
 
     function scanIdentifier() {
@@ -130,6 +134,7 @@ TapDigit.Lexer = function () {
         }
 
         let id = getNextChar();
+        let ns = false;
         while (true) {
             let ch = peekNextChar();
             // If the first character is a $, it is allowed that more $ follow directly after
@@ -138,7 +143,10 @@ TapDigit.Lexer = function () {
                     startCh = ''; // Stop allowing $ once the first non-$ has been found
                 } // else: allowed
             }
-            else if (!isIdentifierPart(ch)) {
+            else if (ch === '@') {
+                ns = true;
+            }
+            else if (!isIdentifierPart(ch, ns)) {
                 break;
             }
             id += getNextChar();
@@ -357,6 +365,7 @@ TapDigit.Parser = function () {
         if (matchOp(token, '(')) {
             lexer.next();
             expr = parseExpression();
+            console.log(expr);
             token = lexer.next();
             if (!matchOp(token, ')')) {
                 throw new SyntaxError('Expecting )');

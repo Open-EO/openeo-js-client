@@ -2,7 +2,7 @@
 const { OpenEO, Connection, Capabilities } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 
-describe('With eodc-driver', () => {
+describe('EODC back-end', () => {
 	const TESTBACKEND = 'https://openeo.eodc.eu';
 
 	const TESTCOLLECTION = 'boa_landsat_8';
