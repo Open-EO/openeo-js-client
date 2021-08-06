@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { User, UserManager } from 'oidc-client';
+import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
 
 declare module OpenEO {
@@ -1638,23 +1639,17 @@ declare module OpenEO {
          *
          * Each process passed to the constructor is made available as object method.
          *
-         * @param {Array.<Process>|Processes} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+         * @param {Array.<Process>|Processes|ProcessRegistry} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
          * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
          * @param {string} id - A unique identifier for the process.
          */
-        constructor(processes: Array<Process> | Processes, parent?: Builder | null, id?: string);
+        constructor(processes: Array<Process> | Processes | ProcessRegistry, parent?: Builder | null, id?: string);
         /**
-         * List of all non-namespaced process specifications.
-         * @type {Array.<Process>}
+         * A unique identifier for the process.
+         * @public
+         * @type {string}
          */
-        processes: Array<Process>;
-        /**
-         * Namespaced process specifications. EXPERIMENTAL!
-         * @type {object.<string, Array.<Process>>}
-         */
-        namespacedProcesses: {
-            [x: string]: Array<Process>;
-        };
+        public id: string;
         /**
          * The parent builder.
          * @type {?Builder}
@@ -1675,11 +1670,17 @@ declare module OpenEO {
         callbackParameterCache: {};
         parameters: any;
         /**
-         * A unique identifier for the process.
-         * @public
-         * @type {string}
+         * List of all non-namespaced process specifications.
+         * @type {ProcessRegistry}
          */
-        public id: string;
+        processes: ProcessRegistry;
+        /**
+         * Creates a callable function on the builder object for a process.
+         *
+         * @param {Process} process
+         * @throws {Error}
+         */
+        createFunction(process: any): void;
         /**
          * Adds a process specification to the builder so that it can be used to create a process graph.
          *
@@ -1720,11 +1721,11 @@ declare module OpenEO {
          */
         addParameter(parameter: any, root?: boolean): void;
         /**
-         * Returns the process specification for the given process identifier and namespace.
+         * Returns the process specification for the given process identifier and namespace (or `null`).
          *
          * @param {string} id - Process identifier
-         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
-         * @returns {Process}
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. user or backend namespace). EXPERIMENTAL!
+         * @returns {?Process}
          */
         spec(id: string, namespace?: string | null): Process;
         /**
@@ -1783,22 +1784,35 @@ declare module OpenEO {
          */
         constructor(baseUrl: string);
         /**
+         * URL of the backend connected to.
+         *
          * @type {string}
          */
         baseUrl: string;
         /**
+         * Auth Provider cache
+         *
          * @type {?Array.<AuthProvider>}
          */
         authProviderList: Array<AuthProvider> | null;
         /**
+         * Current auth provider
+         *
          * @type {?AuthProvider}
          */
         authProvider: AuthProvider | null;
         /**
+         * Capability cache
+         *
          * @type {?Capabilities}
          */
         capabilitiesObject: Capabilities | null;
-        processes: any;
+        /**
+         * Process cache
+         *
+         * @type {ProcessRegistry}
+         */
+        processes: ProcessRegistry;
         listeners: {};
         /**
          * Initializes the connection by requesting the capabilities.
@@ -1893,8 +1907,6 @@ declare module OpenEO {
          *
          * Requests pre-defined processes by default.
          * Set the namespace parameter to request processes from a specific namespace.
-         *
-         * Pre-defined processes are cached in memory.
          *
          * @async
          * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!

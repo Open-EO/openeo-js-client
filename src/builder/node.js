@@ -28,7 +28,7 @@ class BuilderNode {
 		 * @readonly
 		 */
 		this.spec = this.parent.spec(processId, processNamespace);
-		if (!Utils.isObject(this.spec)) {
+		if (!this.spec) {
 			throw new Error("Process doesn't exist: " + processId);
 		}
 

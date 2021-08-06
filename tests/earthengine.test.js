@@ -98,9 +98,12 @@ describe('GEE back-end', () => {
 		});
 
 		test('Connect with Basic Auth credentials', async () => {
+			let tokenValue = null;
+			con.on('tokenChanged', token => tokenValue = token);
 			await basic.login(TESTUSERNAME, TESTPASSWORD);
 			expect(basic.getToken()).not.toBeNull();
 			expect(con.isAuthenticated()).toBeTruthy();
+			expect(typeof tokenValue).toBe('string');
 		});
 	
 	});
@@ -345,6 +348,15 @@ describe('GEE back-end', () => {
 			expect(pg instanceof UserProcess).toBeTruthy();
 			expect(typeof pg.id).toBe('string');
 			expect(pg.id).toBe(pg1.id);
+
+			expect(pg.toJSON()).toEqual({
+				id: 'myndvi',
+				process_graph: PROCESSGRAPH
+			});
+			expect(pg.getAll()).toEqual({
+				id: 'myndvi',
+				processGraph: PROCESSGRAPH
+			});
 		});
 
 		test('Describe process graph with metadata', async () => {

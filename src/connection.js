@@ -1,5 +1,6 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
+const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
 const axios = require('axios').default;
 const StacMigrate = require('@radiantearth/stac-migrate');
 
@@ -29,22 +30,35 @@ class Connection {
 	 */
 	constructor(baseUrl) {
 		/**
+		 * URL of the backend connected to.
+		 * 
 		 * @type {string}
 		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		/**
+		 * Auth Provider cache
+		 * 
 		 * @type {?Array.<AuthProvider>}
 		 */
 		this.authProviderList = null;
 		/**
+		 * Current auth provider
+		 * 
 		 * @type {?AuthProvider}
 		 */
 		this.authProvider = null;
 		/**
+		 * Capability cache
+		 * 
 		 * @type {?Capabilities}
 		 */
 		this.capabilitiesObject = null;
-		this.processes = null;
+		/**
+		 * Process cache
+		 * 
+		 * @type {ProcessRegistry}
+		 */
+		this.processes = new ProcessRegistry();
 		this.listeners = {};
 	}
 
@@ -213,28 +227,25 @@ class Connection {
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
 	 * 
-	 * Pre-defined processes are cached in memory.
-	 * 
 	 * @async
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Promise<Processes>} - A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listProcesses(namespace = null) {
-		let isPredefined = (!namespace || namespace === 'backend');
-
-		// Load pre-defined processes from cache
-		if (isPredefined && this.processes !== null) {
-			return this.processes;
+		if (!namespace) {
+			namespace = 'backend';
 		}
-
-		let path = isPredefined ? '/processes' : `/processes/${namespace}`;
+		let path = (namespace === 'backend') ? '/processes' : `/processes/${namespace}`;
 		let response = await this._get(path);
 
-		// Store pre-defined processes in cache
-		if (isPredefined) {
-			this.processes = response.data;
+		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
+			throw new Error('Invalid response received for processes');
 		}
+
+		// Store processes in cache
+		this.processes.remove(null, namespace);
+		this.processes.addAll(response.data.processes);
 		
 		return response.data;
 	}
@@ -250,15 +261,19 @@ class Connection {
 	 * @see Connection#listProcesses
 	 */
 	async describeProcess(processId, namespace = null) {
-		if (!namespace || namespace === 'backend') {
-			let response = await this.listProcesses();
-			if (Array.isArray(response.processes)) {
-				return response.processes.find(process => Utils.isObject(process) && process.id === processId) || null;
-			}
-			return null;
+		if (!namespace) {
+			namespace = 'backend';
+		}
+		if (namespace === 'backend') {
+			await this.listProcesses();
+			return this.processes.get(processId, namespace);
 		}
 		else {
 			let response = await this._get(`/processes/${namespace}/${processId}`);
+			if (!Utils.isObject(response.data) || typeof response.data.id !== 'string') {
+				throw new Error('Invalid response received for process');
+			}
+			this.processes.add(response.data, namespace);
 			return response.data;
 		}
 	}
@@ -273,8 +288,8 @@ class Connection {
 	 * @see Connection#listProcesses
 	 */
 	async buildProcess(id) {
-		let response = await this.listProcesses();
-		return new Builder(response.processes, null, id);
+		await this.listProcesses();
+		return new Builder(this.processes, null, id);
 	}
 
 	/**

@@ -365,7 +365,6 @@ TapDigit.Parser = function () {
         if (matchOp(token, '(')) {
             lexer.next();
             expr = parseExpression();
-            console.log(expr);
             token = lexer.next();
             if (!matchOp(token, ')')) {
                 throw new SyntaxError('Expecting )');

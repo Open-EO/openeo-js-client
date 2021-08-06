@@ -1,19 +1,40 @@
 // @ts-nocheck
-const { OpenEO, Connection, Capabilities } = require('../src/openeo');
+const { OpenEO, Connection, Capabilities, BasicProvider, OidcProvider } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 
 describe('VITO back-end', () => {
 	const TESTBACKEND = 'https://openeo.vito.be';
 
-	describe('Request processes from namespace', () => {
+	let con;
+	test('Connect', async () => {
+		con = await OpenEO.connect(TESTBACKEND);
+		expect(con instanceof Connection).toBeTruthy();
+		let cap = con.capabilities();
+		expect(cap instanceof Capabilities).toBeTruthy();
+	});
 
-		let con;
-		test('Connect', async () => {
-			con = await OpenEO.connect(TESTBACKEND);
-			expect(con instanceof Connection).toBeTruthy();
-			let cap = con.capabilities();
-			expect(cap instanceof Capabilities).toBeTruthy();
+	describe('OIDC', () => {
+		test('listAuthProviders', async () => {
+			let providers = await con.listAuthProviders();
+			expect(Array.isArray(providers)).toBeTruthy();
+			expect(providers.find(p => p instanceof BasicProvider)).toBeDefined();
+			expect(providers.find(p => p instanceof OidcProvider)).toBeDefined();
 		});
+	});
+
+	describe('UDFs', () => {
+		test('listUdfRuntimes', async () => {
+			let runtime = "Python";
+			let udfs = await con.listUdfRuntimes();
+			expect(Utils.isObject(udfs)).toBeTruthy();
+			expect(udfs).toHaveProperty(runtime);
+			expect(Utils.isObject(udfs[runtime])).toBeTruthy();
+			expect(Utils.isObject(udfs[runtime].versions)).toBeTruthy();
+			expect(udfs[runtime].type).toBe("language");
+		});
+	});
+
+	describe('Request processes from namespace', () => {
 
 		// Not implemented yet by VITO
 /*		test('Check process namespace list', async () => {

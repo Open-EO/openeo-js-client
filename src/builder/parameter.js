@@ -88,15 +88,14 @@ class Parameter {
 				 */
 				set(target, name, value, receiver) {
 					if (!Reflect.has(target, name)) {
-						console.warn('Simplified array access is read-only');
+						throw new Error('Simplified array access is read-only');
 					}
 					return Reflect.set(target, name, value, receiver);
 				}
 			});
 		}
 		else {
-			console.warn('Simplified array access not supported, use array_element directly');
-			return parameter;
+			throw new Error('Simplified array access not supported, use array_element directly');
 		}
 	}
 	
