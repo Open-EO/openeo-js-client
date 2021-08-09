@@ -619,6 +619,15 @@ class Connection {
 	 */
 	async listUserProcesses() {
 		let response = await this._get('/process_graphs');
+
+		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
+			throw new Error('Invalid response received for processes');
+		}
+
+		// Store processes in cache
+		this.processes.remove(null, 'user');
+		this.processes.addAll(response.data.processes, 'user');
+
 		return response.data.processes.map(
 			pg => new UserProcess(this, pg.id).setAll(pg)
 		);

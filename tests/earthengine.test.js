@@ -417,7 +417,7 @@ describe('GEE back-end', () => {
 				expect(r).toBeUndefined();
 			} catch (error) {
 				expect(error.code).toBe("ResultNodeMissing");
-				expect(error.message).toBe("No result node found for process graph.")
+				expect(error.message).toBe("No result node found for the process.")
 			}
 		});
 	});
