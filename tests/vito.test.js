@@ -7,8 +7,9 @@ describe('VITO back-end', () => {
 
 	let con;
 	test('Connect', async () => {
-		con = await OpenEO.connect(TESTBACKEND);
+		con = await OpenEO.connect(TESTBACKEND, {addNamespaceToProcess: true});
 		expect(con instanceof Connection).toBeTruthy();
+		expect(con.options.addNamespaceToProcess).toBeTruthy();
 		let cap = con.capabilities();
 		expect(cap instanceof Capabilities).toBeTruthy();
 	});
@@ -51,17 +52,19 @@ describe('VITO back-end', () => {
 		});
 
 		test('Request processes from namespace "vito"', async () => {
-			let p = await con.listProcesses("vito");
+			let p = await con.listProcesses('vito');
 			expect(Array.isArray(p.processes)).toBeTruthy();
 			let msi = p.processes.find(process => process.id === 'MSI');
 			expect(Utils.isObject(msi)).toBeTruthy();
+			expect(msi.namespace).toBe('vito');
 			expect(msi.description).toBeDefined();
 		});
 
 		test('Request process "MSI" from namespace "vito"', async () => {
-			let msi = await con.describeProcess("MSI", "vito");
+			let msi = await con.describeProcess('MSI', 'vito');
 			expect(Utils.isObject(msi)).toBeTruthy();
-			expect(msi.id).toBe("MSI");
+			expect(msi.id).toBe('MSI');
+			expect(msi.namespace).toBe('vito');
 			expect(msi.description).toBeDefined();
 			expect(msi.process_graph).toBeDefined();
 		});

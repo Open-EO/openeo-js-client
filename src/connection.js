@@ -26,40 +26,60 @@ class Connection {
 	/**
 	 * Creates a new Connection.
 	 * 
-	 * @param {string} baseUrl - URL to the back-end
+	 * @param {string} baseUrl - URL to the back-end.
+	 * @param {Options} [options={}] - Additional options for the connection.
 	 */
-	constructor(baseUrl) {
+	constructor(baseUrl, options = {}) {
 		/**
 		 * URL of the backend connected to.
 		 * 
+		 * @protected
 		 * @type {string}
 		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		/**
 		 * Auth Provider cache
 		 * 
+		 * @protected
 		 * @type {?Array.<AuthProvider>}
 		 */
 		this.authProviderList = null;
 		/**
 		 * Current auth provider
 		 * 
+		 * @protected
 		 * @type {?AuthProvider}
 		 */
 		this.authProvider = null;
 		/**
 		 * Capability cache
 		 * 
+		 * @protected
 		 * @type {?Capabilities}
 		 */
 		this.capabilitiesObject = null;
 		/**
 		 * Process cache
 		 * 
+		 * @protected
 		 * @type {ProcessRegistry}
 		 */
-		this.processes = new ProcessRegistry();
+		this.processes = new ProcessRegistry([], Boolean(options.addNamespaceToProcess));
+		this.processes.listeners.push((...args) => this.emit('processesChanged', ...args));
+		/**
+		 * Listeners for events.
+		 * 
+		 * @protected
+		 * @type {object.<string|Function>}
+		 */
 		this.listeners = {};
+		/**
+		 * Additional options for the connection.
+		 * 
+		 * @protected
+		 * @type {Options}
+		 */
+		this.options = options;
 	}
 
 	/**
@@ -245,9 +265,9 @@ class Connection {
 
 		// Store processes in cache
 		this.processes.remove(null, namespace);
-		this.processes.addAll(response.data.processes);
+		this.processes.addAll(response.data.processes, namespace);
 		
-		return response.data;
+		return Object.assign(response.data, {processes: this.processes.namespace(namespace)});
 	}
 
 	/**
@@ -266,7 +286,6 @@ class Connection {
 		}
 		if (namespace === 'backend') {
 			await this.listProcesses();
-			return this.processes.get(processId, namespace);
 		}
 		else {
 			let response = await this._get(`/processes/${namespace}/${processId}`);
@@ -274,8 +293,8 @@ class Connection {
 				throw new Error('Invalid response received for process');
 			}
 			this.processes.add(response.data, namespace);
-			return response.data;
 		}
+		return this.processes.get(processId, namespace);
 	}
 
 	/**
@@ -427,6 +446,7 @@ class Connection {
 	 * Currently supported:
 	 * - authProviderChanged(provider): Raised when the auth provider has changed.
 	 * - tokenChanged(token): Raised when the access token has changed.
+	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (CRUD)
 	 * 
 	 * @param {string} event 
 	 * @param {Function} callback 

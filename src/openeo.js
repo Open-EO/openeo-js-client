@@ -43,15 +43,16 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} url - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
 	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
-	static async connect(url) {
+	static async connect(url, options = {}) {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
 		let response = null;
 		try {
-			response = await axios.get(wellKnownUrl);
+			response = await axios.get(wellKnownUrl, {timeout: 3000});
 
 			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
 				throw new Error("Well-Known Document doesn't list any versions.");
@@ -70,7 +71,7 @@ class OpenEO {
 			}
 		}
 
-		return await OpenEO.connectDirect(url);
+		return await OpenEO.connectDirect(url, options);
 	}
 
 	/**
@@ -80,12 +81,13 @@ class OpenEO {
 	 * 
 	 * @async
 	 * @param {string} versionedUrl - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
 	 * @returns {Promise<Connection>}
 	 * @throws {Error}
 	 * @static
 	 */
-	static async connectDirect(versionedUrl) {
-		let connection = new Connection(versionedUrl);
+	static async connectDirect(versionedUrl, options = {}) {
+		let connection = new Connection(versionedUrl, options);
 
 		// Check whether back-end is accessible and supports a compatible version.
 		let capabilities = await connection.init();

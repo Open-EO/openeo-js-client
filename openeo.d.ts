@@ -1780,40 +1780,59 @@ declare module OpenEO {
         /**
          * Creates a new Connection.
          *
-         * @param {string} baseUrl - URL to the back-end
+         * @param {string} baseUrl - URL to the back-end.
+         * @param {Options} [options={}] - Additional options for the connection.
          */
-        constructor(baseUrl: string);
+        constructor(baseUrl: string, options?: Options);
         /**
          * URL of the backend connected to.
          *
+         * @protected
          * @type {string}
          */
-        baseUrl: string;
+        protected baseUrl: string;
         /**
          * Auth Provider cache
          *
+         * @protected
          * @type {?Array.<AuthProvider>}
          */
-        authProviderList: Array<AuthProvider> | null;
+        protected authProviderList: Array<AuthProvider> | null;
         /**
          * Current auth provider
          *
+         * @protected
          * @type {?AuthProvider}
          */
-        authProvider: AuthProvider | null;
+        protected authProvider: AuthProvider | null;
         /**
          * Capability cache
          *
+         * @protected
          * @type {?Capabilities}
          */
-        capabilitiesObject: Capabilities | null;
+        protected capabilitiesObject: Capabilities | null;
         /**
          * Process cache
          *
+         * @protected
          * @type {ProcessRegistry}
          */
-        processes: ProcessRegistry;
-        listeners: {};
+        protected processes: any;
+        /**
+         * Listeners for events.
+         *
+         * @protected
+         * @type {object.<string|Function>}
+         */
+        protected listeners: any;
+        /**
+         * Additional options for the connection.
+         *
+         * @protected
+         * @type {Options}
+         */
+        protected options: Options;
         /**
          * Initializes the connection by requesting the capabilities.
          *
@@ -2013,6 +2032,7 @@ declare module OpenEO {
          * Currently supported:
          * - authProviderChanged(provider): Raised when the auth provider has changed.
          * - tokenChanged(token): Raised when the access token has changed.
+         * - processesChanged(type, data, namespace): Raised when the process registry has changed (CRUD)
          *
          * @param {string} event
          * @param {Function} callback
@@ -2347,11 +2367,12 @@ declare module OpenEO {
          *
          * @async
          * @param {string} url - The server URL to connect to.
+         * @param {Options} [options={}] - Additional options for the connection.
          * @returns {Promise<Connection>}
          * @throws {Error}
          * @static
          */
-        static connect(url: string): Promise<Connection>;
+        static connect(url: string, options?: Options): Promise<Connection>;
         /**
          * Connects directly to a back-end instance, without version discovery (NOT recommended).
          *
@@ -2359,11 +2380,12 @@ declare module OpenEO {
          *
          * @async
          * @param {string} versionedUrl - The server URL to connect to.
+         * @param {Options} [options={}] - Additional options for the connection.
          * @returns {Promise<Connection>}
          * @throws {Error}
          * @static
          */
-        static connectDirect(versionedUrl: string): Promise<Connection>;
+        static connectDirect(versionedUrl: string, options?: Options): Promise<Connection>;
         /**
          * Returns the version number of the client.
          *
@@ -2602,6 +2624,15 @@ declare module OpenEO {
          * Links
          */
         links: Array<Link>;
+    };
+    /**
+     * Connection options.
+     */
+    export type Options = {
+        /**
+         * Add a namespace property to processes if set to `true`.
+         */
+        addNamespaceToProcess?: boolean;
     };
     export type Processes = {
         processes: Array<Process>;

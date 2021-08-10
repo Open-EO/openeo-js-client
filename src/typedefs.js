@@ -171,6 +171,14 @@
  */
 
 /**
+ * Connection options.
+ * 
+ * @typedef Options
+ * @type {object}
+ * @property {boolean} [addNamespaceToProcess=false] Add a namespace property to processes if set to `true`.
+ */
+
+/**
  * @typedef Processes
  * @type {object}
  * @property {Array.<Process>} processes
