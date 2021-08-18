@@ -1,4 +1,5 @@
 const BaseEntity = require('./baseentity');
+const Utils = require('@openeo/js-commons/src/utils');
 
 /**
  * A Stored Process Graph.
@@ -120,6 +121,10 @@ class UserProcess extends BaseEntity {
 	 */
 	async describeUserProcess() {
 		let response = await this.connection._get('/process_graphs/' + this.id);
+		if (!Utils.isObject(response.data) || typeof response.data.id !== 'string') {
+			throw new Error('Invalid response received for user process');
+		}
+		this.connection.processes.add(response.data, 'user');
 		return this.setAll(response.data);
 	}
 
@@ -140,7 +145,9 @@ class UserProcess extends BaseEntity {
 			return this.describeUserProcess();
 		}
 		else {
-			return this.setAll(parameters);
+			let obj = this.setAll(parameters);
+			this.connection.processes.add(obj.toJSON(), 'user');
+			return obj;
 		}
 	}
 
@@ -152,6 +159,7 @@ class UserProcess extends BaseEntity {
 	 */
 	async deleteUserProcess() {
 		await this.connection._delete('/process_graphs/' + this.id);
+		this.connection.processes.remove(this.id, 'user');
 	}
 }
 

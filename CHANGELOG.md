@@ -6,9 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Experimental support for process namespaces, see [API#348](https://github.com/Open-EO/openeo-api/pull/348).
+
+### Changed
+
+- Internally, a new process registry is used to manage and cache processes.
+- `listProcesses` doesn't cache requests any longer.
+
 ### Fixed
 
 - Return a better error message if issues with reading batch job results occur in `Job.getResultsAsStac`
+- `getAll()` functions return only properties for values that are defined
 
 ## [2.0.1] - 2021-07-14
 
@@ -60,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Arrow functions can be used as callbacks in process graph building.
+- Fixed nullable return types in TS declaraion
+- Fixed other minor issues in TS declaration
 
 ## [1.2.0] - 2021-03-11
 

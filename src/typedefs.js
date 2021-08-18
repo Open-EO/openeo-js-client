@@ -171,10 +171,19 @@
  */
 
 /**
+ * Connection options.
+ * 
+ * @typedef Options
+ * @type {object}
+ * @property {boolean} addNamespaceToProcess Add a namespace property to processes if set to `true`. Defaults to `false`.
+ */
+
+/**
  * @typedef Processes
  * @type {object}
  * @property {Array.<Process>} processes
  * @property {Array.<Link>} links
+ * @property {?Array.<string>} namespaces EXPERIMENTAL!
  */
 
 /**
@@ -214,8 +223,9 @@
  * @typedef UserAccount
  * @type {object}
  * @property {string} user_id
- * @property {string} name
- * @property {UserAccountStorage} storage
+ * @property {?string} name
+ * @property {?string} default_plan
+ * @property {?UserAccountStorage} storage
  * @property {?number} budget
- * @property {Array.<Link>} links
+ * @property {?Array.<Link>} links
  */

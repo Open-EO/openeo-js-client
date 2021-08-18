@@ -108,7 +108,9 @@ class BaseEntity {
 		let obj = {};
 		for(let backend in this.apiToClientNames) {
 			let client = this.apiToClientNames[backend];
-			obj[client] = this[client];
+			if (typeof this[client] !== 'undefined') {
+				obj[client] = this[client];
+			}
 		}
 		return Object.assign(obj, this.extra);
 	}

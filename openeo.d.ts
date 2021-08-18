@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { User, UserManager } from 'oidc-client';
+import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
 
 declare module OpenEO {
@@ -63,7 +64,7 @@ declare module OpenEO {
          *
          * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
          *
-         * @returns {?string}
+         * @returns {string | null}
          */
         getToken(): string | null;
         /**
@@ -387,7 +388,7 @@ declare module OpenEO {
         /**
          * Get the billing currency.
          *
-         * @returns {?string} The billing currency or `null` if not available.
+         * @returns {string | null} The billing currency or `null` if not available.
          */
         currency(): string | null;
         /**
@@ -545,14 +546,14 @@ declare module OpenEO {
          *
          * This may override a detected default client ID.
          *
-         * @param {?string} clientId
+         * @param {string | null} clientId
          */
         setClientId(clientId: string | null): void;
         /**
          * Sets the OIDC User.
          *
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-         * @param {?User} user - The OIDC User. Passing `null` resets OIDC authentication details.
+         * @param {User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
          */
         setUser(user: User | null): void;
         /**
@@ -560,7 +561,7 @@ declare module OpenEO {
          *
          * Sets the grant and client ID accordingly.
          *
-         * @returns {?OidcClient}
+         * @returns {OidcClient | null}
          * @see OidcProvider#setGrant
          * @see OidcProvider#setClientId
          */
@@ -609,7 +610,7 @@ declare module OpenEO {
          * Returns null if no input file format was found for the given identifier.
          *
          * @param {string} type - Case-insensitive file format identifier
-         * @returns {?FileType}
+         * @returns {FileType | null}
          */
         getInputType(type: string): FileType | null;
         /**
@@ -618,7 +619,7 @@ declare module OpenEO {
          * Returns null if no output file format was found for the given identifier.
          *
          * @param {string} type - Case-insensitive file format identifier
-         * @returns {?FileType}
+         * @returns {FileType | null}
          */
         getOutputType(type: string): FileType | null;
         /**
@@ -626,7 +627,7 @@ declare module OpenEO {
          *
          * @param {string} type - Identifier of the file type
          * @param {string} io - Either `input` or `output`
-         * @returns {?FileType}
+         * @returns {FileType | null}
          * @protected
          */
         protected _findType(type: string, io: string): FileType | null;
@@ -710,7 +711,7 @@ declare module OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, statusCallback?: (percentCompleted: number, file: UserFile) => any): Promise<UserFile>;
+        uploadFile(source: any, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
         /**
          * Deletes the file from the user workspace.
          *
@@ -719,6 +720,13 @@ declare module OpenEO {
          */
         deleteFile(): Promise<void>;
     }
+    namespace UserFile {
+        export { uploadStatusCallback };
+    }
+    /**
+     * A callback that is executed on upload progress updates.
+     */
+    type uploadStatusCallback = (percentCompleted: number, file: UserFile) => any;
     /**
      * Interface to loop through the logs.
      */
@@ -1346,12 +1354,13 @@ declare module OpenEO {
      * Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)
      *
      * It supports all mathematical functions (i.e. expects a number and returns a number) the back-end implements, e.g. `sqrt(x)`.
+     * For namespaced processes, use for example `process@namespace(x)` - EXPERIMENTAL!
      *
      * Only available if a builder is specified in the constructor:
      * You can refer to output from processes with a leading `#`, e.g. `#loadco1` if the node to refer to has the key `loadco1`.
      *
      * Only available if a parent node is set via `setNode()`:
-     * Parameters can be accessed simply by name. 
+     * Parameters can be accessed simply by name.
      * If the first parameter is a (labeled) array, the value for a specific index or label can be accessed by typing the numeric index or textual label with a `$` in front, for example `$B1` for the label `B1` or `$0` for the first element in the array. Numeric labels are not supported.
      * You can access subsequent parameters by adding additional `$` at the beginning, e.g. `$$0` to access the first element of an array in the second parameter, `$$$0` for the same in the third parameter etc.
      *
@@ -1430,8 +1439,9 @@ declare module OpenEO {
          * @param {string} processId
          * @param {object.<string, *>} [processArgs={}]
          * @param {?string} [processDescription=null]
+         * @param {?string} [processNamespace=null]
          */
-        constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null);
+        constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null, processNamespace?: string | null);
         /**
          * The parent builder.
          * @type {Builder}
@@ -1448,6 +1458,11 @@ declare module OpenEO {
          * @type {string}
          */
         id: string;
+        /**
+         * The namespace of the process - EXPERIMENTAL!
+         * @type {string}
+         */
+        namespace: string;
         /**
          * The arguments for the process.
          * @type {object.<string, *>}
@@ -1508,7 +1523,7 @@ declare module OpenEO {
          *
          * @protected
          * @param {?BuilderNode} [parentNode=null]
-         * @param {?string} parentParameter
+         * @param {?string} [parentParameter=null]
          * @returns {BuilderNode}
          */
         protected createBuilder(parentNode?: BuilderNode | null, parentParameter?: string | null): BuilderNode;
@@ -1608,7 +1623,7 @@ declare module OpenEO {
          *
          * @async
          * @static
-         * @param {?string} version
+         * @param {?string} [version=null]
          * @returns {Promise<Builder>}
          * @throws {Error}
          */
@@ -1621,7 +1636,7 @@ declare module OpenEO {
          *
          * @async
          * @static
-         * @param {?string} url
+         * @param {string | null} url
          * @returns {Promise<Builder>}
          * @throws {Error}
          */
@@ -1631,16 +1646,17 @@ declare module OpenEO {
          *
          * Each process passed to the constructor is made available as object method.
          *
-         * @param {Array.<Process>|Processes} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+         * @param {Array.<Process>|Processes|ProcessRegistry} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
          * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
          * @param {string} id - A unique identifier for the process.
          */
-        constructor(processes: Array<Process> | Processes, parent?: Builder | null, id?: string);
+        constructor(processes: Array<Process> | Processes | ProcessRegistry, parent?: Builder | null, id?: string);
         /**
-         * List of all process specifications.
-         * @type {Array.<Process>}
+         * A unique identifier for the process.
+         * @public
+         * @type {string}
          */
-        processes: Array<Process>;
+        public id: string;
         /**
          * The parent builder.
          * @type {?Builder}
@@ -1661,18 +1677,25 @@ declare module OpenEO {
         callbackParameterCache: {};
         parameters: any;
         /**
-         * A unique identifier for the process.
-         * @public
-         * @type {string}
+         * List of all non-namespaced process specifications.
+         * @type {ProcessRegistry}
          */
-        public id: string;
+        processes: ProcessRegistry;
+        /**
+         * Creates a callable function on the builder object for a process.
+         *
+         * @param {Process} process
+         * @throws {Error}
+         */
+        createFunction(process: any): void;
         /**
          * Adds a process specification to the builder so that it can be used to create a process graph.
          *
          * @param {Process} process - Process specification compliant to openEO API
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @throws {Error}
          */
-        addProcessSpec(process: Process): void;
+        addProcessSpec(process: Process, namespace?: string | null): void;
         /**
          * Sets the parent for this Builder.
          *
@@ -1705,12 +1728,13 @@ declare module OpenEO {
          */
         addParameter(parameter: any, root?: boolean): void;
         /**
-         * Returns the process specification for the given process identifier.
+         * Returns the process specification for the given process identifier and namespace (or `null`).
          *
-         * @param {string} id
-         * @returns {Process}
+         * @param {string} id - Process identifier
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. user or backend namespace). EXPERIMENTAL!
+         * @returns {Process | null}
          */
-        spec(id: string): Process;
+        spec(id: string, namespace?: string | null): Process | null;
         /**
          * Adds a mathematical formula to the process.
          *
@@ -1723,18 +1747,19 @@ declare module OpenEO {
          */
         math(formula: string): BuilderNode;
         /**
-         * Checks whether a process with the given id is supported by the back-end.
+         * Checks whether a process with the given id and namespace is supported by the back-end.
          *
-         * @param {string} processId - The id of the process to call.
+         * @param {string} processId - The id of the process.
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {boolean}
          */
-        supports(processId: string): boolean;
+        supports(processId: string, namespace?: string | null): boolean;
         /**
          * Adds another process call to the process chain.
          *
-         * @param {string} processId - The id of the process to call.
-         * @param {object.<string, *>|Array} args - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
-         * @param {?string} description - An optional description for the process call.
+         * @param {string} processId - The id of the process to call. To access a namespaced process, use the `process@namespace` notation.
+         * @param {object.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+         * @param {?string} [description=null] - An optional description for the process call.
          * @returns {BuilderNode}
          */
         process(processId: string, args?: any | any[], description?: string | null): BuilderNode;
@@ -1762,27 +1787,59 @@ declare module OpenEO {
         /**
          * Creates a new Connection.
          *
-         * @param {string} baseUrl - URL to the back-end
+         * @param {string} baseUrl - URL to the back-end.
+         * @param {Options} [options={}] - Additional options for the connection.
          */
-        constructor(baseUrl: string);
+        constructor(baseUrl: string, options?: Options);
         /**
+         * URL of the backend connected to.
+         *
+         * @protected
          * @type {string}
          */
-        baseUrl: string;
+        protected baseUrl: string;
         /**
+         * Auth Provider cache
+         *
+         * @protected
          * @type {?Array.<AuthProvider>}
          */
-        authProviderList: Array<AuthProvider> | null;
+        protected authProviderList: Array<AuthProvider> | null;
         /**
+         * Current auth provider
+         *
+         * @protected
          * @type {?AuthProvider}
          */
-        authProvider: AuthProvider | null;
+        protected authProvider: AuthProvider | null;
         /**
+         * Capability cache
+         *
+         * @protected
          * @type {?Capabilities}
          */
-        capabilitiesObject: Capabilities | null;
-        processes: any;
-        listeners: {};
+        protected capabilitiesObject: Capabilities | null;
+        /**
+         * Process cache
+         *
+         * @protected
+         * @type {ProcessRegistry}
+         */
+        protected processes: any;
+        /**
+         * Listeners for events.
+         *
+         * @protected
+         * @type {object.<string|Function>}
+         */
+        protected listeners: any;
+        /**
+         * Additional options for the connection.
+         *
+         * @protected
+         * @type {Options}
+         */
+        protected options: Options;
         /**
          * Initializes the connection by requesting the capabilities.
          *
@@ -1857,42 +1914,48 @@ declare module OpenEO {
          *
          * @async
          * @param {string} collectionId - Collection ID to request items for.
-         * @param {?Array.<number>} spatialExtent - Limits the items to the given bounding box in WGS84:
+         * @param {?Array.<number>} [spatialExtent=null] - Limits the items to the given bounding box in WGS84:
          * 1. Lower left corner, coordinate axis 1
          * 2. Lower left corner, coordinate axis 2
          * 3. Upper right corner, coordinate axis 1
          * 4. Upper right corner, coordinate axis 2
-         * @param {?Array.<*>} temporalExtent - Limits the items to the specified temporal interval.
+         * @param {?Array.<*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
          * The interval has to be specified as an array with exactly two elements (start, end) and
          * each must be either an RFC 3339 compatible string or a Date object.
          * Also supports open intervals by setting one of the boundaries to `null`, but never both.
-         * @param {?number} limit - The amount of items per request/page as integer. If `null` (default), the back-end decides.
+         * @param {?number} [limit=null] - The amount of items per request/page as integer. If `null` (default), the back-end decides.
          * @yields {Promise<ItemCollection>} A response compatible to the API specification.
          * @throws {Error}
          */
         listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: Array<any> | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
-         * List all processes available on the back-end.
+         * List processes available on the back-end.
          *
-         * Data is cached in memory.
+         * Requests pre-defined processes by default.
+         * Set the namespace parameter to request processes from a specific namespace.
+         *
+         * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+         * The namespaces are then listed in the property `namespaces`.
          *
          * @async
+         * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Promise<Processes>} - A response compatible to the API specification.
          * @throws {Error}
          */
-        listProcesses(): Promise<Processes>;
+        listProcesses(namespace?: string | null): Promise<Processes>;
         /**
          * Get information about a single process.
          *
          * @async
          * @param {string} processId - Collection ID to request further metadata for.
+         * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Promise<?Process>} - A single process as object, or `null` if none is found.
          * @throws {Error}
          * @see Connection#listProcesses
          */
-        describeProcess(processId: string): Promise<Process | null>;
+        describeProcess(processId: string, namespace?: string | null): Promise<Process | null>;
         /**
-         * Returns an object to simply build user-defined processes.
+         * Returns an object to simply build user-defined processes based upon pre-defined processes.
          *
          * @async
          * @param {string} id - A name for the process.
@@ -1922,7 +1985,7 @@ declare module OpenEO {
          *
          * @callback oidcProviderFactoryFunction
          * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-         * @returns {?AuthProvider}
+         * @returns {AuthProvider | null}
          */
         /**
          * Sets a factory function that creates custom OpenID Connect provider instances.
@@ -1931,21 +1994,21 @@ declare module OpenEO {
          * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
          * OIDC library other than oidc-client-js.
          *
-         * @param {?oidcProviderFactoryFunction} providerFactoryFunc
+         * @param {?oidcProviderFactoryFunction} [providerFactoryFunc=null]
          * @see AuthProvider
          */
-        setOidcProviderFactory(providerFactoryFunc: (providerInfo: any) => AuthProvider | null): void;
-        oidcProviderFactory: (providerInfo: any) => AuthProvider | null;
+        setOidcProviderFactory(providerFactoryFunc?: oidcProviderFactoryFunction | null): void;
+        oidcProviderFactory: oidcProviderFactoryFunction;
         /**
          * Get the OpenID Connect provider factory.
          *
          * Returns `null` if OIDC is not supported by the client or an instance
          * can't be created for whatever reason.
          *
-         * @returns {?oidcProviderFactoryFunction}
+         * @returns {oidcProviderFactoryFunction | null}
          * @see AuthProvider
          */
-        getOidcProviderFactory(): (providerInfo: any) => AuthProvider | null;
+        getOidcProviderFactory(): oidcProviderFactoryFunction | null;
         /**
          * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
          *
@@ -1979,6 +2042,7 @@ declare module OpenEO {
          * Currently supported:
          * - authProviderChanged(provider): Raised when the auth provider has changed.
          * - tokenChanged(token): Raised when the access token has changed.
+         * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted)
          *
          * @param {string} event
          * @param {Function} callback
@@ -1993,7 +2057,7 @@ declare module OpenEO {
         /**
          * Returns the AuthProvider.
          *
-         * @returns {?AuthProvider}
+         * @returns {AuthProvider | null}
          */
         getAuthProvider(): AuthProvider | null;
         /**
@@ -2056,7 +2120,7 @@ declare module OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, targetPath?: string | null, statusCallback?: (percentCompleted: number) => any): Promise<UserFile>;
+        uploadFile(source: any, targetPath?: string | null, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
         /**
          * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
          *
@@ -2211,7 +2275,7 @@ declare module OpenEO {
          *
          * @param {Array.<Link>} links - An array of links.
          * @param {string} rel - Relation type to find, defaults to `next`.
-         * @returns {?string}
+         * @returns {string | null}
          * @throws {Error}
          */
         _getLinkHref(links: Array<Link>, rel?: string): string | null;
@@ -2299,6 +2363,24 @@ declare module OpenEO {
          */
         _send(options: any): Promise<AxiosResponse>;
     }
+    namespace Connection {
+        export { oidcProviderFactoryFunction, uploadStatusCallback };
+    }
+    /**
+     * This function is meant to create the OIDC providers used for authentication.
+     *
+     * The function gets passed a single argument that contains the
+     * provider information as provided by the API, e.g. having the properties
+     * `id`, `issuer`, `title` etc.
+     *
+     * The function must return an instance of AuthProvider or any derived class.
+     * May return `null` if the instance can't be created.
+     */
+    type oidcProviderFactoryFunction = (providerInfo: any) => AuthProvider | null;
+    /**
+     * A callback that is executed on upload progress updates.
+     */
+    type uploadStatusCallback = (percentCompleted: number) => any;
     /**
      * Main class to start with openEO. Allows to connect to a server.
      *
@@ -2313,11 +2395,12 @@ declare module OpenEO {
          *
          * @async
          * @param {string} url - The server URL to connect to.
+         * @param {Options} [options={}] - Additional options for the connection.
          * @returns {Promise<Connection>}
          * @throws {Error}
          * @static
          */
-        static connect(url: string): Promise<Connection>;
+        static connect(url: string, options?: Options): Promise<Connection>;
         /**
          * Connects directly to a back-end instance, without version discovery (NOT recommended).
          *
@@ -2325,11 +2408,12 @@ declare module OpenEO {
          *
          * @async
          * @param {string} versionedUrl - The server URL to connect to.
+         * @param {Options} [options={}] - Additional options for the connection.
          * @returns {Promise<Connection>}
          * @throws {Error}
          * @static
          */
-        static connectDirect(versionedUrl: string): Promise<Connection>;
+        static connectDirect(versionedUrl: string, options?: Options): Promise<Connection>;
         /**
          * Returns the version number of the client.
          *
@@ -2569,9 +2653,22 @@ declare module OpenEO {
          */
         links: Array<Link>;
     };
+    /**
+     * Connection options.
+     */
+    export type Options = {
+        /**
+         * Add a namespace property to processes if set to `true`. Defaults to `false`.
+         */
+        addNamespaceToProcess: boolean;
+    };
     export type Processes = {
         processes: Array<Process>;
         links: Array<Link>;
+        /**
+         * EXPERIMENTAL!
+         */
+        namespaces: Array<string> | null;
     };
     /**
      * An openEO processing chain.
@@ -2609,10 +2706,11 @@ declare module OpenEO {
     };
     export type UserAccount = {
         user_id: string;
-        name: string;
-        storage: UserAccountStorage;
+        name: string | null;
+    	default_plan: string | null;
+        storage: UserAccountStorage | null;
         budget: number | null;
-        links: Array<Link>;
+        links: Array<Link> | null;
     };
 
 }

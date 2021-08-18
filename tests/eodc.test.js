@@ -2,7 +2,7 @@
 const { OpenEO, Connection, Capabilities } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 
-describe('With eodc-driver', () => {
+describe('EODC back-end', () => {
 	const TESTBACKEND = 'https://openeo.eodc.eu';
 
 	const TESTCOLLECTION = 'boa_landsat_8';
@@ -25,7 +25,7 @@ describe('With eodc-driver', () => {
 		});
 
 		// Skip this test for now, EODC back-end is not responding
-		test.skip('Request three pages of items', async () => {
+		test('Request three pages of items', async () => {
 			let page = 1;
 			let spatialExtent = [5.0,45.0,20.0,50.0];
 			let temporalExtent = [Date.UTC(2015, 0, 1), Date.UTC(2017, 0, 1)];

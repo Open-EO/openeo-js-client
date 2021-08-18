@@ -9,7 +9,7 @@ jest.setTimeout(timeout); // Give Google some time to process data
 // Generate random int
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
-describe('With earth-engine-driver', () => {
+describe('GEE back-end', () => {
 	const { TESTBACKEND, STAC_MIGRATE_VERSION } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
 	const TESTUSERNAME = `group${random(20,29)}`;
@@ -17,9 +17,9 @@ describe('With earth-engine-driver', () => {
 	
 	const FREE_PLAN = {"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details.","paid":false};
 
-	const TESTCAPABILITIES = {"api_version":"1.0.0","backend_version":"1.0.0-beta.3","stac_version":"1.0.0-beta.2","production":false,"id":"openeo-earthengine-driver","title":"Google Earth Engine Proxy for openEO","description":"This is the Google Earth Engine Driver for openEO.\n\nGoogle Earth Engine is a planetary-scale platform for Earth science data & analysis. It is powered by Google's cloud infrastructure and combines a multi-petabyte catalog of satellite imagery and geospatial datasets with planetary-scale analysis capabilities. Google makes it available for scientists, researchers, and developers to detect changes, map trends, and quantify differences on the Earth's surface. Google Earth Engine is free for research, education, and nonprofit use.","endpoints":[{"path":"/","methods":["GET"]},{"path":"/conformance","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/file_formats","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files","methods":["GET"]},{"path":"/files/{path}","methods":["GET","PUT","DELETE"]},{"path":"/result","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/logs","methods":["GET"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/services/{service_id}/logs","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PUT","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[FREE_PLAN]},"links":[{"rel":"about","href":"https://earthengine.google.com/","title":"Google Earth Engine Homepage"},{"rel":"terms-of-service","href":"https://earthengine.google.com/terms/","type":"text/html","title":"Google Earth Engine Terms of Service"},{"rel":"privacy-policy","href":"https://policies.google.com/privacy","type":"text/html","title":"Google Privacy Policy"},{"rel":"related","href":"https://github.com/Open-EO/openeo-earthengine-driver","title":"GitHub repository"},{"rel":"version-history","href":TESTBACKEND+"/.well-known/openeo","type":"application/json","title":"Supported API versions"},{"rel":"data","href":TESTBACKENDDIRECT+"/collections","type":"application/json","title":"Datasets"},{"rel":"conformance","href":TESTBACKENDDIRECT+"/conformance","type":"application/json","title":"OGC Conformance classes"}]};
+	const TESTCAPABILITIES = {"api_version":"1.0.1","backend_version":"1.0.0-beta.5","stac_version":"1.0.0","type":"Catalog","production":false,"id":"openeo-earthengine-driver","title":"Google Earth Engine Proxy for openEO","description":"This is the Google Earth Engine Driver for openEO.\n\nGoogle Earth Engine is a planetary-scale platform for Earth science data & analysis. It is powered by Google's cloud infrastructure and combines a multi-petabyte catalog of satellite imagery and geospatial datasets with planetary-scale analysis capabilities. Google makes it available for scientists, researchers, and developers to detect changes, map trends, and quantify differences on the Earth's surface. Google Earth Engine is free for research, education, and nonprofit use.","endpoints":[{"path":"/","methods":["GET"]},{"path":"/conformance","methods":["GET"]},{"path":"/service_types","methods":["GET"]},{"path":"/file_formats","methods":["GET"]},{"path":"/collections","methods":["GET"]},{"path":"/collections/{collection_id}","methods":["GET"]},{"path":"/processes","methods":["GET"]},{"path":"/files","methods":["GET"]},{"path":"/files/{path}","methods":["GET","PUT","DELETE"]},{"path":"/result","methods":["POST"]},{"path":"/jobs","methods":["POST","GET"]},{"path":"/jobs/{job_id}","methods":["GET","PATCH","DELETE"]},{"path":"/jobs/{job_id}/logs","methods":["GET"]},{"path":"/jobs/{job_id}/results","methods":["GET","POST"]},{"path":"/services","methods":["GET","POST"]},{"path":"/services/{service_id}","methods":["GET","PATCH","DELETE"]},{"path":"/services/{service_id}/logs","methods":["GET"]},{"path":"/credentials/basic","methods":["GET"]},{"path":"/me","methods":["GET"]},{"path":"/validation","methods":["POST"]},{"path":"/process_graphs","methods":["GET"]},{"path":"/process_graphs/{process_graph_id}","methods":["GET","PUT","DELETE"]}],"billing":{"currency":"USD","default_plan":"free","plans":[FREE_PLAN]},"links":[{"rel":"about","href":"https://earthengine.google.com/","title":"Google Earth Engine Homepage"},{"rel":"terms-of-service","href":"https://earthengine.google.com/terms/","type":"text/html","title":"Google Earth Engine Terms of Service"},{"rel":"privacy-policy","href":"https://policies.google.com/privacy","type":"text/html","title":"Google Privacy Policy"},{"rel":"related","href":"https://github.com/Open-EO/openeo-earthengine-driver","title":"GitHub repository"},{"rel":"version-history","href":TESTBACKEND+"/.well-known/openeo","type":"application/json","title":"Supported API versions"},{"rel":"data","href":TESTBACKENDDIRECT+"/collections","type":"application/json","title":"Datasets"},{"rel":"conformance","href":TESTBACKENDDIRECT+"/conformance","type":"application/json","title":"OGC Conformance classes"}]};
 
-	const TESTCOLLECTION = {"stac_version":"1.0.0-beta.2","id":"AAFC/ACI","title":"Canada AAFC Annual Crop Inventory","gee:type":"image_collection","description":"Starting in 2009, the Earth Observation Team of the Science and Technology\nBranch (STB) at Agriculture and Agri-Food Canada (AAFC) began the process\nof generating annual crop type digital maps. Focusing on the Prairie\nProvinces in 2009 and 2010, a Decision Tree (DT) based methodology was\napplied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based\nsatellite images. Beginning with the 2011 growing season, this activity has\nbeen extended to other provinces in support of a national crop inventory.\nTo date this approach can consistently deliver a crop inventory that meets\nthe overall target accuracy of at least 85% at a final spatial resolution of\n30m (56m in 2009 and 2010).\n","license":"proprietary","links":[],"keywords":["aafc","canada","crop","landcover"],"providers":[{"name":"Agriculture and Agri-Food Canada","roles":["producer","licensor"],"url":"https://open.canada.ca/data/en/dataset/ba2645d5-4458-414d-b196-6303ac06c1c9"},{"name":"Google Earth Engine","roles":["host"],"url":"https://developers.google.com/earth-engine/datasets/catalog/AAFC_ACI"}],"extent":{"spatial":{"bbox":[[-135.17,36.83,-51.24,62.25]]},"temporal":{"interval":[["2009-01-01T00:00:00Z",null]]}},"summaries":{},"sci:citation":"Agriculture and Agri-Food Canada Annual Crop Inventory. {YEAR}","stac_extensions":["collection-assets"],"cube:dimensions":{"x":{"type":"spatial","axis":"x","extent":[-135.17,-51.24]},"y":{"type":"spatial","axis":"y","extent":[36.83,62.25]},"t":{"type":"temporal","extent":["2009-01-01T00:00:00Z",null]},"bands":{"type":"bands","values":["landcover"]}},"assets":{}};
+	const TESTCOLLECTION = {"stac_version":"1.0.0","id":"AAFC/ACI","title":"Canada AAFC Annual Crop Inventory","gee:type":"image_collection","description":"Starting in 2009, the Earth Observation Team of the Science and Technology\nBranch (STB) at Agriculture and Agri-Food Canada (AAFC) began the process\nof generating annual crop type digital maps. Focusing on the Prairie\nProvinces in 2009 and 2010, a Decision Tree (DT) based methodology was\napplied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based\nsatellite images. Beginning with the 2011 growing season, this activity has\nbeen extended to other provinces in support of a national crop inventory.\nTo date this approach can consistently deliver a crop inventory that meets\nthe overall target accuracy of at least 85% at a final spatial resolution of\n30m (56m in 2009 and 2010).\n","license":"proprietary","links":[],"keywords":["aafc","canada","crop","landcover"],"providers":[{"name":"Agriculture and Agri-Food Canada","roles":["producer","licensor"],"url":"https://open.canada.ca/data/en/dataset/ba2645d5-4458-414d-b196-6303ac06c1c9"},{"name":"Google Earth Engine","roles":["host"],"url":"https://developers.google.com/earth-engine/datasets/catalog/AAFC_ACI"}],"extent":{"spatial":{"bbox":[[-135.17,36.83,-51.24,62.25]]},"temporal":{"interval":[["2009-01-01T00:00:00Z",null]]}},"summaries":{},"sci:citation":"Agriculture and Agri-Food Canada Annual Crop Inventory. {YEAR}","stac_extensions":["collection-assets"],"cube:dimensions":{"x":{"type":"spatial","axis":"x","extent":[-135.17,-51.24]},"y":{"type":"spatial","axis":"y","extent":[36.83,62.25]},"t":{"type":"temporal","extent":["2009-01-01T00:00:00Z",null]},"bands":{"type":"bands","values":["landcover"]}},"assets":{}};
 
 	const TESTPROCESS = {"id":"min","summary":"Minimum value","description":"Computes the smallest value of an array of numbers, which is is equal to the last element of a sorted (i.e., ordered) version the array.\n\nAn array without non-`null` elements resolves always with `null`.","categories":["math","reducer"],"parameters":[{"name":"data","description":"An array of numbers.","schema":{"type":"array","items":{"type":["number","null"]}}}],"returns":{"description":"The minimum value.","schema":{"type":["number","null"]}},"examples":[{"arguments":{"data":[1,0,3,2]},"returns":0},{"arguments":{"data":[5,2.5,null,-0.7]},"returns":-0.7},{"arguments":{"data":[]},"returns":null}],"links":[{"rel":"about","href":"http://mathworld.wolfram.com/Minimum.html","title":"Minimum explained by Wolfram MathWorld"}]};
 
@@ -98,9 +98,12 @@ describe('With earth-engine-driver', () => {
 		});
 
 		test('Connect with Basic Auth credentials', async () => {
+			let tokenValue = null;
+			con.on('tokenChanged', token => tokenValue = token);
 			await basic.login(TESTUSERNAME, TESTPASSWORD);
 			expect(basic.getToken()).not.toBeNull();
 			expect(con.isAuthenticated()).toBeTruthy();
+			expect(typeof tokenValue).toBe('string');
 		});
 	
 	});
@@ -345,6 +348,15 @@ describe('With earth-engine-driver', () => {
 			expect(pg instanceof UserProcess).toBeTruthy();
 			expect(typeof pg.id).toBe('string');
 			expect(pg.id).toBe(pg1.id);
+
+			expect(pg.toJSON()).toEqual({
+				id: 'myndvi',
+				process_graph: PROCESSGRAPH
+			});
+			expect(pg.getAll()).toEqual({
+				id: 'myndvi',
+				processGraph: PROCESSGRAPH
+			});
 		});
 
 		test('Describe process graph with metadata', async () => {
@@ -405,7 +417,7 @@ describe('With earth-engine-driver', () => {
 				expect(r).toBeUndefined();
 			} catch (error) {
 				expect(error.code).toBe("ResultNodeMissing");
-				expect(error.message).toBe("No result node found for process graph.")
+				expect(error.message).toBe("No result node found for the process.")
 			}
 		});
 	});
