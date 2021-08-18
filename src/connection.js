@@ -247,7 +247,7 @@ class Connection {
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
 	 * 
-     * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
 	 * The namespaces are then listed in the property `namespaces`.
 	 * 
 	 * @async
@@ -449,7 +449,7 @@ class Connection {
 	 * Currently supported:
 	 * - authProviderChanged(provider): Raised when the auth provider has changed.
 	 * - tokenChanged(token): Raised when the access token has changed.
-	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted)
+	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted).
 	 * 
 	 * @param {string} event 
 	 * @param {Function} callback 
