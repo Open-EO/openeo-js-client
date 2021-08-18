@@ -190,16 +190,16 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request items for.
-	 * @param {?Array.<number>} spatialExtent - Limits the items to the given bounding box in WGS84:
+	 * @param {?Array.<number>} [spatialExtent=null] - Limits the items to the given bounding box in WGS84:
 	 * 1. Lower left corner, coordinate axis 1
 	 * 2. Lower left corner, coordinate axis 2
 	 * 3. Upper right corner, coordinate axis 1
 	 * 4. Upper right corner, coordinate axis 2
-	 * @param {?Array.<*>} temporalExtent - Limits the items to the specified temporal interval.
+	 * @param {?Array.<*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
 	 * The interval has to be specified as an array with exactly two elements (start, end) and
 	 * each must be either an RFC 3339 compatible string or a Date object.
 	 * Also supports open intervals by setting one of the boundaries to `null`, but never both.
-	 * @param {?number} limit - The amount of items per request/page as integer. If `null` (default), the back-end decides.
+	 * @param {?number} [limit=null] - The amount of items per request/page as integer. If `null` (default), the back-end decides.
 	 * @yields {Promise<ItemCollection>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
@@ -246,6 +246,9 @@ class Connection {
 	 * 
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
+	 * 
+     * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+	 * The namespaces are then listed in the property `namespaces`.
 	 * 
 	 * @async
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
@@ -361,7 +364,7 @@ class Connection {
 	 *
 	 * @callback oidcProviderFactoryFunction
 	 * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-	 * @returns {?AuthProvider}
+	 * @returns {AuthProvider | null}
 	 */
 
 	/**
@@ -371,7 +374,7 @@ class Connection {
 	 * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
 	 * OIDC library other than oidc-client-js.
 	 * 
-	 * @param {?oidcProviderFactoryFunction} providerFactoryFunc
+	 * @param {?oidcProviderFactoryFunction} [providerFactoryFunc=null]
 	 * @see AuthProvider
 	 */
 	setOidcProviderFactory(providerFactoryFunc) {
@@ -384,7 +387,7 @@ class Connection {
 	 * Returns `null` if OIDC is not supported by the client or an instance
 	 * can't be created for whatever reason.
 	 * 
-	 * @returns {?oidcProviderFactoryFunction}
+	 * @returns {oidcProviderFactoryFunction | null}
 	 * @see AuthProvider
 	 */
 	getOidcProviderFactory() {
@@ -446,7 +449,7 @@ class Connection {
 	 * Currently supported:
 	 * - authProviderChanged(provider): Raised when the auth provider has changed.
 	 * - tokenChanged(token): Raised when the access token has changed.
-	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (CRUD)
+	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted)
 	 * 
 	 * @param {string} event 
 	 * @param {Function} callback 
@@ -467,7 +470,7 @@ class Connection {
 	/**
 	 * Returns the AuthProvider.
 	 * 
-	 * @returns {?AuthProvider} 
+	 * @returns {AuthProvider | null} 
 	 */
 	getAuthProvider() {
 		return this.authProvider;
@@ -890,7 +893,7 @@ class Connection {
 	 * 
 	 * @param {Array.<Link>} links - An array of links.
 	 * @param {string} rel - Relation type to find, defaults to `next`.
-	 * @returns {?string}
+	 * @returns {string | null}
 	 * @throws {Error}
 	 */
 	_getLinkHref(links, rel = 'next') {
@@ -921,7 +924,7 @@ class Connection {
 			url: path,
 			// Timeout for capabilities requests as they are used for a quick first discovery to check whether the server is a openEO back-end.
 			// Without timeout connecting with a wrong server url may take forever.
-			timeout: path === '/' ? 3000 : 0,
+			timeout: path === '/' ? 5000 : 0,
 			params: query
 		});
 	}

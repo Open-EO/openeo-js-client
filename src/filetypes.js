@@ -64,7 +64,7 @@ class FileTypes {
 	 * Returns null if no input file format was found for the given identifier.
 	 * 
 	 * @param {string} type - Case-insensitive file format identifier
-	 * @returns {?FileType}
+	 * @returns {FileType | null}
 	 */
 	getInputType(type) {
 		return this._findType(type, 'input');
@@ -76,7 +76,7 @@ class FileTypes {
 	 * Returns null if no output file format was found for the given identifier.
 	 * 
 	 * @param {string} type - Case-insensitive file format identifier
-	 * @returns {?FileType}
+	 * @returns {FileType | null}
 	 */
 	getOutputType(type) {
 		return this._findType(type, 'output');
@@ -87,7 +87,7 @@ class FileTypes {
 	 * 
 	 * @param {string} type - Identifier of the file type
 	 * @param {string} io - Either `input` or `output`
-	 * @returns {?FileType}
+	 * @returns {FileType | null}
 	 * @protected
 	 */
 	_findType(type, io) {

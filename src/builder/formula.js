@@ -8,7 +8,7 @@ const BuilderNode = require('./node');
  * Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)
  * 
  * It supports all mathematical functions (i.e. expects a number and returns a number) the back-end implements, e.g. `sqrt(x)`.
- * For namespaced processes, use for example `process#namespace(x)` - EXPERIMENTAL!
+ * For namespaced processes, use for example `process@namespace(x)` - EXPERIMENTAL!
  * 
  * Only available if a builder is specified in the constructor:
  * You can refer to output from processes with a leading `#`, e.g. `#loadco1` if the node to refer to has the key `loadco1`.

@@ -79,7 +79,7 @@ class AuthProvider {
 	 * 
 	 * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
 	 * 
-	 * @returns {?string}
+	 * @returns {string | null}
 	 */
 	getToken() {
 		if (typeof this.token === 'string') {

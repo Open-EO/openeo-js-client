@@ -190,7 +190,7 @@ class Capabilities {
 	/**
 	 * Get the billing currency.
 	 * 
-	 * @returns {?string} The billing currency or `null` if not available.
+	 * @returns {string | null} The billing currency or `null` if not available.
 	 */
 	currency() {
 		return (Utils.isObject(this.data.billing) && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);

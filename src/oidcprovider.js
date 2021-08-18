@@ -271,7 +271,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * This may override a detected default client ID.
 	 * 
-	 * @param {?string} clientId
+	 * @param {string | null} clientId
 	 */
 	setClientId(clientId) {
 		this.clientId = clientId;
@@ -281,7 +281,7 @@ class OidcProvider extends AuthProvider {
 	 * Sets the OIDC User.
 	 * 
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-	 * @param {?Oidc.User} user - The OIDC User. Passing `null` resets OIDC authentication details.
+	 * @param {Oidc.User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
 	 */
 	setUser(user) {
 		if (!user) {
@@ -299,7 +299,7 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * Sets the grant and client ID accordingly.
 	 * 
-	 * @returns {?OidcClient}
+	 * @returns {OidcClient | null}
 	 * @see OidcProvider#setGrant
 	 * @see OidcProvider#setClientId
 	 */

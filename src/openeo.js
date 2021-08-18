@@ -52,7 +52,7 @@ class OpenEO {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
 		let response = null;
 		try {
-			response = await axios.get(wellKnownUrl, {timeout: 3000});
+			response = await axios.get(wellKnownUrl, {timeout: 5000});
 
 			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
 				throw new Error("Well-Known Document doesn't list any versions.");

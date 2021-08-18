@@ -64,7 +64,7 @@ declare module OpenEO {
          *
          * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
          *
-         * @returns {?string}
+         * @returns {string | null}
          */
         getToken(): string | null;
         /**
@@ -388,7 +388,7 @@ declare module OpenEO {
         /**
          * Get the billing currency.
          *
-         * @returns {?string} The billing currency or `null` if not available.
+         * @returns {string | null} The billing currency or `null` if not available.
          */
         currency(): string | null;
         /**
@@ -546,14 +546,14 @@ declare module OpenEO {
          *
          * This may override a detected default client ID.
          *
-         * @param {?string} clientId
+         * @param {string | null} clientId
          */
         setClientId(clientId: string | null): void;
         /**
          * Sets the OIDC User.
          *
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-         * @param {?User} user - The OIDC User. Passing `null` resets OIDC authentication details.
+         * @param {User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
          */
         setUser(user: User | null): void;
         /**
@@ -561,7 +561,7 @@ declare module OpenEO {
          *
          * Sets the grant and client ID accordingly.
          *
-         * @returns {?OidcClient}
+         * @returns {OidcClient | null}
          * @see OidcProvider#setGrant
          * @see OidcProvider#setClientId
          */
@@ -610,7 +610,7 @@ declare module OpenEO {
          * Returns null if no input file format was found for the given identifier.
          *
          * @param {string} type - Case-insensitive file format identifier
-         * @returns {?FileType}
+         * @returns {FileType | null}
          */
         getInputType(type: string): FileType | null;
         /**
@@ -619,7 +619,7 @@ declare module OpenEO {
          * Returns null if no output file format was found for the given identifier.
          *
          * @param {string} type - Case-insensitive file format identifier
-         * @returns {?FileType}
+         * @returns {FileType | null}
          */
         getOutputType(type: string): FileType | null;
         /**
@@ -627,7 +627,7 @@ declare module OpenEO {
          *
          * @param {string} type - Identifier of the file type
          * @param {string} io - Either `input` or `output`
-         * @returns {?FileType}
+         * @returns {FileType | null}
          * @protected
          */
         protected _findType(type: string, io: string): FileType | null;
@@ -711,7 +711,7 @@ declare module OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, statusCallback?: (percentCompleted: number, file: UserFile) => any): Promise<UserFile>;
+        uploadFile(source: any, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
         /**
          * Deletes the file from the user workspace.
          *
@@ -720,6 +720,13 @@ declare module OpenEO {
          */
         deleteFile(): Promise<void>;
     }
+    namespace UserFile {
+        export { uploadStatusCallback };
+    }
+    /**
+     * A callback that is executed on upload progress updates.
+     */
+    type uploadStatusCallback = (percentCompleted: number, file: UserFile) => any;
     /**
      * Interface to loop through the logs.
      */
@@ -1347,7 +1354,7 @@ declare module OpenEO {
      * Operators: - (subtract), + (add), / (divide), * (multiply), ^ (power)
      *
      * It supports all mathematical functions (i.e. expects a number and returns a number) the back-end implements, e.g. `sqrt(x)`.
-     * For namespaced processes, use for example `process#namespace(x)` - EXPERIMENTAL!
+     * For namespaced processes, use for example `process@namespace(x)` - EXPERIMENTAL!
      *
      * Only available if a builder is specified in the constructor:
      * You can refer to output from processes with a leading `#`, e.g. `#loadco1` if the node to refer to has the key `loadco1`.
@@ -1629,7 +1636,7 @@ declare module OpenEO {
          *
          * @async
          * @static
-         * @param {?string} url
+         * @param {string | null} url
          * @returns {Promise<Builder>}
          * @throws {Error}
          */
@@ -1725,9 +1732,9 @@ declare module OpenEO {
          *
          * @param {string} id - Process identifier
          * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. user or backend namespace). EXPERIMENTAL!
-         * @returns {?Process}
+         * @returns {Process | null}
          */
-        spec(id: string, namespace?: string | null): Process;
+        spec(id: string, namespace?: string | null): Process | null;
         /**
          * Adds a mathematical formula to the process.
          *
@@ -1907,16 +1914,16 @@ declare module OpenEO {
          *
          * @async
          * @param {string} collectionId - Collection ID to request items for.
-         * @param {?Array.<number>} spatialExtent - Limits the items to the given bounding box in WGS84:
+         * @param {?Array.<number>} [spatialExtent=null] - Limits the items to the given bounding box in WGS84:
          * 1. Lower left corner, coordinate axis 1
          * 2. Lower left corner, coordinate axis 2
          * 3. Upper right corner, coordinate axis 1
          * 4. Upper right corner, coordinate axis 2
-         * @param {?Array.<*>} temporalExtent - Limits the items to the specified temporal interval.
+         * @param {?Array.<*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
          * The interval has to be specified as an array with exactly two elements (start, end) and
          * each must be either an RFC 3339 compatible string or a Date object.
          * Also supports open intervals by setting one of the boundaries to `null`, but never both.
-         * @param {?number} limit - The amount of items per request/page as integer. If `null` (default), the back-end decides.
+         * @param {?number} [limit=null] - The amount of items per request/page as integer. If `null` (default), the back-end decides.
          * @yields {Promise<ItemCollection>} A response compatible to the API specification.
          * @throws {Error}
          */
@@ -1926,6 +1933,9 @@ declare module OpenEO {
          *
          * Requests pre-defined processes by default.
          * Set the namespace parameter to request processes from a specific namespace.
+         *
+         * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+         * The namespaces are then listed in the property `namespaces`.
          *
          * @async
          * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
@@ -1975,7 +1985,7 @@ declare module OpenEO {
          *
          * @callback oidcProviderFactoryFunction
          * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
-         * @returns {?AuthProvider}
+         * @returns {AuthProvider | null}
          */
         /**
          * Sets a factory function that creates custom OpenID Connect provider instances.
@@ -1984,21 +1994,21 @@ declare module OpenEO {
          * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
          * OIDC library other than oidc-client-js.
          *
-         * @param {?oidcProviderFactoryFunction} providerFactoryFunc
+         * @param {?oidcProviderFactoryFunction} [providerFactoryFunc=null]
          * @see AuthProvider
          */
-        setOidcProviderFactory(providerFactoryFunc: (providerInfo: any) => AuthProvider | null): void;
-        oidcProviderFactory: (providerInfo: any) => AuthProvider | null;
+        setOidcProviderFactory(providerFactoryFunc?: oidcProviderFactoryFunction | null): void;
+        oidcProviderFactory: oidcProviderFactoryFunction;
         /**
          * Get the OpenID Connect provider factory.
          *
          * Returns `null` if OIDC is not supported by the client or an instance
          * can't be created for whatever reason.
          *
-         * @returns {?oidcProviderFactoryFunction}
+         * @returns {oidcProviderFactoryFunction | null}
          * @see AuthProvider
          */
-        getOidcProviderFactory(): (providerInfo: any) => AuthProvider | null;
+        getOidcProviderFactory(): oidcProviderFactoryFunction | null;
         /**
          * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
          *
@@ -2032,7 +2042,7 @@ declare module OpenEO {
          * Currently supported:
          * - authProviderChanged(provider): Raised when the auth provider has changed.
          * - tokenChanged(token): Raised when the access token has changed.
-         * - processesChanged(type, data, namespace): Raised when the process registry has changed (CRUD)
+         * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted)
          *
          * @param {string} event
          * @param {Function} callback
@@ -2047,7 +2057,7 @@ declare module OpenEO {
         /**
          * Returns the AuthProvider.
          *
-         * @returns {?AuthProvider}
+         * @returns {AuthProvider | null}
          */
         getAuthProvider(): AuthProvider | null;
         /**
@@ -2110,7 +2120,7 @@ declare module OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, targetPath?: string | null, statusCallback?: (percentCompleted: number) => any): Promise<UserFile>;
+        uploadFile(source: any, targetPath?: string | null, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
         /**
          * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
          *
@@ -2265,7 +2275,7 @@ declare module OpenEO {
          *
          * @param {Array.<Link>} links - An array of links.
          * @param {string} rel - Relation type to find, defaults to `next`.
-         * @returns {?string}
+         * @returns {string | null}
          * @throws {Error}
          */
         _getLinkHref(links: Array<Link>, rel?: string): string | null;
@@ -2353,6 +2363,24 @@ declare module OpenEO {
          */
         _send(options: any): Promise<AxiosResponse>;
     }
+    namespace Connection {
+        export { oidcProviderFactoryFunction, uploadStatusCallback };
+    }
+    /**
+     * This function is meant to create the OIDC providers used for authentication.
+     *
+     * The function gets passed a single argument that contains the
+     * provider information as provided by the API, e.g. having the properties
+     * `id`, `issuer`, `title` etc.
+     *
+     * The function must return an instance of AuthProvider or any derived class.
+     * May return `null` if the instance can't be created.
+     */
+    type oidcProviderFactoryFunction = (providerInfo: any) => AuthProvider | null;
+    /**
+     * A callback that is executed on upload progress updates.
+     */
+    type uploadStatusCallback = (percentCompleted: number) => any;
     /**
      * Main class to start with openEO. Allows to connect to a server.
      *
@@ -2630,9 +2658,9 @@ declare module OpenEO {
      */
     export type Options = {
         /**
-         * Add a namespace property to processes if set to `true`.
+         * Add a namespace property to processes if set to `true`. Defaults to `false`.
          */
-        addNamespaceToProcess?: boolean;
+        addNamespaceToProcess: boolean;
     };
     export type Processes = {
         processes: Array<Process>;
@@ -2678,10 +2706,11 @@ declare module OpenEO {
     };
     export type UserAccount = {
         user_id: string;
-        name: string;
-        storage: UserAccountStorage;
+        name: string | null;
+    	default_plan: string | null;
+        storage: UserAccountStorage | null;
         budget: number | null;
-        links: Array<Link>;
+        links: Array<Link> | null;
     };
 
 }

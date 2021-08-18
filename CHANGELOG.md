@@ -70,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Arrow functions can be used as callbacks in process graph building.
+- Fixed nullable return types in TS declaraion
+- Fixed other minor issues in TS declaration
 
 ## [1.2.0] - 2021-03-11
 

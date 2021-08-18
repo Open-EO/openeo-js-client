@@ -104,7 +104,7 @@ class Builder {
 	 * 
 	 * @async
 	 * @static
-	 * @param {?string} url 
+	 * @param {string | null} url 
 	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
@@ -305,7 +305,7 @@ class Builder {
 	 * 
 	 * @param {string} id - Process identifier
 	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. user or backend namespace). EXPERIMENTAL!
-	 * @returns {?Process}
+	 * @returns {Process | null}
 	 */
 	spec(id, namespace = null) {
 		return this.processes.get(id, namespace);
