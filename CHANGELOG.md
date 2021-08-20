@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New method `getUrl` to class `Connection` to get the main URL of the back-end, which the user provided (i.e. doesn't usually contain version part)
+
 ## [2.1.0] - 2021-08-18
 
 ### Added

@@ -50,6 +50,7 @@ class OpenEO {
 	 */
 	static async connect(url, options = {}) {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
+		let versionedUrl = url;
 		let response = null;
 		try {
 			response = await axios.get(wellKnownUrl, {timeout: 5000});
@@ -64,14 +65,16 @@ class OpenEO {
 		if (Utils.isObject(response)) {
 			let version = Versions.findLatest(response.data.versions, true, MIN_API_VERSION, MAX_API_VERSION);
 			if (version !== null) {
-				url = version.url;
+				versionedUrl = version.url;
 			}
 			else {
 				throw new Error("Server not supported. Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
 			}
 		}
 
-		return await OpenEO.connectDirect(url, options);
+		let connection = await OpenEO.connectDirect(versionedUrl, options);
+		connection.url = url;
+		return connection;
 	}
 
 	/**

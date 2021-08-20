@@ -26,12 +26,22 @@ class Connection {
 	/**
 	 * Creates a new Connection.
 	 * 
-	 * @param {string} baseUrl - URL to the back-end.
+	 * @param {string} baseUrl - The versioned URL or the back-end instance.
 	 * @param {Options} [options={}] - Additional options for the connection.
+	 * @param {?string} [url=null] - User-provided URL of the backend connected to.
 	 */
-	constructor(baseUrl, options = {}) {
+	constructor(baseUrl, options = {}, url = null) {
 		/**
-		 * URL of the backend connected to.
+		 * User-provided URL of the backend connected to.
+		 * 
+		 * `null` if not given and the connection was directly made to a versioned instance of the back-end.
+		 * 
+		 * @protected
+		 * @type {string | null}
+		 */
+		this.url = url;
+		/**
+		 * The versioned URL or the back-end instance.
 		 * 
 		 * @protected
 		 * @type {string}
@@ -95,12 +105,21 @@ class Connection {
 	}
 
 	/**
-	 * Returns the URL of the back-end currently connected to.
+	 * Returns the URL of the versioned back-end instance currently connected to.
 	 * 
-	 * @returns {string} The URL or the back-end.
+	 * @returns {string} The versioned URL or the back-end instance.
 	 */
 	getBaseUrl() {
 		return this.baseUrl;
+	}
+
+	/**
+	 * Returns the user-provided URL of the back-end currently connected to.
+	 * 
+	 * @returns {string} The URL or the back-end.
+	 */
+	getUrl() {
+		return this.url || this.baseUrl;
 	}
 
 	/**

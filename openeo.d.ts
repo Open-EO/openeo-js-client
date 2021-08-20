@@ -1787,12 +1787,22 @@ declare module OpenEO {
         /**
          * Creates a new Connection.
          *
-         * @param {string} baseUrl - URL to the back-end.
+         * @param {string} baseUrl - The versioned URL or the back-end instance.
          * @param {Options} [options={}] - Additional options for the connection.
+         * @param {?string} [url=null] - User-provided URL of the backend connected to.
          */
-        constructor(baseUrl: string, options?: Options);
+        constructor(baseUrl: string, options?: Options, url?: string);
         /**
-         * URL of the backend connected to.
+         * User-provided URL of the backend connected to.
+         *
+         * `null` if not given and the connection was directly made to a versioned instance of the back-end.
+         *
+         * @protected
+         * @type {string | null}
+         */
+        protected url: string | null;
+        /**
+         * The versioned URL or the back-end instance.
          *
          * @protected
          * @type {string}
@@ -1848,11 +1858,17 @@ declare module OpenEO {
          */
         init(): Promise<Capabilities>;
         /**
-         * Returns the URL of the back-end currently connected to.
+         * Returns the URL of the versioned back-end instance currently connected to.
+         *
+         * @returns {string} The versioned URL or the back-end instance.
+         */
+        getBaseUrl(): string;
+        /**
+         * Returns the user-provided URL of the back-end currently connected to.
          *
          * @returns {string} The URL or the back-end.
          */
-        getBaseUrl(): string;
+        getUrl(): string;
         /**
          * Returns the capabilities of the back-end.
          *
@@ -2042,7 +2058,7 @@ declare module OpenEO {
          * Currently supported:
          * - authProviderChanged(provider): Raised when the auth provider has changed.
          * - tokenChanged(token): Raised when the access token has changed.
-         * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted)
+         * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted).
          *
          * @param {string} event
          * @param {Function} callback

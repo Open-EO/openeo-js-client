@@ -48,6 +48,7 @@ describe('GEE back-end', () => {
 			var con = await OpenEO.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
+			expect(con.getUrl()).toBe(TESTBACKEND);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -57,6 +58,7 @@ describe('GEE back-end', () => {
 			var con = await OpenEO.connect(TESTBACKENDDIRECT);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
+			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -65,6 +67,7 @@ describe('GEE back-end', () => {
 		test('Connect directly to a known version via connectDirect', async () => {
 			var con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
 			expect(con.isAuthenticated()).toBeFalsy();
+			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
 			var cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
