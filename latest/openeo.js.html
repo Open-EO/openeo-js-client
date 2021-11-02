@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: openeo.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: openeo.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const axios = require('axios').default;
+const Utils = require('@openeo/js-commons/src/utils');
+const Versions = require('@openeo/js-commons/src/versions');
+
+// API wrapper
+const Connection = require('./connection');
+const Job = require('./job');
+const Logs = require('./logs');
+const UserFile = require('./userfile');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
+
+// Auth Providers
+const AuthProvider = require('./authprovider');
+const BasicProvider = require('./basicprovider');
+const OidcProvider = require('./oidcprovider');
+
+// Response wrapper
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
+
+// Builder
+const Builder = require('./builder/builder');
+const BuilderNode = require('./builder/node');
+const Parameter = require('./builder/parameter');
+const Formula = require('./builder/formula');
+
+const MIN_API_VERSION = '1.0.0-rc.2';
+const MAX_API_VERSION = '1.x.x';
+
+/**
+ * Main class to start with openEO. Allows to connect to a server.
+ * 
+ * @hideconstructor
+ */
+class OpenEO {
+
+	/**
+	 * Connect to a back-end with version discovery (recommended).
+	 * 
+	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
+	 * Requests the capabilities and authenticates where required.
+	 * 
+	 * @async
+	 * @param {string} url - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
+	 * @returns {Promise&lt;Connection>}
+	 * @throws {Error}
+	 * @static
+	 */
+	static async connect(url, options = {}) {
+		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
+		let versionedUrl = url;
+		let response = null;
+		try {
+			response = await axios.get(wellKnownUrl, {timeout: 5000});
+
+			if (!Utils.isObject(response.data) || !Array.isArray(response.data.versions)) {
+				throw new Error("Well-Known Document doesn't list any versions.");
+			}
+		} catch(error) {
+			console.warn("Can't read well-known document, connecting directly to the specified URL as fallback mechanism. Reason: " + error.message);
+		}
+	
+		if (Utils.isObject(response)) {
+			let version = Versions.findLatest(response.data.versions, true, MIN_API_VERSION, MAX_API_VERSION);
+			if (version !== null) {
+				versionedUrl = version.url;
+			}
+			else {
+				throw new Error("Server not supported. Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
+			}
+		}
+
+		let connection = await OpenEO.connectDirect(versionedUrl, options);
+		connection.url = url;
+		return connection;
+	}
+
+	/**
+	 * Connects directly to a back-end instance, without version discovery (NOT recommended).
+	 * 
+	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
+	 * 
+	 * @async
+	 * @param {string} versionedUrl - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
+	 * @returns {Promise&lt;Connection>}
+	 * @throws {Error}
+	 * @static
+	 */
+	static async connectDirect(versionedUrl, options = {}) {
+		let connection = new Connection(versionedUrl, options);
+
+		// Check whether back-end is accessible and supports a compatible version.
+		let capabilities = await connection.init();
+		if (Versions.compare(capabilities.apiVersion(), MIN_API_VERSION, "&lt;") || Versions.compare(capabilities.apiVersion(), MAX_API_VERSION, ">")) {
+			throw new Error("Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
+		}
+
+		return connection;
+	}
+
+	/**
+	 * Returns the version number of the client.
+	 * 
+	 * Not to confuse with the API version(s) supported by the client.
+	 * 
+	 * @returns {string} Version number (according to SemVer).
+	 */
+	static clientVersion() {
+		return "2.2.0";
+	}
+
+}
+
+OpenEO.Environment = require('./env');
+
+module.exports = {
+	AuthProvider,
+	BasicProvider,
+	Capabilities,
+	Connection,
+	FileTypes,
+	Job,
+	Logs,
+	OidcProvider,
+	OpenEO,
+	Service,
+	UserFile,
+	UserProcess,
+	Builder,
+	BuilderNode,
+	Parameter,
+	Formula
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Nov 02 2021 14:03:31 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
