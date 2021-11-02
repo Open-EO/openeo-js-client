@@ -1,7 +1,8 @@
-name: Documentation (versioned)
+name: Documentation (latest)
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -10,10 +11,14 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm install
       - run: npm run docs
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/@openeo/js-client
+          publish_dir: docs/@openeo/js-client/${{ steps.package-version.outputs.current-version}}
+          destination_dir: latest
           keep_files: true
           user_name: 'openEO CI'
           user_email: openeo.ci@uni-muenster.de
