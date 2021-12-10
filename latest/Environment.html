@@ -191,6 +191,165 @@
             
                 
 <span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>String to encode.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>String encoded in Base64.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".base64encode"><span class="type-signature">(static) </span>base64encode<span class="signature">(str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Encodes a string into Base64 encoding.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>str</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
 |
 
 <span class="param-type">Buffer</span>
@@ -302,7 +461,7 @@
     
 
     
-    <h4 class="name" id=".base64encode"><span class="type-signature">(static) </span>base64encode<span class="signature">(str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".downloadResults"><span class="type-signature">(async, static) </span>downloadResults<span class="signature">(con, assets, targetFolder)</span><span class="type-signature"></span></h4>
     
 
     
@@ -310,7 +469,8 @@
 
 
 <div class="description">
-    <p>Encodes a string into Base64 encoding.</p>
+    <p>Downloads files to local storage and returns a list of file paths.</p>
+<p>Not supported in Browsers and only throws an Error!</p>
 </div>
 
 
@@ -346,7 +506,53 @@
 
         <tr>
             
-                <td class="name"><code>str</code></td>
+                <td class="name"><code>con</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Connection.html">Connection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>assets</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;object.&lt;string, *>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetFolder</code></td>
             
 
             <td class="type">
@@ -362,7 +568,7 @@
 
             
 
-            <td class="description last"><p>String to encode.</p></td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -403,7 +609,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -426,30 +632,23 @@
 
 
 
-
-
-<h5>Returns:</h5>
+<h5>Throws:</h5>
 
         
-<div class="param-desc">
-    <p>String encoded in Base64.</p>
-</div>
 
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
+    <div class="param-desc">
+    
         
-<span class="param-type">string</span>
+<span class="param-type">Error</span>
 
-
-    </dd>
-</dl>
 
     
+    </div>
+
+
+    
+
+
 
 
 
@@ -677,7 +876,7 @@
     
 
     
-    <h4 class="name" id=".downloadResults"><span class="type-signature">(async, static) </span>downloadResults<span class="signature">(con, assets, targetFolder)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".getName"><span class="type-signature">(static) </span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -685,8 +884,7 @@
 
 
 <div class="description">
-    <p>Downloads files to local storage and returns a list of file paths.</p>
-<p>Not supported in Browsers and only throws an Error!</p>
+    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
 </div>
 
 
@@ -695,101 +893,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>con</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Connection.html">Connection</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>assets</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;object.&lt;string, *>></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetFolder</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -825,7 +928,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line124">line 124</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -848,23 +951,26 @@
 
 
 
-<h5>Throws:</h5>
+
+
+<h5>Returns:</h5>
 
         
 
-    <div class="param-desc">
-    
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
         
-<span class="param-type">Error</span>
+<span class="param-type">string</span>
 
+
+    </dd>
+</dl>
 
     
-    </div>
-
-
-    
-
-
 
 
 
@@ -982,7 +1088,7 @@
     
 
     
-    <h4 class="name" id=".getName"><span class="type-signature">(static) </span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".getResponseType"><span class="type-signature">(static) </span>getResponseType<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -990,7 +1096,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
+    <p>Returns how binary responses from the servers are returned (<code>stream</code> or <code>blob</code>).</p>
 </div>
 
 
@@ -1034,7 +1140,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -1141,112 +1247,6 @@
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line73">line 73</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getResponseType"><span class="type-signature">(static) </span>getResponseType<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Returns how binary responses from the servers are returned (<code>stream</code> or <code>blob</code>).</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -1520,192 +1520,6 @@
 
 
 <div class="description">
-    <p>Offers data to download in the browser.</p>
-<p>This method may fail with overly big data.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Data to download.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>filename</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>File name that is suggested to the user.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
     <p>Streams data into a file.</p>
 </div>
 
@@ -1860,6 +1674,192 @@
 
 
     
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Offers data to download in the browser.</p>
+<p>This method may fail with overly big data.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data to download.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filename</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>File name that is suggested to the user.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <h5>Returns:</h5>
@@ -2343,6 +2343,165 @@
             
                 
 <span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>String to encode.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>String encoded in Base64.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".base64encode"><span class="type-signature">(static) </span>base64encode<span class="signature">(str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Encodes a string into Base64 encoding.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>str</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
 |
 
 <span class="param-type">Buffer</span>
@@ -2454,7 +2613,7 @@
     
 
     
-    <h4 class="name" id=".base64encode"><span class="type-signature">(static) </span>base64encode<span class="signature">(str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".downloadResults"><span class="type-signature">(async, static) </span>downloadResults<span class="signature">(con, assets, targetFolder)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2462,7 +2621,8 @@
 
 
 <div class="description">
-    <p>Encodes a string into Base64 encoding.</p>
+    <p>Downloads files to local storage and returns a list of file paths.</p>
+<p>Not supported in Browsers and only throws an Error!</p>
 </div>
 
 
@@ -2498,7 +2658,53 @@
 
         <tr>
             
-                <td class="name"><code>str</code></td>
+                <td class="name"><code>con</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Connection.html">Connection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>assets</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;object.&lt;string, *>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetFolder</code></td>
             
 
             <td class="type">
@@ -2514,7 +2720,7 @@
 
             
 
-            <td class="description last"><p>String to encode.</p></td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -2555,7 +2761,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -2578,30 +2784,23 @@
 
 
 
-
-
-<h5>Returns:</h5>
+<h5>Throws:</h5>
 
         
-<div class="param-desc">
-    <p>String encoded in Base64.</p>
-</div>
 
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
+    <div class="param-desc">
+    
         
-<span class="param-type">string</span>
+<span class="param-type">Error</span>
 
-
-    </dd>
-</dl>
 
     
+    </div>
+
+
+    
+
+
 
 
 
@@ -2829,7 +3028,7 @@
     
 
     
-    <h4 class="name" id=".downloadResults"><span class="type-signature">(async, static) </span>downloadResults<span class="signature">(con, assets, targetFolder)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".getName"><span class="type-signature">(static) </span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -2837,8 +3036,7 @@
 
 
 <div class="description">
-    <p>Downloads files to local storage and returns a list of file paths.</p>
-<p>Not supported in Browsers and only throws an Error!</p>
+    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
 </div>
 
 
@@ -2847,101 +3045,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>con</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Connection.html">Connection</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>assets</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;object.&lt;string, *>></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetFolder</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2977,7 +3080,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line124">line 124</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -3000,23 +3103,26 @@
 
 
 
-<h5>Throws:</h5>
+
+
+<h5>Returns:</h5>
 
         
 
-    <div class="param-desc">
-    
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
         
-<span class="param-type">Error</span>
+<span class="param-type">string</span>
 
+
+    </dd>
+</dl>
 
     
-    </div>
-
-
-    
-
-
 
 
 
@@ -3134,7 +3240,7 @@
     
 
     
-    <h4 class="name" id=".getName"><span class="type-signature">(static) </span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".getResponseType"><span class="type-signature">(static) </span>getResponseType<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -3142,7 +3248,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
+    <p>Returns how binary responses from the servers are returned (<code>stream</code> or <code>blob</code>).</p>
 </div>
 
 
@@ -3186,7 +3292,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -3293,112 +3399,6 @@
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line73">line 73</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getResponseType"><span class="type-signature">(static) </span>getResponseType<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Returns how binary responses from the servers are returned (<code>stream</code> or <code>blob</code>).</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -3672,192 +3672,6 @@
 
 
 <div class="description">
-    <p>Offers data to download in the browser.</p>
-<p>This method may fail with overly big data.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Data to download.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>filename</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>File name that is suggested to the user.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
     <p>Streams data into a file.</p>
 </div>
 
@@ -4012,6 +3826,192 @@
 
 
     
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Offers data to download in the browser.</p>
+<p>This method may fail with overly big data.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data to download.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filename</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>File name that is suggested to the user.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <h5>Returns:</h5>
@@ -4334,7 +4334,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Dec 10 2021 10:59:07 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Dec 10 2021 15:45:08 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
