@@ -51,7 +51,8 @@
   "dependencies": {
     "@openeo/js-commons": "^1.4.0",
     "@radiantearth/stac-migrate": "^1.0.0",
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
+    "node-abort-controller": "^3.0.1",
     "oidc-client": "^1.11.5"
   },
   "scripts": {

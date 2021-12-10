@@ -3,6 +3,7 @@
 import { User, UserManager } from 'oidc-client';
 import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
+import { AbortController } from "node-abort-controller";
 
 declare module OpenEO {
     /**
@@ -708,10 +709,11 @@ declare module OpenEO {
          * @async
          * @param {*} source - The source, see method description for details.
          * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the upload process.
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
+        uploadFile(source: any, statusCallback?: uploadStatusCallback | null, abortController?: AbortController | null): Promise<UserFile>;
         /**
          * Deletes the file from the user workspace.
          *
@@ -720,13 +722,13 @@ declare module OpenEO {
          */
         deleteFile(): Promise<void>;
     }
-    namespace UserFile {
-        export { uploadStatusCallback };
-    }
     /**
      * A callback that is executed on upload progress updates.
      */
     type uploadStatusCallback = (percentCompleted: number, file: UserFile) => any;
+    namespace UserFile {
+        export { uploadStatusCallback };
+    }
     /**
      * Interface to loop through the logs.
      */
@@ -1791,7 +1793,7 @@ declare module OpenEO {
          * @param {Options} [options={}] - Additional options for the connection.
          * @param {?string} [url=null] - User-provided URL of the backend connected to.
          */
-        constructor(baseUrl: string, options?: Options, url?: string);
+        constructor(baseUrl: string, options?: Options, url?: string | null);
         /**
          * User-provided URL of the backend connected to.
          *
@@ -2133,10 +2135,11 @@ declare module OpenEO {
          * @param {*} source - The source, see method description for details.
          * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
          * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, targetPath?: string | null, statusCallback?: uploadStatusCallback | null): Promise<UserFile>;
+        uploadFile(source: any, targetPath?: string | null, statusCallback?: uploadStatusCallback | null, abortController?: AbortController | null): Promise<UserFile>;
         /**
          * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
          *
@@ -2201,9 +2204,10 @@ declare module OpenEO {
          * @param {Process} process - A user-defined process.
          * @param {?string} [plan=null] - The billing plan to use for this computation.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
-        computeResult(process: Process, plan?: string | null, budget?: number | null): Promise<SyncResult>;
+        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null): Promise<SyncResult>;
         /**
          * Executes a process synchronously and downloads to result the given path.
          *
@@ -2218,9 +2222,10 @@ declare module OpenEO {
          * @param {string} targetPath - The target, see method description for details.
          * @param {?string} [plan=null] - The billing plan to use for this computation.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
          * @throws {Error}
          */
-        downloadResult(process: Process, targetPath: string, plan?: string | null, budget?: number | null): Promise<void>;
+        downloadResult(process: Process, targetPath: string, plan?: string | null, budget?: number | null, abortController?: AbortController | null): Promise<void>;
         /**
          * Lists all batch jobs of the authenticated user.
          *
@@ -2314,11 +2319,12 @@ declare module OpenEO {
          * @param {string} path
          * @param {*} body
          * @param {string} responseType - Response type according to axios, defaults to `json`.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _post(path: string, body: any, responseType: string): Promise<AxiosResponse>;
+        _post(path: string, body: any, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
         /**
          * Sends a PUT request.
          *
@@ -2373,11 +2379,12 @@ declare module OpenEO {
          *
          * @async
          * @param {object.<string, *>} options
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          * @see https://github.com/axios/axios
          */
-        _send(options: any): Promise<AxiosResponse>;
+        _send(options: any, abortController?: AbortController | null): Promise<AxiosResponse>;
     }
     namespace Connection {
         export { oidcProviderFactoryFunction, uploadStatusCallback };
@@ -2393,10 +2400,6 @@ declare module OpenEO {
      * May return `null` if the instance can't be created.
      */
     type oidcProviderFactoryFunction = (providerInfo: any) => AuthProvider | null;
-    /**
-     * A callback that is executed on upload progress updates.
-     */
-    type uploadStatusCallback = (percentCompleted: number) => any;
     /**
      * Main class to start with openEO. Allows to connect to a server.
      *

@@ -90,10 +90,11 @@ class UserFile extends BaseEntity {
 	 * @async
 	 * @param {*} source - The source, see method description for details.
 	 * @param {?uploadStatusCallback} statusCallback - Optionally, a callback that is executed on upload progress updates.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the upload process.
 	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
-	async uploadFile(source, statusCallback = null) {
+	async uploadFile(source, statusCallback = null, abortController = null) {
 		let options = {
 			method: 'put',
 			url: '/files/' + this.path,
@@ -109,7 +110,7 @@ class UserFile extends BaseEntity {
 			};
 		}
 
-		let response = await this.connection._send(options);
+		let response = await this.connection._send(options, abortController);
 		return this.setAll(response.data);
 	}
 

@@ -1,4 +1,5 @@
 const axios = require('axios').default;
+const { AbortController } = require("node-abort-controller");
 const Utils = require('@openeo/js-commons/src/utils');
 const Versions = require('@openeo/js-commons/src/versions');
 
@@ -117,6 +118,7 @@ class OpenEO {
 OpenEO.Environment = require('./env');
 
 module.exports = {
+	AbortController,
 	AuthProvider,
 	BasicProvider,
 	Capabilities,

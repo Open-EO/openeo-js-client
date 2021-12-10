@@ -566,12 +566,12 @@ class Connection {
 		);
 	}
 
-
 	/**
 	 * A callback that is executed on upload progress updates.
 	 * 
 	 * @callback uploadStatusCallback
 	 * @param {number} percentCompleted - The percent (0-100) completed.
+	 * @param {UserFile} file - The file object corresponding to the callback.
 	 */
 
 	/**
@@ -586,15 +586,16 @@ class Connection {
 	 * @param {*} source - The source, see method description for details.
 	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
 	 * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the upload process.
 	 * @returns {Promise<UserFile>}
 	 * @throws {Error}
 	 */
-	async uploadFile(source, targetPath = null, statusCallback = null) {
+	async uploadFile(source, targetPath = null, statusCallback = null, abortController = null) {
 		if (targetPath === null) {
 			targetPath = Environment.fileNameForUpload(source);
 		}
 		let file = await this.getFile(targetPath);
-		return await file.uploadFile(source, statusCallback);
+		return await file.uploadFile(source, statusCallback, abortController);
 	}
 
 	/**
@@ -711,9 +712,10 @@ class Connection {
 	 * @param {Process} process - A user-defined process.
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
-	async computeResult(process, plan = null, budget = null) {
+	async computeResult(process, plan = null, budget = null, abortController = null) {
 		let requestBody = this._normalizeUserProcess(
 			process,
 			{
@@ -721,7 +723,7 @@ class Connection {
 				budget: budget
 			}
 		);
-		let response = await this._post('/result', requestBody, Environment.getResponseType());
+		let response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
 		let syncResult = {
 			data: response.data,
 			costs: null,
@@ -772,10 +774,11 @@ class Connection {
 	 * @param {string} targetPath - The target, see method description for details.
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
 	 * @throws {Error}
 	 */
-	async downloadResult(process, targetPath, plan = null, budget = null) {
-		let response = await this.computeResult(process, plan, budget);
+	async downloadResult(process, targetPath, plan = null, budget = null, abortController = null) {
+		let response = await this.computeResult(process, plan, budget, abortController);
 		// @ts-ignore
 		await Environment.saveToFile(response.data, targetPath);
 	}
@@ -955,17 +958,19 @@ class Connection {
 	 * @param {string} path 
 	 * @param {*} body 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios#request-config
 	 */
-	async _post(path, body, responseType) {
-		return await this._send({
+	async _post(path, body, responseType, abortController = null) {
+		let options = {
 			method: 'post',
 			responseType: responseType,
 			url: path,
 			data: body
-		});
+		};
+		return await this._send(options, abortController);
 	}
 
 	/**
@@ -1051,11 +1056,12 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {object.<string, *>} options 
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios
 	 */
-	async _send(options) {
+	async _send(options, abortController = null) {
 		options.baseURL = this.baseUrl;
 		if (this.isAuthenticated() && (typeof options.authorization === 'undefined' || options.authorization === true)) {
 			if (!options.headers) {
@@ -1065,6 +1071,9 @@ class Connection {
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';
+		}
+		if (abortController) {
+			options.signal = abortController.signal;
 		}
 
 		try {
