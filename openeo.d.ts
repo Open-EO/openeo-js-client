@@ -1856,9 +1856,18 @@ declare module OpenEO {
          * Initializes the connection by requesting the capabilities.
          *
          * @async
+         * @protected
          * @returns {Promise<Capabilities>} Capabilities
          */
         init(): Promise<Capabilities>;
+        /**
+         * Refresh the cache for processes.
+         * 
+         * @async
+         * @protected
+         * @returns {Promise}
+         */
+        refreshProcessCache(): Promise;
         /**
          * Returns the URL of the versioned back-end instance currently connected to.
          *

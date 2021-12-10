@@ -69,14 +69,6 @@ class Connection {
 		 */
 		this.capabilitiesObject = null;
 		/**
-		 * Process cache
-		 * 
-		 * @protected
-		 * @type {ProcessRegistry}
-		 */
-		this.processes = new ProcessRegistry([], Boolean(options.addNamespaceToProcess));
-		this.processes.listeners.push((...args) => this.emit('processesChanged', ...args));
-		/**
 		 * Listeners for events.
 		 * 
 		 * @protected
@@ -90,18 +82,56 @@ class Connection {
 		 * @type {Options}
 		 */
 		this.options = options;
+		/**
+		 * Process cache
+		 * 
+		 * @protected
+		 * @type {ProcessRegistry}
+		 */
+		this.processes = new ProcessRegistry([], Boolean(options.addNamespaceToProcess));
+		this.processes.listeners.push((...args) => this.emit('processesChanged', ...args));
 	}
 
 	/**
 	 * Initializes the connection by requesting the capabilities.
 	 * 
 	 * @async
+	 * @protected
 	 * @returns {Promise<Capabilities>} Capabilities
 	 */
 	async init() {
 		let response = await this._get('/');
 		this.capabilitiesObject = new Capabilities(response.data);
 		return this.capabilitiesObject;
+	}
+
+	/**
+	 * Refresh the cache for processes.
+	 * 
+	 * @async
+	 * @protected
+	 * @returns {Promise}
+	 */
+	async refreshProcessCache() {
+		if (this.processes.count() === 0) {
+			return;
+		}
+		let promises = this.processes.namespaces().map(namespace => {
+			let fn = () => Promise.resolve();
+			if (namespace === 'user') {
+				if (!this.isAuthenticated()) {
+					fn = () => this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes"));
+				}
+				else if (this.capabilities().hasFeature('listUserProcesses')) {
+					fn = () => this.listUserProcesses();
+				}
+			}
+			else if (this.capabilities().hasFeature('listProcesses')) {
+				fn = () => this.listProcesses(namespace);
+			}
+			return fn().catch(error => console.warn(`Could not update processes for namespace '${namespace}' due to an error: ${error.message}`));
+		});
+		return await Promise.all(promises);
 	}
 
 	/**
@@ -511,6 +541,8 @@ class Connection {
 			this.authProvider = null;
 		}
 		this.emit('authProviderChanged', this.authProvider);
+		// Update process cache on auth changes: https://github.com/Open-EO/openeo-js-client/issues/55
+		this.refreshProcessCache();
 	}
 
 	/**
@@ -823,7 +855,7 @@ class Connection {
 			throw new Error("Response did not contain a Job ID. Job has likely been created, but may not show up yet.");
 		}
 		let job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
-		if (this.capabilitiesObject.hasFeature('describeJob')) {
+		if (this.capabilities().hasFeature('describeJob')) {
 			return await job.describeJob();
 		}
 		else {
@@ -889,7 +921,7 @@ class Connection {
 			throw new Error("Response did not contain a Service ID. Service has likely been created, but may not show up yet.");
 		}
 		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
-		if (this.capabilitiesObject.hasFeature('describeService')) {
+		if (this.capabilities().hasFeature('describeService')) {
 			return service.describeService();
 		}
 		else {

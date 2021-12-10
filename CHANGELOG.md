@@ -6,7 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2021-12-10
+
+### Fixed
+
+- Process cache gets refreshed after the authentication details have changed (e.g. the user has logged in or out).
+
 ## [2.3.0] - 2021-12-10
+
+### Added
+
+- New parameter `abortController` to allow cancellation of longer running requests (uploading files, sync. data processing).
 
 ### Changed
 
