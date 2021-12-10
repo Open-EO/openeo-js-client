@@ -76,9 +76,8 @@ describe('GEE back-end', () => {
 
 	describe('Auth', () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithoutAuth();
-			done();
 		});
 
 		var providers;
@@ -113,9 +112,8 @@ describe('GEE back-end', () => {
 
 	describe('Discovery', () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithoutAuth();
-			done();
 		});
 		
 		test('Capabilities', async () => {
@@ -246,9 +244,8 @@ describe('GEE back-end', () => {
 
 	describe('Getting user-specific data', () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
 		});
 
 		test('Describe account', async () => {
@@ -259,9 +256,8 @@ describe('GEE back-end', () => {
 
 	describe('Process graph validation', () => {
 		var con;
-		beforeAll(async (done) => {
+		beforeAll(async () => {
 			con = await connectWithBasicAuth();
-			done();
 		});
 
 		test('Valid process graph', async () => {
@@ -689,39 +685,43 @@ describe('GEE back-end', () => {
 			expect(files[0].path).toBe(f.path);
 		});
 
-		test('Get file contents', async (done) => {
-			var resource = await f.retrieveFile();
-			expect(resource).not.toBeNull();
-			if (isBrowserEnv) { // Browser environment
-				expect(resource).toBeInstanceOf(Blob);
-				var reader = new FileReader();
-				reader.addEventListener("loadend", () => {
-					// expect(...) can throw itself, so we have to wrap this assertion in try/catch.
-					// Otherwise it could happen that done() is never called!
-					try {
-						expect(reader.result).toBe(fileContent);
+		test('Get file contents', (done) => {
+			f.retrieveFile().then(resource => {
+				expect(resource).not.toBeNull();
+				if (isBrowserEnv) { // Browser environment
+					expect(resource).toBeInstanceOf(Blob);
+					var reader = new FileReader();
+					reader.addEventListener("loadend", () => {
+						// expect(...) can throw itself, so we have to wrap this assertion in try/catch.
+						// Otherwise it could happen that done() is never called!
+						try {
+							expect(reader.result).toBe(fileContent);
+							done();
+						}
+						catch(error) {
+							console.log(error.message); // it's not being printed by expect itself
+							done.fail();
+						}
+					});
+					reader.readAsText(resource);
+				}
+				else { // Node environment
+					const stream = require('stream');
+					expect(resource).toBeInstanceOf(stream.Readable);
+	
+					const chunks = [];
+					resource.on("data", function (chunk) {
+						chunks.push(chunk);
+					});
+					resource.on("end", function () {
+						expect(Buffer.concat(chunks).toString()).toBe(fileContent);
 						done();
-					}
-					catch(error) {
-						console.log(error.message); // it's not being printed by expect itself
-						done.fail();
-					}
-				});
-				reader.readAsText(resource);
-			}
-			else { // Node environment
-				const stream = require('stream');
-				expect(resource).toBeInstanceOf(stream.Readable);
-
-				const chunks = [];
-				resource.on("data", function (chunk) {
-					chunks.push(chunk);
-				});
-				resource.on("end", function () {
-					expect(Buffer.concat(chunks).toString()).toBe(fileContent);
-					done();
-				});
-			}
+					});
+				}
+			}).catch(error => {
+				expect(error).toBeUndefined();
+				done.fail();
+			});
 		});
 
 		var target = "downloaded_file.txt";
