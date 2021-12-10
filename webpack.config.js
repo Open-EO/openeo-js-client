@@ -18,6 +18,7 @@ module.exports = [
         'buffer': 'Buffer',
         'fs': 'fs',
         'oidc-client': 'Oidc',
+        'multihashes': 'multihashes',
         'path': 'path',
         'stream': 'Stream',
         'url': 'url'

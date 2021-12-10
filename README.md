@@ -20,6 +20,7 @@ To use it in a browser environment simply add the following code to your HTML fi
 ```html
 <script src="https://cdn.jsdelivr.net/npm/axios@0.21/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+<script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script> <!-- Only required if you have checksums in the STAC metadata -->
 <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
 ```
 

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2021-12-10
+
+### Changed
+
+- Rarely used `multihashes` dependency not included in the bundle by default, see Readme to include it in the browser. No change for node environments.
+
 ## [2.2.0] - 2021-08-20
 
 ### Added
