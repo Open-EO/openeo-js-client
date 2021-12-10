@@ -501,8 +501,8 @@ declare module OpenEO {
          * Adds a listener to one of the following events:
          *
          * - AccessTokenExpiring: Raised prior to the access token expiring.
-         * - accessTokenExpired: Raised after the access token has expired.
-         * - silentRenewError: Raised when the automatic silent renew has failed.
+         * - AccessTokenExpired: Raised after the access token has expired.
+         * - SilentRenewError: Raised when the automatic silent renew has failed.
          *
          * @param {string} event
          * @param {Function} callback
