@@ -120,7 +120,7 @@ class Connection {
 			let fn = () => Promise.resolve();
 			if (namespace === 'user') {
 				if (!this.isAuthenticated()) {
-					fn = () => this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes"));
+					fn = () => (this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes")));
 				}
 				else if (this.capabilities().hasFeature('listUserProcesses')) {
 					fn = () => this.listUserProcesses();
