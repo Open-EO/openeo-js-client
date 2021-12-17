@@ -303,7 +303,7 @@ class Connection {
 	 */
 	normalizeNamespace(namespace) {
 		if (namespace.includes('u:')) {
-			const regex = /(u:[\d\w]*)[\/]?/;
+			const regex = /(u:[\d\w]*)[/]?/;
 			return namespace.match(regex)[1] || namespace;
 		} else {
 			return namespace;
