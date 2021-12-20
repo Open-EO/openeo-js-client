@@ -298,7 +298,9 @@ class Connection {
 	 * parts of the API (such as the listing of the processes, only the name of the namespace is required (u:<user>).
 	 *
 	 * This function will extract the short name of the namespace from a shareable URL.
-	 * @param namespace
+	 * 
+	 * @protected
+	 * @param {string} namespace - Namespace of the process
 	 * @returns {*}
 	 */
 	normalizeNamespace(namespace) {
