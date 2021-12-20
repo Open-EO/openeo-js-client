@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The `namespace` parameter in `listProcesses` and `describeProcess` parses URLs to extract the namespace (experimental).
+
 ## [2.3.1] - 2021-12-10
 
 ### Fixed

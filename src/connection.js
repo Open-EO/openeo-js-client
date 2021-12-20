@@ -291,6 +291,25 @@ class Connection {
 	}
 
 	/**
+	 * Normalisation of the namespace to a value that is compatible with the OpenEO specs - EXPERIMENTAL.
+	 *
+	 * This is required to support UDP that are shared as public. These can only be executed with providing the full URL
+	 * (e.g. https://<backend>/processes/<namespace>/<process_id>) as the namespace value in the processing graph. For other
+	 * parts of the API (such as the listing of the processes, only the name of the namespace is required.
+	 *
+	 * This function will extract the short name of the namespace from a shareable URL.
+	 * 
+	 * @protected
+	 * @param {?string} namespace - Namespace of the process
+	 * @returns {?string}
+	 */
+	normalizeNamespace(namespace) {
+		// The pattern in https://github.com/Open-EO/openeo-api/pull/348 doesn't include the double colon yet - the regexp may change in the future
+		const matches = namespace.match( /^https?:\/\/.*\/processes\/(@?[\w\-.~:]+)\/?/i);
+		return matches && matches.length > 1 ? matches[1] : namespace;
+	}
+
+	/**
 	 * List processes available on the back-end.
 	 * 
 	 * Requests pre-defined processes by default.
@@ -308,7 +327,7 @@ class Connection {
 		if (!namespace) {
 			namespace = 'backend';
 		}
-		let path = (namespace === 'backend') ? '/processes' : `/processes/${namespace}`;
+		let path = (namespace === 'backend') ? '/processes' : `/processes/${this.normalizeNamespace(namespace)}`;
 		let response = await this._get(path);
 
 		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
@@ -340,7 +359,7 @@ class Connection {
 			await this.listProcesses();
 		}
 		else {
-			let response = await this._get(`/processes/${namespace}/${processId}`);
+			let response = await this._get(`/processes/${this.normalizeNamespace(namespace)}/${processId}`);
 			if (!Utils.isObject(response.data) || typeof response.data.id !== 'string') {
 				throw new Error('Invalid response received for process');
 			}
