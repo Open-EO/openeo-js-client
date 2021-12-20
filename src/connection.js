@@ -291,7 +291,7 @@ class Connection {
 	}
 
 	/**
-	 * Normalisation of the namespace to a value that is compatible with the OpenEO specs.
+	 * Normalisation of the namespace to a value that is compatible with the OpenEO specs - EXPERIMENTAL.
 	 *
 	 * This is required to support UDP that are shared as public. These can only be executed with providing the full URL
 	 * (e.g. https://<backend>/processes/u:<user>/<udp_id>) as the namespace value in the processing graph. For other
