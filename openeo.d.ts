@@ -1956,6 +1956,20 @@ declare module OpenEO {
          */
         listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: Array<any> | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
+         * Normalisation of the namespace to a value that is compatible with the OpenEO specs - EXPERIMENTAL.
+         *
+         * This is required to support UDP that are shared as public. These can only be executed with providing the full URL
+         * (e.g. https://<backend>/processes/u:<user>/<udp_id>) as the namespace value in the processing graph. For other
+         * parts of the API (such as the listing of the processes, only the name of the namespace is required (u:<user>).
+         *
+         * This function will extract the short name of the namespace from a shareable URL.
+         *
+         * @protected
+         * @param {?string} namespace - Namespace of the process
+         * @returns {?string}
+         */
+        protected normalizeNamespace(namespace: string | null): string | null;
+        /**
          * List processes available on the back-end.
          *
          * Requests pre-defined processes by default.

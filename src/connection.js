@@ -300,8 +300,8 @@ class Connection {
 	 * This function will extract the short name of the namespace from a shareable URL.
 	 * 
 	 * @protected
-	 * @param {string} namespace - Namespace of the process
-	 * @returns {*}
+	 * @param {?string} namespace - Namespace of the process
+	 * @returns {?string}
 	 */
 	normalizeNamespace(namespace) {
 		// The pattern in https://github.com/Open-EO/openeo-api/pull/348 doesn't include the double colon yet - the regexp may change in the future
