@@ -302,12 +302,8 @@ class Connection {
 	 * @returns {*}
 	 */
 	normalizeNamespace(namespace) {
-		if (namespace.includes('u:')) {
-			const regex = /(u:[\d\w]*)[/]?/;
-			return namespace.match(regex)[1] || namespace;
-		} else {
-			return namespace;
-		}
+		const matches = namespace.match( /^http[s]?:\/\/.*\/processes\/(u:[\d\w]*)\/?/);
+		return matches && matches.length > 1 ? matches[1] : namespace;
 	}
 
 	/**
