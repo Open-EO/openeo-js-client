@@ -302,7 +302,8 @@ class Connection {
 	 * @returns {*}
 	 */
 	normalizeNamespace(namespace) {
-		const matches = namespace.match( /^http[s]?:\/\/.*\/processes\/(u:[\d\w]*)\/?/);
+		// The pattern in https://github.com/Open-EO/openeo-api/pull/348 doesn't include the double colon yet - the regexp may change in the future
+		const matches = namespace.match( /^https?:\/\/.*\/processes\/(@?[\w\-\.~:]+)\/?/i);
 		return matches && matches.length > 1 ? matches[1] : namespace;
 	}
 
