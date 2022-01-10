@@ -231,7 +231,7 @@ class OidcProvider extends AuthProvider {
 	 * @see {OidcProvider#refreshTokenScope}
 	 */
 	getOptions(options = {}, requestRefreshToken = false) {
-		let response_mode = this.getResponseType().includes('code') ? 'query' : 'fragment';
+		let response_type = this.getResponseType();
 		let scope = this.scopes.slice(0);
 		if (requestRefreshToken && !scope.includes(this.refreshTokenScope)) {
 			scope.push(this.refreshTokenScope);
@@ -244,7 +244,7 @@ class OidcProvider extends AuthProvider {
 			scope,
 			validateSubOnSilentRenew: true,
 			response_type,
-			response_mode
+			response_mode: response_type.includes('code') ? 'query' : 'fragment'
 		}, options);
 	}
 
