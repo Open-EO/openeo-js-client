@@ -131,17 +131,17 @@ class Builder {
 		this.id = id;
 		/**
 		 * The parent builder.
-		 * @type {?Builder}
+		 * @type {Builder | null}
 		 */
 		this.parent = parent;
 		/**
 		 * The parent node.
-		 * @type {?BuilderNode}
+		 * @type {BuilderNode | null}
 		 */
 		this.parentNode = null;
 		/**
 		 * The parent parameter name.
-		 * @type {?string}
+		 * @type {string | null}
 		 */
 		this.parentParameter = null;
 		

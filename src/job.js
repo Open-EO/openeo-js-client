@@ -44,7 +44,7 @@ class Job extends BaseEntity {
 		 * The process chain to be executed.
 		 * @public
 		 * @readonly
-		 * @type {Process}
+		 * @type {?Process}
 		 */
 		this.process = undefined;
 		/**
@@ -52,35 +52,35 @@ class Job extends BaseEntity {
 		 * One of "created", "queued", "running", "canceled", "finished" or "error".
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.status = undefined;
 		/**
 		 * Indicates the process of a running batch job in percent. 
 		 * @public
 		 * @readonly
-		 * @type {number}
+		 * @type {?number}
 		 */
 		this.progress = undefined;
 		/**
 		 * Date and time of creation, formatted as a RFC 3339 date-time.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.created = undefined;
 		/**
 		 * Date and time of the last status change, formatted as a RFC 3339 date-time.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.updated = undefined;
 		/**
 		 * The billing plan to process and charge the batch job with.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.plan = undefined;
 		/**

@@ -52,7 +52,7 @@ class UserProcess extends BaseEntity {
 		 * A list of categories.
 		 * @public
 		 * @readonly
-		 * @type {Array.<string>}
+		 * @type {?Array.<string>}
 		 */
 		this.categories = undefined;
 		/**
@@ -74,40 +74,40 @@ class UserProcess extends BaseEntity {
 		 * Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions. 
 		 * @public
 		 * @readonly
-		 * @type {boolean}
+		 * @type {?boolean}
 		 */
 		this.deprecated = undefined;
 		/**
 		 * Declares the process or parameter to be experimental, which means that it is likely to change or may produce unpredictable behaviour. 
 		 * @public
 		 * @readonly
-		 * @type {boolean}
+		 * @type {?boolean}
 		 */
 		this.experimental = undefined;
 		/**
 		 * Declares any exceptions (errors) that might occur during execution of this process.
 		 * @public
 		 * @readonly
-		 * @type {object.<string, *>}
+		 * @type {?object.<string, *>}
 		 */
 		this.exceptions = undefined;
 		/**
 		 * @public
 		 * @readonly
-		 * @type {Array.<object.<string, *>>}
+		 * @type {?Array.<object.<string, *>>}
 		 */
 		this.examples = undefined;
 		/**
 		 * Links related to this process.
 		 * @public
 		 * @readonly
-		 * @type {Array.<Link>}
+		 * @type {?Array.<Link>}
 		 */
 		this.links = undefined;
 		/**
 		 * @public
 		 * @readonly
-		 * @type {object.<string, *>}
+		 * @type {?object.<string, *>}
 		 */
 		this.processGraph = undefined;
 	}

@@ -78,7 +78,7 @@ class OidcProvider extends AuthProvider {
 		/**
 		 * The client ID to use for authentication.
 		 * 
-		 * @type {?string}
+		 * @type {string | null}
 		 */
 		this.clientId = null;
 

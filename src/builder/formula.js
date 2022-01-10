@@ -34,7 +34,7 @@ class Formula {
 		 */
 		this.tree = parser.parse(formula);
 		/**
-		 * @type {?Builder}
+		 * @type {Builder | null}
 		 */
 		this.builder = null;
 	}

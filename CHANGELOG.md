@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The `namespace` parameter in `listProcesses` and `describeProcess` parses URLs to extract the namespace (experimental).
 
+### Fixed
+
+- Fixed several type annotations in documentation and TypeScript declaration file.
+
 ## [2.3.1] - 2021-12-10
 
 ### Fixed

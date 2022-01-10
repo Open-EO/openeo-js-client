@@ -51,21 +51,21 @@ class Connection {
 		 * Auth Provider cache
 		 * 
 		 * @protected
-		 * @type {?Array.<AuthProvider>}
+		 * @type {Array.<AuthProvider> | null}
 		 */
 		this.authProviderList = null;
 		/**
 		 * Current auth provider
 		 * 
 		 * @protected
-		 * @type {?AuthProvider}
+		 * @type {AuthProvider | null}
 		 */
 		this.authProvider = null;
 		/**
 		 * Capability cache
 		 * 
 		 * @protected
-		 * @type {?Capabilities}
+		 * @type {Capabilities | null}
 		 */
 		this.capabilitiesObject = null;
 		/**

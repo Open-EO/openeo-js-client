@@ -39,55 +39,55 @@ class Service extends BaseEntity {
 		 * The process chain to be executed.
 		 * @public
 		 * @readonly
-		 * @type {Process}
+		 * @type {?Process}
 		 */
 		this.process = undefined;
 		/**
 		 * URL at which the secondary web service is accessible
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.url = undefined;
 		/**
 		 * Web service type (protocol / standard) that is exposed.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.type = undefined;
 		/**
 		 * @public
 		 * @readonly
-		 * @type {boolean}
+		 * @type {?boolean}
 		 */
 		this.enabled = undefined;
 		/**
 		 * Map of configuration settings, i.e. the setting names supported by the secondary web service combined with actual values. 
 		 * @public
 		 * @readonly
-		 * @type {object.<string, *>}
+		 * @type {?object.<string, *>}
 		 */
 		this.configuration = undefined;
 		/**
 		 * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
 		 * @public
 		 * @readonly
-		 * @type {object.<string, *>}
+		 * @type {?object.<string, *>}
 		 */
 		this.attributes = undefined;
 		/**
 		 * Date and time of creation, formatted as a RFC 3339 date-time.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.created = undefined;
 		/**
 		 * The billing plan to process and charge the service with.
 		 * @public
 		 * @readonly
-		 * @type {string}
+		 * @type {?string}
 		 */
 		this.plan = undefined;
 		/**

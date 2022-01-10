@@ -110,12 +110,12 @@ declare module OpenEO {
          * @protected
          * @type {object.<string, string>}
          */
-        protected apiToClientNames: any;
+        protected apiToClientNames: object<string, string>;
         /**
          * @protected
          * @type {object.<string, string>}
          */
-        protected clientToApiNames: any;
+        protected clientToApiNames: object<string, string>;
         /**
          * @protected
          * @type {number}
@@ -127,20 +127,20 @@ declare module OpenEO {
          * @protected
          * @type {object.<string, *>}
          */
-        protected extra: any;
+        protected extra: object<string, any>;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): any;
+        toJSON(): object<string, any>;
         /**
          * Converts the data from an API response into data suitable for our JS client models.
          *
          * @param {object.<string, *>} metadata - JSON object originating from an API response.
          * @returns {BaseEntity} Returns the object itself.
          */
-        setAll(metadata: any): BaseEntity;
+        setAll(metadata: object<string, any>): BaseEntity;
         /**
          * Returns the age of the data in seconds.
          *
@@ -152,7 +152,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>}
          */
-        getAll(): any;
+        getAll(): object<string, any>;
         /**
          * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
          *
@@ -167,7 +167,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @protected
          */
-        protected _convertToRequest(parameters: any): any;
+        protected _convertToRequest(parameters: object<string, any>): object<string, any>;
         /**
          * Checks whether a features is supported by the API.
          *
@@ -258,7 +258,7 @@ declare module OpenEO {
          * @param {string} targetFolder
          * @throws {Error}
          */
-        static downloadResults(con: any, assets: Array<any>, targetFolder: string): Promise<void>;
+        static downloadResults(con: Connection, assets: Array<object<string, any>>, targetFolder: string): Promise<void>;
         /**
          * Streams data into a file (node) or offers data to download (browser).
          *
@@ -307,7 +307,7 @@ declare module OpenEO {
          * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
          * @throws {Error}
          */
-        constructor(data: any);
+        constructor(data: object<string, any>);
         /**
          * @private
          * @type {object.<string, *>}
@@ -329,7 +329,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>} - A reference to the capabilities response.
          */
-        toJSON(): any;
+        toJSON(): object<string, any>;
         /**
          * Returns the openEO API version implemented by the back-end.
          *
@@ -429,7 +429,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          */
-        static signinCallback(provider?: OidcProvider, options?: any): Promise<User | null>;
+        static signinCallback(provider?: OidcProvider, options?: object<string, any>): Promise<User | null>;
         /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
@@ -448,7 +448,7 @@ declare module OpenEO {
         /**
          * The client ID to use for authentication.
          *
-         * @type {?string}
+         * @type {string | null}
          */
         clientId: string | null;
         /**
@@ -527,7 +527,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @see {OidcProvider#refreshTokenScope}
          */
-        protected getOptions(options?: any, requestRefreshToken?: boolean): any;
+        protected getOptions(options?: object<string, any>, requestRefreshToken?: boolean): object<string, any>;
         /**
          * Get the response_type based on the grant type.
          *
@@ -613,13 +613,13 @@ declare module OpenEO {
          *
          * @returns {object.<string, FileType>}
          */
-        getInputTypes(): any;
+        getInputTypes(): object<string, FileType>;
         /**
          * Returns the output file formats.
          *
          * @returns {object.<string, FileType>}
          */
-        getOutputTypes(): any;
+        getOutputTypes(): object<string, FileType>;
         /**
          * Returns a single input file format for a given identifier.
          *
@@ -819,7 +819,7 @@ declare module OpenEO {
          * The process chain to be executed.
          * @public
          * @readonly
-         * @type {Process}
+         * @type {?Process}
          */
         public readonly process: Process;
         /**
@@ -827,37 +827,37 @@ declare module OpenEO {
          * One of "created", "queued", "running", "canceled", "finished" or "error".
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly status: string;
+        public readonly status: string | null;
         /**
          * Indicates the process of a running batch job in percent.
          * @public
          * @readonly
-         * @type {number}
+         * @type {?number}
          */
-        public readonly progress: number;
+        public readonly progress: number | null;
         /**
          * Date and time of creation, formatted as a RFC 3339 date-time.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly created: string;
+        public readonly created: string | null;
         /**
          * Date and time of the last status change, formatted as a RFC 3339 date-time.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly updated: string;
+        public readonly updated: string | null;
         /**
          * The billing plan to process and charge the batch job with.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly plan: string;
+        public readonly plan: string | null;
         /**
          * An amount of money or credits in the currency specified by the back-end.
          * @public
@@ -967,7 +967,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
          * @throws {Error}
          */
-        getResultsAsStac(): Promise<any>;
+        getResultsAsStac(): Promise<object<string, any>>;
         /**
          * Retrieves download links.
          *
@@ -1024,9 +1024,9 @@ declare module OpenEO {
          * A list of categories.
          * @public
          * @readonly
-         * @type {Array.<string>}
+         * @type {?Array.<string>}
          */
-        public readonly categories: Array<string>;
+        public readonly categories: Array<string> | null;
         /**
          * A list of parameters.
          *
@@ -1034,54 +1034,54 @@ declare module OpenEO {
          * @readonly
          * @type {?Array.<object.<string, *>>}
          */
-        public readonly parameters: Array<any> | null;
+        public readonly parameters: Array<object<string, any>> | null;
         /**
          * Description of the data that is returned by this process.
          * @public
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly returns: any;
+        public readonly returns: object<string, any>;
         /**
          * Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions.
          * @public
          * @readonly
-         * @type {boolean}
+         * @type {?boolean}
          */
-        public readonly deprecated: boolean;
+        public readonly deprecated: boolean | null;
         /**
          * Declares the process or parameter to be experimental, which means that it is likely to change or may produce unpredictable behaviour.
          * @public
          * @readonly
-         * @type {boolean}
+         * @type {?boolean}
          */
-        public readonly experimental: boolean;
+        public readonly experimental: boolean | null;
         /**
          * Declares any exceptions (errors) that might occur during execution of this process.
          * @public
          * @readonly
-         * @type {object.<string, *>}
+         * @type {?object.<string, *>}
          */
-        public readonly exceptions: any;
+        public readonly exceptions: object<string, any>;
         /**
          * @public
          * @readonly
-         * @type {Array.<object.<string, *>>}
+         * @type {?Array.<object.<string, *>>}
          */
-        public readonly examples: Array<any>;
+        public readonly examples: Array<object<string, any>> | null;
         /**
          * Links related to this process.
          * @public
          * @readonly
-         * @type {Array.<Link>}
+         * @type {?Array.<Link>}
          */
-        public readonly links: Array<Link>;
+        public readonly links: Array<Link> | null;
         /**
          * @public
          * @readonly
-         * @type {object.<string, *>}
+         * @type {?object.<string, *>}
          */
-        public readonly processGraph: any;
+        public readonly processGraph: object<string, any>;
         /**
          * Updates the data stored in this object by requesting the process graph metadata from the back-end.
          *
@@ -1150,57 +1150,57 @@ declare module OpenEO {
          * The process chain to be executed.
          * @public
          * @readonly
-         * @type {Process}
+         * @type {?Process}
          */
         public readonly process: Process;
         /**
          * URL at which the secondary web service is accessible
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly url: string;
+        public readonly url: string | null;
         /**
          * Web service type (protocol / standard) that is exposed.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly type: string;
+        public readonly type: string | null;
         /**
          * @public
          * @readonly
-         * @type {boolean}
+         * @type {?boolean}
          */
-        public readonly enabled: boolean;
+        public readonly enabled: boolean | null;
         /**
          * Map of configuration settings, i.e. the setting names supported by the secondary web service combined with actual values.
          * @public
          * @readonly
-         * @type {object.<string, *>}
+         * @type {?object.<string, *>}
          */
-        public readonly configuration: any;
+        public readonly configuration: object<string, any>;
         /**
          * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
          * @public
          * @readonly
-         * @type {object.<string, *>}
+         * @type {?object.<string, *>}
          */
-        public readonly attributes: any;
+        public readonly attributes: object<string, any>;
         /**
          * Date and time of creation, formatted as a RFC 3339 date-time.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly created: string;
+        public readonly created: string | null;
         /**
          * The billing plan to process and charge the service with.
          * @public
          * @readonly
-         * @type {string}
+         * @type {?string}
          */
-        public readonly plan: string;
+        public readonly plan: string | null;
         /**
          * An amount of money or credits in the currency specified by the back-end.
          * @public
@@ -1243,7 +1243,7 @@ declare module OpenEO {
             title: string;
             description: string;
             enabled: boolean;
-            configuration: any;
+            configuration: object<string, any>;
             plan: string;
             budget: number;
         }): Promise<Service>;
@@ -1325,7 +1325,7 @@ declare module OpenEO {
          * @param {string} description - A description for the parameter
          * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
          */
-        constructor(name: string, schema?: any | string, description?: string, defaultValue?: any);
+        constructor(name: string, schema?: object<string, any> | string, description?: string, defaultValue?: any);
         name: string;
         spec: {
             name: string;
@@ -1337,7 +1337,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): any;
+        toJSON(): object<string, any>;
         /**
          * Returns the reference object for this parameter.
          *
@@ -1393,9 +1393,9 @@ declare module OpenEO {
         /**
          * @type {object.<string, *>}
          */
-        tree: any;
+        tree: object<string, any>;
         /**
-         * @type {?Builder}
+         * @type {Builder | null}
          */
         builder: Builder | null;
         /**
@@ -1422,7 +1422,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        protected parseTree(tree: any): any;
+        protected parseTree(tree: object<string, any>): object<string, any>;
         /**
          * Gets the reference for a value, e.g. from_node or from_parameter.
          *
@@ -1440,10 +1440,10 @@ declare module OpenEO {
          * @returns {BuilderNode}
          * @throws {Error}
          */
-        addOperatorProcess(operator: string, left: number | any, right: number | any): BuilderNode;
+        addOperatorProcess(operator: string, left: number | object<string, any>, right: number | object<string, any>): BuilderNode;
     }
     export namespace Formula {
-        const operatorMapping: any;
+        const operatorMapping: object<string, string>;
     }
     /**
      * A class that represents a process node and also a result from a process.
@@ -1458,7 +1458,7 @@ declare module OpenEO {
          * @param {?string} [processDescription=null]
          * @param {?string} [processNamespace=null]
          */
-        constructor(parent: Builder, processId: string, processArgs?: any, processDescription?: string | null, processNamespace?: string | null);
+        constructor(parent: Builder, processId: string, processArgs?: object<string, any>, processDescription?: string | null, processNamespace?: string | null);
         /**
          * The parent builder.
          * @type {Builder}
@@ -1484,7 +1484,7 @@ declare module OpenEO {
          * The arguments for the process.
          * @type {object.<string, *>}
          */
-        arguments: any;
+        arguments: object<string, any>;
         /**
          * @ignore
          */
@@ -1501,13 +1501,13 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        namedArguments(processArgs: any[]): any;
+        namedArguments(processArgs: any[]): object<string, any>;
         /**
          * Checks the arguments given for parameters and add them to the process.
          *
          * @param {object.<string, *>|Array} processArgs
          */
-        addParametersToProcess(processArgs: any | any[]): void;
+        addParametersToProcess(processArgs: object<string, any> | any[]): void;
         /**
          * Gets/Sets a description for the node.
          *
@@ -1553,13 +1553,13 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        protected exportCallback(arg: Function, name: string): any;
+        protected exportCallback(arg: Function, name: string): object<string, any>;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): any;
+        toJSON(): object<string, any>;
         /**
          * Returns the reference object for this node.
          *
@@ -1676,17 +1676,17 @@ declare module OpenEO {
         public id: string;
         /**
          * The parent builder.
-         * @type {?Builder}
+         * @type {Builder | null}
          */
         parent: Builder | null;
         /**
          * The parent node.
-         * @type {?BuilderNode}
+         * @type {BuilderNode | null}
          */
         parentNode: BuilderNode | null;
         /**
          * The parent parameter name.
-         * @type {?string}
+         * @type {string | null}
          */
         parentParameter: string | null;
         nodes: {};
@@ -1704,7 +1704,7 @@ declare module OpenEO {
          * @param {Process} process
          * @throws {Error}
          */
-        createFunction(process: any): void;
+        createFunction(process: Process): void;
         /**
          * Adds a process specification to the builder so that it can be used to create a process graph.
          *
@@ -1743,7 +1743,7 @@ declare module OpenEO {
          * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
          * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
          */
-        addParameter(parameter: any, root?: boolean): void;
+        addParameter(parameter: object<string, any>, root?: boolean): void;
         /**
          * Returns the process specification for the given process identifier and namespace (or `null`).
          *
@@ -1779,7 +1779,7 @@ declare module OpenEO {
          * @param {?string} [description=null] - An optional description for the process call.
          * @returns {BuilderNode}
          */
-        process(processId: string, args?: any | any[], description?: string | null): BuilderNode;
+        process(processId: string, args?: object<string, any> | any[], description?: string | null): BuilderNode;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
@@ -1829,37 +1829,30 @@ declare module OpenEO {
          * Auth Provider cache
          *
          * @protected
-         * @type {?Array.<AuthProvider>}
+         * @type {Array.<AuthProvider> | null}
          */
         protected authProviderList: Array<AuthProvider> | null;
         /**
          * Current auth provider
          *
          * @protected
-         * @type {?AuthProvider}
+         * @type {AuthProvider | null}
          */
         protected authProvider: AuthProvider | null;
         /**
          * Capability cache
          *
          * @protected
-         * @type {?Capabilities}
+         * @type {Capabilities | null}
          */
         protected capabilitiesObject: Capabilities | null;
-        /**
-         * Process cache
-         *
-         * @protected
-         * @type {ProcessRegistry}
-         */
-        protected processes: any;
         /**
          * Listeners for events.
          *
          * @protected
          * @type {object.<string|Function>}
          */
-        protected listeners: any;
+        protected listeners: object<string | Function>;
         /**
          * Additional options for the connection.
          *
@@ -1868,13 +1861,20 @@ declare module OpenEO {
          */
         protected options: Options;
         /**
+         * Process cache
+         *
+         * @protected
+         * @type {ProcessRegistry}
+         */
+        protected processes: ProcessRegistry;
+        /**
          * Initializes the connection by requesting the capabilities.
          *
          * @async
          * @protected
          * @returns {Promise<Capabilities>} Capabilities
          */
-        init(): Promise<Capabilities>;
+        protected init(): Promise<Capabilities>;
         /**
          * Refresh the cache for processes.
          * 
@@ -1882,7 +1882,7 @@ declare module OpenEO {
          * @protected
          * @returns {Promise}
          */
-        refreshProcessCache(): Promise;
+        protected refreshProcessCache(): Promise<any>;
         /**
          * Returns the URL of the versioned back-end instance currently connected to.
          *
@@ -1916,7 +1916,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, ServiceType>>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listServiceTypes(): Promise<any>;
+        listServiceTypes(): Promise<object<string, ServiceType>>;
         /**
          * List the supported UDF runtimes.
          *
@@ -1924,7 +1924,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, UdfRuntime>>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listUdfRuntimes(): Promise<any>;
+        listUdfRuntimes(): Promise<object<string, UdfRuntime>>;
         /**
          * List all collections available on the back-end.
          *
@@ -2160,6 +2160,7 @@ declare module OpenEO {
          *
          * @callback uploadStatusCallback
          * @param {number} percentCompleted - The percent (0-100) completed.
+         * @param {UserFile} file - The file object corresponding to the callback.
          */
         /**
          * Uploads a file to the user workspace.
@@ -2173,7 +2174,7 @@ declare module OpenEO {
          * @param {*} source - The source, see method description for details.
          * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
          * @param {?uploadStatusCallback} [statusCallback=null] - Optionally, a callback that is executed on upload progress updates.
-         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the upload process.
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
@@ -2196,7 +2197,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @protected
          */
-        protected _normalizeUserProcess(process: UserProcess | BuilderNode | any, additional?: any): any;
+        protected _normalizeUserProcess(process: UserProcess | BuilderNode | object<string, any>, additional?: object<string, any>): object<string, any>;
         /**
          * Validates a user-defined process at the back-end.
          *
@@ -2285,7 +2286,7 @@ declare module OpenEO {
          * @returns {Promise<Job>} The stored batch job.
          * @throws {Error}
          */
-        createJob(process: Process, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: any): Promise<Job>;
+        createJob(process: Process, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Job>;
         /**
          * Get all information about a batch job.
          *
@@ -2319,7 +2320,7 @@ declare module OpenEO {
          * @returns {Promise<Service>} The stored service.
          * @throws {Error}
          */
-        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: any, plan?: string | null, budget?: number | null, additional?: any): Promise<Service>;
+        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: any, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Service>;
         /**
          * Get all information about a secondary web service.
          *
@@ -2349,7 +2350,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _get(path: string, query: any, responseType: string): Promise<AxiosResponse>;
+        _get(path: string, query: object<string, any>, responseType: string): Promise<AxiosResponse>;
         /**
          * Sends a POST request.
          *
@@ -2518,7 +2519,7 @@ declare module OpenEO {
         status: number;
         statusText: string;
         headers: any;
-        config: any;
+    config: object<string, any>;
         request: any;
     };
     export type BillingPlan = {
@@ -2547,22 +2548,22 @@ declare module OpenEO {
         collections: Array<Collection>;
         links: Array<Link>;
     };
-    export type Collection = any;
+    export type Collection = object<string, any>;
     export type FileTypesAPI = {
         /**
          * - File types supported to import
          */
-        input: any;
+        input: object<string, FileType>;
         /**
          * - File types supported to export
          */
-        output: any;
+        output: object<string, FileType>;
     };
     export type FileType = {
         title: string;
         description: string;
         gis_data_types: Array<string>;
-        parameters: any;
+        parameters: object<string, any>;
         links: Array<Link>;
     };
     /**
@@ -2583,7 +2584,7 @@ declare module OpenEO {
          */
         from_parameter: string;
     };
-    export type Item = any;
+    export type Item = object<string, any>;
     export type ItemCollection = {
         /**
          * - The items in the collection.
@@ -2657,7 +2658,7 @@ declare module OpenEO {
         level: string;
         message: string;
         data: any;
-        path: Array<any>;
+        path: Array<object<string, string>>;
         links: Array<Link>;
     };
     /**
@@ -2730,13 +2731,13 @@ declare module OpenEO {
     /**
      * An openEO processing chain.
      */
-    export type Process = any;
-    export type ServiceType = any;
+    export type Process = object<string, any>;
+    export type ServiceType = object<string, any>;
     export type SyncResult = {
         /**
          * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
          */
-        data: any | Blob;
+        data: Readable | Blob;
         /**
          * The costs for the request in the currency exposed by the back-end.
          */
@@ -2750,7 +2751,7 @@ declare module OpenEO {
          */
         logs: Array<Log>;
     };
-    export type UdfRuntime = any;
+    export type UdfRuntime = object<string, any>;
     export type UserAccountStorage = {
         /**
          * in bytes as integer
