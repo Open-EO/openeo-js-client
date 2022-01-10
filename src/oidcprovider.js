@@ -106,6 +106,13 @@ class OidcProvider extends AuthProvider {
 		this.scopes = Array.isArray(options.scopes) && options.scopes.length > 0 ? options.scopes : ['openid'];
 
 		/**
+		 * The scope that is used to request a refresh token.
+		 * 
+		 * @type {string}
+		 */
+		this.refreshTokenScope = "offline_access";
+
+		/**
 		 * Any additional links.
 		 * 
 		 * 
@@ -161,17 +168,20 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * Supported only in Browser environments.
 	 * 
+	 * @async
 	 * @param {object.<string, *>} [options={}] - Object with authentication options.
+	 * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
 	 * @returns {Promise<void>}
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
+	 * @see {OidcProvider#refreshTokenScope}
 	 */
-	async login(options = {}) {
+	async login(options = {}, requestRefreshToken = false) {
 		if (!this.issuer || typeof this.issuer !== 'string') {
 			throw new Error("No Issuer URL available for OpenID Connect");
 		}
 
-		this.manager = new Oidc.UserManager(this.getOptions(options));
+		this.manager = new Oidc.UserManager(this.getOptions(options, requestRefreshToken));
 		this.addListener('UserLoaded', async () => this.setUser(await this.manager.getUser()), 'js-client');
 		this.addListener('AccessTokenExpired', () => this.setUser(null), 'js-client');
 		if (OidcProvider.uiMethod === 'popup') {
@@ -216,18 +226,25 @@ class OidcProvider extends AuthProvider {
 	 * 
 	 * @protected
 	 * @param {object.<string, *>} options 
+	 * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
 	 * @returns {object.<string, *>}
+	 * @see {OidcProvider#refreshTokenScope}
 	 */
-	getOptions(options = {}) {
-		let response_type = this.getResponseType();
+	getOptions(options = {}, requestRefreshToken = false) {
+		let response_mode = this.getResponseType().includes('code') ? 'query' : 'fragment';
+		let scope = this.scopes.slice(0);
+		if (requestRefreshToken && !scope.includes(this.refreshTokenScope)) {
+			scope.push(this.refreshTokenScope);
+		}
+
 		return Object.assign({
 			client_id: this.clientId,
 			redirect_uri: OidcProvider.redirectUrl,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
-			scope: this.scopes.join(' '),
+			scope,
 			validateSubOnSilentRenew: true,
 			response_type,
-			response_mode: response_type.includes('code') ? 'query' : 'fragment'
+			response_mode
 		}, options);
 	}
 

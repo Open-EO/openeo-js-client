@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- OpenID Connect: Support requesting a refresh token easily via the `requestRefreshToken` parameter.
+
 ### Changed
 
 - The `namespace` parameter in `listProcesses` and `describeProcess` parses URLs to extract the namespace (experimental).

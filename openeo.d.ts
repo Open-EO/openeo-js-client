@@ -79,13 +79,6 @@ declare module OpenEO {
          */
         setToken(token: string | null): void;
         /**
-         * Abstract method that extending classes implement the login process with.
-         *
-         * @param {...*} args
-         * @throws {Error}
-         */
-        login(...args: any[]): Promise<void>;
-        /**
          * Logout from the established session.
          *
          * This is experimental and just removes the token for now.
@@ -479,6 +472,12 @@ declare module OpenEO {
          */
         scopes: Array<string>;
         /**
+         * The scope that is used to request a refresh token.
+         *
+         * @type {string}
+         */
+        refreshTokenScope: string;
+        /**
          * Any additional links.
          *
          *
@@ -524,9 +523,11 @@ declare module OpenEO {
          *
          * @protected
          * @param {object.<string, *>} options
+         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
          * @returns {object.<string, *>}
+         * @see {OidcProvider#refreshTokenScope}
          */
-        protected getOptions(options?: any): any;
+        protected getOptions(options?: any, requestRefreshToken?: boolean): any;
         /**
          * Get the response_type based on the grant type.
          *
@@ -567,6 +568,20 @@ declare module OpenEO {
          * @see OidcProvider#setClientId
          */
         detectDefaultClient(): OidcClient | null;
+        /**
+         * Authenticate with OpenID Connect (OIDC).
+         * 
+         * Supported only in Browser environments.
+         * 
+         * @async
+         * @param {object.<string, *>} [options={}] - Object with authentication options.
+         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
+         * @returns {Promise<void>}
+         * @throws {Error}
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
+         * @see {OidcProvider#refreshTokenScope}
+         */
+        login(options?: any, requestRefreshToken?: boolean) : void;
     }
     export namespace OidcProvider {
         const uiMethod: string;
@@ -2749,7 +2764,7 @@ declare module OpenEO {
     export type UserAccount = {
         user_id: string;
         name: string | null;
-    	default_plan: string | null;
+        default_plan: string | null;
         storage: UserAccountStorage | null;
         budget: number | null;
         links: Array<Link> | null;

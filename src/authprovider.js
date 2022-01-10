@@ -113,6 +113,7 @@ class AuthProvider {
 	/**
 	 * Abstract method that extending classes implement the login process with.
 	 * 
+	 * @async
 	 * @param {...*} args 
 	 * @throws {Error}
 	 */
