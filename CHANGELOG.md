@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2022-01-10
+
 ### Added
 
 - OpenID Connect: Support requesting a refresh token easily via the `requestRefreshToken` parameter.
@@ -16,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed several type annotations in documentation and TypeScript declaration file.
+- Fixed several type annotations in the documentation and the TypeScript declaration file.
 
 ## [2.3.1] - 2021-12-10
 
@@ -163,7 +165,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.1.0...v2.2.0
