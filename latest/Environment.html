@@ -191,6 +191,9 @@
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Buffer</span>
 
 
             
@@ -241,7 +244,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -350,9 +353,6 @@
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Buffer</span>
 
 
             
@@ -403,7 +403,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line79">line 79</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
     </li></ul></dd>
     
 
@@ -884,7 +884,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
+    <p>Returns the name of the Environment, here <code>Node</code>.</p>
 </div>
 
 
@@ -928,7 +928,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line21">line 21</a>
     </li></ul></dd>
     
 
@@ -990,7 +990,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Node</code>.</p>
+    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
 </div>
 
 
@@ -1034,7 +1034,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line21">line 21</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -1308,6 +1308,112 @@
 
 
 <div class="description">
+    <p>Returns the current URL of the browser window.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getUrl"><span class="type-signature">(static) </span>getUrl<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
     <p>Returns the URL of the server instance.</p>
 </div>
 
@@ -1406,7 +1512,7 @@
     
 
     
-    <h4 class="name" id=".getUrl"><span class="type-signature">(static) </span>getUrl<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -1414,7 +1520,8 @@
 
 
 <div class="description">
-    <p>Returns the current URL of the browser window.</p>
+    <p>Offers data to download in the browser.</p>
+<p>This method may fail with overly big data.</p>
 </div>
 
 
@@ -1423,6 +1530,78 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data to download.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filename</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>File name that is suggested to the user.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -1458,12 +1637,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line26">line 26</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -1494,7 +1680,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -1674,192 +1860,6 @@
 
 
     
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Offers data to download in the browser.</p>
-<p>This method may fail with overly big data.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Data to download.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>filename</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>File name that is suggested to the user.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <h5>Returns:</h5>
@@ -2343,6 +2343,9 @@
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Buffer</span>
 
 
             
@@ -2393,7 +2396,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -2502,9 +2505,6 @@
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Buffer</span>
 
 
             
@@ -2555,7 +2555,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line79">line 79</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line84">line 84</a>
     </li></ul></dd>
     
 
@@ -3036,7 +3036,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
+    <p>Returns the name of the Environment, here <code>Node</code>.</p>
 </div>
 
 
@@ -3080,7 +3080,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
+        <a href="node.js.html">node.js</a>, <a href="node.js.html#line21">line 21</a>
     </li></ul></dd>
     
 
@@ -3142,7 +3142,7 @@
 
 
 <div class="description">
-    <p>Returns the name of the Environment, here <code>Node</code>.</p>
+    <p>Returns the name of the Environment, here <code>Browser</code>.</p>
 </div>
 
 
@@ -3186,7 +3186,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node.js.html">node.js</a>, <a href="node.js.html#line21">line 21</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -3460,6 +3460,112 @@
 
 
 <div class="description">
+    <p>Returns the current URL of the browser window.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getUrl"><span class="type-signature">(static) </span>getUrl<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
     <p>Returns the URL of the server instance.</p>
 </div>
 
@@ -3558,7 +3664,7 @@
     
 
     
-    <h4 class="name" id=".getUrl"><span class="type-signature">(static) </span>getUrl<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -3566,7 +3672,8 @@
 
 
 <div class="description">
-    <p>Returns the current URL of the browser window.</p>
+    <p>Offers data to download in the browser.</p>
+<p>This method may fail with overly big data.</p>
 </div>
 
 
@@ -3575,6 +3682,78 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data to download.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filename</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>File name that is suggested to the user.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -3610,12 +3789,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line26">line 26</a>
+        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -3646,7 +3832,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -3826,192 +4012,6 @@
 
 
     
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".saveToFile"><span class="type-signature">(async, static) </span>saveToFile<span class="signature">(data, filename)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Offers data to download in the browser.</p>
-<p>This method may fail with overly big data.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Data to download.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>filename</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>File name that is suggested to the user.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="browser.js.html">browser.js</a>, <a href="browser.js.html#line140">line 140</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://github.com/kennethjiang/js-file-download/blob/master/file-download.js">https://github.com/kennethjiang/js-file-download/blob/master/file-download.js</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <h5>Returns:</h5>
@@ -4334,7 +4334,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Dec 10 2021 15:45:08 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Jan 10 2022 17:07:35 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
