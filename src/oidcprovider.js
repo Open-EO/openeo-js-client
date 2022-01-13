@@ -241,7 +241,7 @@ class OidcProvider extends AuthProvider {
 			client_id: this.clientId,
 			redirect_uri: OidcProvider.redirectUrl,
 			authority: this.issuer.replace('/.well-known/openid-configuration', ''),
-			scope,
+			scope: scope.join(' '),
 			validateSubOnSilentRenew: true,
 			response_type,
 			response_mode: response_type.includes('code') ? 'query' : 'fragment'

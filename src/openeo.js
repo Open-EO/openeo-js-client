@@ -110,7 +110,7 @@ class OpenEO {
 	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
-		return "2.4.0";
+		return "2.4.1";
 	}
 
 }

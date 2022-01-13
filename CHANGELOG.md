@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2022-01-13
+
+### Fixed
+
+- Fixed regression for OIDC scopes introduced in 2.4.0
+
 ## [2.4.0] - 2022-01-10
 
 ### Added
@@ -165,7 +171,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.2.0...v2.3.0
