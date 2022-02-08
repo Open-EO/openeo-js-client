@@ -251,7 +251,7 @@ class Builder {
 	/**
 	 * Gets the callback parameter specifics from the parent process.
 	 * 
-	 * @returns {Array}
+	 * @returns {Array.<object.<string,*>>}
 	 * @todo Should this also pass callback parameters from parents until root is reached?
 	 */
 	getParentCallbackParameters() {

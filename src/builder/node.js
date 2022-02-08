@@ -63,7 +63,7 @@ class BuilderNode {
 	/**
 	 * Converts a sorted array of arguments to an object with the respective parameter names.
 	 * 
-	 * @param {Array} processArgs 
+	 * @param {Array.<object.<string, *>>} processArgs 
 	 * @returns {object.<string, *>}
 	 * @throws {Error}
 	 */

@@ -966,7 +966,7 @@ class Connection {
 	 * Adds links and federation:missing.
 	 * 
 	 * @protected
-	 * @param {Array} arr 
+	 * @param {Array.<*>} arr 
 	 * @param {object.<string, *>} response 
 	 * @returns {ResponseArray}
 	 */

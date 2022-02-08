@@ -9,7 +9,7 @@ class BaseEntity {
 	 * Creates an instance of this object.
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-	 * @param {Array} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
+	 * @param {Array.<string|Array.<string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
 	 */
 	constructor(connection, properties = []) {
 		/**
