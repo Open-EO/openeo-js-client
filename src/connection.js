@@ -244,7 +244,7 @@ class Connection {
 	 * 2. Lower left corner, coordinate axis 2
 	 * 3. Upper right corner, coordinate axis 1
 	 * 4. Upper right corner, coordinate axis 2
-	 * @param {?Array.<*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
+	 * @param {?Array} [temporalExtent=null] - Limits the items to the specified temporal interval.
 	 * The interval has to be specified as an array with exactly two elements (start, end) and
 	 * each must be either an RFC 3339 compatible string or a Date object.
 	 * Also supports open intervals by setting one of the boundaries to `null`, but never both.
@@ -607,14 +607,15 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {Promise<Array.<UserFile>>} A list of files.
+	 * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
 		let response = await this._get('/files');
-		return response.data.files.map(
+		let files = response.data.files.map(
 			f => new UserFile(this, f.path).setAll(f)
 		);
+		return this._toResponseArray(files, response.data);
 	}
 
 	/**
@@ -708,7 +709,7 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<Array.<UserProcess>>} A list of user-defined processes.
+	 * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
 	async listUserProcesses() {
@@ -718,13 +719,13 @@ class Connection {
 			throw new Error('Invalid response received for processes');
 		}
 
+
 		// Store processes in cache
 		this.processes.remove(null, 'user');
 		this.processes.addAll(response.data.processes, 'user');
 
-		return response.data.processes.map(
-			pg => new UserProcess(this, pg.id).setAll(pg)
-		);
+		let processes = response.data.processes.map(pg => new UserProcess(this, pg.id).setAll(pg));
+		return this._toResponseArray(processes, response.data);
 	}
 
 	/**
@@ -838,14 +839,13 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<Array.<Job>>} A list of jobs.
+	 * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
 	 * @throws {Error}
 	 */
 	async listJobs() {
 		let response = await this._get('/jobs');
-		return response.data.jobs.map(
-			j => new Job(this, j.id).setAll(j)
-		);
+		let jobs = response.data.jobs.map(j => new Job(this, j.id).setAll(j));
+		return this._toResponseArray(jobs, response.data);
 	}
 
 	/**
@@ -899,14 +899,13 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise<Array.<Job>>} A list of services.
+	 * @returns {Promise<ResponseArray.<Job>>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices() {
 		let response = await this._get('/services');
-		return response.data.services.map(
-			s => new Service(this, s.id).setAll(s)
-		);
+		let services = response.data.services.map(s => new Service(this, s.id).setAll(s));
+		return this._toResponseArray(services, response.data);
 	}
 
 	/**
@@ -962,8 +961,25 @@ class Connection {
 	}
 
 	/**
+	 * Adds additional response details to the array.
+	 * 
+	 * Adds links and federation:missing.
+	 * 
+	 * @protected
+	 * @param {Array} arr 
+	 * @param {object.<string, *>} response 
+	 * @returns {ResponseArray}
+	 */
+	_toResponseArray(arr, response) {
+		arr.links = Array.isArray(response.links) ? response.links : [];
+		arr['federation:missing'] = Array.isArray(response['federation:missing']) ? response['federation:missing'] : [];
+		return arr;
+	}
+
+	/**
 	 * Get the a link with the given rel type.
 	 * 
+	 * @protected
 	 * @param {Array.<Link>} links - An array of links.
 	 * @param {string} rel - Relation type to find, defaults to `next`.
 	 * @returns {string | null}
@@ -982,6 +998,7 @@ class Connection {
 	/**
 	 * Sends a GET request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {object.<string, *>} query 
@@ -1005,6 +1022,7 @@ class Connection {
 	/**
 	 * Sends a POST request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1027,6 +1045,7 @@ class Connection {
 	/**
 	 * Sends a PUT request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1044,6 +1063,7 @@ class Connection {
 	/**
 	 * Sends a PATCH request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1061,6 +1081,7 @@ class Connection {
 	/**
 	 * Sends a DELETE request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @returns {Promise<AxiosResponse>}
@@ -1105,6 +1126,7 @@ class Connection {
 	 * Tries to smoothly handle error responses by providing an object for all response types,
 	 * instead of Streams or Blobs for non-JSON response types.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {object.<string, *>} options 
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.

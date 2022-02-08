@@ -599,9 +599,17 @@ declare module OpenEO {
          */
         constructor(data: FileTypesAPI);
         /**
+         * @protected
          * @type {FileTypesAPI}
          */
-        data: FileTypesAPI;
+        protected data: FileTypesAPI;
+        /**
+         * A list of backends from the federation that are missing in the response data.
+         *
+         * @public
+         * @type {Array.<string>}
+         */
+        public 'federation:missing': Array<string>;
         /**
          * Returns the file types response as a JSON serializable representation of the data that is API compliant.
          *
@@ -2151,10 +2159,10 @@ declare module OpenEO {
          * Lists all files from the user workspace.
          *
          * @async
-         * @returns {Promise<Array.<UserFile>>} A list of files.
+         * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
          * @throws {Error}
          */
-        listFiles(): Promise<Array<UserFile>>;
+        listFiles(): Promise<ResponseArray<UserFile>>;
         /**
          * A callback that is executed on upload progress updates.
          *
@@ -2211,10 +2219,10 @@ declare module OpenEO {
          * Lists all user-defined processes of the authenticated user.
          *
          * @async
-         * @returns {Promise<Array.<UserProcess>>} A list of user-defined processes.
+         * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
          * @throws {Error}
          */
-        listUserProcesses(): Promise<Array<UserProcess>>;
+        listUserProcesses(): Promise<ResponseArray<UserProcess>>;
         /**
          * Creates a new stored user-defined process at the back-end.
          *
@@ -2269,10 +2277,10 @@ declare module OpenEO {
          * Lists all batch jobs of the authenticated user.
          *
          * @async
-         * @returns {Promise<Array.<Job>>} A list of jobs.
+         * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
          * @throws {Error}
          */
-        listJobs(): Promise<Array<Job>>;
+        listJobs(): Promise<ResponseArray<Job>>;
         /**
          * Creates a new batch job at the back-end.
          *
@@ -2300,10 +2308,10 @@ declare module OpenEO {
          * Lists all secondary web services of the authenticated user.
          *
          * @async
-         * @returns {Promise<Array.<Job>>} A list of services.
+         * @returns {Promise<ResponseArray.<Job>>} A list of services.
          * @throws {Error}
          */
-        listServices(): Promise<Array<Job>>;
+        listServices(): Promise<ResponseArray<Job>>;
         /**
          * Creates a new secondary web service at the back-end.
          *
@@ -2331,17 +2339,30 @@ declare module OpenEO {
          */
         getService(id: string): Promise<Service>;
         /**
+         * Adds additional response details to the array.
+         *
+         * Adds links and federation:missing.
+         *
+         * @protected
+         * @param {Array} arr
+         * @param {object.<string, *>} response
+         * @returns {ResponseArray}
+         */
+        protected _toResponseArray(arr: any[], response: object<string, any>): any;
+        /**
          * Get the a link with the given rel type.
          *
+         * @protected
          * @param {Array.<Link>} links - An array of links.
          * @param {string} rel - Relation type to find, defaults to `next`.
          * @returns {string | null}
          * @throws {Error}
          */
-        _getLinkHref(links: Array<Link>, rel?: string): string | null;
+        protected _getLinkHref(links: Array<Link>, rel?: string): string | null;
         /**
          * Sends a GET request.
          *
+         * @protected
          * @async
          * @param {string} path
          * @param {object.<string, *>} query
@@ -2350,10 +2371,11 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _get(path: string, query: object<string, any>, responseType: string): Promise<AxiosResponse>;
+        protected _get(path: string, query: object<string, any>, responseType: string): Promise<AxiosResponse>;
         /**
          * Sends a POST request.
          *
+         * @protected
          * @async
          * @param {string} path
          * @param {*} body
@@ -2363,36 +2385,39 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        _post(path: string, body: any, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
+        protected _post(path: string, body: any, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
         /**
          * Sends a PUT request.
          *
+         * @protected
          * @async
          * @param {string} path
          * @param {*} body
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _put(path: string, body: any): Promise<AxiosResponse>;
+        protected _put(path: string, body: any): Promise<AxiosResponse>;
         /**
          * Sends a PATCH request.
          *
+         * @protected
          * @async
          * @param {string} path
          * @param {*} body
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _patch(path: string, body: any): Promise<AxiosResponse>;
+        protected _patch(path: string, body: any): Promise<AxiosResponse>;
         /**
          * Sends a DELETE request.
          *
+         * @protected
          * @async
          * @param {string} path
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          */
-        _delete(path: string): Promise<AxiosResponse>;
+        protected _delete(path: string): Promise<AxiosResponse>;
         /**
          * Downloads data from a URL.
          *
@@ -2416,6 +2441,7 @@ declare module OpenEO {
          * Tries to smoothly handle error responses by providing an object for all response types,
          * instead of Streams or Blobs for non-JSON response types.
          *
+         * @protected
          * @async
          * @param {object.<string, *>} options
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
@@ -2423,7 +2449,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios
          */
-        _send(options: any, abortController?: AbortController | null): Promise<AxiosResponse>;
+        protected _send(options: object<string, any>, abortController?: AbortController | null): Promise<AxiosResponse>;
     }
     namespace Connection {
         export { oidcProviderFactoryFunction, uploadStatusCallback };
@@ -2732,6 +2758,12 @@ declare module OpenEO {
      * An openEO processing chain.
      */
     export type Process = object<string, any>;
+    /**
+     * An array, but enriched with additional details from an openEO API response.
+     *
+     * Adds two properties: `links` and `federation:missing`.
+     */
+    export type ResponseArray = Array;
     export type ServiceType = object<string, any>;
     export type SyncResult = {
         /**

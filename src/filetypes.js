@@ -12,6 +12,7 @@ class FileTypes {
 	 */
 	constructor(data) {
 		/**
+		 * @protected
 		 * @type {FileTypesAPI}
 		 */
 		this.data = {
@@ -29,6 +30,13 @@ class FileTypes {
 				this.data[io][type.toUpperCase()] = data[io][type];
 			}
 		}
+		/**
+		 * A list of backends from the federation that are missing in the response data.
+		 * 
+		 * @public
+		 * @type {Array.<string>}
+		 */
+		this['federation:missing'] = data['federation:missing'];
 	}
 
 	/**
