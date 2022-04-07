@@ -147,11 +147,12 @@ class Connection {
 		let promises = this.processes.namespaces().map(namespace => {
 			let fn = () => Promise.resolve();
 			if (namespace === 'user') {
+				let userProcesses = this.processes.namespace('user');
 				if (!this.isAuthenticated()) {
 					fn = () => (this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes")));
 				}
 				else if (this.capabilities().hasFeature('listUserProcesses')) {
-					fn = () => this.listUserProcesses();
+					fn = () => this.listUserProcesses(userProcesses);
 				}
 			}
 			else if (this.capabilities().hasFeature('listProcesses')) {
@@ -272,7 +273,7 @@ class Connection {
 	 * 2. Lower left corner, coordinate axis 2
 	 * 3. Upper right corner, coordinate axis 1
 	 * 4. Upper right corner, coordinate axis 2
-	 * @param {?Array.&lt;*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
+	 * @param {?Array} [temporalExtent=null] - Limits the items to the specified temporal interval.
 	 * The interval has to be specified as an array with exactly two elements (start, end) and
 	 * each must be either an RFC 3339 compatible string or a Date object.
 	 * Also supports open intervals by setting one of the boundaries to `null`, but never both.
@@ -635,14 +636,15 @@ class Connection {
 	 * Lists all files from the user workspace. 
 	 * 
 	 * @async
-	 * @returns {Promise&lt;Array.&lt;UserFile>>} A list of files.
+	 * @returns {Promise&lt;ResponseArray.&lt;UserFile>>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
 		let response = await this._get('/files');
-		return response.data.files.map(
+		let files = response.data.files.map(
 			f => new UserFile(this, f.path).setAll(f)
 		);
+		return this._toResponseArray(files, response.data);
 	}
 
 	/**
@@ -736,23 +738,34 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise&lt;Array.&lt;UserProcess>>} A list of user-defined processes.
+	 * @param {Array.&lt;UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
+	 * @returns {Promise&lt;ResponseArray.&lt;UserProcess>>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
-	async listUserProcesses() {
+	async listUserProcesses(oldProcesses = []) {
 		let response = await this._get('/process_graphs');
 
 		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
 			throw new Error('Invalid response received for processes');
 		}
 
-		// Store processes in cache
+		// Remove existing processes from cache
 		this.processes.remove(null, 'user');
-		this.processes.addAll(response.data.processes, 'user');
 
-		return response.data.processes.map(
-			pg => new UserProcess(this, pg.id).setAll(pg)
-		);
+		// Update existing processes if needed
+		let newProcesses = response.data.processes.map(newProcess => {
+			let process = oldProcesses.find(oldProcess => oldProcess.id === newProcess.id);
+			if (!process) {
+				process = new UserProcess(this, newProcess.id);
+			}
+			return process.setAll(newProcess);
+		});
+		
+		// Store plain JS variant (i.e. no Job objects involved) of processes in cache
+		let jsonProcesses = oldProcesses.length > 0 ? newProcesses.map(p => p.toJSON()) : response.data.processes;
+		this.processes.addAll(jsonProcesses, 'user');
+
+		return this._toResponseArray(newProcesses, response.data);
 	}
 
 	/**
@@ -866,14 +879,21 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise&lt;Array.&lt;Job>>} A list of jobs.
+	 * @param {Array.&lt;Job>} [oldJobs=[]] - A list of existing jobs to update.
+	 * @returns {Promise&lt;ResponseArray.&lt;Job>>} A list of jobs.
 	 * @throws {Error}
 	 */
-	async listJobs() {
+	async listJobs(oldJobs = []) {
 		let response = await this._get('/jobs');
-		return response.data.jobs.map(
-			j => new Job(this, j.id).setAll(j)
-		);
+		let newJobs = response.data.jobs.map(newJob => {
+			delete newJob.status;
+			let job = oldJobs.find(oldJob => oldJob.id === newJob.id);
+			if (!job) {
+				job = new Job(this, newJob.id);
+			}
+			return job.setAll(newJob);
+		});
+		return this._toResponseArray(newJobs, response.data);
 	}
 
 	/**
@@ -927,14 +947,20 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
-	 * @returns {Promise&lt;Array.&lt;Job>>} A list of services.
+	 * @param {Array.&lt;Service>} [oldServices=[]] - A list of existing services to update.
+	 * @returns {Promise&lt;ResponseArray.&lt;Job>>} A list of services.
 	 * @throws {Error}
 	 */
-	async listServices() {
+	async listServices(oldServices = []) {
 		let response = await this._get('/services');
-		return response.data.services.map(
-			s => new Service(this, s.id).setAll(s)
-		);
+		let newServices = response.data.services.map(newService => {
+			let service = oldServices.find(oldService => oldService.id === newService.id);
+			if (!service) {
+				service = new Service(this, newService.id);
+			}
+			return service.setAll(newService);
+		});
+		return this._toResponseArray(newServices, response.data);
 	}
 
 	/**
@@ -990,8 +1016,25 @@ class Connection {
 	}
 
 	/**
+	 * Adds additional response details to the array.
+	 * 
+	 * Adds links and federation:missing.
+	 * 
+	 * @protected
+	 * @param {Array.&lt;*>} arr 
+	 * @param {object.&lt;string, *>} response 
+	 * @returns {ResponseArray}
+	 */
+	_toResponseArray(arr, response) {
+		arr.links = Array.isArray(response.links) ? response.links : [];
+		arr['federation:missing'] = Array.isArray(response['federation:missing']) ? response['federation:missing'] : [];
+		return arr;
+	}
+
+	/**
 	 * Get the a link with the given rel type.
 	 * 
+	 * @protected
 	 * @param {Array.&lt;Link>} links - An array of links.
 	 * @param {string} rel - Relation type to find, defaults to `next`.
 	 * @returns {string | null}
@@ -1010,6 +1053,7 @@ class Connection {
 	/**
 	 * Sends a GET request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {object.&lt;string, *>} query 
@@ -1033,6 +1077,7 @@ class Connection {
 	/**
 	 * Sends a POST request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1055,6 +1100,7 @@ class Connection {
 	/**
 	 * Sends a PUT request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1072,6 +1118,7 @@ class Connection {
 	/**
 	 * Sends a PATCH request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @param {*} body 
@@ -1089,6 +1136,7 @@ class Connection {
 	/**
 	 * Sends a DELETE request.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {string} path 
 	 * @returns {Promise&lt;AxiosResponse>}
@@ -1133,6 +1181,7 @@ class Connection {
 	 * Tries to smoothly handle error responses by providing an object for all response types,
 	 * instead of Streams or Blobs for non-JSON response types.
 	 * 
+	 * @protected
 	 * @async
 	 * @param {object.&lt;string, *>} options 
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
@@ -1205,7 +1254,7 @@ module.exports = Connection;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Jan 13 2022 11:05:38 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Thu Apr 07 2022 14:37:10 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
