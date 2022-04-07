@@ -4,7 +4,7 @@ JavaScript/TypeScript client for the openEO API.
 
 * [Documentation](https://open-eo.github.io/openeo-js-client/latest/).
 
-The version of this client is **2.4.1** and supports **openEO API versions 1.x.x**.
+The version of this client is **2.5.0** and supports **openEO API versions 1.x.x**.
 Legacy versions are available as releases.
 See the [CHANGELOG](CHANGELOG.md) for recent changes.
 
