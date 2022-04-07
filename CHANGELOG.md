@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `listFiles`, `listJobs`, `listServices` return a `ResponseArray` instead of a plain `Array`.
+- `listJobs`, `listServices` and `listUserProcesses` allow to update existing processes.
+- `listFiles`, `listJobs`, `listServices` and `listUserProcesses` return a `ResponseArray` instead of a plain `Array`.
   The ResonseArray now has the properties `links` and `federation:missing` from the responses.
   This is usually a non-breaking change, but if you mistakenly use `Object` functions (such as `Object.keys`) on an array, you'll get the additional properties, too.
 

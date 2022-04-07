@@ -2219,10 +2219,11 @@ declare module OpenEO {
          * Lists all user-defined processes of the authenticated user.
          *
          * @async
+         * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
          * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
          * @throws {Error}
          */
-        listUserProcesses(): Promise<ResponseArray<UserProcess>>;
+        listUserProcesses(oldProcesses?: Array<UserProcess>): Promise<ResponseArray<UserProcess>>;
         /**
          * Creates a new stored user-defined process at the back-end.
          *
@@ -2277,10 +2278,11 @@ declare module OpenEO {
          * Lists all batch jobs of the authenticated user.
          *
          * @async
+         * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
          * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
          * @throws {Error}
          */
-        listJobs(): Promise<ResponseArray<Job>>;
+        listJobs(oldJobs?: Array<Job>): Promise<ResponseArray<Job>>;
         /**
          * Creates a new batch job at the back-end.
          *
@@ -2308,10 +2310,11 @@ declare module OpenEO {
          * Lists all secondary web services of the authenticated user.
          *
          * @async
+         * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
          * @returns {Promise<ResponseArray.<Job>>} A list of services.
          * @throws {Error}
          */
-        listServices(): Promise<ResponseArray<Job>>;
+        listServices(oldServices?: Array<Service>): Promise<ResponseArray<Job>>;
         /**
          * Creates a new secondary web service at the back-end.
          *

@@ -119,11 +119,12 @@ class Connection {
 		let promises = this.processes.namespaces().map(namespace => {
 			let fn = () => Promise.resolve();
 			if (namespace === 'user') {
+				let userProcesses = this.processes.namespace('user');
 				if (!this.isAuthenticated()) {
 					fn = () => (this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes")));
 				}
 				else if (this.capabilities().hasFeature('listUserProcesses')) {
-					fn = () => this.listUserProcesses();
+					fn = () => this.listUserProcesses(userProcesses);
 				}
 			}
 			else if (this.capabilities().hasFeature('listProcesses')) {
@@ -709,23 +710,34 @@ class Connection {
 	 * Lists all user-defined processes of the authenticated user.
 	 * 
 	 * @async
+	 * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
 	 * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
-	async listUserProcesses() {
+	async listUserProcesses(oldProcesses = []) {
 		let response = await this._get('/process_graphs');
 
 		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
 			throw new Error('Invalid response received for processes');
 		}
 
-
-		// Store processes in cache
+		// Remove existing processes from cache
 		this.processes.remove(null, 'user');
-		this.processes.addAll(response.data.processes, 'user');
 
-		let processes = response.data.processes.map(pg => new UserProcess(this, pg.id).setAll(pg));
-		return this._toResponseArray(processes, response.data);
+		// Update existing processes if needed
+		let newProcesses = response.data.processes.map(newProcess => {
+			let process = oldProcesses.find(oldProcess => oldProcess.id === newProcess.id);
+			if (!process) {
+				process = new UserProcess(this, newProcess.id);
+			}
+			return process.setAll(newProcess);
+		});
+		
+		// Store plain JS variant (i.e. no Job objects involved) of processes in cache
+		let jsonProcesses = oldProcesses.length > 0 ? newProcesses.map(p => p.toJSON()) : response.data.processes;
+		this.processes.addAll(jsonProcesses, 'user');
+
+		return this._toResponseArray(newProcesses, response.data);
 	}
 
 	/**
@@ -839,13 +851,21 @@ class Connection {
 	 * Lists all batch jobs of the authenticated user.
 	 * 
 	 * @async
+	 * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
 	 * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
 	 * @throws {Error}
 	 */
-	async listJobs() {
+	async listJobs(oldJobs = []) {
 		let response = await this._get('/jobs');
-		let jobs = response.data.jobs.map(j => new Job(this, j.id).setAll(j));
-		return this._toResponseArray(jobs, response.data);
+		let newJobs = response.data.jobs.map(newJob => {
+			delete newJob.status;
+			let job = oldJobs.find(oldJob => oldJob.id === newJob.id);
+			if (!job) {
+				job = new Job(this, newJob.id);
+			}
+			return job.setAll(newJob);
+		});
+		return this._toResponseArray(newJobs, response.data);
 	}
 
 	/**
@@ -899,13 +919,20 @@ class Connection {
 	 * Lists all secondary web services of the authenticated user.
 	 * 
 	 * @async
+	 * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
 	 * @returns {Promise<ResponseArray.<Job>>} A list of services.
 	 * @throws {Error}
 	 */
-	async listServices() {
+	async listServices(oldServices = []) {
 		let response = await this._get('/services');
-		let services = response.data.services.map(s => new Service(this, s.id).setAll(s));
-		return this._toResponseArray(services, response.data);
+		let newServices = response.data.services.map(newService => {
+			let service = oldServices.find(oldService => oldService.id === newService.id);
+			if (!service) {
+				service = new Service(this, newService.id);
+			}
+			return service.setAll(newService);
+		});
+		return this._toResponseArray(newServices, response.data);
 	}
 
 	/**
