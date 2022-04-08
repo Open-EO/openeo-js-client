@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: baseentity.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: baseentity.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The base class for entities such as Job, Process Graph, Service etc.
+ * 
+ * @abstract
+ */
+class BaseEntity {
+
+	/**
+	 * Creates an instance of this object.
+	 * 
+	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+	 * @param {Array.&lt;string|Array.&lt;string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
+	 */
+	constructor(connection, properties = []) {
+		/**
+		 * @protected
+		 * @type {Connection}
+		 */
+		this.connection = connection;
+		/**
+		 * @protected
+		 * @type {object.&lt;string, string>}
+		 */
+		this.apiToClientNames = {};
+		/**
+		 * @protected
+		 * @type {object.&lt;string, string>}
+		 */
+		this.clientToApiNames = {};
+		/**
+		 * @protected
+		 * @type {number}
+		 */
+		this.lastRefreshTime = 0;
+		/**
+		 * Additional (non-standardized) properties received from the API.
+		 * 
+		 * @protected
+		 * @type {object.&lt;string, *>}
+		 */
+		this.extra = {};
+		
+		for(let i in properties) {
+			let backend, client;
+			if (Array.isArray(properties[i])) {
+				backend = properties[i][0];
+				client = properties[i][1];
+			}
+			else {
+				backend = properties[i];
+				client = properties[i];
+			}
+			this.apiToClientNames[backend] = client;
+			this.clientToApiNames[client] = backend;
+		}
+	}
+
+	/**
+	 * Returns a JSON serializable representation of the data that is API compliant.
+	 * 
+	 * @returns {object.&lt;string, *>}
+	 */
+	toJSON() {
+		let obj = {};
+		for(let key in this.clientToApiNames) {
+			let apiKey = this.clientToApiNames[key];
+			if (typeof this[key] !== 'undefined') {
+				obj[apiKey] = this[key];
+			}
+		}
+		return Object.assign(obj, this.extra);
+	}
+
+	/**
+	 * Converts the data from an API response into data suitable for our JS client models.
+	 * 
+	 * @param {object.&lt;string, *>} metadata - JSON object originating from an API response.
+	 * @returns {BaseEntity} Returns the object itself.
+	 */
+	setAll(metadata) {
+		for(let name in metadata) {
+			if (typeof this.apiToClientNames[name] === 'undefined') {
+				this.extra[name] = metadata[name];
+			}
+			else {
+				this[this.apiToClientNames[name]] = metadata[name];
+			}
+		}
+		this.lastRefreshTime = Date.now();
+		return this;
+	}
+
+	/**
+	 * Returns the age of the data in seconds.
+	 * 
+	 * @returns {number} Age of the data in seconds as integer.
+	 */
+	getDataAge() {
+		return (Date.now() - this.lastRefreshTime) / 1000;
+	}
+
+	/**
+	 * Returns all data in the model.
+	 * 
+	 * @returns {object.&lt;string, *>}
+	 */
+	getAll() {
+		let obj = {};
+		for(let backend in this.apiToClientNames) {
+			let client = this.apiToClientNames[backend];
+			if (typeof this[client] !== 'undefined') {
+				obj[client] = this[client];
+			}
+		}
+		return Object.assign(obj, this.extra);
+	}
+
+	/**
+	 * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
+	 * 
+	 * @param {string} name - Name of the property.
+	 * @returns {*} The value, which could be of any type.
+	 */
+	get(name) {
+		return typeof this.extra[name] !== 'undefined' ? this.extra[name] : null;
+	}
+
+	/**
+	 * Converts the object to a valid objects for API requests.
+	 * 
+	 * @param {object.&lt;string, *>} parameters
+	 * @returns {object.&lt;string, *>}
+	 * @protected
+	 */
+	_convertToRequest(parameters) {
+		let request = {};
+		for(let key in parameters) {
+			if (typeof this.clientToApiNames[key] === 'undefined') {
+				request[key] = parameters[key];
+			}
+			else {
+				request[this.clientToApiNames[key]] = parameters[key];
+			}
+		}
+		return request;
+	}
+
+	/**
+	 * Checks whether a features is supported by the API.
+	 * 
+	 * @param {string} feature
+	 * @returns {boolean}
+	 * @protected
+	 * @see Capabilities#hasFeature
+	 */
+	_supports(feature) {
+		return this.connection.capabilities().hasFeature(feature);
+	}
+
+}
+
+module.exports = BaseEntity;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="Job.html">Job</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="Service.html">Service</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri Apr 08 2022 11:18:29 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
