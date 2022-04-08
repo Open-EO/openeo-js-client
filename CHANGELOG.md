@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [2.5.1] - 2022-04-08
+
+### Fixed
+
+- Job status missing from batch job metadata
+
 ## [2.5.0] - 2022-04-07
 
 ### Changed
@@ -185,7 +191,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.5.1...HEAD
+[2.5.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.1...v2.5.0
 [2.4.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.3.1...v2.4.0
