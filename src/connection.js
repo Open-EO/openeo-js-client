@@ -858,7 +858,6 @@ class Connection {
 	async listJobs(oldJobs = []) {
 		let response = await this._get('/jobs');
 		let newJobs = response.data.jobs.map(newJob => {
-			delete newJob.status;
 			let job = oldJobs.find(oldJob => oldJob.id === newJob.id);
 			if (!job) {
 				job = new Job(this, newJob.id);
