@@ -77,6 +77,16 @@ Run tests:
 * `npm test builder` (tests only the process builder)
 * `npm test earthengine` (full test suite using the Google Earth Engine back-end as server)
 
+# Contributions
+
+The authors acknowledge the financial support for the development of this package during the H2020 project "openEO" (Oct 2017 to Sept 2020) by the European Union, funded by call EO-2-2017: EO Big Data Shift, under grant number 776242. We also acknowledge the financial support received from ESA for the project "openEO Platform" (Sept 2020 to Sept 2023).
+
+This package received major contributions from the following organizations:
+
+[<img src="https://www.uni-muenster.de/imperia/md/images/allgemein/farbunabhaengig/wwu.svg" alt="WWU Münster logo" title="WWU Münster" height="50">](https://www.uni-muenster.de/) &nbsp;
+[<img src="https://www.cubesatshop.com/wp-content/uploads/2017/05/logo.png" alt="Solenix logo" title="Solenix" height="50">](https://www.solenix.ch)
+[<img src="https://www.sinergise.com/sites/default/files/logo.png" alt="Sinergise logo" title="Sinergise" height="50">](https://www.sinergise.com)
+
 ## Interactive Web Editor
 
 There is an interactive web-based editor for coding using the openEO API,
