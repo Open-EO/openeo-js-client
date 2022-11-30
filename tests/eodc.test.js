@@ -2,6 +2,8 @@
 const { OpenEO, Connection, Capabilities } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 
+jest.setTimeout(30*1000);
+
 describe('EODC back-end', () => {
 	const TESTBACKEND = 'https://openeo.eodc.eu';
 

@@ -2,6 +2,8 @@
 const { OpenEO, Connection, Capabilities, BasicProvider, OidcProvider } = require('../src/openeo');
 const { Utils } = require('@openeo/js-commons');
 
+jest.setTimeout(30*1000);
+
 describe('VITO back-end', () => {
 	const TESTBACKEND = 'https://openeo.vito.be';
 
