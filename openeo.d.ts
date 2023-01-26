@@ -3,7 +3,6 @@
 import { User, UserManager } from 'oidc-client';
 import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
-import { AbortController } from "node-abort-controller";
 
 declare module OpenEO {
     /**
