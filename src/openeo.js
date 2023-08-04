@@ -27,6 +27,7 @@ const Formula = require('./builder/formula');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
 const MAX_API_VERSION = '1.x.x';
+const GDC_VERSION = '1.0.0-beta';
 
 /**
  * Main class to start with openEO. Allows to connect to a server.
@@ -94,8 +95,11 @@ class OpenEO {
 
 		// Check whether back-end is accessible and supports a compatible version.
 		let capabilities = await connection.init();
-		if (Versions.compare(capabilities.apiVersion(), MIN_API_VERSION, "<") || Versions.compare(capabilities.apiVersion(), MAX_API_VERSION, ">")) {
+		if (capabilities.apiVersion() && (Versions.compare(capabilities.apiVersion(), MIN_API_VERSION, "<") || Versions.compare(capabilities.apiVersion(), MAX_API_VERSION, ">"))) {
 			throw new Error("Client only supports the API versions between " + MIN_API_VERSION + " and " + MAX_API_VERSION);
+		}
+		if (!Versions.compare(capabilities.gdcVersion(), GDC_VERSION, "=")) {
+			throw new Error("Client only supports the GDC version " + GDC_VERSION);
 		}
 
 		return connection;
