@@ -1071,7 +1071,7 @@ class Connection {
 			return links;
 		}
 		let baseUrl = null;
-		if (base.headers && base.config && base.request) { // AxiosResponse
+		if (Utils.isObject(base) && base.headers && base.config && base.request) { // AxiosResponse
 			baseUrl = base.config.baseURL + base.config.url;
 		}
 		else if (typeof base !== 'string') {
