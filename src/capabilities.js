@@ -10,6 +10,8 @@ const FEATURE_MAP = {
 	listCollections: 'get /collections',
 	describeCollection: 'get /collections/{collection_id}',
 	listCollectionItems: 'get /collections/{collection_id}/items',
+	describeCollectionItem: 'get /collections/{collection_id}/items/{item_id}',
+	describeCollectionQueryables: 'get /collections/{collection_id}/queryables',
 	// Processes
 	listProcesses: 'get /processes',
 	describeProcess: 'get /processes',
