@@ -8,7 +8,8 @@ const AuthProvider = require('./authprovider');
 const BasicProvider = require('./basicprovider');
 const OidcProvider = require('./oidcprovider');
 
-const Capabilities = require('./capabilities');
+const GdcCapabilities = require('./gdc/capabilities');
+const GdcMigrate = require('./gdc/migrate');
 const FileTypes = require('./filetypes');
 const UserFile = require('./userfile');
 const Job = require('./job');
@@ -17,6 +18,7 @@ const Service = require('./service');
 
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
+
 
 const CONFORMANCE_RELS = [
 	'conformance',
@@ -120,7 +122,8 @@ class Connection {
 			}
 		}
 
-		this.capabilitiesObject = new Capabilities(data);
+		GdcMigrate.connection = this;
+		this.capabilitiesObject = new GdcCapabilities(data);
 		return this.capabilitiesObject;
 	}
 
@@ -802,6 +805,45 @@ class Connection {
 		return await pg.describeUserProcess();
 	}
 
+	isOgcProcess(process) {
+		let nodes = Object.values(process.process_graph);
+		return Boolean(nodes.find(node => {
+			let process = this.processes.get(node.process_id);
+			return Utils.isObject(process) && Boolean(process.ogcapi);
+		}));
+	}
+
+	async executeOgcProcess(process, abortController = null) {
+		let openEO = this._normalizeUserProcess(process);
+		let mode = null;
+		let p = Object.values(openEO.process.process_graph).find(v => {
+			let spec = this.processes.get(v.process_id);
+			if (Array.isArray(spec.jobControlOptions) && spec.jobControlOptions.includes("async-execute")) {
+				mode = 'async';
+			}
+			return Boolean(spec && spec.ogcapi);
+		});
+		let requestBody = GdcMigrate.execute(openEO);
+		let headers = {};
+		if (mode === 'async') {
+			headers.Prefer = 'respond-async';
+		}
+		console.log(p.process_id, requestBody, headers); // @todo remove
+		let response = await this._post(`/processes/${p.process_id}/execution`, requestBody, Environment.getResponseType(), abortController, headers);
+		let syncResult = {
+			data: response.data,
+			costs: null,
+			type: null,
+			logs: []
+		};
+		
+		if (typeof response.headers['content-type'] === 'string') {
+			syncResult.type = response.headers['content-type'];
+		}
+
+		return syncResult;
+	}
+
 	/**
 	 * Executes a process synchronously and returns the result as the response.
 	 * 
@@ -823,6 +865,9 @@ class Connection {
 				budget: budget
 			})
 		);
+		if (this.isOgcProcess(requestBody.process)) {
+			return this.executeOgcProcess(process, abortController);
+		}
 		let response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
 		let syncResult = {
 			data: response.data,
@@ -1131,16 +1176,18 @@ class Connection {
 	 * @param {*} body 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
+	 * @param {Array.<Object.<string, string>>} [headers={}] - Headers
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios#request-config
 	 */
-	async _post(path, body, responseType, abortController = null) {
+	async _post(path, body, responseType, abortController = null, headers = {}) {
 		let options = {
 			method: 'post',
-			responseType: responseType,
+			responseType,
 			url: path,
-			data: body
+			data: body,
+			headers
 		};
 		return await this._send(options, abortController);
 	}
