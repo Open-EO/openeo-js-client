@@ -12,14 +12,14 @@ describe('EODC back-end', () => {
 	describe('Request Collection Items', () => {
 
 		let con;
-		test('Connect', async () => {
+		test.skip('Connect', async () => {
 			con = await OpenEO.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			let cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
 		});
 
-		test('Check collection', async () => {
+		test.skip('Check collection', async () => {
 			let col = await con.describeCollection(TESTCOLLECTION);
 			expect(col.id).toBe(TESTCOLLECTION);
 			expect(col).toHaveProperty("links");

@@ -18,6 +18,11 @@ const Service = require('./service');
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 
+const CONFORMANCE_RELS = [
+	'conformance',
+	'http://www.opengis.net/def/rel/ogc/1.0/conformance'
+];
+
 /**
  * A connection to a back-end.
  */
@@ -98,10 +103,24 @@ class Connection {
 	 * @async
 	 * @protected
 	 * @returns {Promise<Capabilities>} Capabilities
+	 * @throws {Error}
 	 */
 	async init() {
 		let response = await this._get('/');
-		this.capabilitiesObject = new Capabilities(response.data);
+		let data = Object.assign({}, response.data);
+		data.links = this.makeLinksAbsolute(data.links, response);
+
+		if (!Array.isArray(data.conformsTo) && Array.isArray(data.links)) {
+			let conformanceLink = this._getLinkHref(data.links, CONFORMANCE_RELS);
+			if (conformanceLink) {
+				let response2 = await this._get(conformanceLink);
+				if (Utils.isObject(response2.data) && Array.isArray(response2.data.conformsTo)) {
+					data.conformsTo = response2.data.conformsTo;
+				}
+			}
+		}
+
+		this.capabilitiesObject = new Capabilities(data);
 		return this.capabilitiesObject;
 	}
 
@@ -210,7 +229,12 @@ class Connection {
 	async listCollections() {
 		let response = await this._get('/collections');
 		if (Utils.isObject(response.data) && Array.isArray(response.data.collections)) {
-			response.data.collections = response.data.collections.map(collection => StacMigrate.collection(collection));
+			response.data.collections = response.data.collections.map(collection => {
+				if (collection.stac_version) {
+					return StacMigrate.collection(collection);
+				}
+				return collection;
+			});
 		}
 		return response.data;
 	}
@@ -227,7 +251,12 @@ class Connection {
 	 */
 	async describeCollection(collectionId) {
 		let response = await this._get('/collections/' + collectionId);
-		return StacMigrate.collection(response.data);
+		if (response.data.stac_version) {
+			return StacMigrate.collection(response.data);
+		}
+		else {
+			return response.data;
+		}
 	}
 
 	/**
@@ -282,12 +311,18 @@ class Connection {
 
 			let response = await this._get(nextUrl, params);
 			if (Utils.isObject(response.data) && Array.isArray(response.data.features)) {
-				response.data.features = response.data.features.map(item => StacMigrate.item(item));
+				response.data.features = response.data.features.map(item => {
+					if (item.stac_version) {
+						return StacMigrate.item(item);
+					}
+					return item;
+				});
 			}
 			yield response.data;
 
 			page++;
-			nextUrl = this._getLinkHref(response.data.links);
+			let links = this.makeLinksAbsolute(response.data.links);
+			nextUrl = this._getLinkHref(links, 'next');
 		}
 	}
 
@@ -1007,18 +1042,58 @@ class Connection {
 	 * 
 	 * @protected
 	 * @param {Array.<Link>} links - An array of links.
-	 * @param {string} rel - Relation type to find, defaults to `next`.
+	 * @param {string|Array.<string>} rel - Relation type(s) to find.
 	 * @returns {string | null}
 	 * @throws {Error}
 	 */
-	_getLinkHref(links, rel = 'next') {
+	_getLinkHref(links, rel) {
+		if (!Array.isArray(rel)) {
+			rel = [rel];
+		}
 		if (Array.isArray(links)) {
-			let nextLink = links.find(link => Utils.isObject(link) && link.rel === rel && typeof link.href === 'string');
-			if (nextLink) {
-				return nextLink.href;
+			let link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string');
+			if (link) {
+				return link.href;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Makes all links in the list absolute.
+	 * 
+	 * @param {Array.<Link>} links - An array of links.
+	 * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
+	 * @returns {Array.<Link>}
+	 */
+	makeLinksAbsolute(links, base = null) {
+		if (!Array.isArray(links)) {
+			return links;
+		}
+		let baseUrl = null;
+		if (base.headers && base.config && base.request) { // AxiosResponse
+			baseUrl = base.config.baseURL + base.config.url;
+		}
+		else if (typeof base !== 'string') {
+			baseUrl = this._getLinkHref(links, 'self');
+		}
+		else {
+			baseUrl = base;
+		}
+		if (!baseUrl) {
+			return links;
+		}
+		return links.map((link) => {
+			if (!Utils.isObject(link) || typeof link.href !== 'string') {
+				return link;
+			}
+			try {
+				let url = new URL(link.href, baseUrl);
+				return Object.assign({}, link, {href: url.toString()});
+			} catch(error) {
+				return link;
+			}
+		});
 	}
 
 	/**
@@ -1176,7 +1251,12 @@ class Connection {
 		}
 
 		try {
-			return await axios(options);
+			let response = await axios(options);
+			let capabilities = this.capabilities();
+			if (capabilities) {
+				response = capabilities.migrate(response);
+			}
+			return response;
 		} catch(error) {
 			const checkContentType = type => (typeof type === 'string' && type.indexOf('/json') !== -1);
 			const enrichError = (origin, response) => {

@@ -1,5 +1,61 @@
 const Utils = require('@openeo/js-commons/src/utils');
 
+const FEATURE_MAP = {
+	// Discovery
+	capabilities: true,
+	listFileTypes: 'get /file_formats',
+	listServiceTypes: 'get /service_types',
+	listUdfRuntimes: 'get /udf_runtimes',
+	// Collections
+	listCollections: 'get /collections',
+	describeCollection: 'get /collections/{collection_id}',
+	listCollectionItems: 'get /collections/{collection_id}/items',
+	// Processes
+	listProcesses: 'get /processes',
+	describeProcess: 'get /processes',
+	// Auth / Account
+	listAuthProviders: true,
+	authenticateOIDC: 'get /credentials/oidc',
+	authenticateBasic: 'get /credentials/basic',
+	describeAccount: 'get /me',
+	// Files
+	listFiles: 'get /files',
+	getFile: 'get /files', // getFile is a virtual function and doesn't request an endpoint, but get /files should be available nevertheless.
+	uploadFile: 'put /files/{path}',
+	downloadFile: 'get /files/{path}',
+	deleteFile: 'delete /files/{path}',
+	// User-Defined Processes
+	validateProcess: 'post /validation',
+	listUserProcesses: 'get /process_graphs',
+	describeUserProcess: 'get /process_graphs/{process_graph_id}',
+	getUserProcess: 'get /process_graphs/{process_graph_id}',
+	setUserProcess: 'put /process_graphs/{process_graph_id}',
+	replaceUserProcess: 'put /process_graphs/{process_graph_id}',
+	deleteUserProcess: 'delete /process_graphs/{process_graph_id}',
+	// Processing
+	computeResult: 'post /result',
+	listJobs: 'get /jobs',
+	createJob: 'post /jobs',
+	listServices: 'get /services',
+	createService: 'post /services',
+	getJob: 'get /jobs/{job_id}',
+	describeJob: 'get /jobs/{job_id}',
+	updateJob: 'patch /jobs/{job_id}',
+	deleteJob: 'delete /jobs/{job_id}',
+	estimateJob: 'get /jobs/{job_id}/estimate',
+	debugJob: 'get /jobs/{job_id}/logs',
+	startJob: 'post /jobs/{job_id}/results',
+	stopJob: 'delete /jobs/{job_id}/results',
+	listResults: 'get /jobs/{job_id}/results',
+	downloadResults: 'get /jobs/{job_id}/results',
+	// Web services
+	describeService: 'get /services/{service_id}',
+	getService: 'get /services/{service_id}',
+	updateService: 'patch /services/{service_id}',
+	deleteService: 'delete /services/{service_id}',
+	debugService: 'get /services/{service_id}/logs',
+};
+
 /**
  * Capabilities of a back-end.
  */
@@ -12,15 +68,6 @@ class Capabilities {
 	 * @throws {Error}
 	 */
 	constructor(data) {
-		if(!Utils.isObject(data)) {
-			throw new Error("No capabilities retrieved.");
-		}
-		if(!data.api_version) {
-			throw new Error("Invalid capabilities: No API version retrieved");
-		}
-		if(!Array.isArray(data.endpoints)) {
-			throw new Error("Invalid capabilities: No endpoints retrieved");
-		}
 
 		/**
 		 * @private
@@ -30,73 +77,51 @@ class Capabilities {
 
 		/**
 		 * @private
+		 * @ignore
+		 * @type {object.<string, string>}
+		 */
+		this.featureMap = FEATURE_MAP;
+
+		/**
+		 * @private
 		 * @type {Array.<string>}
 		 */
+		this.features = [];
+
+		this.validate();
+		this.init();
+	}
+
+	/**
+	 * Validates the capabilities.
+	 * 
+	 * Throws an error in case of an issue, otherwise just passes.
+	 * 
+	 * @protected
+	 * @throws {Error}
+	 */
+	validate() {
+		if(!Utils.isObject(this.data)) {
+			throw new Error("No capabilities retrieved.");
+		}
+		else if(!this.data.api_version) {
+			throw new Error("Invalid capabilities: No API version retrieved");
+		}
+		else if(!Array.isArray(this.data.endpoints)) {
+			throw new Error("Invalid capabilities: No endpoints retrieved");
+		}
+	}
+
+	/**
+	 * Initializes the class.
+	 * 
+	 * @protected
+	 */
+	init() {
 		this.features = this.data.endpoints
 			// Flatten features to be compatible with the feature map.
 			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
 			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support for ECMAscript 10/2019 gets better
-
-		/**
-		 * @private
-		 * @ignore
-		 * @type {object.<string, string>}
-		 */
-		this.featureMap = {
-			// Discovery
-			capabilities: true,
-			listFileTypes: 'get /file_formats',
-			listServiceTypes: 'get /service_types',
-			listUdfRuntimes: 'get /udf_runtimes',
-			// Collections
-			listCollections: 'get /collections',
-			describeCollection: 'get /collections/{collection_id}',
-			listCollectionItems: 'get /collections/{collection_id}/items',
-			// Processes
-			listProcesses: 'get /processes',
-			describeProcess: 'get /processes',
-			// Auth / Account
-			listAuthProviders: true,
-			authenticateOIDC: 'get /credentials/oidc',
-			authenticateBasic: 'get /credentials/basic',
-			describeAccount: 'get /me',
-			// Files
-			listFiles: 'get /files',
-			getFile: 'get /files', // getFile is a virtual function and doesn't request an endpoint, but get /files should be available nevertheless.
-			uploadFile: 'put /files/{path}',
-			downloadFile: 'get /files/{path}',
-			deleteFile: 'delete /files/{path}',
-			// User-Defined Processes
-			validateProcess: 'post /validation',
-			listUserProcesses: 'get /process_graphs',
-			describeUserProcess: 'get /process_graphs/{process_graph_id}',
-			getUserProcess: 'get /process_graphs/{process_graph_id}',
-			setUserProcess: 'put /process_graphs/{process_graph_id}',
-			replaceUserProcess: 'put /process_graphs/{process_graph_id}',
-			deleteUserProcess: 'delete /process_graphs/{process_graph_id}',
-			// Processing
-			computeResult: 'post /result',
-			listJobs: 'get /jobs',
-			createJob: 'post /jobs',
-			listServices: 'get /services',
-			createService: 'post /services',
-			getJob: 'get /jobs/{job_id}',
-			describeJob: 'get /jobs/{job_id}',
-			updateJob: 'patch /jobs/{job_id}',
-			deleteJob: 'delete /jobs/{job_id}',
-			estimateJob: 'get /jobs/{job_id}/estimate',
-			debugJob: 'get /jobs/{job_id}/logs',
-			startJob: 'post /jobs/{job_id}/results',
-			stopJob: 'delete /jobs/{job_id}/results',
-			listResults: 'get /jobs/{job_id}/results',
-			downloadResults: 'get /jobs/{job_id}/results',
-			// Web services
-			describeService: 'get /services/{service_id}',
-			getService: 'get /services/{service_id}',
-			updateService: 'patch /services/{service_id}',
-			deleteService: 'delete /services/{service_id}',
-			debugService: 'get /services/{service_id}/logs',
-		};
 	}
 
 	/**
@@ -214,6 +239,17 @@ class Capabilities {
 		else {
 			return [];
 		}
+	}
+
+	/**
+	 * Migrates a response, if required.
+	 * 
+	 * @param {AxiosResponse} response 
+	 * @protected
+	 * @returns {AxiosResponse}
+	 */
+	migrate(response) { // eslint-disable-line no-unused-vars
+		return response;
 	}
 }
 

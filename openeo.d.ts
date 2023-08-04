@@ -97,9 +97,9 @@ declare module OpenEO {
          * Creates an instance of this object.
          *
          * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-         * @param {Array} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
+         * @param {Array.<string|Array.<string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
          */
-        constructor(connection: Connection, properties?: any[]);
+        constructor(connection: Connection, properties?: Array<string | Array<string>>);
         /**
          * @protected
          * @type {Connection}
@@ -314,15 +314,30 @@ declare module OpenEO {
         private data;
         /**
          * @private
-         * @type {Array.<string>}
-         */
-        private features;
-        /**
-         * @private
          * @ignore
          * @type {object.<string, string>}
          */
         private featureMap;
+        /**
+         * @private
+         * @type {Array.<string>}
+         */
+        private features;
+        /**
+         * Validates the capabilities.
+         *
+         * Throws an error in case of an issue, otherwise just passes.
+         *
+         * @protected
+         * @throws {Error}
+         */
+        protected validate(): void;
+        /**
+         * Initializes the class.
+         *
+         * @protected
+         */
+        protected init(): void;
         /**
          * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
          *
@@ -390,6 +405,14 @@ declare module OpenEO {
          * @returns {Array.<BillingPlan>} Billing plans
          */
         listPlans(): Array<BillingPlan>;
+        /**
+         * Migrates a response, if required.
+         *
+         * @param {AxiosResponse} response
+         * @protected
+         * @returns {AxiosResponse}
+         */
+        protected migrate(response: AxiosResponse): AxiosResponse;
     }
     /**
      * The Authentication Provider for OpenID Connect.
@@ -1504,11 +1527,11 @@ declare module OpenEO {
         /**
          * Converts a sorted array of arguments to an object with the respective parameter names.
          *
-         * @param {Array} processArgs
+         * @param {Array.<object.<string, *>>} processArgs
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        namedArguments(processArgs: any[]): object<string, any>;
+        namedArguments(processArgs: Array<object<string, any>>): object<string, any>;
         /**
          * Checks the arguments given for parameters and add them to the process.
          *
@@ -1738,10 +1761,10 @@ declare module OpenEO {
         /**
          * Gets the callback parameter specifics from the parent process.
          *
-         * @returns {Array}
+         * @returns {Array.<object.<string,*>>}
          * @todo Should this also pass callback parameters from parents until root is reached?
          */
-        getParentCallbackParameters(): any[];
+        getParentCallbackParameters(): Array<object<string, any>>;
         /**
          * Adds a parameter to the list of process parameters.
          *
@@ -1880,11 +1903,12 @@ declare module OpenEO {
          * @async
          * @protected
          * @returns {Promise<Capabilities>} Capabilities
+         * @throws {Error}
          */
         protected init(): Promise<Capabilities>;
         /**
          * Refresh the cache for processes.
-         * 
+         *
          * @async
          * @protected
          * @returns {Promise}
@@ -1968,7 +1992,7 @@ declare module OpenEO {
          * 2. Lower left corner, coordinate axis 2
          * 3. Upper right corner, coordinate axis 1
          * 4. Upper right corner, coordinate axis 2
-         * @param {?Array.<*>} [temporalExtent=null] - Limits the items to the specified temporal interval.
+         * @param {?Array} [temporalExtent=null] - Limits the items to the specified temporal interval.
          * The interval has to be specified as an array with exactly two elements (start, end) and
          * each must be either an RFC 3339 compatible string or a Date object.
          * Also supports open intervals by setting one of the boundaries to `null`, but never both.
@@ -2346,21 +2370,28 @@ declare module OpenEO {
          * Adds links and federation:missing.
          *
          * @protected
-         * @param {Array} arr
+         * @param {Array.<*>} arr
          * @param {object.<string, *>} response
          * @returns {ResponseArray}
          */
-        protected _toResponseArray(arr: any[], response: object<string, any>): any;
+        protected _toResponseArray(arr: Array<any>, response: object<string, any>): any;
         /**
          * Get the a link with the given rel type.
          *
-         * @protected
          * @param {Array.<Link>} links - An array of links.
-         * @param {string} rel - Relation type to find, defaults to `next`.
+         * @param {string|Array.<string>} rel - Relation type(s) to find.
          * @returns {string | null}
          * @throws {Error}
          */
-        protected _getLinkHref(links: Array<Link>, rel?: string): string | null;
+        getHrefForRel(links: Array<Link>, rel: string | Array<string>): string | null;
+        /**
+         * Makes all links in the list absolute.
+         * 
+         * @param {Array.<Link>} links - An array of links.
+         * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links.
+         * @returns {Array.<Link>}
+         */
+        makeLinksAbsolute(links: Array<Link>, base?: string | AxiosResponse) : Array.<Link>;
         /**
          * Sends a GET request.
          *
