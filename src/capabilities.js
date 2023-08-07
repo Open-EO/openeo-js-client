@@ -211,7 +211,11 @@ class Capabilities {
 	 * @returns {boolean} `true` if the feature is supported, otherwise `false`.
 	 */
 	hasFeature(methodName) {
-		return this.featureMap[methodName] === true || this.features.some(e => e === this.featureMap[methodName]);
+		let feature = this.featureMap[methodName];
+		if (typeof feature === 'string') {
+			feature = feature.toLowerCase();
+		}
+		return feature === true || this.features.some(e => e === feature);
 	}
 
 	/**
