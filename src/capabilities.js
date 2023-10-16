@@ -8,10 +8,10 @@ const FEATURE_MAP = {
 	listUdfRuntimes: 'get /udf_runtimes',
 	// Collections
 	listCollections: 'get /collections',
-	describeCollection: 'get /collections/{collection_id}',
-	listCollectionItems: 'get /collections/{collection_id}/items',
-	describeCollectionItem: 'get /collections/{collection_id}/items/{item_id}',
-	describeCollectionQueryables: 'get /collections/{collection_id}/queryables',
+	describeCollection: 'get /collections/{}',
+	listCollectionItems: 'get /collections/{}/items',
+	describeCollectionItem: 'get /collections/{}/items/{}',
+	describeCollectionQueryables: 'get /collections/{}/queryables',
 	// Processes
 	listProcesses: 'get /processes',
 	describeProcess: 'get /processes',
@@ -23,39 +23,39 @@ const FEATURE_MAP = {
 	// Files
 	listFiles: 'get /files',
 	getFile: 'get /files', // getFile is a virtual function and doesn't request an endpoint, but get /files should be available nevertheless.
-	uploadFile: 'put /files/{path}',
-	downloadFile: 'get /files/{path}',
-	deleteFile: 'delete /files/{path}',
+	uploadFile: 'put /files/{}',
+	downloadFile: 'get /files/{}',
+	deleteFile: 'delete /files/{}',
 	// User-Defined Processes
 	validateProcess: 'post /validation',
 	listUserProcesses: 'get /process_graphs',
-	describeUserProcess: 'get /process_graphs/{process_graph_id}',
-	getUserProcess: 'get /process_graphs/{process_graph_id}',
-	setUserProcess: 'put /process_graphs/{process_graph_id}',
-	replaceUserProcess: 'put /process_graphs/{process_graph_id}',
-	deleteUserProcess: 'delete /process_graphs/{process_graph_id}',
+	describeUserProcess: 'get /process_graphs/{}',
+	getUserProcess: 'get /process_graphs/{}',
+	setUserProcess: 'put /process_graphs/{}',
+	replaceUserProcess: 'put /process_graphs/{}',
+	deleteUserProcess: 'delete /process_graphs/{}',
 	// Processing
 	computeResult: 'post /result',
 	listJobs: 'get /jobs',
 	createJob: 'post /jobs',
 	listServices: 'get /services',
 	createService: 'post /services',
-	getJob: 'get /jobs/{job_id}',
-	describeJob: 'get /jobs/{job_id}',
-	updateJob: 'patch /jobs/{job_id}',
-	deleteJob: 'delete /jobs/{job_id}',
-	estimateJob: 'get /jobs/{job_id}/estimate',
-	debugJob: 'get /jobs/{job_id}/logs',
-	startJob: 'post /jobs/{job_id}/results',
-	stopJob: 'delete /jobs/{job_id}/results',
-	listResults: 'get /jobs/{job_id}/results',
-	downloadResults: 'get /jobs/{job_id}/results',
+	getJob: 'get /jobs/{}',
+	describeJob: 'get /jobs/{}',
+	updateJob: 'patch /jobs/{}',
+	deleteJob: 'delete /jobs/{}',
+	estimateJob: 'get /jobs/{}/estimate',
+	debugJob: 'get /jobs/{}/logs',
+	startJob: 'post /jobs/{}/results',
+	stopJob: 'delete /jobs/{}/results',
+	listResults: 'get /jobs/{}/results',
+	downloadResults: 'get /jobs/{}/results',
 	// Web services
-	describeService: 'get /services/{service_id}',
-	getService: 'get /services/{service_id}',
-	updateService: 'patch /services/{service_id}',
-	deleteService: 'delete /services/{service_id}',
-	debugService: 'get /services/{service_id}/logs',
+	describeService: 'get /services/{}',
+	getService: 'get /services/{}',
+	updateService: 'patch /services/{}',
+	deleteService: 'delete /services/{}',
+	debugService: 'get /services/{}/logs',
 };
 
 /**
@@ -121,8 +121,11 @@ class Capabilities {
 	 */
 	init() {
 		this.features = this.data.endpoints
-			// Flatten features to be compatible with the feature map.
-			.map(e => e.methods.map(method => (method + ' ' + e.path).toLowerCase()))
+			// Flatten features and simplify variables to be compatible with the feature map.
+			.map(e => e.methods.map(method => {
+				const path = e.path.replace(/\{[^}]+\}/g, '{}');
+				return `${method} ${path}`.toLowerCase();
+			}))
 			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support for ECMAscript 10/2019 gets better
 	}
 
