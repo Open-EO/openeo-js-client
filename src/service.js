@@ -15,7 +15,7 @@ class Service extends BaseEntity {
 	 * @param {string} serviceId - The service ID.
 	 */
 	constructor(connection, serviceId) {
-		super(connection, ["id", "title", "description", "process", "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", "process", "url", "type", "enabled", "configuration", "attributes", "created", "plan", "costs", "budget", "usage", ["log_level", "logLevel"], "links"]);
 		/**
 		 * The identifier of the service.
 		 * @public

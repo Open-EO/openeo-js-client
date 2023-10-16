@@ -20,7 +20,7 @@ class Job extends BaseEntity {
 	 * @param {string} jobId - The batch job ID.
 	 */
 	constructor(connection, jobId) {
-		super(connection, ["id", "title", "description", "process", "status", "progress", "created", "updated", "plan", "costs", "budget"]);
+		super(connection, ["id", "title", "description", "process", "status", "progress", "created", "updated", "plan", "costs", "budget", "usage", ["log_level", "logLevel"], "links"]);
 		/**
 		 * The identifier of the batch job.
 		 * @public
