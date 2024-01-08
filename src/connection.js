@@ -1216,6 +1216,20 @@ class Connection {
 	}
 
 	/**
+	 * Get the authorization header for requests.
+	 * 
+	 * @protected
+	 * @returns {object.<string, string>}
+	 */
+	_getAuthHeaders() {
+		const headers = {};
+		if (this.isAuthenticated()) {
+			headers.Authorization = 'Bearer ' + this.authProvider.getToken();
+		}
+		return headers;
+	}
+
+	/**
 	 * Sends a HTTP request.
 	 * 
 	 * Options mostly conform to axios,
@@ -1237,11 +1251,11 @@ class Connection {
 	 */
 	async _send(options, abortController = null) {
 		options.baseURL = this.baseUrl;
-		if (this.isAuthenticated() && (typeof options.authorization === 'undefined' || options.authorization === true)) {
+		if (typeof options.authorization === 'undefined' || options.authorization === true) {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers.Authorization = 'Bearer ' + this.authProvider.getToken();
+			Object.assign(options.headers, this._getAuthHeaders());
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';

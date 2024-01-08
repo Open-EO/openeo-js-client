@@ -2463,6 +2463,13 @@ declare module OpenEO {
          */
         download(url: string, authorize: boolean): Promise<Readable | Blob>;
         /**
+         * Get the authorization header for requests.
+         * 
+         * @protected
+         * @returns {object.<string, string>}
+         */
+        protected _getAuthHeaders() : object<string, string>;
+        /**
          * Sends a HTTP request.
          *
          * Options mostly conform to axios,
