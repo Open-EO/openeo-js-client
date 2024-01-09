@@ -1104,11 +1104,12 @@ class Connection {
 	 * @param {string} path 
 	 * @param {object.<string, *>} query 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios#request-config
 	 */
-	async _get(path, query, responseType) {
+	async _get(path, query, responseType, abortController = null) {
 		return await this._send({
 			method: 'get',
 			responseType: responseType,
@@ -1117,7 +1118,7 @@ class Connection {
 			// Without timeout connecting with a wrong server url may take forever.
 			timeout: path === '/' ? 5000 : 0,
 			params: query
-		});
+		}, abortController);
 	}
 
 	/**
@@ -1272,6 +1273,9 @@ class Connection {
 			}
 			return response;
 		} catch(error) {
+			if (axios.isCancel(error)) {
+				throw error;
+			}
 			const checkContentType = type => (typeof type === 'string' && type.indexOf('/json') !== -1);
 			const enrichError = (origin, response) => {
 				if (typeof response.message === 'string') {

@@ -2400,11 +2400,12 @@ declare module OpenEO {
          * @param {string} path
          * @param {object.<string, *>} query
          * @param {string} responseType - Response type according to axios, defaults to `json`.
+         * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        protected _get(path: string, query: object<string, any>, responseType: string): Promise<AxiosResponse>;
+        protected _get(path: string, query: object<string, any>, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
         /**
          * Sends a POST request.
          *
