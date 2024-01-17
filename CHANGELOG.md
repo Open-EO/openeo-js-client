@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support to retrieve conformance classes
+- Added `Connection.makeLinksAbsolute`
+- Hook to migrate capabilities
+- Support for `usage`, `log_level`, `links` in batch jobs and services
+
+### Removed
+
+- Dependency for `node-abort-controller` not required any longer in nodeJS
+
+### Fixed
+
+- Make the feature / endpoint mapping more robust
+- Add missing endpoints to feature / endpoint mapping
+- Fix AbortController handling
 
 ## [2.5.1] - 2022-04-08
 
