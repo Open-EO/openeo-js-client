@@ -812,15 +812,16 @@ class Connection {
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
-	async computeResult(process, plan = null, budget = null, abortController = null) {
+	async computeResult(process, plan = null, budget = null, abortController = null, additional = {}) {
 		let requestBody = this._normalizeUserProcess(
 			process,
-			{
+			Object.assign({}, additional, {
 				plan: plan,
 				budget: budget
-			}
+			})
 		);
 		let response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
 		let syncResult = {
@@ -911,7 +912,7 @@ class Connection {
 	 * @param {?string} [description=null] - A description for the batch job.
 	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-	 * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
@@ -981,7 +982,7 @@ class Connection {
 	 * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
 	 * @param {?string} [plan=null] - The billing plan to use for this service.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-	 * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
 	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */

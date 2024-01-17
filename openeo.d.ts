@@ -783,8 +783,9 @@ declare module OpenEO {
          *
          * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
          * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
+         * @param {?string} [level=null] Minimum level of logs to return.
          */
-        constructor(connection: Connection, endpoint: string);
+        constructor(connection: Connection, endpoint: string, level?: string | null);
         /**
          * @protected
          * @type {Connection}
@@ -792,6 +793,7 @@ declare module OpenEO {
         protected connection: Connection;
         endpoint: string;
         lastId: string;
+        level: string;
         /**
          * Retrieves the next log entries since the last request.
          *
@@ -948,9 +950,10 @@ declare module OpenEO {
         /**
          * Get logs for the batch job from the back-end.
          *
+         * @param {?string} [level=null] Minimum level of logs to return.
          * @returns {Logs}
          */
-        debugJob(): Logs;
+        debugJob(level?: string | null): Logs;
         /**
          * Checks for status changes and new log entries every x seconds.
          *
@@ -1287,9 +1290,10 @@ declare module OpenEO {
         /**
          * Get logs for the secondary web service from the back-end.
          *
+         * @param {?string} [level=null] Minimum level of logs to return.
          * @returns {Logs}
          */
-        debugService(): Logs;
+        debugService(level?: string | null): Logs;
         /**
          * Checks for new log entries every x seconds.
          *
@@ -2276,9 +2280,10 @@ declare module OpenEO {
          * @param {?string} [plan=null] - The billing plan to use for this computation.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
+         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
-        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null): Promise<SyncResult>;
+        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null, additional?: object<string, any>): Promise<SyncResult>;
         /**
          * Executes a process synchronously and downloads to result the given path.
          *
@@ -2315,7 +2320,7 @@ declare module OpenEO {
          * @param {?string} [description=null] - A description for the batch job.
          * @param {?string} [plan=null] - The billing plan to use for this batch job.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-         * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<Job>} The stored batch job.
          * @throws {Error}
          */
@@ -2350,7 +2355,7 @@ declare module OpenEO {
          * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
          * @param {?string} [plan=null] - The billing plan to use for this service.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-         * @param {object.<string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
          * @returns {Promise<Service>} The stored service.
          * @throws {Error}
          */
@@ -2378,20 +2383,21 @@ declare module OpenEO {
         /**
          * Get the a link with the given rel type.
          *
+         * @protected
          * @param {Array.<Link>} links - An array of links.
          * @param {string|Array.<string>} rel - Relation type(s) to find.
          * @returns {string | null}
          * @throws {Error}
          */
-        getHrefForRel(links: Array<Link>, rel: string | Array<string>): string | null;
+        protected _getLinkHref(links: Array<Link>, rel: string | Array<string>): string | null;
         /**
          * Makes all links in the list absolute.
          * 
          * @param {Array.<Link>} links - An array of links.
-         * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links.
+         * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
          * @returns {Array.<Link>}
          */
-        makeLinksAbsolute(links: Array<Link>, base?: string | AxiosResponse) : Array.<Link>;
+        makeLinksAbsolute(links: Array<Link>, base?: (string | AxiosResponse) | null): Array<Link>;
         /**
          * Sends a GET request.
          *

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hook to migrate capabilities
 - Support for `usage`, `log_level`, `links` in batch jobs and services
 - Support for `level` parameter for log requests in batch jobs and services
+- Support passing additional parameters to synchronous jobs.
 
 ### Removed
 
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make the feature / endpoint mapping more robust
 - Add missing endpoints to feature / endpoint mapping
 - Fix AbortController handling
+- Clarify that the `log_level` parameter for jobs, services and sync. processing can be provided via the `additional` parameter
 
 ## [2.5.1] - 2022-04-08
 

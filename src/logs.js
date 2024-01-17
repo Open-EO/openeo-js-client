@@ -30,7 +30,6 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
-	 * @param {number} level - The number of log entries to retrieve per request, as integer.
 	 * @returns {Promise<Array.<Log>>}
 	 */
 	async nextLogs(limit = null) {
