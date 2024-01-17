@@ -10,8 +10,9 @@ class Logs {
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
+	 * @param {?string} [level=null] Minimum level of logs to return.
 	 */
-	constructor(connection, endpoint) {
+	constructor(connection, endpoint, level = null) {
 		/**
 		 * @protected
 		 * @type {Connection}
@@ -19,6 +20,7 @@ class Logs {
 		this.connection = connection;
 		this.endpoint = endpoint;
 		this.lastId = "";
+		this.level = level;
 	}
 
 	/**
@@ -28,6 +30,7 @@ class Logs {
 	 * 
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
+	 * @param {number} level - The number of log entries to retrieve per request, as integer.
 	 * @returns {Promise<Array.<Log>>}
 	 */
 	async nextLogs(limit = null) {
@@ -50,6 +53,9 @@ class Logs {
 		};
 		if (limit > 0) {
 			query.limit = limit;
+		}
+		if (this.level) {
+			query.level = this.level;
 		}
 		let response = await this.connection._get(this.endpoint, query);
 		if (Array.isArray(response.data.logs) && response.data.logs.length > 0) {

@@ -156,10 +156,11 @@ class Service extends BaseEntity {
 	/**
 	 * Get logs for the secondary web service from the back-end.
 	 * 
+	 * @param {?string} [level=null] Minimum level of logs to return.
 	 * @returns {Logs}
 	 */
-	debugService() {
-		return new Logs(this.connection, '/services/' + this.id + '/logs');
+	debugService(level = null) {
+		return new Logs(this.connection, '/services/' + this.id + '/logs', level);
 	}
 
 	/**
