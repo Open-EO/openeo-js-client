@@ -39,6 +39,15 @@ class AuthProvider {
 	}
 
 	/**
+	 * Returns a display name for the authenticated user.
+	 * 
+	 * @returns {string?} Name of the user or `null`
+	 */
+	getDisplayName() {
+		return null;
+	}
+
+	/**
 	 * Returns the type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
 	 * 
 	 * @returns {string}

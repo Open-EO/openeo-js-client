@@ -20,6 +20,7 @@ class BasicProvider extends AuthProvider {
 			title: "HTTP Basic",
 			description: "Login with username and password using the method HTTP Basic."
 		});
+		this.username = null;
 	}
 
 	/**
@@ -41,7 +42,27 @@ class BasicProvider extends AuthProvider {
 		if (!Utils.isObject(response.data) || typeof response.data.access_token !== 'string') {
 			throw new Error("No access_token returned.");
 		}
+		this.username = username;
 		this.setToken(response.data.access_token);
+	}
+
+	/**
+	 * Returns a display name for the authenticated user.
+	 * 
+	 * @returns {string?} Name of the user or `null`
+	 */
+	getDisplayName() {
+		return this.username;
+	}
+
+	/**
+	 * Logout from the established session.
+	 * 
+	 * @async
+	 */
+	async logout() {
+		this.username = null;
+		await super.logout();
 	}
 
 }

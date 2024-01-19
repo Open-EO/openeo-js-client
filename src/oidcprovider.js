@@ -312,6 +312,18 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
+	 * Returns a display name for the authenticated user.
+	 * 
+	 * @returns {string?} Name of the user or `null`
+	 */
+	getDisplayName() {
+		if (this.user && Utils.isObject(this.user.profile)) {
+			return this.user.profile.name || this.user.profile.preferred_username || this.user.profile.email || null;
+		}
+		return null;
+	}
+
+	/**
 	 * Detects the default OIDC client ID for the given redirect URL.
 	 * 
 	 * Sets the grant and client ID accordingly.
