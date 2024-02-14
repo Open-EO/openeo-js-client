@@ -23,6 +23,10 @@
     "type": "git",
     "url": "https://github.com/Open-EO/openeo-js-client.git"
   },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/m-mohr"
+  },
   "main": "src/openeo.js",
   "types": "openeo.d.ts",
   "files": [
