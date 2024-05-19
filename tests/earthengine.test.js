@@ -12,8 +12,8 @@ const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 describe('GEE back-end', () => {
 	const { TESTBACKEND, STAC_MIGRATE_VERSION } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + '/v1.0';
-	const TESTUSERNAME = `group${random(20,29)}`;
-	const TESTPASSWORD = 'test123';
+	const TESTUSERNAME = `js-client`;
+	const TESTPASSWORD = 'js-client';
 	
 	const FREE_PLAN = {"name":"free","description":"Earth Engine is free for research, education, and nonprofit use. For commercial applications, Google offers paid commercial licenses. Please contact earthengine-commercial@google.com for details.","paid":false};
 
