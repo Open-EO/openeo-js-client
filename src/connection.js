@@ -1,6 +1,7 @@
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
+const axios = require('axios');
 const StacMigrate = require('@radiantearth/stac-migrate');
 
 const AuthProvider = require('./authprovider');
@@ -1265,7 +1266,6 @@ class Connection {
 			options.signal = abortController.signal;
 		}
 
-		const axios = Environment.axios();
 		try {
 			let response = await axios(options);
 			let capabilities = this.capabilities();

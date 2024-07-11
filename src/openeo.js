@@ -1,3 +1,4 @@
+const axios = require('axios');
 const Utils = require('@openeo/js-commons/src/utils');
 const Versions = require('@openeo/js-commons/src/versions');
 
@@ -51,7 +52,6 @@ class OpenEO {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
 		let versionedUrl = url;
 		let response = null;
-		const axios = OpenEO.Environment.axios();
 		try {
 			response = await axios.get(wellKnownUrl, {timeout: 5000});
 

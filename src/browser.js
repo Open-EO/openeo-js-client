@@ -1,5 +1,3 @@
-const axios = require('axios/dist/browser/axios.cjs')
-
 /**
  * Platform dependant utilities for the openEO JS Client.
  * 
@@ -17,16 +15,6 @@ class Environment {
 	 */
 	static getName() {
 		return 'Browser';
-	}
-
-	/**
-	 * Returns the axios client.
-	 * 
-	 * @returns {axios}
-	 * @static
-	 */
-	static axios() {
-		return axios;
 	}
 
 	/**

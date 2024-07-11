@@ -4,12 +4,12 @@ module.exports = {
   collectCoverage: true,
 
   globals: {
-    'axios': require('axios'),
     'oidc-client': require('oidc-client')
   },
 
   moduleNameMapper: {
-    "^@openeo/js-environment(.*)$": "<rootDir>/src$1"
+    "^@openeo/js-environment(.*)$": "<rootDir>/src$1",
+    "axios": "<rootDir>/node_modules/axios/dist/node/axios.cjs"
   },
 
   // The directory where Jest should output its coverage files
