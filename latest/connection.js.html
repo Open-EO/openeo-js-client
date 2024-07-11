@@ -29,7 +29,7 @@
             <pre class="prettyprint source linenums"><code>const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
-const axios = require('axios').default;
+const axios = require('axios');
 const StacMigrate = require('@radiantearth/stac-migrate');
 
 const AuthProvider = require('./authprovider');
@@ -45,6 +45,11 @@ const Service = require('./service');
 
 const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
+
+const CONFORMANCE_RELS = [
+	'conformance',
+	'http://www.opengis.net/def/rel/ogc/1.0/conformance'
+];
 
 /**
  * A connection to a back-end.
@@ -126,10 +131,24 @@ class Connection {
 	 * @async
 	 * @protected
 	 * @returns {Promise&lt;Capabilities>} Capabilities
+	 * @throws {Error}
 	 */
 	async init() {
 		let response = await this._get('/');
-		this.capabilitiesObject = new Capabilities(response.data);
+		let data = Object.assign({}, response.data);
+		data.links = this.makeLinksAbsolute(data.links, response);
+
+		if (!Array.isArray(data.conformsTo) &amp;&amp; Array.isArray(data.links)) {
+			let conformanceLink = this._getLinkHref(data.links, CONFORMANCE_RELS);
+			if (conformanceLink) {
+				let response2 = await this._get(conformanceLink);
+				if (Utils.isObject(response2.data) &amp;&amp; Array.isArray(response2.data.conformsTo)) {
+					data.conformsTo = response2.data.conformsTo;
+				}
+			}
+		}
+
+		this.capabilitiesObject = new Capabilities(data);
 		return this.capabilitiesObject;
 	}
 
@@ -238,7 +257,12 @@ class Connection {
 	async listCollections() {
 		let response = await this._get('/collections');
 		if (Utils.isObject(response.data) &amp;&amp; Array.isArray(response.data.collections)) {
-			response.data.collections = response.data.collections.map(collection => StacMigrate.collection(collection));
+			response.data.collections = response.data.collections.map(collection => {
+				if (collection.stac_version) {
+					return StacMigrate.collection(collection);
+				}
+				return collection;
+			});
 		}
 		return response.data;
 	}
@@ -255,7 +279,12 @@ class Connection {
 	 */
 	async describeCollection(collectionId) {
 		let response = await this._get('/collections/' + collectionId);
-		return StacMigrate.collection(response.data);
+		if (response.data.stac_version) {
+			return StacMigrate.collection(response.data);
+		}
+		else {
+			return response.data;
+		}
 	}
 
 	/**
@@ -310,12 +339,18 @@ class Connection {
 
 			let response = await this._get(nextUrl, params);
 			if (Utils.isObject(response.data) &amp;&amp; Array.isArray(response.data.features)) {
-				response.data.features = response.data.features.map(item => StacMigrate.item(item));
+				response.data.features = response.data.features.map(item => {
+					if (item.stac_version) {
+						return StacMigrate.item(item);
+					}
+					return item;
+				});
 			}
 			yield response.data;
 
 			page++;
-			nextUrl = this._getLinkHref(response.data.links);
+			let links = this.makeLinksAbsolute(response.data.links);
+			nextUrl = this._getLinkHref(links, 'next');
 		}
 	}
 
@@ -805,15 +840,16 @@ class Connection {
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
+	 * @param {object.&lt;string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise&lt;SyncResult>} - An object with the data and some metadata.
 	 */
-	async computeResult(process, plan = null, budget = null, abortController = null) {
+	async computeResult(process, plan = null, budget = null, abortController = null, additional = {}) {
 		let requestBody = this._normalizeUserProcess(
 			process,
-			{
+			Object.assign({}, additional, {
 				plan: plan,
 				budget: budget
-			}
+			})
 		);
 		let response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
 		let syncResult = {
@@ -904,7 +940,7 @@ class Connection {
 	 * @param {?string} [description=null] - A description for the batch job.
 	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-	 * @param {object.&lt;string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.&lt;string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise&lt;Job>} The stored batch job.
 	 * @throws {Error}
 	 */
@@ -974,7 +1010,7 @@ class Connection {
 	 * @param {object.&lt;string, *>} [configuration={}] - Configuration parameters to pass to the service.
 	 * @param {?string} [plan=null] - The billing plan to use for this service.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-	 * @param {object.&lt;string, *>} [additional={}] - Proprietary parameters to pass for the batch job.
+	 * @param {object.&lt;string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
 	 * @returns {Promise&lt;Service>} The stored service.
 	 * @throws {Error}
 	 */
@@ -1035,18 +1071,58 @@ class Connection {
 	 * 
 	 * @protected
 	 * @param {Array.&lt;Link>} links - An array of links.
-	 * @param {string} rel - Relation type to find, defaults to `next`.
+	 * @param {string|Array.&lt;string>} rel - Relation type(s) to find.
 	 * @returns {string | null}
 	 * @throws {Error}
 	 */
-	_getLinkHref(links, rel = 'next') {
+	_getLinkHref(links, rel) {
+		if (!Array.isArray(rel)) {
+			rel = [rel];
+		}
 		if (Array.isArray(links)) {
-			let nextLink = links.find(link => Utils.isObject(link) &amp;&amp; link.rel === rel &amp;&amp; typeof link.href === 'string');
-			if (nextLink) {
-				return nextLink.href;
+			let link = links.find(l => Utils.isObject(l) &amp;&amp; rel.includes(l.rel) &amp;&amp; typeof l.href === 'string');
+			if (link) {
+				return link.href;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Makes all links in the list absolute.
+	 * 
+	 * @param {Array.&lt;Link>} links - An array of links.
+	 * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
+	 * @returns {Array.&lt;Link>}
+	 */
+	makeLinksAbsolute(links, base = null) {
+		if (!Array.isArray(links)) {
+			return links;
+		}
+		let baseUrl = null;
+		if (Utils.isObject(base) &amp;&amp; base.headers &amp;&amp; base.config &amp;&amp; base.request) { // AxiosResponse
+			baseUrl = base.config.baseURL + base.config.url;
+		}
+		else if (typeof base !== 'string') {
+			baseUrl = this._getLinkHref(links, 'self');
+		}
+		else {
+			baseUrl = base;
+		}
+		if (!baseUrl) {
+			return links;
+		}
+		return links.map((link) => {
+			if (!Utils.isObject(link) || typeof link.href !== 'string') {
+				return link;
+			}
+			try {
+				let url = new URL(link.href, baseUrl);
+				return Object.assign({}, link, {href: url.toString()});
+			} catch(error) {
+				return link;
+			}
+		});
 	}
 
 	/**
@@ -1057,11 +1133,12 @@ class Connection {
 	 * @param {string} path 
 	 * @param {object.&lt;string, *>} query 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
+	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise&lt;AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios#request-config
 	 */
-	async _get(path, query, responseType) {
+	async _get(path, query, responseType, abortController = null) {
 		return await this._send({
 			method: 'get',
 			responseType: responseType,
@@ -1070,7 +1147,7 @@ class Connection {
 			// Without timeout connecting with a wrong server url may take forever.
 			timeout: path === '/' ? 5000 : 0,
 			params: query
-		});
+		}, abortController);
 	}
 
 	/**
@@ -1169,6 +1246,20 @@ class Connection {
 	}
 
 	/**
+	 * Get the authorization header for requests.
+	 * 
+	 * @protected
+	 * @returns {object.&lt;string, string>}
+	 */
+	_getAuthHeaders() {
+		const headers = {};
+		if (this.isAuthenticated()) {
+			headers.Authorization = 'Bearer ' + this.authProvider.getToken();
+		}
+		return headers;
+	}
+
+	/**
 	 * Sends a HTTP request.
 	 * 
 	 * Options mostly conform to axios,
@@ -1190,11 +1281,11 @@ class Connection {
 	 */
 	async _send(options, abortController = null) {
 		options.baseURL = this.baseUrl;
-		if (this.isAuthenticated() &amp;&amp; (typeof options.authorization === 'undefined' || options.authorization === true)) {
+		if (typeof options.authorization === 'undefined' || options.authorization === true) {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers.Authorization = 'Bearer ' + this.authProvider.getToken();
+			Object.assign(options.headers, this._getAuthHeaders());
 		}
 		if (!options.responseType) {
 			options.responseType = 'json';
@@ -1204,8 +1295,16 @@ class Connection {
 		}
 
 		try {
-			return await axios(options);
+			let response = await axios(options);
+			let capabilities = this.capabilities();
+			if (capabilities) {
+				response = capabilities.migrate(response);
+			}
+			return response;
 		} catch(error) {
+			if (axios.isCancel(error)) {
+				throw error;
+			}
 			const checkContentType = type => (typeof type === 'string' &amp;&amp; type.indexOf('/json') !== -1);
 			const enrichError = (origin, response) => {
 				if (typeof response.message === 'string') {
@@ -1253,7 +1352,7 @@ module.exports = Connection;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Thu Jan 26 2023 10:05:29 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jul 11 2024 13:41:47 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

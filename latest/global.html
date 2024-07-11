@@ -3151,169 +3151,6 @@
 
             
                 
-
-    
-
-    
-    <h4 class="name" id="oidcProviderFactoryFunction"><span class="type-signature"></span>oidcProviderFactoryFunction<span class="signature">(providerInfo)</span><span class="type-signature"> &rarr; {<a href="AuthProvider.html">AuthProvider</a>|null}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>This function is meant to create the OIDC providers used for authentication.</p>
-<p>The function gets passed a single argument that contains the
-provider information as provided by the API, e.g. having the properties
-<code>id</code>, <code>issuer</code>, <code>title</code> etc.</p>
-<p>The function must return an instance of AuthProvider or any derived class.
-May return <code>null</code> if the instance can't be created.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>providerInfo</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object.&lt;string, *></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The provider information as provided by the API, having the properties <code>id</code>, <code>issuer</code>, <code>title</code> etc.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line424">line 424</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="AuthProvider.html">AuthProvider</a></span>
-|
-
-<span class="param-type">null</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-            
-                
 <h4 class="name" id="OidcProviderMeta">OidcProviderMeta</h4>
 
 
@@ -4000,6 +3837,8 @@ May return <code>null</code> if the instance can't be created.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -4025,6 +3864,12 @@ May return <code>null</code> if the instance can't be created.</p>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
@@ -4035,7 +3880,7 @@ May return <code>null</code> if the instance can't be created.</p>
 
         <tr>
             
-                <td class="name"><code>federation:missing</code></td>
+                <td class="name"><code>"federation:missing"</code></td>
             
 
             <td class="type">
@@ -4047,6 +3892,14 @@ May return <code>null</code> if the instance can't be created.</p>
             
             </td>
 
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
             
 
             
@@ -4458,326 +4311,6 @@ May return <code>null</code> if the instance can't be created.</p>
 
     
 </dl>
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="uploadStatusCallback"><span class="type-signature"></span>uploadStatusCallback<span class="signature">(percentCompleted, file)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>A callback that is executed on upload progress updates.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>percentCompleted</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The percent (0-100) completed.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>file</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="UserFile.html">UserFile</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The file object corresponding to the callback.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line622">line 622</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="uploadStatusCallback"><span class="type-signature"></span>uploadStatusCallback<span class="signature">(percentCompleted, file)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>A callback that is executed on upload progress updates.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>percentCompleted</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The percent (0-100) completed.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>file</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="UserFile.html">UserFile</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The file object corresponding to the callback.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userfile.js.html">userfile.js</a>, <a href="userfile.js.html#line74">line 74</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5211,6 +4744,489 @@ May return <code>null</code> if the instance can't be created.</p>
 
 
             
+                
+
+    
+
+    
+    <h4 class="name" id="oidcProviderFactoryFunction"><span class="type-signature"></span>oidcProviderFactoryFunction<span class="signature">(providerInfo)</span><span class="type-signature"> &rarr; {<a href="AuthProvider.html">AuthProvider</a>|null}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>This function is meant to create the OIDC providers used for authentication.</p>
+<p>The function gets passed a single argument that contains the
+provider information as provided by the API, e.g. having the properties
+<code>id</code>, <code>issuer</code>, <code>title</code> etc.</p>
+<p>The function must return an instance of AuthProvider or any derived class.
+May return <code>null</code> if the instance can't be created.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>providerInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object.&lt;string, *></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The provider information as provided by the API, having the properties <code>id</code>, <code>issuer</code>, <code>title</code> etc.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line459">line 459</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="AuthProvider.html">AuthProvider</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+            
+                
+
+    
+
+    
+    <h4 class="name" id="uploadStatusCallback"><span class="type-signature"></span>uploadStatusCallback<span class="signature">(percentCompleted, file)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>A callback that is executed on upload progress updates.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>percentCompleted</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The percent (0-100) completed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="UserFile.html">UserFile</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The file object corresponding to the callback.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line657">line 657</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+
+    
+
+    
+    <h4 class="name" id="uploadStatusCallback"><span class="type-signature"></span>uploadStatusCallback<span class="signature">(percentCompleted, file)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>A callback that is executed on upload progress updates.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>percentCompleted</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The percent (0-100) completed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="UserFile.html">UserFile</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The file object corresponding to the callback.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="userfile.js.html">userfile.js</a>, <a href="userfile.js.html#line74">line 74</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
     
 
     
@@ -5230,7 +5246,7 @@ May return <code>null</code> if the instance can't be created.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Thu Jan 26 2023 10:05:29 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jul 11 2024 13:41:47 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
