@@ -2,6 +2,7 @@ const fs = require('fs');
 const url = require("url");
 const path = require("path");
 const Stream = require('stream');
+const axios = require('axios/dist/node/axios.cjs');
 
 /**
  * Platform dependant utilities for the openEO JS Client.
@@ -20,6 +21,16 @@ class Environment {
 	 */
 	static getName() {
 		return 'Node';
+	}
+
+	/**
+	 * Returns the axios client.
+	 * 
+	 * @returns {axios}
+	 * @static
+	 */
+	static axios() {
+		return axios;
 	}
 
 	/**

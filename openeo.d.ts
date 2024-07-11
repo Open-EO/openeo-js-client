@@ -2592,7 +2592,7 @@ declare module OpenEO {
         status: number;
         statusText: string;
         headers: any;
-    config: object<string, any>;
+        config: object<string, any>;
         request: any;
     };
     export type BillingPlan = {

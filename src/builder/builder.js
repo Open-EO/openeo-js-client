@@ -1,6 +1,6 @@
+const Environment = require('../env');
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
-const axios = require('axios').default;
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
@@ -109,6 +109,7 @@ class Builder {
 	 * @throws {Error}
 	 */
 	static async fromURL(url) {
+		const axios = Environment.axios();
 		let response = await axios(url);
 		return new Builder(response.data);
 	}
