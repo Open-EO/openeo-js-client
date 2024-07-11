@@ -36,6 +36,12 @@ declare module OpenEO {
          */
         getId(): string;
         /**
+         * Returns a display name for the authenticated user.
+         *
+         * @returns {string?} Name of the user or `null`
+         */
+        getDisplayName(): string | null;
+        /**
          * Returns the type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
          *
          * @returns {string}
@@ -77,6 +83,14 @@ declare module OpenEO {
          * @param {?string} token
          */
         setToken(token: string | null): void;
+        /**
+         * Abstract method that extending classes implement the login process with.
+         *
+         * @async
+         * @param {...*} args
+         * @throws {Error}
+         */
+        login(...args: any[]): Promise<void>;
         /**
          * Logout from the established session.
          *
@@ -285,6 +299,7 @@ declare module OpenEO {
          * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
          */
         constructor(connection: Connection);
+        username: string;
         /**
          * Authenticate with HTTP Basic.
          * 
@@ -539,6 +554,20 @@ declare module OpenEO {
          */
         removeListener(event: string, scope?: string): void;
         /**
+         * Authenticate with OpenID Connect (OIDC).
+         *
+         * Supported only in Browser environments.
+         *
+         * @async
+         * @param {object.<string, *>} [options={}] - Object with authentication options.
+         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
+         * @returns {Promise<void>}
+         * @throws {Error}
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
+         * @see {OidcProvider#refreshTokenScope}
+         */
+        login(options?: object<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        /**
          * Returns the options for the OIDC client library.
          *
          * Options can be overridden by custom options via the options parameter.
@@ -590,25 +619,11 @@ declare module OpenEO {
          * @see OidcProvider#setClientId
          */
         detectDefaultClient(): OidcClient | null;
-        /**
-         * Authenticate with OpenID Connect (OIDC).
-         * 
-         * Supported only in Browser environments.
-         * 
-         * @async
-         * @param {object.<string, *>} [options={}] - Object with authentication options.
-         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
-         * @returns {Promise<void>}
-         * @throws {Error}
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
-         * @see {OidcProvider#refreshTokenScope}
-         */
-        login(options?: any, requestRefreshToken?: boolean) : void;
     }
     export namespace OidcProvider {
-        const uiMethod: string;
-        const redirectUrl: string;
-        const grants: Array<string>;
+        let uiMethod: string;
+        let redirectUrl: string;
+        let grants: Array<string>;
     }
     /**
      * Manages the files types supported by the back-end.
@@ -783,7 +798,7 @@ declare module OpenEO {
          *
          * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
          * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
-         * @param {?string} [level=null] Minimum level of logs to return.
+         * @param {?string} [level=null] - Minimum level of logs to return.
          */
         constructor(connection: Connection, endpoint: string, level?: string | null);
         /**
@@ -853,7 +868,7 @@ declare module OpenEO {
          * @readonly
          * @type {?Process}
          */
-        public readonly process: Process;
+        public readonly process: Process | null;
         /**
          * The current status of a batch job.
          * One of "created", "queued", "running", "canceled", "finished" or "error".
@@ -950,7 +965,7 @@ declare module OpenEO {
         /**
          * Get logs for the batch job from the back-end.
          *
-         * @param {?string} [level=null] Minimum level of logs to return.
+         * @param {?string} [level=null] - Minimum level of logs to return.
          * @returns {Logs}
          */
         debugJob(level?: string | null): Logs;
@@ -1074,7 +1089,7 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly returns: object<string, any>;
+        public readonly returns: object<string, any> | null;
         /**
          * Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions.
          * @public
@@ -1095,7 +1110,7 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly exceptions: object<string, any>;
+        public readonly exceptions: object<string, any> | null;
         /**
          * @public
          * @readonly
@@ -1114,7 +1129,7 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly processGraph: object<string, any>;
+        public readonly processGraph: object<string, any> | null;
         /**
          * Updates the data stored in this object by requesting the process graph metadata from the back-end.
          *
@@ -1185,7 +1200,7 @@ declare module OpenEO {
          * @readonly
          * @type {?Process}
          */
-        public readonly process: Process;
+        public readonly process: Process | null;
         /**
          * URL at which the secondary web service is accessible
          * @public
@@ -1212,14 +1227,14 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly configuration: object<string, any>;
+        public readonly configuration: object<string, any> | null;
         /**
          * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
          * @public
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly attributes: object<string, any>;
+        public readonly attributes: object<string, any> | null;
         /**
          * Date and time of creation, formatted as a RFC 3339 date-time.
          * @public
@@ -1290,7 +1305,7 @@ declare module OpenEO {
         /**
          * Get logs for the secondary web service from the back-end.
          *
-         * @param {?string} [level=null] Minimum level of logs to return.
+         * @param {?string} [level=null] - Minimum level of logs to return.
          * @returns {Logs}
          */
         debugService(level?: string | null): Logs;
@@ -1477,7 +1492,7 @@ declare module OpenEO {
         addOperatorProcess(operator: string, left: number | object<string, any>, right: number | object<string, any>): BuilderNode;
     }
     export namespace Formula {
-        const operatorMapping: object<string, string>;
+        let operatorMapping: object<string, string>;
     }
     /**
      * A class that represents a process node and also a result from a process.
@@ -2004,7 +2019,7 @@ declare module OpenEO {
          * @yields {Promise<ItemCollection>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: Array<any> | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
+        listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: any[] | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
          * Normalisation of the namespace to a value that is compatible with the OpenEO specs - EXPERIMENTAL.
          *
@@ -2359,7 +2374,7 @@ declare module OpenEO {
          * @returns {Promise<Service>} The stored service.
          * @throws {Error}
          */
-        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: any, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Service>;
+        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: object<string, any>, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Service>;
         /**
          * Get all information about a secondary web service.
          *
@@ -2379,7 +2394,7 @@ declare module OpenEO {
          * @param {object.<string, *>} response
          * @returns {ResponseArray}
          */
-        protected _toResponseArray(arr: Array<any>, response: object<string, any>): any;
+        protected _toResponseArray(arr: Array<any>, response: object<string, any>): ResponseArray;
         /**
          * Get the a link with the given rel type.
          *
@@ -2731,7 +2746,7 @@ declare module OpenEO {
         level: string;
         message: string;
         data: any;
-        path: Array<object<string, string>>;
+        path: Array<object<string, string | null>>;
         links: Array<Link>;
     };
     /**

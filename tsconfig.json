@@ -12,6 +12,8 @@
 		// see https://github.com/babel/babel/issues/10237#issuecomment-513028440
 		"moduleResolution": "node",
 		// Emit the declaration into a single file. The generated file is invalid and needs some manual adoptions.
-		"outFile": "openeo.d.ts"
+		"outFile": "openeo.d.ts",
+		// See https://stackoverflow.com/questions/38209699/error-ts2403-subsequent-variable-declarations-must-have-the-same-type
+		"skipLibCheck": true
 	}
 }
