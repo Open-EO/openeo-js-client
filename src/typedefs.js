@@ -202,7 +202,7 @@
  * @augments Array
  * @type {Array.<*>}
  * @property {Array.<Link>} links A list of related links.
- * @property {Array.<string>} federation:missing A list of backends from the federation that are missing in the response data.
+ * @property {Array.<string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
  */
 
 /**

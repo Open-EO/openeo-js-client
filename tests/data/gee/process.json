@@ -1,0 +1,29 @@
+{
+  "id": "min",
+  "summary": "Minimum value",
+  "description": "Computes the smallest value of an array of numbers, which is equal to the last element of a sorted (i.e., ordered) version of the array.\n\nAn array with solely no-data values returns the no-data value (or `null`).",
+  "categories": ["math", "math > statistics", "reducer"],
+  "parameters": [
+    {
+      "name": "data",
+      "description": "An array of numbers.",
+      "schema": { "type": "array", "items": { "type": ["number", "null"] } }
+    }
+  ],
+  "returns": {
+    "description": "The minimum value.",
+    "schema": { "type": ["number", "null"] }
+  },
+  "examples": [
+    { "arguments": { "data": [1, 0, 3, 2] }, "returns": 0 },
+    { "arguments": { "data": [5, 2.5, null, -0.7] }, "returns": -0.7 },
+    { "arguments": { "data": [] }, "returns": null }
+  ],
+  "links": [
+    {
+      "rel": "about",
+      "href": "http://mathworld.wolfram.com/Minimum.html",
+      "title": "Minimum explained by Wolfram MathWorld"
+    }
+  ]
+}

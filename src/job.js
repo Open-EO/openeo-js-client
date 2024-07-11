@@ -159,7 +159,7 @@ class Job extends BaseEntity {
 	/**
 	 * Get logs for the batch job from the back-end.
 	 * 
-	 * @param {?string} [level=null] Minimum level of logs to return.
+	 * @param {?string} [level=null] - Minimum level of logs to return.
 	 * @returns {Logs}
 	 */
 	debugJob(level = null) {

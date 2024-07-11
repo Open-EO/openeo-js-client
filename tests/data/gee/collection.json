@@ -1,0 +1,43 @@
+{
+  "stac_version": "1.0.0",
+  "id": "AAFC/ACI",
+  "title": "Canada AAFC Annual Crop Inventory",
+  "gee:type": "image_collection",
+  "description": "Starting in 2009, the Earth Observation Team of the Science and Technology\nBranch (STB) at Agriculture and Agri-Food Canada (AAFC) began the process\nof generating annual crop type digital maps. Focusing on the Prairie\nProvinces in 2009 and 2010, a Decision Tree (DT) based methodology was\napplied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based\nsatellite images. Beginning with the 2011 growing season, this activity has\nbeen extended to other provinces in support of a national crop inventory.\nTo date this approach can consistently deliver a crop inventory that meets\nthe overall target accuracy of at least 85% at a final spatial resolution of\n30m (56m in 2009 and 2010).\n",
+  "license": "OGL-Canada-2.0",
+  "links": [],
+  "keywords": ["aafc", "canada", "crop", "landcover"],
+  "providers": [
+    {
+      "name": "Agriculture and Agri-Food Canada",
+      "roles": ["producer", "licensor"],
+      "url": "https://open.canada.ca/data/en/dataset/ba2645d5-4458-414d-b196-6303ac06c1c9"
+    },
+    {
+      "name": "Google Earth Engine",
+      "roles": ["host"],
+      "url": "https://developers.google.com/earth-engine/datasets/catalog/AAFC_ACI"
+    }
+  ],
+  "extent": {
+    "spatial": { "bbox": [[-135.17, 36.83, -51.24, 62.25]] },
+    "temporal": {
+      "interval": [["2009-01-01T00:00:00Z", "2022-01-01T00:00:00Z"]]
+    }
+  },
+  "summaries": {},
+  "sci:citation": "Agriculture and Agri-Food Canada Annual Crop Inventory. {YEAR}",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/datacube/v2.2.0/schema.json"
+  ],
+  "cube:dimensions": {
+    "x": { "type": "spatial", "axis": "x", "extent": [-135.17, -51.24] },
+    "y": { "type": "spatial", "axis": "y", "extent": [36.83, 62.25] },
+    "t": {
+      "type": "temporal",
+      "extent": ["2009-01-01T00:00:00Z", "2022-01-01T00:00:00Z"]
+    },
+    "bands": { "type": "bands", "values": ["landcover"] }
+  },
+  "assets": {}
+}

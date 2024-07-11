@@ -10,7 +10,7 @@ class Logs {
 	 * 
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
-	 * @param {?string} [level=null] Minimum level of logs to return.
+	 * @param {?string} [level=null] - Minimum level of logs to return.
 	 */
 	constructor(connection, endpoint, level = null) {
 		/**
