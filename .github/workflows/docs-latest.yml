@@ -13,7 +13,7 @@ jobs:
       - run: npm run docs
       - name: get-npm-version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@1
+        uses: martinbeentjes/npm-get-version-action@master
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
