@@ -193,6 +193,15 @@ class Capabilities {
 	}
 
 	/**
+	 * Returns list of backends in the federation.
+	 * 
+	 * @returns {Array.<FederationBackend>} Array of backends
+	 */
+	listFederation() {
+		return Array.isArray(this.data.federation) ? this.data.federation : [];
+	}
+
+	/**
 	 * Lists all supported features.
 	 * 
 	 * @returns {Array.<string>} An array of supported features.

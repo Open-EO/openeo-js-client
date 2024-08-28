@@ -47,6 +47,7 @@
  * @type {object}
  * @property {Array.<Collection>} collections
  * @property {Array.<Link>} links
+ * @property {Array.<string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
  */
 
 /**
@@ -184,6 +185,7 @@
  * @property {Array.<Process>} processes
  * @property {Array.<Link>} links
  * @property {?Array.<string>} namespaces EXPERIMENTAL!
+ * @property {Array.<string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
  */
 
 /**
@@ -191,6 +193,21 @@
  * 
  * @typedef Process
  * @type {object.<string, *>} 
+ */
+
+/**
+ * An array of backends in the federation.
+ * 
+ * @typedef FederationBackend
+ * @type {Object}
+ * @property {string} url URL to the versioned API endpoint of the back-end.
+ * @property {string} title Name of the back-end.
+ * @property {string} description A description of the back-end and its specifics.
+ * @property {string} status Current status of the back-ends (online or offline).
+ * @property {string} last_status_check The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
+ * @property {string} last_successful_check If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
+ * @property {boolean} experimental Declares the back-end to be experimental.
+ * @property {boolean} deprecated Declares the back-end to be deprecated.
  */
 
 /**

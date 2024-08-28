@@ -396,6 +396,12 @@ declare module OpenEO {
          */
         links(): Array<Link>;
         /**
+         * Returns list of backends in the federation.
+         *
+         * @returns {Array.<FederationBackend>} Array of backends
+         */
+        listFederation(): Array<FederationBackend>;
+        /**
          * Lists all supported features.
          *
          * @returns {Array.<string>} An array of supported features.
@@ -646,7 +652,7 @@ declare module OpenEO {
          * @public
          * @type {Array.<string>}
          */
-        public 'federation:missing': Array<string>;
+        public "federation:missing": Array<string>;
         /**
          * Returns the file types response as a JSON serializable representation of the data that is API compliant.
          *
@@ -2635,6 +2641,10 @@ declare module OpenEO {
     export type Collections = {
         collections: Array<Collection>;
         links: Array<Link>;
+        /**
+         * "federation:missing"] A list of backends from the federation that are missing in the response data.
+         */
+	"federation:missing": Array<string>;
     };
     export type Collection = object<string, any>;
     export type FileTypesAPI = {
@@ -2815,11 +2825,52 @@ declare module OpenEO {
          * EXPERIMENTAL!
          */
         namespaces: Array<string> | null;
+        /**
+         * "federation:missing"] A list of backends from the federation that are missing in the response data.
+         */
+	"federation:missing": Array<string>;
     };
     /**
      * An openEO processing chain.
      */
     export type Process = object<string, any>;
+    /**
+     * An array of backends in the federation.
+     */
+    export type FederationBackend = {
+        /**
+         * URL to the versioned API endpoint of the back-end.
+         */
+        url: string;
+        /**
+         * Name of the back-end.
+         */
+        title: string;
+        /**
+         * A description of the back-end and its specifics.
+         */
+        description: string;
+        /**
+         * Current status of the back-ends (online or offline).
+         */
+        status: string;
+        /**
+         * The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
+         */
+        last_status_check: string;
+        /**
+         * If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
+         */
+        last_successful_check: string;
+        /**
+         * Declares the back-end to be experimental.
+         */
+        experimental: boolean;
+        /**
+         * Declares the back-end to be deprecated.
+         */
+        deprecated: boolean;
+    };
     /**
      * An array, but enriched with additional details from an openEO API response.
      *
