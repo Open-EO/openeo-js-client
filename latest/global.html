@@ -988,7 +988,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line52">line 52</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -1041,6 +1041,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1066,6 +1068,12 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
@@ -1089,10 +1097,47 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"federation:missing"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A list of backends from the federation that are missing in the response data.</p></td>
         </tr>
 
     
@@ -1132,6 +1177,291 @@
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="FederationBackend">FederationBackend</h4>
+
+
+
+
+<div class="description">
+    <p>An array of backends in the federation.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>URL to the versioned API endpoint of the back-end.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>title</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the back-end.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>description</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A description of the back-end and its specifics.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>status</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Current status of the back-ends (online or offline).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>last_status_check</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>last_successful_check</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If the <code>status</code> is <code>offline</code>: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property <code>last_status_check</code>. Formatted as a RFC 3339 date-time.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>experimental</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Declares the back-end to be experimental.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>deprecated</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Declares the back-end to be deprecated.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line198">line 198</a>
     </li></ul></dd>
     
 
@@ -1343,7 +1673,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line64">line 64</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line65">line 65</a>
     </li></ul></dd>
     
 
@@ -1486,7 +1816,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line57">line 57</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -1610,7 +1940,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line74">line 74</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line75">line 75</a>
     </li></ul></dd>
     
 
@@ -1734,7 +2064,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line82">line 82</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line83">line 83</a>
     </li></ul></dd>
     
 
@@ -1802,7 +2132,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line90">line 90</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line91">line 91</a>
     </li></ul></dd>
     
 
@@ -2054,7 +2384,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line95">line 95</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line96">line 96</a>
     </li></ul></dd>
     
 
@@ -2302,7 +2632,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line105">line 105</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -2558,7 +2888,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line115">line 115</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line116">line 116</a>
     </li></ul></dd>
     
 
@@ -2820,7 +3150,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line134">line 134</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -2963,7 +3293,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line127">line 127</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -3133,7 +3463,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line148">line 148</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line149">line 149</a>
     </li></ul></dd>
     
 
@@ -3395,7 +3725,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line158">line 158</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line159">line 159</a>
     </li></ul></dd>
     
 
@@ -3519,7 +3849,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line173">line 173</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line174">line 174</a>
     </li></ul></dd>
     
 
@@ -3591,7 +3921,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line189">line 189</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line191">line 191</a>
     </li></ul></dd>
     
 
@@ -3744,6 +4074,37 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>"federation:missing"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A list of backends from the federation that are missing in the response data.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -3779,7 +4140,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line181">line 181</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line182">line 182</a>
     </li></ul></dd>
     
 
@@ -3943,7 +4304,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line196">line 196</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line213">line 213</a>
     </li></ul></dd>
     
 
@@ -4011,7 +4372,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line208">line 208</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line225">line 225</a>
     </li></ul></dd>
     
 
@@ -4233,7 +4594,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line213">line 213</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line230">line 230</a>
     </li></ul></dd>
     
 
@@ -4301,7 +4662,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line222">line 222</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line239">line 239</a>
     </li></ul></dd>
     
 
@@ -4584,7 +4945,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line234">line 234</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line251">line 251</a>
     </li></ul></dd>
     
 
@@ -4727,7 +5088,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line227">line 227</a>
+        <a href="typedefs.js.html">typedefs.js</a>, <a href="typedefs.js.html#line244">line 244</a>
     </li></ul></dd>
     
 
@@ -5246,7 +5607,7 @@ May return <code>null</code> if the instance can't be created.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jul 11 2024 13:41:47 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Aug 28 2024 12:38:41 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
