@@ -52,7 +52,7 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
-    "@openeo/js-commons": "^1.4.0",
+    "@openeo/js-commons": "^1.5.0",
     "@radiantearth/stac-migrate": "^1.0.0",
     "axios": "^1.0.0",
     "oidc-client": "^1.11.5"
