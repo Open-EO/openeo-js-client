@@ -4,7 +4,7 @@ import { User, UserManager } from 'oidc-client';
 import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
 
-declare module OpenEO {
+declare module Client {
     /**
      * The base class for authentication providers such as Basic and OpenID Connect.
      *
@@ -347,12 +347,6 @@ declare module OpenEO {
          * @throws {Error}
          */
         protected validate(): void;
-        /**
-         * Initializes the class.
-         *
-         * @protected
-         */
-        protected init(): void;
         /**
          * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
          *
@@ -1923,15 +1917,6 @@ declare module OpenEO {
          */
         protected processes: ProcessRegistry;
         /**
-         * Initializes the connection by requesting the capabilities.
-         *
-         * @async
-         * @protected
-         * @returns {Promise<Capabilities>} Capabilities
-         * @throws {Error}
-         */
-        protected init(): Promise<Capabilities>;
-        /**
          * Refresh the cache for processes.
          *
          * @async
@@ -2298,13 +2283,11 @@ declare module OpenEO {
          *
          * @async
          * @param {Process} process - A user-defined process.
-         * @param {?string} [plan=null] - The billing plan to use for this computation.
-         * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
          * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
-        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null, additional?: object<string, any>): Promise<SyncResult>;
+        computeResult(process: Process, abortController?: AbortController | null, additional?: object<string, any>): Promise<SyncResult>;
         /**
          * Executes a process synchronously and downloads to result the given path.
          *
@@ -2401,24 +2384,6 @@ declare module OpenEO {
          * @returns {ResponseArray}
          */
         protected _toResponseArray(arr: Array<any>, response: object<string, any>): ResponseArray;
-        /**
-         * Get the a link with the given rel type.
-         *
-         * @protected
-         * @param {Array.<Link>} links - An array of links.
-         * @param {string|Array.<string>} rel - Relation type(s) to find.
-         * @returns {string | null}
-         * @throws {Error}
-         */
-        protected _getLinkHref(links: Array<Link>, rel: string | Array<string>): string | null;
-        /**
-         * Makes all links in the list absolute.
-         * 
-         * @param {Array.<Link>} links - An array of links.
-         * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
-         * @returns {Array.<Link>}
-         */
-        makeLinksAbsolute(links: Array<Link>, base?: (string | AxiosResponse) | null): Array<Link>;
         /**
          * Sends a GET request.
          *
@@ -2538,7 +2503,7 @@ declare module OpenEO {
      *
      * @hideconstructor
      */
-    export class OpenEO {
+    export class Client {
         /**
          * Connect to a back-end with version discovery (recommended).
          *
@@ -2575,7 +2540,7 @@ declare module OpenEO {
          */
         static clientVersion(): string;
     }
-    export namespace OpenEO {
+    export namespace Client {
         const Environment: Environment;
     }
 
@@ -2918,4 +2883,4 @@ declare module OpenEO {
 
 }
 
-export = OpenEO;
+export = Client;

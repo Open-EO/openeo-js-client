@@ -1,4 +1,4 @@
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 const AuthProvider = require('./authprovider');
 const Environment = require('./env');
 const Oidc = require('oidc-client');

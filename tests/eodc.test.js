@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, Capabilities } = require('../src/openeo');
+const { Client, Connection, Capabilities } = require('../src/client');
 const { Utils } = require('@openeo/js-commons');
 
 jest.setTimeout(30*1000);
@@ -13,7 +13,7 @@ describe('EODC back-end', () => {
 
 		let con;
 		test.skip('Connect', async () => {
-			con = await OpenEO.connect(TESTBACKEND);
+			con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			let cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -23,7 +23,7 @@ describe('EODC back-end', () => {
 			let col = await con.describeCollection(TESTCOLLECTION);
 			expect(col.id).toBe(TESTCOLLECTION);
 			expect(col).toHaveProperty("links");
-			expect(typeof con._getLinkHref(col.links, 'items')).toBe("string");
+			expect(typeof Utils.getLinkHref(col.links, 'items')).toBe("string");
 		});
 
 		// Skip this test for now, EODC back-end is not responding

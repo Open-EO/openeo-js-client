@@ -199,7 +199,7 @@
  * An array of backends in the federation.
  * 
  * @typedef FederationBackend
- * @type {Object}
+ * @type {object}
  * @property {string} url URL to the versioned API endpoint of the back-end.
  * @property {string} title Name of the back-end.
  * @property {string} description A description of the back-end and its specifics.

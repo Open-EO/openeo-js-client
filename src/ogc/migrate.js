@@ -1,4 +1,4 @@
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('../utils');
 const StacMigrate = require('@radiantearth/stac-migrate');
 const PgParser = require('./parser');
 
@@ -10,18 +10,32 @@ const JobStatusMap = {
   dismissed: 'canceled'
 };
 
-const Migrate = {
+/**
+ * Migrate OGC API responses to openEO API responses.
+ */
+class OgcMigrate {
 
-  connection: null,
-
-  all(response) {
+  /**
+   * Migrations that potentially apply to all endpoints.
+   * 
+   * @param {AxiosResponse} response
+   * @returns {AxiosResponse}
+   */
+  static all(response) {
     if (Array.isArray(response.data.links)) {
-      response.data.links = this.connection.makeLinksAbsolute(response.data.links, response);
+      response.data.links = Utils.makeLinksAbsolute(response.data.links, response);
     }
     return response;
-  },
+  }
 
-  collection(collection, response) {
+  /**
+   * Migrates a collection.
+   * 
+   * @param {object} collection
+   * @param {AxiosResponse} response
+   * @returns {Collection}
+   */
+  static collection(collection, response) {
     if (collection.stac_version) {
       return collection;
     }
@@ -31,13 +45,20 @@ const Migrate = {
     collection.ogcapi = true;
     // Make links absolute
     if (Array.isArray(collection.links)) {
-      collection.links = this.connection.makeLinksAbsolute(collection.links, response);
+      collection.links = Utils.makeLinksAbsolute(collection.links, response);
     }
     
     return collection;
-  },
+  }
 
-  process(process, response) {
+  /**
+   * Migrates a process.
+   * 
+   * @param {object} process
+   * @param {AxiosResponse} response
+   * @returns {Process}
+   */
+  static process(process, response) {
     if (process.parameters || process.returns) {
       return process;
     }
@@ -92,13 +113,20 @@ const Migrate = {
   
     // Make links absolute
     if (Array.isArray(process.links)) {
-      process.links = this.connection.makeLinksAbsolute(process.links, response);
+      process.links = Utils.makeLinksAbsolute(process.links, response);
     }
   
     return process;
-  },
+  }
 
-  job(job, response) {
+  /**
+   * Migrates a job.
+   * 
+   * @param {object} job
+   * @param {AxiosResponse} response
+   * @returns {Job}
+   */
+  static job(job, response) {
     if (!job.jobID) {
       return job;
     }
@@ -123,26 +151,33 @@ const Migrate = {
     job.description = job.message;
 
     if (Array.isArray(job.links)) {
-      job.links = this.connection.makeLinksAbsolute(job.links, response);
+      job.links = Utils.makeLinksAbsolute(job.links, response);
     }
     
     return job;
-  },
+  }
 
-  execute(requestBody) {
+  /**
+   * Executes an OGC API process synchronously.
+   * 
+   * @todo Check whether implementation still works
+   * @param {object} requestBody
+   * @returns {object}
+   */
+  static executeSync(requestBody) {
     const graph = Object.values(requestBody.process.process_graph);
     const valid = graph.every(node => {
-      let spec = this.connection.processes.get(node.process_id);
+      let spec = OgcMigrate.connection.processes.get(node.process_id);
       return Boolean(spec && (spec.ogcapi || spec.id === 'load_collection'));
     });
     if (!valid) {
 			throw new Error('Process must consist only of OGC Processes and Collections');
     }
 
-    const parser = new PgParser(requestBody.process, this.connection.getBaseUrl());
+    const parser = new PgParser(requestBody.process, OgcMigrate.connection.getBaseUrl());
     return parser.parse();
-  },
+  }
 
-};
+}
 
-module.exports = Migrate;
+module.exports = OgcMigrate;
