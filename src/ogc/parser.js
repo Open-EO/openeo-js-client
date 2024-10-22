@@ -1,12 +1,27 @@
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('../utils');
 
-class PgParser {
+/**
+ * Parser for OGC API - Workflows (MOAW).
+ */
+class OgcProcessParser {
 
+  /**
+   * A new parser instance.
+   * 
+   * @param {object} process
+   * @param {string} baseUrl
+   */
   constructor(process, baseUrl) {
     this.process = process;
     this.url = baseUrl;
   }
 
+  /**
+   * Converts an openEO process into an OGC API process workflow.
+   * 
+   * @param {Process} process
+   * @returns {object}
+   */
   parse(process = null) {
     if (process === null) {
       process = Utils.deepClone(this.process);
@@ -22,6 +37,12 @@ class PgParser {
     return this.toOgcProcess(resultNode);
   }
 
+  /**
+   * Converts a process graph node into an OGC API workflow node.
+   * 
+   * @param {ProcessNode} node
+   * @returns {object}
+   */
   toOgcProcess(node) {
     // Get output parameters from arguments
     // @todo This is just a workaround for now
@@ -49,6 +70,13 @@ class PgParser {
     }
   }
 
+  /**
+   * Parse Arguments (deeply).
+   * 
+   * @param {object} args
+   * @param {object} graph
+   * @returns {object}
+   */
   parseArgs(args, graph) {
     for(let key in args) {
       args[key] = this.parseDeep(args[key], args, graph);
@@ -56,6 +84,14 @@ class PgParser {
     return args;
   }
 
+  /**
+   * Recusively parse the process graph.
+   * 
+   * @param {*} value
+   * @param {*} parent
+   * @param {object} graph
+   * @returns {*}
+   */
   parseDeep(value, parent, graph) {
     const isObject = Utils.isObject(value);
     if (isObject && typeof value.from_node === 'string') {
@@ -93,4 +129,4 @@ class PgParser {
 
 }
 
-module.exports = PgParser;
+module.exports = OgcProcessParser;
