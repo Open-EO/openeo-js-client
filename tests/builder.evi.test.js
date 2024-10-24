@@ -4,11 +4,11 @@ describe('Process Graph Builder (EVI)', () => {
 	const { TESTBACKEND } = require('./config.js');
 	const FROM_URL = TESTBACKEND + '/v1.0/processes';
 
-	const { OpenEO, Connection, Builder, Parameter, Formula } = require('../src/openeo');
+	const { Client, Connection, Builder, Parameter, Formula } = require('../src/client');
 
 	var con;
 	test('Connect', async () => {
-		con = await OpenEO.connect(TESTBACKEND);
+		con = await Client.connect(TESTBACKEND);
 		expect(con instanceof Connection).toBeTruthy();
 	});
 

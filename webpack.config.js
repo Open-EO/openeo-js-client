@@ -7,9 +7,9 @@ module.exports = [
   {
     target: "web",
     mode: 'production',
-    entry: './src/openeo.js',
+    entry: './src/client.js',
     output: {
-      filename: 'openeo.min.js',
+      filename: 'client.min.js',
       path: path.resolve(__dirname),
       libraryTarget: 'umd'
     },
