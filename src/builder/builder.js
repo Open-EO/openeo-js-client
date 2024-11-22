@@ -1,7 +1,7 @@
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
 const axios = require('axios');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('../utils');
 const ProcessUtils = require("@openeo/js-commons/src/processUtils");
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
 

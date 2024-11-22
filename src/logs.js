@@ -1,4 +1,4 @@
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 
 /**
  * Interface to loop through the logs.

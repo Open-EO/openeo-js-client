@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, Capabilities, BasicProvider, OidcProvider } = require('../src/openeo');
+const { Client, Connection, Capabilities, BasicProvider, OidcProvider } = require('../src/client');
 const { Utils } = require('@openeo/js-commons');
 
 jest.setTimeout(30*1000);
@@ -9,7 +9,7 @@ describe('VITO back-end', () => {
 
 	let con;
 	test('Connect', async () => {
-		con = await OpenEO.connect(TESTBACKEND, {addNamespaceToProcess: true});
+		con = await Client.connect(TESTBACKEND, {addNamespaceToProcess: true});
 		expect(con instanceof Connection).toBeTruthy();
 		expect(con.options.addNamespaceToProcess).toBeTruthy();
 		let cap = con.capabilities();
