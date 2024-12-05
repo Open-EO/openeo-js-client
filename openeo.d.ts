@@ -2027,6 +2027,17 @@ declare module OpenEO {
          */
         listCollections(): Promise<Collections>;
         /**
+         * Paginate through the collections available on the back-end.
+         *
+         * The collections returned always comply to the latest STAC version (currently 1.0.0).
+         *
+         * @async
+         * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
+         * @yields {Promise<Collections>} A response compatible to the API specification.
+         * @throws {Error}
+         */
+        paginateCollections(limit?: number | null): AsyncGenerator<any, void, unknown>;
+        /**
          * Get further information about a single collection.
          *
          * The collection returned always complies to the latest STAC version (currently 1.0.0).
@@ -2039,11 +2050,10 @@ declare module OpenEO {
         describeCollection(collectionId: string): Promise<Collection>;
         /**
          * Loads items for a specific image collection.
+         *
          * May not be available for all collections.
          *
          * The items returned always comply to the latest STAC version (currently 1.0.0).
-         *
-         * This is an experimental API and is subject to change.
          *
          * @async
          * @param {string} collectionId - Collection ID to request items for.
@@ -2076,7 +2086,7 @@ declare module OpenEO {
          */
         protected normalizeNamespace(namespace: string | null): string | null;
         /**
-         * List processes available on the back-end.
+         * List all processes available on the back-end.
          *
          * Requests pre-defined processes by default.
          * Set the namespace parameter to request processes from a specific namespace.
@@ -2090,6 +2100,22 @@ declare module OpenEO {
          * @throws {Error}
          */
         listProcesses(namespace?: string | null): Promise<Processes>;
+        /**
+         * Paginate through the processes available on the back-end.
+         *
+         * Requests pre-defined processes by default.
+         * Set the namespace parameter to request processes from a specific namespace.
+         *
+         * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+         * The namespaces are then listed in the property `namespaces`.
+         *
+         * @async
+         * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
+         * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
+         * @yields {Promise<Processes>} - A response compatible to the API specification.
+         * @throws {Error}
+         */
+        paginateProcesses(namespace?: string | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
          * Get information about a single process.
          *
@@ -2239,13 +2265,22 @@ declare module OpenEO {
          */
         describeAccount(): Promise<UserAccount>;
         /**
-         * Lists all files from the user workspace.
+         * List all files from the user workspace.
          *
          * @async
          * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
          * @throws {Error}
          */
         listFiles(): Promise<ResponseArray<UserFile>>;
+        /**
+         * Paginate through the files from the user workspace.
+         *
+         * @async
+         * @param {?number} [limit=50] - The number of files per request/page as integer. If `null`, requests all files.
+         * @yields {Promise<ResponseArray.<UserFile>>} A list of files.
+         * @throws {Error}
+         */
+        paginateFiles(limit?: number | null): AsyncGenerator<any, void, unknown>;
         /**
          * A callback that is executed on upload progress updates.
          *
@@ -2299,7 +2334,7 @@ declare module OpenEO {
          */
         validateProcess(process: Process): Promise<ValidationResult>;
         /**
-         * Lists all user-defined processes of the authenticated user.
+         * List all user-defined processes of the authenticated user.
          *
          * @async
          * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
@@ -2307,6 +2342,16 @@ declare module OpenEO {
          * @throws {Error}
          */
         listUserProcesses(oldProcesses?: Array<UserProcess>): Promise<ResponseArray<UserProcess>>;
+        /**
+         * Paginates through the user-defined processes of the authenticated user.
+         *
+         * @async
+         * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
+         * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
+         * @yields {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
+         * @throws {Error}
+         */
+        paginateUserProcesses(limit?: number | null, oldProcesses?: Array<UserProcess>): AsyncGenerator<any, void, unknown>;
         /**
          * Creates a new stored user-defined process at the back-end.
          *
@@ -2359,7 +2404,7 @@ declare module OpenEO {
          */
         downloadResult(process: Process, targetPath: string, plan?: string | null, budget?: number | null, abortController?: AbortController | null): Promise<void>;
         /**
-         * Lists all batch jobs of the authenticated user.
+         * List all batch jobs of the authenticated user.
          *
          * @async
          * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
@@ -2367,6 +2412,16 @@ declare module OpenEO {
          * @throws {Error}
          */
         listJobs(oldJobs?: Array<Job>): Promise<ResponseArray<Job>>;
+        /**
+         * Paginate through the batch jobs of the authenticated user.
+         *
+         * @async
+         * @param {?number} [limit=50] - The number of jobs per request/page as integer. If `null`, requests all jobs.
+         * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
+         * @yields {Promise<ResponseArray.<Job>>} A list of jobs.
+         * @throws {Error}
+         */
+        paginateJobs(limit?: number | null, oldJobs?: Array<Job>): AsyncGenerator<any, void, unknown>;
         /**
          * Creates a new batch job at the back-end.
          *
@@ -2391,7 +2446,7 @@ declare module OpenEO {
          */
         getJob(id: string): Promise<Job>;
         /**
-         * Lists all secondary web services of the authenticated user.
+         * List all secondary web services of the authenticated user.
          *
          * @async
          * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
@@ -2399,6 +2454,16 @@ declare module OpenEO {
          * @throws {Error}
          */
         listServices(oldServices?: Array<Service>): Promise<ResponseArray<Job>>;
+        /**
+         * Paginate through the secondary web services of the authenticated user.
+         *
+         * @async
+         * @param {?number} [limit=50] - The number of services per request/page as integer. If `null` (default), requests all services.
+         * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
+         * @yields {Promise<ResponseArray.<Job>>} A list of services.
+         * @throws {Error}
+         */
+        paginateServices(limit?: number | null, oldServices?: Array<Service>): AsyncGenerator<any, void, unknown>;
         /**
          * Creates a new secondary web service at the back-end.
          *
@@ -2446,6 +2511,14 @@ declare module OpenEO {
          * @throws {Error}
          */
         protected _getLinkHref(links: Array<Link>, rel: string | Array<string>): string | null;
+        /**
+         * Get the URL of the next page from a response.
+         *
+         * @protected
+         * @param {AxiosResponse} response
+         * @returns {string | null}
+         */
+        protected _getNextLink(response: AxiosResponse): string | null;
         /**
          * Makes all links in the list absolute.
          *
