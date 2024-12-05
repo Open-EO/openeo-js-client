@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New functions in `Connection` for paginating through lists:
+  - `paginateProcesses`
+  - `paginateCollections`
+  - `paginateJobs`
+  - `paginateFiles`
+  - `paginateUserProcesses`
+  - `paginateServices`
+
 ## [2.6.0] - 2024-07-11
 
 ### Added
