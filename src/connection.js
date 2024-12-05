@@ -106,14 +106,14 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async init() {
-		let response = await this._get('/');
-		let data = Object.assign({}, response.data);
+		const response = await this._get('/');
+		const data = Object.assign({}, response.data);
 		data.links = this.makeLinksAbsolute(data.links, response);
 
 		if (!Array.isArray(data.conformsTo) && Array.isArray(data.links)) {
-			let conformanceLink = this._getLinkHref(data.links, CONFORMANCE_RELS);
+			const conformanceLink = this._getLinkHref(data.links, CONFORMANCE_RELS);
 			if (conformanceLink) {
-				let response2 = await this._get(conformanceLink);
+				const response2 = await this._get(conformanceLink);
 				if (Utils.isObject(response2.data) && Array.isArray(response2.data.conformsTo)) {
 					data.conformsTo = response2.data.conformsTo;
 				}
@@ -135,10 +135,10 @@ class Connection {
 		if (this.processes.count() === 0) {
 			return;
 		}
-		let promises = this.processes.namespaces().map(namespace => {
+		const promises = this.processes.namespaces().map(namespace => {
 			let fn = () => Promise.resolve();
 			if (namespace === 'user') {
-				let userProcesses = this.processes.namespace('user');
+				const userProcesses = this.processes.namespace('user');
 				if (!this.isAuthenticated()) {
 					fn = () => (this.processes.remove(null, 'user') ? Promise.resolve() : Promise.reject(new Error("Can't clear user processes")));
 				}
@@ -189,7 +189,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listFileTypes() {
-		let response = await this._get('/file_formats');
+		const response = await this._get('/file_formats');
 		return new FileTypes(response.data);
 	}
 
@@ -201,7 +201,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listServiceTypes() {
-		let response = await this._get('/service_types');
+		const response = await this._get('/service_types');
 		return response.data;
 	}
 
@@ -213,7 +213,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listUdfRuntimes() {
-		let response = await this._get('/udf_runtimes');
+		const response = await this._get('/udf_runtimes');
 		return response.data;
 	}
 
@@ -227,16 +227,38 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listCollections() {
-		let response = await this._get('/collections');
-		if (Utils.isObject(response.data) && Array.isArray(response.data.collections)) {
-			response.data.collections = response.data.collections.map(collection => {
-				if (collection.stac_version) {
-					return StacMigrate.collection(collection);
-				}
-				return collection;
-			});
+		const firstPage = await this.paginateCollections(null).next();
+		return firstPage.value;
+	}
+
+	/**
+	 * Paginate through the collections available on the back-end.
+	 * 
+	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
+	 * 
+	 * @async
+	 * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
+	 * @yields {Promise<Collections>} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async * paginateCollections(limit = 50) {
+		let nextUrl = '/collections';
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
 		}
-		return response.data;
+		do {
+			const response = await this._get(nextUrl);
+			if (Utils.isObject(response.data) && Array.isArray(response.data.collections)) {
+				response.data.collections = response.data.collections.map(collection => {
+					if (collection.stac_version) {
+						return StacMigrate.collection(collection);
+					}
+					return collection;
+				});
+			}
+			yield response.data;
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -250,7 +272,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async describeCollection(collectionId) {
-		let response = await this._get('/collections/' + collectionId);
+		const response = await this._get('/collections/' + collectionId);
 		if (response.data.stac_version) {
 			return StacMigrate.collection(response.data);
 		}
@@ -261,11 +283,10 @@ class Connection {
 
 	/**
 	 * Loads items for a specific image collection.
+	 * 
 	 * May not be available for all collections.
 	 * 
 	 * The items returned always comply to the latest STAC version (currently 1.0.0). 
-	 * 
-	 * This is an experimental API and is subject to change.
 	 * 
 	 * @async
 	 * @param {string} collectionId - Collection ID to request items for.
@@ -283,33 +304,29 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async * listCollectionItems(collectionId, spatialExtent = null, temporalExtent = null, limit = null) {
-		let page = 1;
 		let nextUrl = '/collections/' + collectionId + '/items';
+		let params = {};
+		if (Array.isArray(spatialExtent)) {
+			params.bbox = spatialExtent.join(',');
+		}
+		if (Array.isArray(temporalExtent)) {
+			params.datetime = temporalExtent
+				.map(e => {
+					if (e instanceof Date) {
+						return e.toISOString();
+					}
+					else if (typeof e === 'string') {
+						return e;
+					}
+					return '..'; // Open date range
+				})
+				.join('/');
+		}
+		if (limit > 0) {
+			params.limit = limit;
+		}
 		while(nextUrl) {
-			let params = {};
-			if (page === 1) {
-				if (Array.isArray(spatialExtent)) {
-					params.bbox = spatialExtent.join(',');
-				}
-				if (Array.isArray(temporalExtent)) {
-					params.datetime = temporalExtent
-						.map(e => {
-							if (e instanceof Date) {
-								return e.toISOString();
-							}
-							else if (typeof e === 'string') {
-								return e;
-							}
-							return '..'; // Open date range
-						})
-						.join('/');
-				}
-				if (limit > 0) {
-					params.limit = limit;
-				}
-			}
-
-			let response = await this._get(nextUrl, params);
+			const response = await this._get(nextUrl, params);
 			if (Utils.isObject(response.data) && Array.isArray(response.data.features)) {
 				response.data.features = response.data.features.map(item => {
 					if (item.stac_version) {
@@ -319,10 +336,8 @@ class Connection {
 				});
 			}
 			yield response.data;
-
-			page++;
-			let links = this.makeLinksAbsolute(response.data.links);
-			nextUrl = this._getLinkHref(links, 'next');
+			nextUrl = this._getNextLink(response);
+			params = null;
 		}
 	}
 
@@ -346,7 +361,7 @@ class Connection {
 	}
 
 	/**
-	 * List processes available on the back-end.
+	 * List all processes available on the back-end.
 	 * 
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
@@ -360,21 +375,50 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listProcesses(namespace = null) {
+		const firstPage = await this.paginateProcesses(namespace, null).next();
+		return firstPage.value;
+	}
+
+	/**
+	 * Paginate through the processes available on the back-end.
+	 * 
+	 * Requests pre-defined processes by default.
+	 * Set the namespace parameter to request processes from a specific namespace.
+	 * 
+	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
+	 * The namespaces are then listed in the property `namespaces`.
+	 * 
+	 * @async
+	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
+	 * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
+	 * @yields {Promise<Processes>} - A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async * paginateProcesses(namespace = null, limit = 50) {
 		if (!namespace) {
 			namespace = 'backend';
 		}
-		let path = (namespace === 'backend') ? '/processes' : `/processes/${this.normalizeNamespace(namespace)}`;
-		let response = await this._get(path);
 
-		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
-			throw new Error('Invalid response received for processes');
+		let nextUrl = (namespace === 'backend') ? '/processes' : `/processes/${this.normalizeNamespace(namespace)}`;
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
 		}
+		do {
+			const response = await this._get(nextUrl);
 
-		// Store processes in cache
-		this.processes.remove(null, namespace);
-		this.processes.addAll(response.data.processes, namespace);
-		
-		return Object.assign(response.data, {processes: this.processes.namespace(namespace)});
+			if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
+				throw new Error('Invalid response received for processes');
+			}
+
+			// Store processes in cache
+			this.processes.addAll(response.data.processes, namespace);
+			for (let i in response.data.processes) {
+				response.data.processes[i] = this.processes.get(response.data.processes[i].id, namespace);
+			}
+			
+			yield response.data;
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -395,7 +439,7 @@ class Connection {
 			await this.listProcesses();
 		}
 		else {
-			let response = await this._get(`/processes/${this.normalizeNamespace(namespace)}/${processId}`);
+			const response = await this._get(`/processes/${this.normalizeNamespace(namespace)}/${processId}`);
 			if (!Utils.isObject(response.data) || typeof response.data.id !== 'string') {
 				throw new Error('Invalid response received for process');
 			}
@@ -432,15 +476,15 @@ class Connection {
 		}
 
 		this.authProviderList = [];
-		let cap = this.capabilities();
+		const cap = this.capabilities();
 
 		// Add OIDC providers
 		if (cap.hasFeature('authenticateOIDC')) {
-			let res = await this._get('/credentials/oidc');
-			let oidcFactory = this.getOidcProviderFactory();
+			const res = await this._get('/credentials/oidc');
+			const oidcFactory = this.getOidcProviderFactory();
 			if (Utils.isObject(res.data) && Array.isArray(res.data.providers) && typeof oidcFactory === 'function') {
 				for(let i in res.data.providers) {
-					let obj = oidcFactory(res.data.providers[i]);
+					const obj = oidcFactory(res.data.providers[i]);
 					if (obj instanceof AuthProvider) {
 						this.authProviderList.push(obj);
 					}
@@ -521,7 +565,7 @@ class Connection {
 	 * @see Connection#listAuthProviders
 	 */
 	async authenticateBasic(username, password) {
-		let basic = new BasicProvider(this);
+		const basic = new BasicProvider(this);
 		await basic.login(username, password);
 	}
 
@@ -615,7 +659,7 @@ class Connection {
 	 * @returns {AuthProvider}
 	 */
 	setAuthToken(type, providerId, token) {
-		let provider = new AuthProvider(type, this, {
+		const provider = new AuthProvider(type, this, {
 			id: providerId,
 			title: "Custom",
 			description: ""
@@ -635,23 +679,43 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async describeAccount() {
-		let response = await this._get('/me');
+		const response = await this._get('/me');
 		return response.data;
 	}
 
 	/**
-	 * Lists all files from the user workspace. 
+	 * List all files from the user workspace. 
 	 * 
 	 * @async
 	 * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
-		let response = await this._get('/files');
-		let files = response.data.files.map(
-			f => new UserFile(this, f.path).setAll(f)
-		);
-		return this._toResponseArray(files, response.data);
+		const firstPage = await this.paginateFiles(null).next();
+		return firstPage.value;
+	}
+
+	/**
+	 * Paginate through the files from the user workspace. 
+	 * 
+	 * @async
+	 * @param {?number} [limit=50] - The number of files per request/page as integer. If `null`, requests all files.
+	 * @yields {Promise<ResponseArray.<UserFile>>} A list of files.
+	 * @throws {Error}
+	 */
+	async * paginateFiles(limit = 50) {
+		let nextUrl = '/files';
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
+		}
+		do {
+			const response = await this._get(nextUrl);
+			const files = response.data.files.map(
+				f => new UserFile(this, f.path).setAll(f)
+			);
+			yield this._toResponseArray(files, response.data);
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -682,7 +746,7 @@ class Connection {
 		if (targetPath === null) {
 			targetPath = Environment.fileNameForUpload(source);
 		}
-		let file = await this.getFile(targetPath);
+		const file = await this.getFile(targetPath);
 		return await file.uploadFile(source, statusCallback, abortController);
 	}
 
@@ -732,7 +796,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
-		let response = await this._post('/validation', this._normalizeUserProcess(process).process);
+		const response = await this._post('/validation', this._normalizeUserProcess(process).process);
 		if (Array.isArray(response.data.errors)) {
 			const errors = response.data.errors;
 			errors['federation:backends'] = Array.isArray(response.data['federation:missing']) ? response.data['federation:missing'] : [];
@@ -744,7 +808,7 @@ class Connection {
 	}
 
 	/**
-	 * Lists all user-defined processes of the authenticated user.
+	 * List all user-defined processes of the authenticated user.
 	 * 
 	 * @async
 	 * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
@@ -752,29 +816,47 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listUserProcesses(oldProcesses = []) {
-		let response = await this._get('/process_graphs');
+		const firstPage = await this.paginateUserProcesses(null, oldProcesses).next();
+		return firstPage.value;
+	}
 
-		if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
-			throw new Error('Invalid response received for processes');
+	/**
+	 * Paginates through the user-defined processes of the authenticated user.
+	 * 
+	 * @async
+	 * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
+	 * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
+	 * @yields {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
+	 * @throws {Error}
+	 */
+	async * paginateUserProcesses(limit = 50, oldProcesses = []) {
+		let nextUrl = '/process_graphs';
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
 		}
+		do {
+			const response = await this._get(nextUrl);
 
-		// Remove existing processes from cache
-		this.processes.remove(null, 'user');
-
-		// Update existing processes if needed
-		let newProcesses = response.data.processes.map(newProcess => {
-			let process = oldProcesses.find(oldProcess => oldProcess.id === newProcess.id);
-			if (!process) {
-				process = new UserProcess(this, newProcess.id);
+			if (!Utils.isObject(response.data) || !Array.isArray(response.data.processes)) {
+				throw new Error('Invalid response received for processes');
 			}
-			return process.setAll(newProcess);
-		});
-		
-		// Store plain JS variant (i.e. no Job objects involved) of processes in cache
-		let jsonProcesses = oldProcesses.length > 0 ? newProcesses.map(p => p.toJSON()) : response.data.processes;
-		this.processes.addAll(jsonProcesses, 'user');
 
-		return this._toResponseArray(newProcesses, response.data);
+			// Update existing processes if needed
+			const newProcesses = response.data.processes.map(newProcess => {
+				let process = oldProcesses.find(oldProcess => oldProcess.id === newProcess.id);
+				if (!process) {
+					process = new UserProcess(this, newProcess.id);
+				}
+				return process.setAll(newProcess);
+			});
+			
+			// Store plain JS variant (i.e. no UserProcess objects involved) of processes in cache
+			const jsonProcesses = oldProcesses.length > 0 ? newProcesses.map(p => p.toJSON()) : response.data.processes;
+			this.processes.addAll(jsonProcesses, 'user');
+
+			yield this._toResponseArray(newProcesses, response.data);
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -787,7 +869,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async setUserProcess(id, process) {
-		let pg = new UserProcess(this, id);
+		const pg = new UserProcess(this, id);
 		return await pg.replaceUserProcess(process);
 	}
 
@@ -800,7 +882,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async getUserProcess(id) {
-		let pg = new UserProcess(this, id);
+		const pg = new UserProcess(this, id);
 		return await pg.describeUserProcess();
 	}
 
@@ -818,15 +900,15 @@ class Connection {
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
 	async computeResult(process, plan = null, budget = null, abortController = null, additional = {}) {
-		let requestBody = this._normalizeUserProcess(
+		const requestBody = this._normalizeUserProcess(
 			process,
 			Object.assign({}, additional, {
 				plan: plan,
 				budget: budget
 			})
 		);
-		let response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
-		let syncResult = {
+		const response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
+		const syncResult = {
 			data: response.data,
 			costs: null,
 			type: null,
@@ -841,15 +923,15 @@ class Connection {
 			syncResult.type = response.headers['content-type'];
 		}
 
-		let links = Array.isArray(response.headers.link) ? response.headers.link : [response.headers.link];
+		const links = Array.isArray(response.headers.link) ? response.headers.link : [response.headers.link];
 		for(let link of links) {
 			if (typeof link !== 'string') {
 				continue;
 			}
-			let logs = link.match(/^<([^>]+)>;\s?rel="monitor"/i);
+			const logs = link.match(/^<([^>]+)>;\s?rel="monitor"/i);
 			if (Array.isArray(logs) && logs.length > 1) {
 				try {
-					let logsResponse = await this._get(logs[1]);
+					const logsResponse = await this._get(logs[1]);
 					if (Utils.isObject(logsResponse.data) && Array.isArray(logsResponse.data.logs)) {
 						syncResult.logs = logsResponse.data.logs;
 					}
@@ -880,13 +962,13 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async downloadResult(process, targetPath, plan = null, budget = null, abortController = null) {
-		let response = await this.computeResult(process, plan, budget, abortController);
+		const response = await this.computeResult(process, plan, budget, abortController);
 		// @ts-ignore
 		await Environment.saveToFile(response.data, targetPath);
 	}
 
 	/**
-	 * Lists all batch jobs of the authenticated user.
+	 * List all batch jobs of the authenticated user.
 	 * 
 	 * @async
 	 * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
@@ -894,15 +976,37 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listJobs(oldJobs = []) {
-		let response = await this._get('/jobs');
-		let newJobs = response.data.jobs.map(newJob => {
-			let job = oldJobs.find(oldJob => oldJob.id === newJob.id);
-			if (!job) {
-				job = new Job(this, newJob.id);
-			}
-			return job.setAll(newJob);
-		});
-		return this._toResponseArray(newJobs, response.data);
+		const firstPage = await this.paginateJobs(null, oldJobs).next();
+		return firstPage.value;
+
+	}
+
+	/**
+	 * Paginate through the batch jobs of the authenticated user.
+	 * 
+	 * @async
+	 * @param {?number} [limit=50] - The number of jobs per request/page as integer. If `null`, requests all jobs.
+	 * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
+	 * @yields {Promise<ResponseArray.<Job>>} A list of jobs.
+	 * @throws {Error}
+	 */
+	async * paginateJobs(limit = 50, oldJobs = []) {
+		let nextUrl = '/jobs';
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
+		}
+		do {
+			const response = await this._get(nextUrl);
+			const newJobs = response.data.jobs.map(newJob => {
+				let job = oldJobs.find(oldJob => oldJob.id === newJob.id);
+				if (!job) {
+					job = new Job(this, newJob.id);
+				}
+				return job.setAll(newJob);
+			});
+			yield this._toResponseArray(newJobs, response.data);
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -925,12 +1029,12 @@ class Connection {
 			plan: plan,
 			budget: budget
 		});
-		let requestBody = this._normalizeUserProcess(process, additional);
-		let response = await this._post('/jobs', requestBody);
+		const requestBody = this._normalizeUserProcess(process, additional);
+		const response = await this._post('/jobs', requestBody);
 		if (typeof response.headers['openeo-identifier'] !== 'string') {
 			throw new Error("Response did not contain a Job ID. Job has likely been created, but may not show up yet.");
 		}
-		let job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
+		const job = new Job(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilities().hasFeature('describeJob')) {
 			return await job.describeJob();
 		}
@@ -948,12 +1052,12 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async getJob(id) {
-		let job = new Job(this, id);
+		const job = new Job(this, id);
 		return await job.describeJob();
 	}
 
 	/**
-	 * Lists all secondary web services of the authenticated user.
+	 * List all secondary web services of the authenticated user.
 	 * 
 	 * @async
 	 * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
@@ -961,15 +1065,36 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async listServices(oldServices = []) {
-		let response = await this._get('/services');
-		let newServices = response.data.services.map(newService => {
-			let service = oldServices.find(oldService => oldService.id === newService.id);
-			if (!service) {
-				service = new Service(this, newService.id);
-			}
-			return service.setAll(newService);
-		});
-		return this._toResponseArray(newServices, response.data);
+		const firstPage = await this.paginateServices(null, oldServices).next();
+		return firstPage.value;
+	}
+
+	/**
+	 * Paginate through the secondary web services of the authenticated user.
+	 * 
+	 * @async
+	 * @param {?number} [limit=50] - The number of services per request/page as integer. If `null` (default), requests all services.
+	 * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
+	 * @yields {Promise<ResponseArray.<Job>>} A list of services.
+	 * @throws {Error}
+	 */
+	async * paginateServices(limit = 50, oldServices = []) {
+		let nextUrl = '/services';
+		if (limit > 0) {
+			nextUrl = nextUrl + '?limit=' + limit;
+		}
+		do {
+			const response = await this._get(nextUrl);
+			const newServices = response.data.services.map(newService => {
+				let service = oldServices.find(oldService => oldService.id === newService.id);
+				if (!service) {
+					service = new Service(this, newService.id);
+				}
+				return service.setAll(newService);
+			});
+			yield this._toResponseArray(newServices, response.data);
+			nextUrl = this._getNextLink(response);
+		} while (nextUrl);
 	}
 
 	/**
@@ -989,7 +1114,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, plan = null, budget = null, additional = {}) {
-		let requestBody = this._normalizeUserProcess(process, Object.assign({
+		const requestBody = this._normalizeUserProcess(process, Object.assign({
 			title: title,
 			description: description,
 			type: type,
@@ -998,11 +1123,11 @@ class Connection {
 			plan: plan,
 			budget: budget
 		}, additional));
-		let response = await this._post('/services', requestBody);
+		const response = await this._post('/services', requestBody);
 		if (typeof response.headers['openeo-identifier'] !== 'string') {
 			throw new Error("Response did not contain a Service ID. Service has likely been created, but may not show up yet.");
 		}
-		let service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
+		const service = new Service(this, response.headers['openeo-identifier']).setAll(requestBody);
 		if (this.capabilities().hasFeature('describeService')) {
 			return service.describeService();
 		}
@@ -1020,7 +1145,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async getService(id) {
-		let service = new Service(this, id);
+		const service = new Service(this, id);
 		return await service.describeService();
 	}
 
@@ -1054,12 +1179,24 @@ class Connection {
 			rel = [rel];
 		}
 		if (Array.isArray(links)) {
-			let link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string');
+			const link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string');
 			if (link) {
 				return link.href;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Get the URL of the next page from a response.
+	 * 
+	 * @protected
+	 * @param {AxiosResponse} response 
+	 * @returns {string | null}
+	 */
+	_getNextLink(response) {
+		const links = this.makeLinksAbsolute(response.data.links, response);
+		return this._getLinkHref(links, 'next');
 	}
 
 	/**
@@ -1091,7 +1228,7 @@ class Connection {
 				return link;
 			}
 			try {
-				let url = new URL(link.href, baseUrl);
+				const url = new URL(link.href, baseUrl);
 				return Object.assign({}, link, {href: url.toString()});
 			} catch(error) {
 				return link;
@@ -1138,7 +1275,7 @@ class Connection {
 	 * @see https://github.com/axios/axios#request-config
 	 */
 	async _post(path, body, responseType, abortController = null) {
-		let options = {
+		const options = {
 			method: 'post',
 			responseType: responseType,
 			url: path,
@@ -1210,7 +1347,7 @@ class Connection {
 	 * @throws {Error}
 	 */
 	async download(url, authorize) {
-		let result = await this._send({
+		const result = await this._send({
 			method: 'get',
 			responseType: Environment.getResponseType(),
 			url: url,
@@ -1270,7 +1407,7 @@ class Connection {
 
 		try {
 			let response = await axios(options);
-			let capabilities = this.capabilities();
+			const capabilities = this.capabilities();
 			if (capabilities) {
 				response = capabilities.migrate(response);
 			}
@@ -1294,7 +1431,7 @@ class Connection {
 				// See: https://github.com/axios/axios/issues/815
 				if (options.responseType === Environment.getResponseType()) {
 					try {
-						let errorResponse = await Environment.handleErrorResponse(error);
+						const errorResponse = await Environment.handleErrorResponse(error);
 						throw enrichError(error, errorResponse);
 					} catch (error2) {
 						console.error(error2);
