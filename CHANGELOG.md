@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New function `getMissingBackends` for `Logs`
+- New property `federation:backends` added to the array returned by `validateProcess`
+
 ## [2.6.0] - 2024-07-11
 
 ### Added

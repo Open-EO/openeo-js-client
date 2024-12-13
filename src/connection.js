@@ -728,13 +728,15 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {Process} process - User-defined process to validate.
-	 * @returns {Promise<Array.<ApiError>>} errors - A list of API compatible error objects. A valid process returns an empty list.
+	 * @returns {Promise<ValidationResult>} errors - A list of API compatible error objects. A valid process returns an empty list.
 	 * @throws {Error}
 	 */
 	async validateProcess(process) {
 		let response = await this._post('/validation', this._normalizeUserProcess(process).process);
 		if (Array.isArray(response.data.errors)) {
-			return response.data.errors;
+			const errors = response.data.errors;
+			errors['federation:backends'] = Array.isArray(response.data['federation:missing']) ? response.data['federation:missing'] : [];
+			return errors;
 		}
 		else {
 			throw new Error("Invalid validation response received.");
