@@ -2020,6 +2020,7 @@ declare module OpenEO {
          * List all collections available on the back-end.
          *
          * The collections returned always comply to the latest STAC version (currently 1.0.0).
+         * This function adds a self link to the response if not present.
          *
          * @async
          * @returns {Promise<Collections>} A response compatible to the API specification.
@@ -2029,7 +2030,8 @@ declare module OpenEO {
         /**
          * Paginate through the collections available on the back-end.
          *
-         * The collections returned always comply to the latest STAC version (currently 1.0.0).
+         * The collections returned always complies to the latest STAC version (currently 1.0.0).
+         * This function adds a self link to the response if not present.
          *
          * @async
          * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
@@ -2094,6 +2096,8 @@ declare module OpenEO {
          * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
          * The namespaces are then listed in the property `namespaces`.
          *
+         * This function adds a self link to the response if not present.
+         *
          * @async
          * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @returns {Promise<Processes>} - A response compatible to the API specification.
@@ -2108,6 +2112,8 @@ declare module OpenEO {
          *
          * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
          * The namespaces are then listed in the property `namespaces`.
+         *
+         * This function adds a self link to the response if not present.
          *
          * @async
          * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
@@ -2498,9 +2504,10 @@ declare module OpenEO {
          * @protected
          * @param {Array.<*>} arr
          * @param {object.<string, *>} response
+         * @param {string} selfUrl
          * @returns {ResponseArray}
          */
-        protected _toResponseArray(arr: Array<any>, response: object<string, any>): ResponseArray;
+        protected _toResponseArray(arr: Array<any>, response: object<string, any>, selfUrl: string): ResponseArray;
         /**
          * Get the a link with the given rel type.
          *
@@ -2519,6 +2526,14 @@ declare module OpenEO {
          * @returns {string | null}
          */
         protected _getNextLink(response: AxiosResponse): string | null;
+        /**
+         * Add a self link to the response if not present.
+         *
+         * @param {object} data - The body of the response as an object.
+         * @param {string} selfUrl - The URL of the current request.
+         * @returns {object} The modified object.
+         */
+        _addSelfLink(data: object, selfUrl: string): object;
         /**
          * Makes all links in the list absolute.
          *
@@ -2982,7 +2997,7 @@ declare module OpenEO {
     /**
      * An array, but enriched with additional details from an openEO API response.
      *
-     * Adds two properties: `links` and `federation:missing`.
+     * Adds three properties: `url`, `links` and `federation:missing`.
      */
     export type ResponseArray = any;
     export type ServiceType = object<string, any>;
