@@ -259,7 +259,8 @@ describe('GEE back-end', () => {
 		test('Valid process graph', async () => {
 			let result = await con.validateProcess(VALID_PROCESS);
 			expect(Array.isArray(result)).toBeTruthy();
-			expect(result).toEqual([]);
+			expect(result.length).toBe(0);
+			expect(result["federation:backends"]).toEqual([]);
 		});
 
 		test('Invalid process graph', async () => {
@@ -485,11 +486,14 @@ describe('GEE back-end', () => {
 		test('Debug Job', async () => {
 			let logsIterator = job.debugJob();
 			expect(logsIterator instanceof Logs).toBeTruthy();
+			expect(logsIterator.getMissingBackends()).toEqual([]);
 			let logs1 = await logsIterator.next();
 			expect(Array.isArray(logs1.logs)).toBeTruthy();
 			expect(Array.isArray(logs1.links)).toBeTruthy();
+			expect(logsIterator.getMissingBackends()).toEqual([]);
 			let logs2 = await logsIterator.nextLogs();
 			expect(Array.isArray(logs2)).toBeTruthy();
+			expect(logsIterator.getMissingBackends()).toEqual([]);
 			// ToDo: Add more tests
 		});
 

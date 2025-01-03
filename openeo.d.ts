@@ -241,7 +241,7 @@ declare module OpenEO {
          * @param {string|Buffer} str - String to encode.
          * @returns {string} String encoded in Base64.
          */
-        static base64encode(str: string|Buffer): string;
+        static base64encode(str: string | Buffer): string;
         /**
          * Detect the file name for the given data source.
          *
@@ -302,14 +302,14 @@ declare module OpenEO {
         username: string;
         /**
          * Authenticate with HTTP Basic.
-         * 
+         *
          * @async
-         * @param {string} username 
-         * @param {string} password 
+         * @param {string} username
+         * @param {string} password
          * @returns {Promise<void>}
          * @throws {Error}
          */
-        login(username: string, password: string) : Promise<void>;
+        login(username: string, password: string): Promise<void>;
     }
     /**
      * Capabilities of a back-end.
@@ -652,7 +652,7 @@ declare module OpenEO {
          * @public
          * @type {Array.<string>}
          */
-        public "federation:missing": Array<string>;
+        public 'federation:missing': Array<string>;
         /**
          * Returns the file types response as a JSON serializable representation of the data that is API compliant.
          *
@@ -812,9 +812,26 @@ declare module OpenEO {
          * @type {Connection}
          */
         protected connection: Connection;
-        endpoint: string;
-        lastId: string;
-        level: string;
+        /**
+         * @protected
+         * @type {string}
+         */
+        protected endpoint: string;
+        /**
+         * @protected
+         * @type {string}
+         */
+        protected lastId: string;
+        /**
+         * @protected
+         * @type {?string}
+         */
+        protected level: string | null;
+        /**
+         * @protected
+         * @type {Set<String>}
+         */
+        protected missing: Set<string>;
         /**
          * Retrieves the next log entries since the last request.
          *
@@ -825,6 +842,16 @@ declare module OpenEO {
          * @returns {Promise<Array.<Log>>}
          */
         nextLogs(limit?: number): Promise<Array<Log>>;
+        /**
+         * Retrieves the backend identifiers that are (partially) missing in the logs.
+         *
+         * This is only filled after the first request using `nextLogs` or `next`.
+         *
+         * @returns {Array.<string>}
+         * @see {Logs#nextLogs}
+         * @see {Logs#next}
+         */
+        getMissingBackends(): Array<string>;
         /**
          * Retrieves the next log entries since the last request.
          *
@@ -2259,10 +2286,10 @@ declare module OpenEO {
          *
          * @async
          * @param {Process} process - User-defined process to validate.
-         * @returns {Promise<Array.<ApiError>>} errors - A list of API compatible error objects. A valid process returns an empty list.
+         * @returns {Promise<ValidationResult>} errors - A list of API compatible error objects. A valid process returns an empty list.
          * @throws {Error}
          */
-        validateProcess(process: Process): Promise<Array<ApiError>>;
+        validateProcess(process: Process): Promise<ValidationResult>;
         /**
          * Lists all user-defined processes of the authenticated user.
          *
@@ -2413,7 +2440,7 @@ declare module OpenEO {
         protected _getLinkHref(links: Array<Link>, rel: string | Array<string>): string | null;
         /**
          * Makes all links in the list absolute.
-         * 
+         *
          * @param {Array.<Link>} links - An array of links.
          * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
          * @returns {Array.<Link>}
@@ -2492,11 +2519,11 @@ declare module OpenEO {
         download(url: string, authorize: boolean): Promise<Readable | Blob>;
         /**
          * Get the authorization header for requests.
-         * 
+         *
          * @protected
          * @returns {object.<string, string>}
          */
-        protected _getAuthHeaders() : object<string, string>;
+        protected _getAuthHeaders(): object<string, string>;
         /**
          * Sends a HTTP request.
          *
@@ -2876,7 +2903,7 @@ declare module OpenEO {
      *
      * Adds two properties: `links` and `federation:missing`.
      */
-    export type ResponseArray = Array;
+    export type ResponseArray = any;
     export type ServiceType = object<string, any>;
     export type SyncResult = {
         /**
@@ -2915,7 +2942,12 @@ declare module OpenEO {
         budget: number | null;
         links: Array<Link> | null;
     };
-
+    /**
+     * An array, but enriched with additional details from an openEO API response.
+     *
+     * Adds the property `federation:backends`.
+     */
+    export type ValidationResult = any;
 }
 
 export = OpenEO;

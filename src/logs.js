@@ -18,9 +18,26 @@ class Logs {
 		 * @type {Connection}
 		 */
 		this.connection = connection;
+		/**
+		 * @protected
+		 * @type {string}
+		 */
 		this.endpoint = endpoint;
+		/**
+		 * @protected
+		 * @type {string}
+		 */
 		this.lastId = "";
+		/**
+		 * @protected
+		 * @type {?string}
+		 */
 		this.level = level;
+		/**
+		 * @protected
+		 * @type {Set<String>}
+		 */
+		this.missing = new Set();
 	}
 
 	/**
@@ -35,6 +52,19 @@ class Logs {
 	async nextLogs(limit = null) {
 		let response = await this.next(limit);
 		return Array.isArray(response.logs) ? response.logs : [];
+	}
+
+	/**
+	 * Retrieves the backend identifiers that are (partially) missing in the logs.
+	 * 
+	 * This is only filled after the first request using `nextLogs` or `next`.
+	 * 
+	 * @returns {Array.<string>}
+	 * @see {Logs#nextLogs}
+	 * @see {Logs#next}
+	 */
+	getMissingBackends() {
+		return Array.from(this.missing);
 	}
 
 	/**
@@ -64,7 +94,13 @@ class Logs {
 		else {
 			response.data.logs = [];
 		}
+
 		response.data.links = Array.isArray(response.data.links) ? response.data.links : [];
+
+		if (Array.isArray(response.data["federation:missing"])) {
+			response.data["federation:missing"].forEach(backend => this.missing.add(backend));
+		}
+
 		return response.data;
 	}
 

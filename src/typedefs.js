@@ -199,7 +199,7 @@
  * An array of backends in the federation.
  * 
  * @typedef FederationBackend
- * @type {Object}
+ * @type {object}
  * @property {string} url URL to the versioned API endpoint of the back-end.
  * @property {string} title Name of the back-end.
  * @property {string} description A description of the back-end and its specifics.
@@ -257,4 +257,15 @@
  * @property {?UserAccountStorage} storage
  * @property {?number} budget
  * @property {?Array.<Link>} links
+ */
+
+/**
+ * An array, but enriched with additional details from an openEO API response.
+ * 
+ * Adds the property `federation:backends`.
+ * 
+ * @typedef ValidationResult
+ * @augments Array
+ * @type {Array.<ApiError>}
+ * @property {Array.<string>} ["federation:backends"] The back-ends that support / do not support the process.
  */
