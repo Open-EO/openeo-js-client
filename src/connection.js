@@ -221,6 +221,7 @@ class Connection {
 	 * List all collections available on the back-end.
 	 * 
 	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
+	 * This function adds a self link to the response if not present.
 	 * 
 	 * @async
 	 * @returns {Promise<Collections>} A response compatible to the API specification.
@@ -234,7 +235,8 @@ class Connection {
 	/**
 	 * Paginate through the collections available on the back-end.
 	 * 
-	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
+	 * The collections returned always complies to the latest STAC version (currently 1.0.0).
+	 * This function adds a self link to the response if not present.
 	 * 
 	 * @async
 	 * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
@@ -256,7 +258,7 @@ class Connection {
 					return collection;
 				});
 			}
-			yield response.data;
+			yield this._addSelfLink(response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -369,6 +371,8 @@ class Connection {
 	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
 	 * The namespaces are then listed in the property `namespaces`.
 	 * 
+	 * This function adds a self link to the response if not present.
+	 * 
 	 * @async
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Promise<Processes>} - A response compatible to the API specification.
@@ -387,6 +391,8 @@ class Connection {
 	 * 
 	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
 	 * The namespaces are then listed in the property `namespaces`.
+	 * 
+	 * This function adds a self link to the response if not present.
 	 * 
 	 * @async
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
@@ -416,7 +422,7 @@ class Connection {
 				response.data.processes[i] = this.processes.get(response.data.processes[i].id, namespace);
 			}
 			
-			yield response.data;
+			yield this._addSelfLink(response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -713,7 +719,7 @@ class Connection {
 			const files = response.data.files.map(
 				f => new UserFile(this, f.path).setAll(f)
 			);
-			yield this._toResponseArray(files, response.data);
+			yield this._toResponseArray(files, response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -854,7 +860,7 @@ class Connection {
 			const jsonProcesses = oldProcesses.length > 0 ? newProcesses.map(p => p.toJSON()) : response.data.processes;
 			this.processes.addAll(jsonProcesses, 'user');
 
-			yield this._toResponseArray(newProcesses, response.data);
+			yield this._toResponseArray(newProcesses, response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -1004,7 +1010,7 @@ class Connection {
 				}
 				return job.setAll(newJob);
 			});
-			yield this._toResponseArray(newJobs, response.data);
+			yield this._toResponseArray(newJobs, response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -1092,7 +1098,7 @@ class Connection {
 				}
 				return service.setAll(newService);
 			});
-			yield this._toResponseArray(newServices, response.data);
+			yield this._toResponseArray(newServices, response.data, nextUrl);
 			nextUrl = this._getNextLink(response);
 		} while (nextUrl);
 	}
@@ -1157,9 +1163,11 @@ class Connection {
 	 * @protected
 	 * @param {Array.<*>} arr 
 	 * @param {object.<string, *>} response 
+	 * @param {string} selfUrl 
 	 * @returns {ResponseArray}
 	 */
-	_toResponseArray(arr, response) {
+	_toResponseArray(arr, response, selfUrl) {
+		arr.url = selfUrl;
 		arr.links = Array.isArray(response.links) ? response.links : [];
 		arr['federation:missing'] = Array.isArray(response['federation:missing']) ? response['federation:missing'] : [];
 		return arr;
@@ -1197,6 +1205,27 @@ class Connection {
 	_getNextLink(response) {
 		const links = this.makeLinksAbsolute(response.data.links, response);
 		return this._getLinkHref(links, 'next');
+	}
+
+	/**
+	 * Add a self link to the response if not present.
+	 * 
+	 * @param {object} data - The body of the response as an object.
+	 * @param {string} selfUrl - The URL of the current request.
+	 * @returns {object} The modified object.
+	 */
+	_addSelfLink(data, selfUrl) {
+		if (!Utils.isObject(data)) {
+			return data;
+		}
+		if (!Array.isArray(data.links)) {
+			data.links = [];
+		}
+		const selfLink = data.links.find(l => Utils.isObject(l) && l.rel === 'self');
+		if (!selfLink) {
+			data.links.push({rel: 'self', href: selfUrl});
+		}
+		return data;
 	}
 
 	/**
