@@ -198,6 +198,14 @@ declare module OpenEO {
      */
     export class Environment {
         /**
+         * The axios instance to use for HTTP requests.
+         *
+         * 
+         * @type {object}
+         * @static
+         */
+        static axios: object;
+        /**
          * Returns the name of the Environment, `Node` or `Browser`.
          *
          * @returns {string}
@@ -829,7 +837,7 @@ declare module OpenEO {
         protected level: string | null;
         /**
          * @protected
-         * @type {Set<String>}
+         * @type {Set<string>}
          */
         protected missing: Set<string>;
         /**

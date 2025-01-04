@@ -1,6 +1,16 @@
+let Environment = null;
 if (typeof window === 'undefined') {
-	module.exports = require('./node');
+	Environment = require('./node');
 }
 else {
-	module.exports = require('./browser');
+	Environment = require('./browser');
 }
+/**
+ * The axios instance to use for HTTP requests.
+ * 
+ * @type {object}
+ * @static
+ */
+Environment.axios = require('axios');
+
+module.exports = Environment;
