@@ -213,12 +213,11 @@
 /**
  * An array, but enriched with additional details from an openEO API response.
  * 
- * Adds three properties: `url`, `links` and `federation:missing`.
+ * Adds three properties: `links` and `federation:missing`.
  * 
  * @typedef ResponseArray
  * @augments Array
  * @type {Array.<*>}
- * @property {string} url The URL from which the data was requested.
  * @property {Array.<Link>} links A list of related links.
  * @property {Array.<string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
  */

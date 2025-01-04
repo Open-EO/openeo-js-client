@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `paginateFiles`
   - `paginateUserProcesses`
   - `paginateServices`
+- The client may add a self link to the links in responses
+
+### Changed
+
+- The `listCollectionItems` function in `Connection` was completely rewritten.
 
 ## [2.6.0] - 2024-07-11
 
