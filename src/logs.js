@@ -35,7 +35,7 @@ class Logs {
 		this.level = level;
 		/**
 		 * @protected
-		 * @type {Set<String>}
+		 * @type {Set<string>}
 		 */
 		this.missing = new Set();
 	}
