@@ -213,7 +213,7 @@
 /**
  * An array, but enriched with additional details from an openEO API response.
  * 
- * Adds two properties: `links` and `federation:missing`.
+ * Adds three properties: `links` and `federation:missing`.
  * 
  * @typedef ResponseArray
  * @augments Array
