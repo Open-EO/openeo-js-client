@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2025-01-04
+
 ### Added
 
 - New function `getMissingBackends` for `Logs`
 - New property `federation:backends` added to the array returned by `validateProcess`
+- New property `axios` in the `Environment`
 - New functions in `Connection` for paginating through lists:
   - `paginateProcesses`
   - `paginateCollections`
@@ -18,11 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `paginateFiles`
   - `paginateUserProcesses`
   - `paginateServices`
-- The client may add a self link to the links in responses
 
 ### Changed
 
 - The `listCollectionItems` function in `Connection` was completely rewritten.
+- The client may add a self link to the links in responses
 
 ## [2.6.0] - 2024-07-11
 
@@ -235,7 +238,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.5.1...v2.6.0
 [2.5.1]: https://github.com/Open-EO/openeo-js-client/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.4.1...v2.5.0
