@@ -292,7 +292,7 @@ describe('GEE back-end', () => {
 			expect(pgs).not.toBeNull();
 			expect(pgs).toHaveLength(0);
 			expect(pgs instanceof Array).toBeTruthy();
-			expect(pgs.links).toEqual([]);
+			expect(pgs.links).toHaveLength(1);
 			expect(pgs['federation:missing']).toEqual([]);
 		});
 
@@ -427,7 +427,7 @@ describe('GEE back-end', () => {
 			expect(jobs).not.toBeNull();
 			expect(jobs).toHaveLength(0);
 			expect(jobs instanceof Array).toBeTruthy();
-			expect(jobs.links).toEqual([]);
+			expect(jobs.links).toHaveLength(1);
 			expect(jobs['federation:missing']).toEqual([]);
 		});
 
@@ -587,7 +587,7 @@ describe('GEE back-end', () => {
 			expect(svcs).not.toBeNull();
 			expect(svcs).toHaveLength(0);
 			expect(svcs instanceof Array).toBeTruthy();
-			expect(svcs.links).toEqual([]);
+			expect(svcs.links).toHaveLength(1);
 			expect(svcs['federation:missing']).toEqual([]);
 		});
 
@@ -670,7 +670,7 @@ describe('GEE back-end', () => {
 			expect(files).not.toBeNull();
 			expect(files).toHaveLength(0);
 			expect(files instanceof Array).toBeTruthy();
-			expect(files.links).toEqual([]);
+			expect(files.links).toHaveLength(1);
 			expect(files['federation:missing']).toEqual([]);
 		});
 
