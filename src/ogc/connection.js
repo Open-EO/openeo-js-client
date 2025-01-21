@@ -42,9 +42,9 @@ class OgcConnection extends Connection {
 			if (Array.isArray(spec.jobControlOptions) && spec.jobControlOptions.includes("async-execute")) {
 				mode = 'async';
 			}
-			return Boolean(spec && spec.ogcapi);
+			return Boolean(spec/* && spec.ogcapi*/);
 		});
-		let requestBody = Migrate.executeSync(openEO);
+		let requestBody = Migrate.executeSync(this, openEO);
 		let headers = {};
 		if (mode === 'async') {
 			headers.Prefer = 'respond-async';

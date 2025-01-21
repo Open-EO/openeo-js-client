@@ -161,20 +161,21 @@ class OgcMigrate {
    * Executes an OGC API process synchronously.
    * 
    * @todo Check whether implementation still works
+   * @param {Connection} connection 
    * @param {object} requestBody
    * @returns {object}
    */
-  static executeSync(requestBody) {
+  static executeSync(connection, requestBody) {
     const graph = Object.values(requestBody.process.process_graph);
     const valid = graph.every(node => {
-      let spec = OgcMigrate.connection.processes.get(node.process_id);
+      let spec = connection.processes.get(node.process_id);
       return Boolean(spec && (spec.ogcapi || spec.id === 'load_collection'));
     });
     if (!valid) {
 			throw new Error('Process must consist only of OGC Processes and Collections');
     }
 
-    const parser = new PgParser(requestBody.process, OgcMigrate.connection.getBaseUrl());
+    const parser = new PgParser(requestBody.process, connection.getBaseUrl());
     return parser.parse();
   }
 
