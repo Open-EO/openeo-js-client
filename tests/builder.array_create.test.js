@@ -1,7 +1,7 @@
 // @ts-nocheck
 describe('Process Graph Builder (array_create)', () => {
 
-	const { Builder } = require('../src/openeo');
+	const { Builder } = require('../src/client');
 	const expectedProcess = require('./data/builder.array_create.example.json');
 	const array_create = {
 		"id": "array_create",
