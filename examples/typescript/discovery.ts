@@ -1,14 +1,14 @@
-// import the JS client main part (OpenEO) for the actual functionality
+// import the JS client main part (Client) for the actual functionality
 // and some classes (Connection, Capabilities) and types (Collections, Processes) for TypeScript stuff
-import { OpenEO, Connection, Capabilities, Collections, Processes } from '@openeo/js-client';
+import { Client, Connection, Capabilities, Collections, Processes } from '@openeo/js-client';
 
 let url: string = "https://earthengine.openeo.org";   // Insert the openEO server URL here
 let connection: Connection = null;   // Reserve a variable for the connection and specify its type
 
 console.log('URL: ' + url);
-console.log('Client Version: ' + OpenEO.clientVersion());
+console.log('Client Version: ' + Client.clientVersion());
 
-OpenEO.connect(url)
+Client.connect(url)
 .then((c: Connection): Capabilities => {   // specify parameter type and return type
 	connection = c;
 	return connection.capabilities();

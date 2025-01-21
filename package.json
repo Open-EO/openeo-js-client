@@ -1,6 +1,6 @@
 {
   "name": "@openeo/js-client",
-  "version": "2.9.0",
+  "version": "3.0.0-alpha.1",
   "author": "openEO Consortium",
   "contributors": [
     {
@@ -27,12 +27,12 @@
     "type": "github",
     "url": "https://github.com/sponsors/m-mohr"
   },
-  "main": "src/openeo.js",
-  "types": "openeo.d.ts",
+  "main": "src/client.js",
+  "types": "client.d.ts",
   "files": [
-    "openeo.js",
-    "openeo.d.ts",
-    "openeo.min.js",
+    "client.js",
+    "client.d.ts",
+    "client.min.js",
     "src/*"
   ],
   "devDependencies": {

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Class `OpenEO` renamed to `Client` (i.e. use `Client.connect` instead of `OpenEO.connect`)
+- Moved `makeLinksAbsolute` and `getLinKHref` to `Utils` class
+
 ## [2.9.0] - 2025-08-22
 
 ### Added

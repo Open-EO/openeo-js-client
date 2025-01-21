@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/client.min.js"></script>
   <script type="text/javascript">
     const BACKEND = "https://example.openeo.org"; // TODO: Set the back-end to authenticate against
     const CLIENT_ID = ""; // TODO: Set the client id
@@ -20,7 +20,7 @@
 
       try {
         // Connect to the back-end
-        con = await OpenEO.connect(BACKEND);
+        con = await Client.connect(BACKEND);
 
         // Show whether OIDC is supported by the back-end
         var capabilities = con.capabilities();
