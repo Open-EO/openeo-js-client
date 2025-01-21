@@ -1,5 +1,5 @@
 const Environment = require('./env');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
 const axios = require('axios');
 const StacMigrate = require('@radiantearth/stac-migrate');
@@ -8,7 +8,6 @@ const AuthProvider = require('./authprovider');
 const BasicProvider = require('./basicprovider');
 const OidcProvider = require('./oidcprovider');
 
-const Capabilities = require('./capabilities');
 const FileTypes = require('./filetypes');
 const UserFile = require('./userfile');
 const Job = require('./job');
@@ -19,13 +18,8 @@ const Builder = require('./builder/builder');
 const BuilderNode = require('./builder/node');
 const { CollectionPages, ItemPages, JobPages, ProcessPages, ServicePages, UserFilePages } = require('./pages');
 
-const CONFORMANCE_RELS = [
-	'conformance',
-	'http://www.opengis.net/def/rel/ogc/1.0/conformance'
-];
-
 /**
- * A connection to a back-end.
+ * A connection to an openEO back-end.
  */
 class Connection {
 
@@ -96,33 +90,6 @@ class Connection {
 		 */
 		this.processes = new ProcessRegistry([], Boolean(options.addNamespaceToProcess));
 		this.processes.listeners.push((...args) => this.emit('processesChanged', ...args));
-	}
-
-	/**
-	 * Initializes the connection by requesting the capabilities.
-	 * 
-	 * @async
-	 * @protected
-	 * @returns {Promise<Capabilities>} Capabilities
-	 * @throws {Error}
-	 */
-	async init() {
-		const response = await this._get('/');
-		const data = Object.assign({}, response.data);
-		data.links = this.makeLinksAbsolute(data.links, response);
-
-		if (!Array.isArray(data.conformsTo) && Array.isArray(data.links)) {
-			const conformanceLink = this._getLinkHref(data.links, CONFORMANCE_RELS);
-			if (conformanceLink) {
-				const response2 = await this._get(conformanceLink);
-				if (Utils.isObject(response2.data) && Array.isArray(response2.data.conformsTo)) {
-					data.conformsTo = response2.data.conformsTo;
-				}
-			}
-		}
-
-		this.capabilitiesObject = new Capabilities(data);
-		return this.capabilitiesObject;
 	}
 
 	/**
@@ -798,19 +765,14 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {Process} process - A user-defined process.
-	 * @param {?string} [plan=null] - The billing plan to use for this computation.
-	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for processing, e.g. `plan`, `budget`, and `log_level`.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
-	async computeResult(process, plan = null, budget = null, abortController = null, additional = {}) {
+	async computeResult(process, abortController = null, additional = {}) {
 		const requestBody = this._normalizeUserProcess(
 			process,
-			Object.assign({}, additional, {
-				plan: plan,
-				budget: budget
-			})
+			Object.assign({}, additional)
 		);
 		const response = await this._post('/result', requestBody, Environment.getResponseType(), abortController);
 		const syncResult = {
@@ -861,13 +823,12 @@ class Connection {
 	 * @async
 	 * @param {Process} process - A user-defined process.
 	 * @param {string} targetPath - The target, see method description for details.
-	 * @param {?string} [plan=null] - The billing plan to use for this computation.
-	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for processing, e.g. `plan`, `budget`, and `log_level`.
 	 * @throws {Error}
 	 */
-	async downloadResult(process, targetPath, plan = null, budget = null, abortController = null) {
-		const response = await this.computeResult(process, plan, budget, abortController);
+	async downloadResult(process, targetPath, abortController = null, additional = {}) {
+		const response = await this.computeResult(process, abortController, additional);
 		// @ts-ignore
 		await Environment.saveToFile(response.data, targetPath);
 	}
@@ -903,18 +864,14 @@ class Connection {
 	 * @param {Process} process - A user-define process to execute.
 	 * @param {?string} [title=null] - A title for the batch job.
 	 * @param {?string} [description=null] - A description for the batch job.
-	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
-	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `plan`, `budget`, and `log_level`.
 	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
-	async createJob(process, title = null, description = null, plan = null, budget = null, additional = {}) {
+	async createJob(process, title = null, description = null, additional = {}) {
 		additional = Object.assign({}, additional, {
 			title: title,
-			description: description,
-			plan: plan,
-			budget: budget
+			description: description
 		});
 		const requestBody = this._normalizeUserProcess(process, additional);
 		const response = await this._post('/jobs', requestBody);
@@ -976,21 +933,17 @@ class Connection {
 	 * @param {?string} [description=null] - A description for the service.
 	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
 	 * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
-	 * @param {?string} [plan=null] - The billing plan to use for this service.
-	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
+	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the web service, e.g. `plan`, `budget`, and `log_level`.
 	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */
-	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, plan = null, budget = null, additional = {}) {
+	async createService(process, type, title = null, description = null, enabled = true, configuration = {}, additional = {}) {
 		const requestBody = this._normalizeUserProcess(process, Object.assign({
 			title: title,
 			description: description,
 			type: type,
 			enabled: enabled,
 			configuration: configuration,
-			plan: plan,
-			budget: budget
 		}, additional));
 		const response = await this._post('/services', requestBody);
 		if (typeof response.headers['openeo-identifier'] !== 'string') {
@@ -1019,62 +972,19 @@ class Connection {
 	}
 
 	/**
-	 * Get the a link with the given rel type.
+	 * Adds additional response details to the array.
+	 * 
+	 * Adds links and federation:missing.
 	 * 
 	 * @protected
-	 * @param {Array.<Link>} links - An array of links.
-	 * @param {string|Array.<string>} rel - Relation type(s) to find.
-	 * @returns {string | null}
-	 * @throws {Error}
+	 * @param {Array.<*>} arr 
+	 * @param {object.<string, *>} response 
+	 * @returns {ResponseArray}
 	 */
-	_getLinkHref(links, rel) {
-		if (!Array.isArray(rel)) {
-			rel = [rel];
-		}
-		if (Array.isArray(links)) {
-			const link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string');
-			if (link) {
-				return link.href;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Makes all links in the list absolute.
-	 * 
-	 * @param {Array.<Link>} links - An array of links.
-	 * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
-	 * @returns {Array.<Link>}
-	 */
-	makeLinksAbsolute(links, base = null) {
-		if (!Array.isArray(links)) {
-			return links;
-		}
-		let baseUrl = null;
-		if (Utils.isObject(base) && base.headers && base.config && base.request) { // AxiosResponse
-			baseUrl = base.config.baseURL + base.config.url;
-		}
-		else if (typeof base !== 'string') {
-			baseUrl = this._getLinkHref(links, 'self');
-		}
-		else {
-			baseUrl = base;
-		}
-		if (!baseUrl) {
-			return links;
-		}
-		return links.map((link) => {
-			if (!Utils.isObject(link) || typeof link.href !== 'string') {
-				return link;
-			}
-			try {
-				const url = new URL(link.href, baseUrl);
-				return Object.assign({}, link, {href: url.toString()});
-			} catch(error) {
-				return link;
-			}
-		});
+	_toResponseArray(arr, response) {
+		arr.links = Array.isArray(response.links) ? response.links : [];
+		arr['federation:missing'] = Array.isArray(response['federation:missing']) ? response['federation:missing'] : [];
+		return arr;
 	}
 
 	/**
@@ -1111,16 +1021,18 @@ class Connection {
 	 * @param {*} body 
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
+	 * @param {Array.<object.<string, string>>} [headers={}] - Headers
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 * @see https://github.com/axios/axios#request-config
 	 */
-	async _post(path, body, responseType, abortController = null) {
+	async _post(path, body, responseType, abortController = null, headers = {}) {
 		const options = {
 			method: 'post',
-			responseType: responseType,
+			responseType,
 			url: path,
-			data: body
+			data: body,
+			headers
 		};
 		return await this._send(options, abortController);
 	}
@@ -1248,10 +1160,7 @@ class Connection {
 
 		try {
 			let response = await axios(options);
-			const capabilities = this.capabilities();
-			if (capabilities) {
-				response = capabilities.migrate(response);
-			}
+			response = this._migrate(response);
 			return response;
 		} catch(error) {
 			if (axios.isCancel(error)) {
@@ -1284,6 +1193,18 @@ class Connection {
 			}
 			throw error;
 		}
+	}
+
+	/**
+	 * Applies some common migrations to the response.
+	 * 
+	 * For example to update between versions or API flavours.
+	 * 
+	 * @param {AxiosResponse} response 
+	 * @returns {AxiosResponse}
+	 */
+	_migrate(response) {
+		return response;
 	}
 }
 

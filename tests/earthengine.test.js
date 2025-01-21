@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo');
+const { Client, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/client');
 const { Utils } = require('@openeo/js-commons');
 const waitForExpect = require("wait-for-expect");
 
@@ -18,22 +18,22 @@ describe('GEE back-end', () => {
 	const isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
-		return await OpenEO.connect(TESTBACKEND);
+		return await Client.connect(TESTBACKEND);
 	}
 
 	async function connectWithBasicAuth() {
-		let con = await OpenEO.connect(TESTBACKEND);
+		let con = await Client.connect(TESTBACKEND);
 		await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
 		return con;
 	}
 
 	describe('Connecting', () => {
 		test('Connect with wrong Server URL', async () => {
-			await expect(OpenEO.connect("http://invalid.openeo.org")).rejects.toThrow();
+			await expect(Client.connect("http://invalid.openeo.org")).rejects.toThrow();
 		});
 
 		test('Connect', async () => {
-			let con = await OpenEO.connect(TESTBACKEND);
+			let con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKEND);
@@ -43,7 +43,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('Connect directly to a known version via connect', async () => {
-			let con = await OpenEO.connect(TESTBACKENDDIRECT);
+			let con = await Client.connect(TESTBACKENDDIRECT);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
@@ -53,7 +53,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('Connect directly to a known version via connectDirect', async () => {
-			let con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
+			let con = await Client.connectDirect(TESTBACKENDDIRECT);
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);

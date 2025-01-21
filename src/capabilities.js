@@ -1,76 +1,15 @@
-const Utils = require('@openeo/js-commons/src/utils');
-
-const FEATURE_MAP = {
-	// Discovery
-	capabilities: true,
-	listFileTypes: 'get /file_formats',
-	listServiceTypes: 'get /service_types',
-	listUdfRuntimes: 'get /udf_runtimes',
-	// Collections
-	listCollections: 'get /collections',
-	describeCollection: 'get /collections/{}',
-	listCollectionItems: 'get /collections/{}/items',
-	describeCollectionItem: 'get /collections/{}/items/{}',
-	describeCollectionQueryables: 'get /collections/{}/queryables',
-	// Processes
-	listProcesses: 'get /processes',
-	describeProcess: 'get /processes',
-	// Auth / Account
-	listAuthProviders: true,
-	authenticateOIDC: 'get /credentials/oidc',
-	authenticateBasic: 'get /credentials/basic',
-	describeAccount: 'get /me',
-	// Files
-	listFiles: 'get /files',
-	getFile: 'get /files', // getFile is a virtual function and doesn't request an endpoint, but get /files should be available nevertheless.
-	uploadFile: 'put /files/{}',
-	downloadFile: 'get /files/{}',
-	deleteFile: 'delete /files/{}',
-	// User-Defined Processes
-	validateProcess: 'post /validation',
-	listUserProcesses: 'get /process_graphs',
-	describeUserProcess: 'get /process_graphs/{}',
-	getUserProcess: 'get /process_graphs/{}',
-	setUserProcess: 'put /process_graphs/{}',
-	replaceUserProcess: 'put /process_graphs/{}',
-	deleteUserProcess: 'delete /process_graphs/{}',
-	// Processing
-	computeResult: 'post /result',
-	listJobs: 'get /jobs',
-	createJob: 'post /jobs',
-	listServices: 'get /services',
-	createService: 'post /services',
-	getJob: 'get /jobs/{}',
-	describeJob: 'get /jobs/{}',
-	updateJob: 'patch /jobs/{}',
-	deleteJob: 'delete /jobs/{}',
-	estimateJob: 'get /jobs/{}/estimate',
-	debugJob: 'get /jobs/{}/logs',
-	startJob: 'post /jobs/{}/results',
-	stopJob: 'delete /jobs/{}/results',
-	listResults: 'get /jobs/{}/results',
-	downloadResults: 'get /jobs/{}/results',
-	// Web services
-	describeService: 'get /services/{}',
-	getService: 'get /services/{}',
-	updateService: 'patch /services/{}',
-	deleteService: 'delete /services/{}',
-	debugService: 'get /services/{}/logs',
-};
-
 /**
  * Capabilities of a back-end.
  */
 class Capabilities {
 
 	/**
-	 * Creates a new Capabilities object from an API-compatible JSON response.
+	 * Creates a new Capabilities object.
 	 * 
 	 * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
 	 * @throws {Error}
 	 */
 	constructor(data) {
-
 		/**
 		 * @private
 		 * @type {object.<string, *>}
@@ -82,51 +21,40 @@ class Capabilities {
 		 * @ignore
 		 * @type {object.<string, string>}
 		 */
-		this.featureMap = FEATURE_MAP;
+		this.featureMap = {
+			capabilities: true,
+			// Auth
+			listAuthProviders: true,
+			authenticateOIDC: 'get /credentials/oidc',
+			authenticateBasic: 'get /credentials/basic',
+			// Collections
+			listCollections: 'get /collections',
+			describeCollection: 'get /collections/{}',
+			listCollectionItems: 'get /collections/{}/items',
+			describeCollectionItem: 'get /collections/{}/items/{}',
+			describeCollectionQueryables: 'get /collections/{}/queryables',
+			// Processes
+			listProcesses: 'get /processes',
+			// Jobs
+			listJobs: 'get /jobs',
+			createJob: 'post /jobs',
+			getJob: 'get /jobs/{}',
+			describeJob: 'get /jobs/{}',
+			updateJob: 'patch /jobs/{}',
+			deleteJob: 'delete /jobs/{}',
+			estimateJob: 'get /jobs/{}/estimate',
+			debugJob: 'get /jobs/{}/logs',
+			startJob: 'post /jobs/{}/results',
+			stopJob: 'delete /jobs/{}/results',
+			listResults: 'get /jobs/{}/results',
+			downloadResults: 'get /jobs/{}/results',
+		};
 
 		/**
 		 * @private
 		 * @type {Array.<string>}
 		 */
 		this.features = [];
-
-		this.validate();
-		this.init();
-	}
-
-	/**
-	 * Validates the capabilities.
-	 * 
-	 * Throws an error in case of an issue, otherwise just passes.
-	 * 
-	 * @protected
-	 * @throws {Error}
-	 */
-	validate() {
-		if(!Utils.isObject(this.data)) {
-			throw new Error("No capabilities retrieved.");
-		}
-		else if(!this.data.api_version) {
-			throw new Error("Invalid capabilities: No API version retrieved");
-		}
-		else if(!Array.isArray(this.data.endpoints)) {
-			throw new Error("Invalid capabilities: No endpoints retrieved");
-		}
-	}
-
-	/**
-	 * Initializes the class.
-	 * 
-	 * @protected
-	 */
-	init() {
-		this.features = this.data.endpoints
-			// Flatten features and simplify variables to be compatible with the feature map.
-			.map(e => e.methods.map(method => {
-				const path = e.path.replace(/\{[^}]+\}/g, '{}');
-				return `${method} ${path}`.toLowerCase();
-			}))
-			.reduce((flat, next) => flat.concat(next), []); // .flat(1) once browser support for ECMAscript 10/2019 gets better
 	}
 
 	/**
@@ -139,13 +67,31 @@ class Capabilities {
 	}
 
 	/**
+	 * Returns the API type.
+	 * 
+	 * Either `openeo` or `ogcapi`.
+	 * 
+	 * @returns {string} API type
+	 */
+	apiType() {
+		return undefined;
+	}
+
+	/**
 	 * Returns the openEO API version implemented by the back-end.
 	 * 
 	 * @returns {string} openEO API version number.
 	 */
 	apiVersion() {
-		return this.data.api_version;
+		return undefined;
 	}
+
+	/**
+	 * Checks whether the back-end supports the required API version for this client.
+	 * 
+	 * @throws {Error} If the back-end does not support the required API version.
+	 */
+	checkVersion() {}
 
 	/**
 	 * Returns the back-end version number.
@@ -153,7 +99,7 @@ class Capabilities {
 	 * @returns {string} openEO back-end version number.
 	 */
 	backendVersion() {
-		return this.data.backend_version;
+		return undefined;
 	}
 
 	/**
@@ -180,7 +126,7 @@ class Capabilities {
 	 * @returns {boolean} true = stable/production, false = unstable
 	 */
 	isStable() {
-		return this.data.production === true;
+		return true;
 	}
 
 	/**
@@ -198,15 +144,7 @@ class Capabilities {
 	 * @returns {Array.<FederationBackend>} Array of backends
 	 */
 	listFederation() {
-		let federation = [];
-		if (Utils.isObject(this.data.federation)) {
-			// convert to array and add keys as `id` property
-			for(const [key, backend] of Object.entries(this.data.federation)) {
-				// fresh object to avoid `id` showing up in this.data.federation
-				federation.push({ id: key, ...backend });
-			}
-		}
-		return federation;
+		return [];
 	}
 
 	/**
@@ -215,10 +153,8 @@ class Capabilities {
 	 * @param {string} backendId - The ID of a backend within the federation
 	 * @returns {FederationBackend} The full details of the backend
 	 */
-	getFederationBackend(backendId) {
-		// Add `id` property to make it a proper FederationBackend object
-		// If backendId doesn't exist in this.data.federation, will contain just the `id` field (intended behaviour)
-		return { id: backendId, ...this.data.federation[backendId] }
+	getFederationBackend(/*backendId*/) {
+		return {};
 	}
 
 	/**
@@ -254,6 +190,9 @@ class Capabilities {
 	 * @returns {boolean} `true` if the feature is supported, otherwise `false`.
 	 */
 	hasFeature(methodName) {
+		if (!(methodName in this.featureMap)) {
+			return false;
+		}
 		let feature = this.featureMap[methodName];
 		if (typeof feature === 'string') {
 			feature = feature.toLowerCase();
@@ -262,12 +201,45 @@ class Capabilities {
 	}
 
 	/**
+	 * Returns the conformance classes.
+	 * 
+	 * @returns {Array.<string>} An array of supported features.
+	 */
+	getConformanceClasses() {
+		if(!Array.isArray(this.data.conformsTo)) {
+			return [];
+		}
+		return this.data.conformsTo;
+	}
+
+	/**
+	 * Check whether a conformance class is supported by the back-end.
+	 * 
+	 * @param {string|Array.<string>} uris - Conformance class URI(s) - one of must match.
+	 * @returns {boolean} `true` if the conformance class is supported, otherwise `false`.
+	 */
+	hasConformance(uris) {
+		if(!Array.isArray(this.data.conformsTo)) {
+			return false;
+		}
+		if (typeof uris === 'string') {
+			return this.data.conformsTo.includes(uris);
+		}
+		else if (Array.isArray(uris)) {
+			return uris.some(uri => this.data.conformsTo.includes(uri));
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
 	 * Get the billing currency.
 	 * 
 	 * @returns {string | null} The billing currency or `null` if not available.
 	 */
 	currency() {
-		return (Utils.isObject(this.data.billing) && typeof this.data.billing.currency === 'string' ? this.data.billing.currency : null);
+		return null;
 	}
 
 	/**
@@ -276,30 +248,9 @@ class Capabilities {
 	 * @returns {Array.<BillingPlan>} Billing plans
 	 */
 	listPlans() {
-		if (Utils.isObject(this.data.billing) && Array.isArray(this.data.billing.plans)) {
-			let defaultPlan = typeof this.data.billing.default_plan === 'string' ? this.data.billing.default_plan.toLowerCase() : null;
-			return this.data.billing.plans.map(plan => {
-				let addition = {
-					default: (defaultPlan === plan.name.toLowerCase())
-				};
-				return Object.assign({}, plan, addition);
-			});
-		}
-		else {
-			return [];
-		}
+		return [];
 	}
 
-	/**
-	 * Migrates a response, if required.
-	 * 
-	 * @param {AxiosResponse} response 
-	 * @protected
-	 * @returns {AxiosResponse}
-	 */
-	migrate(response) { // eslint-disable-line no-unused-vars
-		return response;
-	}
 }
 
 module.exports = Capabilities;
