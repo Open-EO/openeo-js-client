@@ -4,7 +4,7 @@ const Job = require('./job.js');
 const Service = require('./service.js');
 const UserFile = require('./userfile.js');
 const UserProcess = require('./userprocess.js');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils.js');
 const StacMigrate = require('@radiantearth/stac-migrate');
 
 const FED_MISSING = 'federation:missing';
@@ -85,7 +85,7 @@ class Pages {
 
     // Add self link if missing
     data.links = this._ensureArray(data.links);
-    const selfLink = this.connection._getLinkHref(data.links, 'self');
+    const selfLink = Utils.getLinkHref(data.links, 'self');
     if (!selfLink) {
       data.links.push({rel: 'self', href: this.nextUrl});
     }
@@ -155,8 +155,8 @@ class Pages {
    * @returns {string | null}
    */
   _getNextLink(response) {
-    const links = this.connection.makeLinksAbsolute(response.data.links, response);
-    return this.connection._getLinkHref(links, 'next');
+    const links = Utils.makeLinksAbsolute(response.data.links, response);
+    return Utils.getLinkHref(links, 'next');
   }
   
   /**
