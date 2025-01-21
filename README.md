@@ -21,7 +21,7 @@ To use it in a browser environment simply add the following code to your HTML fi
 <script src="https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
 <script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script> <!-- Only required if you have checksums in the STAC metadata -->
-<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@3/client.min.js"></script>
 ```
 
 ### NodeJS
@@ -30,7 +30,7 @@ To install it in a NodeJS environment run:
 `npm install @openeo/js-client`
 
 Afterwards, you can import the package:
-`const { OpenEO } = require('@openeo/js-client');`
+`const { Client } = require('@openeo/js-client');`
 
 ### TypeScript
 
@@ -40,7 +40,7 @@ To install it in a TypeScript environment run:
 `npm install @openeo/js-client`
 
 Afterwards, you can import the package:
-`import { OpenEO } from '@openeo/js-client';`
+`import { Client } from '@openeo/js-client';`
 
 ### Examples
 
@@ -63,7 +63,7 @@ More information can be found in the [documentation](https://open-eo.github.io/o
 Always make sure to adapt changes in the *.js files to the openeo.d.ts file.
 If changes are larger you may want to run `npm run tsd` and regenerate the declaration file and cherry-pick your changes from there.
 
-Generate a build: `npm run build` (generates `openeo.js` and `openeo.min.js`)
+Generate a build: `npm run build` (generates `client.js` and `client.min.js`)
 
 Generate the documentation to the `docs/` folder: `npm run docs`
 

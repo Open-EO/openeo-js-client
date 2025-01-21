@@ -1,10 +1,10 @@
 // @ts-nocheck
-const { OpenEO, OidcProvider } = require('../src/openeo');
+const { Client, OidcProvider } = require('../src/client');
 const packageInfo = require('../package.json');
 
 describe('Client Basics', () => {
 	test('Check version number', () => {
-		expect(OpenEO.clientVersion()).toBe(packageInfo.version);
+		expect(Client.clientVersion()).toBe(packageInfo.version);
 	});
 
 	describe('OIDC', () => {
