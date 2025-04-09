@@ -2958,7 +2958,7 @@ declare module OpenEO {
      */
     export type Process = object<string, any>;
     /**
-     * An array of backends in the federation.
+     * A back-end in the federation.
      */
     export type FederationBackend = {
         /**
@@ -2997,7 +2997,7 @@ declare module OpenEO {
     /**
      * An array, but enriched with additional details from an openEO API response.
      *
-     * Adds three properties: `url`, `links` and `federation:missing`.
+     * Adds two properties: `links` and `federation:missing`.
      */
     export type ResponseArray = any;
     export type ServiceType = object<string, any>;
