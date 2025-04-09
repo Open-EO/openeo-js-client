@@ -196,7 +196,7 @@
  */
 
 /**
- * An array of backends in the federation.
+ * A backend in the federation.
  * 
  * @typedef FederationBackend
  * @type {object}

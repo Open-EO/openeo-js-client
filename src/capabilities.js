@@ -193,12 +193,12 @@ class Capabilities {
 	}
 
 	/**
-	 * Returns list of backends in the federation.
+	 * Returns the backends in the federation.
 	 * 
-	 * @returns {Array.<FederationBackend>} Array of backends
+	 * @returns {object.<string, FederationBackend>} A list of backends in the federation, given as an object with the backends' IDs as keys and their details as values.
 	 */
 	listFederation() {
-		return Array.isArray(this.data.federation) ? this.data.federation : [];
+		return Utils.isObject(this.data.federation) ? this.data.federation : {};
 	}
 
 	/**

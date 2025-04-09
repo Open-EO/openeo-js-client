@@ -408,7 +408,7 @@ declare module OpenEO {
          *
          * @returns {Array.<FederationBackend>} Array of backends
          */
-        listFederation(): Array<FederationBackend>;
+        listFederation(): object.<string, FederationBackend>;
         /**
          * Lists all supported features.
          *
@@ -2958,7 +2958,7 @@ declare module OpenEO {
      */
     export type Process = object<string, any>;
     /**
-     * An array of backends in the federation.
+     * A backend in the federation.
      */
     export type FederationBackend = {
         /**
