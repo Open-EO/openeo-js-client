@@ -198,7 +198,15 @@ class Capabilities {
 	 * @returns {Array.<FederationBackend>} Array of backends
 	 */
 	listFederation() {
-		return Array.isArray(this.data.federation) ? this.data.federation : [];
+		let federation = [];
+		if (Utils.isObject(this.data.federation)) {
+			// convert to array and add keys as `id` property
+			for(const [key, backend] of Object.entries(this.data.federation)) {
+				backend.id = key;
+				federation.push(backend);
+			}
+		}
+		return federation;
 	}
 
 	/**

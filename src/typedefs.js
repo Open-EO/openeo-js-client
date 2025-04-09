@@ -200,6 +200,7 @@
  * 
  * @typedef FederationBackend
  * @type {object}
+ * @property {string} id ID of the back-end within the federation.
  * @property {string} url URL to the versioned API endpoint of the back-end.
  * @property {string} title Name of the back-end.
  * @property {string} description A description of the back-end and its specifics.
