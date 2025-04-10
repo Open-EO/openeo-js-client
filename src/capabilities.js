@@ -202,8 +202,8 @@ class Capabilities {
 		if (Utils.isObject(this.data.federation)) {
 			// convert to array and add keys as `id` property
 			for(const [key, backend] of Object.entries(this.data.federation)) {
-				backend.id = key;
-				federation.push(backend);
+				// fresh object to avoid `id` showing up in this.data.federation
+				federation.push({ id: key, ...backend });
 			}
 		}
 		return federation;
