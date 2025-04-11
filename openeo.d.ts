@@ -410,6 +410,20 @@ declare module OpenEO {
          */
         listFederation(): Array<FederationBackend>;
         /**
+         * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object.
+         * 
+         * @param {string} backendId - The ID of a backend within the federation
+         * @returns {FederationBackend} The full details of the backend
+         */
+        getFederationBackend(backendId: string): FederationBackend;
+        /**
+         * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects.
+         * 
+         * @param {Array<string>} backendIds - The IDs of backends within the federation
+         * @returns {Array<FederationBackend>} An array in the same order as the input, containing for each position the full details of the backend
+         */
+        getFederationBackends(backendIds: Array<string>): Array<FederationBackend>;
+        /**
          * Lists all supported features.
          *
          * @returns {Array.<string>} An array of supported features.
@@ -2958,7 +2972,7 @@ declare module OpenEO {
      */
     export type Process = object<string, any>;
     /**
-     * An array of backends in the federation.
+     * A back-end in the federation.
      */
     export type FederationBackend = {
         /**
@@ -2997,7 +3011,7 @@ declare module OpenEO {
     /**
      * An array, but enriched with additional details from an openEO API response.
      *
-     * Adds three properties: `url`, `links` and `federation:missing`.
+     * Adds two properties: `links` and `federation:missing`.
      */
     export type ResponseArray = any;
     export type ServiceType = object<string, any>;

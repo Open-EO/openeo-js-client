@@ -198,7 +198,38 @@ class Capabilities {
 	 * @returns {Array.<FederationBackend>} Array of backends
 	 */
 	listFederation() {
-		return Array.isArray(this.data.federation) ? this.data.federation : [];
+		let federation = [];
+		if (Utils.isObject(this.data.federation)) {
+			// convert to array and add keys as `id` property
+			for(const [key, backend] of Object.entries(this.data.federation)) {
+				// fresh object to avoid `id` showing up in this.data.federation
+				federation.push({ id: key, ...backend });
+			}
+		}
+		return federation;
+	}
+
+	/**
+	 * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object.
+	 * 
+	 * @param {string} backendId - The ID of a backend within the federation
+	 * @returns {FederationBackend} The full details of the backend
+	 */
+	getFederationBackend(backendId) {
+		// Add `id` property to make it a proper FederationBackend object
+		// If backendId doesn't exist in this.data.federation, will contain just the `id` field (intended behaviour)
+		return { id: backendId, ...this.data.federation[backendId] }
+	}
+
+	/**
+	 * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects.
+	 * 
+	 * @param {Array<string>} backendIds - The IDs of backends within the federation
+	 * @returns {Array<FederationBackend>} An array in the same order as the input, containing for each position the full details of the backend
+	 */
+	getFederationBackends(backendIds) {
+		// Let 'single case' function do the work, but pass `this` so that `this.data.federation` can be accessed in the callback context
+		return backendIds.map(this.getFederationBackend, this);
 	}
 
 	/**

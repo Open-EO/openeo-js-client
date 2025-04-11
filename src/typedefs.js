@@ -196,14 +196,15 @@
  */
 
 /**
- * An array of backends in the federation.
+ * A back-end in the federation.
  * 
  * @typedef FederationBackend
  * @type {object}
+ * @property {string} id ID of the back-end within the federation.
  * @property {string} url URL to the versioned API endpoint of the back-end.
  * @property {string} title Name of the back-end.
  * @property {string} description A description of the back-end and its specifics.
- * @property {string} status Current status of the back-ends (online or offline).
+ * @property {string} status Current status of the back-end (online or offline).
  * @property {string} last_status_check The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
  * @property {string} last_successful_check If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
  * @property {boolean} experimental Declares the back-end to be experimental.
@@ -213,7 +214,7 @@
 /**
  * An array, but enriched with additional details from an openEO API response.
  * 
- * Adds three properties: `links` and `federation:missing`.
+ * Adds two properties: `links` and `federation:missing`.
  * 
  * @typedef ResponseArray
  * @augments Array

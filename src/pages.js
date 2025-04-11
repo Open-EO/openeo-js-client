@@ -21,7 +21,7 @@ class Pages {
    * @param {Connection} connection
    * @param {string} endpoint
    * @param {string} key
-   * @param {Constructor} cls
+   * @param {Constructor} cls - Class
    * @param {object} [params={}]
    * @param {string} primaryKey
    */
