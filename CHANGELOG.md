@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New property `id` added to `FederationBackend` objects returned by `listFederation` in `Capabilities`
-- New functions `getFederationBackendById` and `getFederationBackendsByIds` in `Capabilities`
+- New functions `getFederationBackend` and `getFederationBackends` in `Capabilities`
 
 ## [2.7.0] - 2025-01-04
 
