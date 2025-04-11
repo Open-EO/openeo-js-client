@@ -210,6 +210,28 @@ class Capabilities {
 	}
 
 	/**
+	 * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object
+	 * 
+	 * @param {string} backendId The ID of a backend within the federation
+	 * @returns {FederationBackend | undefined} The full details of the backend, or `undefined` if no backend with the given ID exists
+	 */
+	getFederationBackendById(backendId) {
+		// Add `id` property to make it a proper FederationBackend object, but check for undefined case beforehand
+		return this.data.federation[backendId] ? { id: backendId, ...this.data.federation[backendId] } : undefined;
+	}
+
+	/**
+	 * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects
+	 * 
+	 * @param {Array<string>} backendIds The IDs of backends within the federation
+	 * @returns {Array<FederationBackend | undefined>} An array in the same order as the input, containing for each position either the full details of the backend, or `undefined` if no backend with the given ID exists
+	 */
+	getFederationBackendsByIds(backendIds) {
+		// Let 'single case' function do the work, but pass `this` so that `this.data.federation` can be accessed in the callback context
+		return backendIds.map(this.getFederationBackendById, this);
+	}
+
+	/**
 	 * Lists all supported features.
 	 * 
 	 * @returns {Array.<string>} An array of supported features.

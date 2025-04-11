@@ -410,6 +410,20 @@ declare module OpenEO {
          */
         listFederation(): Array<FederationBackend>;
         /**
+         * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object
+         * 
+         * @param {string} backendId The ID of a backend within the federation
+         * @returns {FederationBackend} The full details of the backend, or `undefined` if no backend with the given ID exists
+         */
+        getFederationBackendById(backendId: string): FederationBackend | undefined;
+        /**
+         * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects
+         * 
+         * @param {Array<string>} backendIds The IDs of backends within the federation
+         * @returns {Array<FederationBackend>} An array in the same order as the input, containing for each position either the full details of the backend, or `undefined` if no backend with the given ID exists
+         */
+        getFederationBackendsByIds(backendIds: Array<string>): Array<FederationBackend | undefined>;
+        /**
          * Lists all supported features.
          *
          * @returns {Array.<string>} An array of supported features.
