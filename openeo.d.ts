@@ -3,6 +3,7 @@
 import { User, UserManager } from 'oidc-client';
 import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
+import axios from 'axios';
 
 declare module OpenEO {
     /**
@@ -204,7 +205,7 @@ declare module OpenEO {
          * @type {object}
          * @static
          */
-        static axios: object;
+        static axios: axios;
         /**
          * Returns the name of the Environment, `Node` or `Browser`.
          *
@@ -411,14 +412,14 @@ declare module OpenEO {
         listFederation(): Array<FederationBackend>;
         /**
          * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object.
-         * 
+         *
          * @param {string} backendId - The ID of a backend within the federation
          * @returns {FederationBackend} The full details of the backend
          */
         getFederationBackend(backendId: string): FederationBackend;
         /**
          * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects.
-         * 
+         *
          * @param {Array<string>} backendIds - The IDs of backends within the federation
          * @returns {Array<FederationBackend>} An array in the same order as the input, containing for each position the full details of the backend
          */
@@ -1902,6 +1903,158 @@ declare module OpenEO {
         generateId(prefix?: string): string;
     }
     /**
+     * A class to handle pagination of resources.
+     *
+     * @abstract
+     */
+    export class Pages {
+        /**
+         * Creates an instance of Pages.
+         *
+         * @param {Connection} connection
+         * @param {string} endpoint
+         * @param {string} key
+         * @param {Constructor} cls - Class
+         * @param {object} [params={}]
+         * @param {string} primaryKey
+         */
+        constructor(connection: Connection, endpoint: string, key: string, cls: Constructor, params?: object, primaryKey?: string);
+        connection: Connection;
+        nextUrl: string;
+        key: string;
+        primaryKey: string;
+        cls: Constructor;
+        params: any;
+        /**
+         * Returns true if there are more pages to fetch.
+         *
+         * @returns {boolean}
+         */
+        hasNextPage(): boolean;
+        /**
+         * Returns the next page of resources.
+         *
+         * @async
+         * @param {Array.<object>} oldObjects - Existing objects to update, if any.
+         * @param {boolean} [toArray=true] - Whether to return the objects as a simplified array or as an object with all information.
+         * @returns {Array.<object>}
+         * @throws {Error}
+         */
+        nextPage(oldObjects?: Array<object>, toArray?: boolean): Array<object>;
+        /**
+         * Ensures a variable is an array.
+         *
+         * @protected
+         * @param {*} x
+         * @returns {Array}
+         */
+        protected _ensureArray(x: any): any[];
+        /**
+         * Creates a facade for the object, if needed.
+         *
+         * @protected
+         * @param {object} obj
+         * @returns {object}
+         */
+        protected _createObject(obj: object): object;
+        /**
+         * Caches the plain objects if needed.
+         *
+         * @param {Array.<object>} objects
+         * @returns {Array.<object>}
+         */
+        _cache(objects: Array<object>): Array<object>;
+        /**
+         * Get the URL of the next page from a response.
+         *
+         * @protected
+         * @param {AxiosResponse} response
+         * @returns {string | null}
+         */
+        protected _getNextLink(response: AxiosResponse): string | null;
+        /**
+         * Makes this class asynchronously iterable.
+         *
+         * @returns {AsyncIterator}
+         */
+        [Symbol.asyncIterator](): AsyncIterator<any, any, any>;
+    }
+    /**
+     * Paginate through collections.
+     */
+    export class CollectionPages extends Pages {
+        /**
+         * Paginate through collections.
+         *
+         * @param {Connection} connection
+         * @param {?number} limit
+         */
+        constructor(connection: Connection, limit?: number | null);
+    }
+    /**
+     * Paginate through collection items.
+     */
+    export class ItemPages extends Pages {
+        /**
+         * Paginate through collection items.
+         *
+         * @param {Connection} connection
+         * @param {string} collectionId
+         * @param {object} params
+         */
+        constructor(connection: Connection, collectionId: string, params: object);
+    }
+    /**
+     * Paginate through jobs.
+     */
+    export class JobPages extends Pages {
+        /**
+         * Paginate through jobs.
+         *
+         * @param {Connection} connection
+         * @param {?number} limit
+         */
+        constructor(connection: Connection, limit?: number | null);
+    }
+    /**
+     * Paginate through processes.
+     */
+    export class ProcessPages extends Pages {
+        /**
+         * Paginate through processes.
+         *
+         * @param {Connection} connection
+         * @param {?number} limit
+         * @param {?string} namespace
+         */
+        constructor(connection: Connection, limit?: number | null, namespace?: string | null);
+        namespace: string;
+    }
+    /**
+     * Paginate through services.
+     */
+    export class ServicePages extends Pages {
+        /**
+         * Paginate through services.
+         *
+         * @param {Connection} connection
+         * @param {?number} limit
+         */
+        constructor(connection: Connection, limit?: number | null);
+    }
+    /**
+     * Paginate through user files.
+     */
+    export class UserFilePages extends Pages {
+        /**
+         * Paginate through user files.
+         *
+         * @param {Connection} connection
+         * @param {?number} limit
+         */
+        constructor(connection: Connection, limit?: number | null);
+    }
+    /**
      * A connection to a back-end.
      */
     export class Connection {
@@ -2044,15 +2197,12 @@ declare module OpenEO {
         /**
          * Paginate through the collections available on the back-end.
          *
-         * The collections returned always complies to the latest STAC version (currently 1.0.0).
-         * This function adds a self link to the response if not present.
+         * The collections returned always comply to the latest STAC version (currently 1.0.0).
          *
-         * @async
          * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
-         * @yields {Promise<Collections>} A response compatible to the API specification.
-         * @throws {Error}
+         * @returns {CollectionPages} A paged list of collections.
          */
-        paginateCollections(limit?: number | null): AsyncGenerator<any, void, unknown>;
+        paginateCollections(limit?: number | null): CollectionPages;
         /**
          * Get further information about a single collection.
          *
@@ -2065,7 +2215,7 @@ declare module OpenEO {
          */
         describeCollection(collectionId: string): Promise<Collection>;
         /**
-         * Loads items for a specific image collection.
+         * Paginate through items for a specific collection.
          *
          * May not be available for all collections.
          *
@@ -2083,10 +2233,10 @@ declare module OpenEO {
          * each must be either an RFC 3339 compatible string or a Date object.
          * Also supports open intervals by setting one of the boundaries to `null`, but never both.
          * @param {?number} [limit=null] - The amount of items per request/page as integer. If `null` (default), the back-end decides.
-         * @yields {Promise<ItemCollection>} A response compatible to the API specification.
+         * @returns {Promise<ItemPages>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: any[] | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
+        listCollectionItems(collectionId: string, spatialExtent?: Array<number> | null, temporalExtent?: any[] | null, limit?: number | null): Promise<ItemPages>;
         /**
          * Normalisation of the namespace to a value that is compatible with the OpenEO specs - EXPERIMENTAL.
          *
@@ -2127,15 +2277,11 @@ declare module OpenEO {
          * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
          * The namespaces are then listed in the property `namespaces`.
          *
-         * This function adds a self link to the response if not present.
-         *
-         * @async
          * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
          * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
-         * @yields {Promise<Processes>} - A response compatible to the API specification.
-         * @throws {Error}
+         * @returns {ProcessPages} A paged list of processes.
          */
-        paginateProcesses(namespace?: string | null, limit?: number | null): AsyncGenerator<any, void, unknown>;
+        paginateProcesses(namespace?: string | null, limit?: number | null): ProcessPages;
         /**
          * Get information about a single process.
          *
@@ -2295,12 +2441,10 @@ declare module OpenEO {
         /**
          * Paginate through the files from the user workspace.
          *
-         * @async
          * @param {?number} [limit=50] - The number of files per request/page as integer. If `null`, requests all files.
-         * @yields {Promise<ResponseArray.<UserFile>>} A list of files.
-         * @throws {Error}
+         * @returns {ServicePages} A paged list of files.
          */
-        paginateFiles(limit?: number | null): AsyncGenerator<any, void, unknown>;
+        paginateFiles(limit?: number | null): ServicePages;
         /**
          * A callback that is executed on upload progress updates.
          *
@@ -2365,13 +2509,10 @@ declare module OpenEO {
         /**
          * Paginates through the user-defined processes of the authenticated user.
          *
-         * @async
          * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
-         * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
-         * @yields {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
-         * @throws {Error}
+         * @returns {ProcessPages} A paged list of user-defined processes.
          */
-        paginateUserProcesses(limit?: number | null, oldProcesses?: Array<UserProcess>): AsyncGenerator<any, void, unknown>;
+        paginateUserProcesses(limit?: number | null): ProcessPages;
         /**
          * Creates a new stored user-defined process at the back-end.
          *
@@ -2435,13 +2576,10 @@ declare module OpenEO {
         /**
          * Paginate through the batch jobs of the authenticated user.
          *
-         * @async
          * @param {?number} [limit=50] - The number of jobs per request/page as integer. If `null`, requests all jobs.
-         * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
-         * @yields {Promise<ResponseArray.<Job>>} A list of jobs.
-         * @throws {Error}
+         * @returns {JobPages} A paged list of jobs.
          */
-        paginateJobs(limit?: number | null, oldJobs?: Array<Job>): AsyncGenerator<any, void, unknown>;
+        paginateJobs(limit?: number | null): JobPages;
         /**
          * Creates a new batch job at the back-end.
          *
@@ -2477,13 +2615,10 @@ declare module OpenEO {
         /**
          * Paginate through the secondary web services of the authenticated user.
          *
-         * @async
          * @param {?number} [limit=50] - The number of services per request/page as integer. If `null` (default), requests all services.
-         * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
-         * @yields {Promise<ResponseArray.<Job>>} A list of services.
-         * @throws {Error}
+         * @returns {ServicePages} A paged list of services.
          */
-        paginateServices(limit?: number | null, oldServices?: Array<Service>): AsyncGenerator<any, void, unknown>;
+        paginateServices(limit?: number | null): ServicePages;
         /**
          * Creates a new secondary web service at the back-end.
          *
@@ -2511,18 +2646,6 @@ declare module OpenEO {
          */
         getService(id: string): Promise<Service>;
         /**
-         * Adds additional response details to the array.
-         *
-         * Adds links and federation:missing.
-         *
-         * @protected
-         * @param {Array.<*>} arr
-         * @param {object.<string, *>} response
-         * @param {string} selfUrl
-         * @returns {ResponseArray}
-         */
-        protected _toResponseArray(arr: Array<any>, response: object<string, any>, selfUrl: string): ResponseArray;
-        /**
          * Get the a link with the given rel type.
          *
          * @protected
@@ -2532,22 +2655,6 @@ declare module OpenEO {
          * @throws {Error}
          */
         protected _getLinkHref(links: Array<Link>, rel: string | Array<string>): string | null;
-        /**
-         * Get the URL of the next page from a response.
-         *
-         * @protected
-         * @param {AxiosResponse} response
-         * @returns {string | null}
-         */
-        protected _getNextLink(response: AxiosResponse): string | null;
-        /**
-         * Add a self link to the response if not present.
-         *
-         * @param {object} data - The body of the response as an object.
-         * @param {string} selfUrl - The URL of the current request.
-         * @returns {object} The modified object.
-         */
-        _addSelfLink(data: object, selfUrl: string): object;
         /**
          * Makes all links in the list absolute.
          *
@@ -2976,6 +3083,10 @@ declare module OpenEO {
      */
     export type FederationBackend = {
         /**
+         * ID of the back-end within the federation.
+         */
+        id: string;
+        /**
          * URL to the versioned API endpoint of the back-end.
          */
         url: string;
@@ -2988,7 +3099,7 @@ declare module OpenEO {
          */
         description: string;
         /**
-         * Current status of the back-ends (online or offline).
+         * Current status of the back-end (online or offline).
          */
         status: string;
         /**
