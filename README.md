@@ -4,7 +4,7 @@ JavaScript/TypeScript client for the openEO API.
 
 * [Documentation](https://open-eo.github.io/openeo-js-client/latest/).
 
-The version of this client is **2.7.0** and supports **openEO API versions 1.x.x**.
+The version of this client is **2.8.0** and supports **openEO API versions 1.x.x**.
 Legacy versions are available as releases.
 See the [CHANGELOG](CHANGELOG.md) for recent changes.
 
@@ -32,7 +32,7 @@ To install it in a NodeJS environment run:
 Afterwards, you can import the package:
 `const { OpenEO } = require('@openeo/js-client');`
 
-### TypeScript 
+### TypeScript
 
 Warning: The TypeScript integration is still **experimental**! Please help us improve it by opening issues or pull requests.
 
