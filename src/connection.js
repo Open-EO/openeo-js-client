@@ -745,7 +745,7 @@ class Connection {
 		const response = await this._post('/validation', this._normalizeUserProcess(process).process);
 		if (Array.isArray(response.data.errors)) {
 			const errors = response.data.errors;
-			errors['federation:backends'] = Array.isArray(response.data['federation:missing']) ? response.data['federation:missing'] : [];
+			errors['federation:backends'] = Array.isArray(response.data['federation:backends']) ? response.data['federation:backends'] : [];
 			return errors;
 		}
 		else {
