@@ -5,7 +5,7 @@ import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
 import axios from 'axios';
 
-declare module OpenEO {
+declare namespace OpenEOLib {
     /**
      * The base class for authentication providers such as Basic and OpenID Connect.
      *
@@ -124,12 +124,12 @@ declare module OpenEO {
          * @protected
          * @type {object.<string, string>}
          */
-        protected apiToClientNames: object<string, string>;
+        protected apiToClientNames: Record<string, string>;
         /**
          * @protected
          * @type {object.<string, string>}
          */
-        protected clientToApiNames: object<string, string>;
+        protected clientToApiNames: Record<string, string>;
         /**
          * @protected
          * @type {number}
@@ -141,20 +141,20 @@ declare module OpenEO {
          * @protected
          * @type {object.<string, *>}
          */
-        protected extra: object<string, any>;
+        protected extra: Record<string, any>;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): object<string, any>;
+        toJSON(): Record<string, any>;
         /**
          * Converts the data from an API response into data suitable for our JS client models.
          *
          * @param {object.<string, *>} metadata - JSON object originating from an API response.
          * @returns {BaseEntity} Returns the object itself.
          */
-        setAll(metadata: object<string, any>): BaseEntity;
+        setAll(metadata: Record<string, any>): BaseEntity;
         /**
          * Returns the age of the data in seconds.
          *
@@ -166,7 +166,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>}
          */
-        getAll(): object<string, any>;
+        getAll(): Record<string, any>;
         /**
          * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
          *
@@ -181,7 +181,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @protected
          */
-        protected _convertToRequest(parameters: object<string, any>): object<string, any>;
+        protected _convertToRequest(parameters: Record<string, any>): Record<string, any>;
         /**
          * Checks whether a features is supported by the API.
          *
@@ -205,7 +205,7 @@ declare module OpenEO {
          * @type {object}
          * @static
          */
-        static axios: axios;
+        static axios: typeof axios;
         /**
          * Returns the name of the Environment, `Node` or `Browser`.
          *
@@ -280,7 +280,7 @@ declare module OpenEO {
          * @param {string} targetFolder
          * @throws {Error}
          */
-        static downloadResults(con: Connection, assets: Array<object<string, any>>, targetFolder: string): Promise<void>;
+        static downloadResults(con: Connection, assets: Array<Record<string, any>>, targetFolder: string): Promise<void>;
         /**
          * Streams data into a file (node) or offers data to download (browser).
          *
@@ -330,7 +330,7 @@ declare module OpenEO {
          * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
          * @throws {Error}
          */
-        constructor(data: object<string, any>);
+        constructor(data: Record<string, any>);
         /**
          * @private
          * @type {object.<string, *>}
@@ -367,7 +367,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>} - A reference to the capabilities response.
          */
-        toJSON(): object<string, any>;
+        toJSON(): Record<string, any>;
         /**
          * Returns the openEO API version implemented by the back-end.
          *
@@ -495,7 +495,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          */
-        static signinCallback(provider?: OidcProvider, options?: object<string, any>): Promise<User | null>;
+        static signinCallback(provider?: OidcProvider, options?: Record<string, any>): Promise<User | null>;
         /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
@@ -595,7 +595,7 @@ declare module OpenEO {
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          * @see {OidcProvider#refreshTokenScope}
          */
-        login(options?: object<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        login(options?: Record<string, any>, requestRefreshToken?: boolean): Promise<void>;
         /**
          * Returns the options for the OIDC client library.
          *
@@ -607,7 +607,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @see {OidcProvider#refreshTokenScope}
          */
-        protected getOptions(options?: object<string, any>, requestRefreshToken?: boolean): object<string, any>;
+        protected getOptions(options?: Record<string, any>, requestRefreshToken?: boolean): Record<string, any>;
         /**
          * Get the response_type based on the grant type.
          *
@@ -687,13 +687,13 @@ declare module OpenEO {
          *
          * @returns {object.<string, FileType>}
          */
-        getInputTypes(): object<string, FileType>;
+        getInputTypes(): Record<string, FileType>;
         /**
          * Returns the output file formats.
          *
          * @returns {object.<string, FileType>}
          */
-        getOutputTypes(): object<string, FileType>;
+        getOutputTypes(): Record<string, FileType>;
         /**
          * Returns a single input file format for a given identifier.
          *
@@ -1071,7 +1071,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
          * @throws {Error}
          */
-        getResultsAsStac(): Promise<object<string, any>>;
+        getResultsAsStac(): Promise<Record<string, any>>;
         /**
          * Retrieves download links.
          *
@@ -1138,14 +1138,14 @@ declare module OpenEO {
          * @readonly
          * @type {?Array.<object.<string, *>>}
          */
-        public readonly parameters: Array<object<string, any>> | null;
+        public readonly parameters: Array<Record<string, any>> | null;
         /**
          * Description of the data that is returned by this process.
          * @public
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly returns: object<string, any> | null;
+        public readonly returns: Record<string, any> | null;
         /**
          * Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions.
          * @public
@@ -1166,13 +1166,13 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly exceptions: object<string, any> | null;
+        public readonly exceptions: Record<string, any> | null;
         /**
          * @public
          * @readonly
          * @type {?Array.<object.<string, *>>}
          */
-        public readonly examples: Array<object<string, any>> | null;
+        public readonly examples: Array<Record<string, any>> | null;
         /**
          * Links related to this process.
          * @public
@@ -1185,7 +1185,7 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly processGraph: object<string, any> | null;
+        public readonly processGraph: Record<string, any> | null;
         /**
          * Updates the data stored in this object by requesting the process graph metadata from the back-end.
          *
@@ -1283,14 +1283,14 @@ declare module OpenEO {
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly configuration: object<string, any> | null;
+        public readonly configuration: Record<string, any> | null;
         /**
          * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
          * @public
          * @readonly
          * @type {?object.<string, *>}
          */
-        public readonly attributes: object<string, any> | null;
+        public readonly attributes: Record<string, any> | null;
         /**
          * Date and time of creation, formatted as a RFC 3339 date-time.
          * @public
@@ -1347,7 +1347,7 @@ declare module OpenEO {
             title: string;
             description: string;
             enabled: boolean;
-            configuration: object<string, any>;
+            configuration: Record<string, any>;
             plan: string;
             budget: number;
         }): Promise<Service>;
@@ -1430,7 +1430,7 @@ declare module OpenEO {
          * @param {string} description - A description for the parameter
          * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
          */
-        constructor(name: string, schema?: object<string, any> | string, description?: string, defaultValue?: any);
+        constructor(name: string, schema?: Record<string, any> | string, description?: string, defaultValue?: any);
         name: string;
         spec: {
             name: string;
@@ -1442,7 +1442,7 @@ declare module OpenEO {
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): object<string, any>;
+        toJSON(): Record<string, any>;
         /**
          * Returns the reference object for this parameter.
          *
@@ -1498,7 +1498,7 @@ declare module OpenEO {
         /**
          * @type {object.<string, *>}
          */
-        tree: object<string, any>;
+        tree: Record<string, any>;
         /**
          * @type {Builder | null}
          */
@@ -1527,7 +1527,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        protected parseTree(tree: object<string, any>): object<string, any>;
+        protected parseTree(tree: Record<string, any>): Record<string, any>;
         /**
          * Gets the reference for a value, e.g. from_node or from_parameter.
          *
@@ -1545,10 +1545,10 @@ declare module OpenEO {
          * @returns {BuilderNode}
          * @throws {Error}
          */
-        addOperatorProcess(operator: string, left: number | object<string, any>, right: number | object<string, any>): BuilderNode;
+        addOperatorProcess(operator: string, left: number | Record<string, any>, right: number | Record<string, any>): BuilderNode;
     }
     export namespace Formula {
-        let operatorMapping: object<string, string>;
+        let operatorMapping: Record<string, string>;
     }
     /**
      * A class that represents a process node and also a result from a process.
@@ -1563,7 +1563,7 @@ declare module OpenEO {
          * @param {?string} [processDescription=null]
          * @param {?string} [processNamespace=null]
          */
-        constructor(parent: Builder, processId: string, processArgs?: object<string, any>, processDescription?: string | null, processNamespace?: string | null);
+        constructor(parent: Builder, processId: string, processArgs?: Record<string, any>, processDescription?: string | null, processNamespace?: string | null);
         /**
          * The parent builder.
          * @type {Builder}
@@ -1589,7 +1589,7 @@ declare module OpenEO {
          * The arguments for the process.
          * @type {object.<string, *>}
          */
-        arguments: object<string, any>;
+        arguments: Record<string, any>;
         /**
          * @ignore
          */
@@ -1606,13 +1606,13 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        namedArguments(processArgs: Array<object<string, any>>): object<string, any>;
+        namedArguments(processArgs: Array<Record<string, any>>): Record<string, any>;
         /**
          * Checks the arguments given for parameters and add them to the process.
          *
          * @param {object.<string, *>|Array} processArgs
          */
-        addParametersToProcess(processArgs: object<string, any> | any[]): void;
+        addParametersToProcess(processArgs: Record<string, any> | any[]): void;
         /**
          * Gets/Sets a description for the node.
          *
@@ -1658,13 +1658,13 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @throws {Error}
          */
-        protected exportCallback(arg: Function, name: string): object<string, any>;
+        protected exportCallback(arg: Function, name: string): Record<string, any>;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
          * @returns {object.<string, *>}
          */
-        toJSON(): object<string, any>;
+        toJSON(): Record<string, any>;
         /**
          * Returns the reference object for this node.
          *
@@ -1839,7 +1839,7 @@ declare module OpenEO {
          * @returns {Array.<object.<string,*>>}
          * @todo Should this also pass callback parameters from parents until root is reached?
          */
-        getParentCallbackParameters(): Array<object<string, any>>;
+        getParentCallbackParameters(): Array<Record<string, any>>;
         /**
          * Adds a parameter to the list of process parameters.
          *
@@ -1848,7 +1848,7 @@ declare module OpenEO {
          * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
          * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
          */
-        addParameter(parameter: object<string, any>, root?: boolean): void;
+        addParameter(parameter: Record<string, any>, root?: boolean): void;
         /**
          * Returns the process specification for the given process identifier and namespace (or `null`).
          *
@@ -1884,7 +1884,7 @@ declare module OpenEO {
          * @param {?string} [description=null] - An optional description for the process call.
          * @returns {BuilderNode}
          */
-        process(processId: string, args?: object<string, any> | any[], description?: string | null): BuilderNode;
+        process(processId: string, args?: Record<string, any> | any[], description?: string | null): BuilderNode;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
@@ -2109,7 +2109,7 @@ declare module OpenEO {
          * @protected
          * @type {object.<string|Function>}
          */
-        protected listeners: object<string | Function>;
+        protected listeners: Record<string, Function>;
         /**
          * Additional options for the connection.
          *
@@ -2174,7 +2174,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, ServiceType>>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listServiceTypes(): Promise<object<string, ServiceType>>;
+        listServiceTypes(): Promise<Record<string, ServiceType>>;
         /**
          * List the supported UDF runtimes.
          *
@@ -2182,7 +2182,7 @@ declare module OpenEO {
          * @returns {Promise<object.<string, UdfRuntime>>} A response compatible to the API specification.
          * @throws {Error}
          */
-        listUdfRuntimes(): Promise<object<string, UdfRuntime>>;
+        listUdfRuntimes(): Promise<Record<string, UdfRuntime>>;
         /**
          * List all collections available on the back-end.
          *
@@ -2487,7 +2487,7 @@ declare module OpenEO {
          * @returns {object.<string, *>}
          * @protected
          */
-        protected _normalizeUserProcess(process: UserProcess | BuilderNode | object<string, any>, additional?: object<string, any>): object<string, any>;
+        protected _normalizeUserProcess(process: UserProcess | BuilderNode | Record<string, any>, additional?: Record<string, any>): Record<string, any>;
         /**
          * Validates a user-defined process at the back-end.
          *
@@ -2545,7 +2545,7 @@ declare module OpenEO {
          * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
-        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null, additional?: object<string, any>): Promise<SyncResult>;
+        computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null, additional?: Record<string, any>): Promise<SyncResult>;
         /**
          * Executes a process synchronously and downloads to result the given path.
          *
@@ -2593,7 +2593,7 @@ declare module OpenEO {
          * @returns {Promise<Job>} The stored batch job.
          * @throws {Error}
          */
-        createJob(process: Process, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Job>;
+        createJob(process: Process, title?: string | null, description?: string | null, plan?: string | null, budget?: number | null, additional?: Record<string, any>): Promise<Job>;
         /**
          * Get all information about a batch job.
          *
@@ -2608,10 +2608,10 @@ declare module OpenEO {
          *
          * @async
          * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
-         * @returns {Promise<ResponseArray.<Job>>} A list of services.
+         * @returns {Promise<ResponseArray.<Service>>} A list of services.
          * @throws {Error}
          */
-        listServices(oldServices?: Array<Service>): Promise<ResponseArray<Job>>;
+        listServices(oldServices?: Array<Service>): Promise<ResponseArray<Service>>;
         /**
          * Paginate through the secondary web services of the authenticated user.
          *
@@ -2635,7 +2635,7 @@ declare module OpenEO {
          * @returns {Promise<Service>} The stored service.
          * @throws {Error}
          */
-        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: object<string, any>, plan?: string | null, budget?: number | null, additional?: object<string, any>): Promise<Service>;
+        createService(process: Process, type: string, title?: string | null, description?: string | null, enabled?: boolean, configuration?: Record<string, any>, plan?: string | null, budget?: number | null, additional?: Record<string, any>): Promise<Service>;
         /**
          * Get all information about a secondary web service.
          *
@@ -2676,7 +2676,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios#request-config
          */
-        protected _get(path: string, query: object<string, any>, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
+        protected _get(path: string, query: Record<string, any>, responseType: string, abortController?: AbortController | null): Promise<AxiosResponse>;
         /**
          * Sends a POST request.
          *
@@ -2740,7 +2740,7 @@ declare module OpenEO {
          * @protected
          * @returns {object.<string, string>}
          */
-        protected _getAuthHeaders(): object<string, string>;
+        protected _getAuthHeaders(): Record<string, string>;
         /**
          * Sends a HTTP request.
          *
@@ -2761,7 +2761,7 @@ declare module OpenEO {
          * @throws {Error}
          * @see https://github.com/axios/axios
          */
-        protected _send(options: object<string, any>, abortController?: AbortController | null): Promise<AxiosResponse>;
+        protected _send(options: Record<string, any>, abortController?: AbortController | null): Promise<AxiosResponse>;
     }
     namespace Connection {
         export { oidcProviderFactoryFunction, uploadStatusCallback };
@@ -2857,7 +2857,7 @@ declare module OpenEO {
         status: number;
         statusText: string;
         headers: any;
-        config: object<string, any>;
+        config: Record<string, any>;
         request: any;
     };
     export type BillingPlan = {
@@ -2890,22 +2890,22 @@ declare module OpenEO {
          */
 	"federation:missing": Array<string>;
     };
-    export type Collection = object<string, any>;
+    export type Collection = Record<string, any>;
     export type FileTypesAPI = {
         /**
          * - File types supported to import
          */
-        input: object<string, FileType>;
+        input: Record<string, FileType>;
         /**
          * - File types supported to export
          */
-        output: object<string, FileType>;
+        output: Record<string, FileType>;
     };
     export type FileType = {
         title: string;
         description: string;
         gis_data_types: Array<string>;
-        parameters: object<string, any>;
+        parameters: Record<string, any>;
         links: Array<Link>;
     };
     /**
@@ -2926,7 +2926,7 @@ declare module OpenEO {
          */
         from_parameter: string;
     };
-    export type Item = object<string, any>;
+    export type Item = Record<string, any>;
     export type ItemCollection = {
         /**
          * - The items in the collection.
@@ -3000,7 +3000,7 @@ declare module OpenEO {
         level: string;
         message: string;
         data: any;
-        path: Array<object<string, string | null>>;
+        path: Array<Record<string, string | null>>;
         links: Array<Link>;
     };
     /**
@@ -3077,7 +3077,7 @@ declare module OpenEO {
     /**
      * An openEO processing chain.
      */
-    export type Process = object<string, any>;
+    export type Process = Record<string, any>;
     /**
      * A back-end in the federation.
      */
@@ -3125,7 +3125,7 @@ declare module OpenEO {
      * Adds two properties: `links` and `federation:missing`.
      */
     export type ResponseArray = any;
-    export type ServiceType = object<string, any>;
+    export type ServiceType = Record<string, any>;
     export type SyncResult = {
         /**
          * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
@@ -3144,7 +3144,7 @@ declare module OpenEO {
          */
         logs: Array<Log>;
     };
-    export type UdfRuntime = object<string, any>;
+    export type UdfRuntime = Record<string, any>;
     export type UserAccountStorage = {
         /**
          * in bytes as integer
@@ -3171,4 +3171,4 @@ declare module OpenEO {
     export type ValidationResult = any;
 }
 
-export = OpenEO;
+export = OpenEOLib;
