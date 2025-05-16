@@ -5,7 +5,7 @@ import { ProcessRegistry } from '@openeo/js-commons';
 import { Readable } from 'stream';
 import axios from 'axios';
 
-declare namespace OpenEOLib {
+declare namespace OpenEO {
     /**
      * The base class for authentication providers such as Basic and OpenID Connect.
      *
@@ -3171,4 +3171,4 @@ declare namespace OpenEOLib {
     export type ValidationResult = any;
 }
 
-export = OpenEOLib;
+export = OpenEO;
