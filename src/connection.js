@@ -948,7 +948,7 @@ class Connection {
 	 * 
 	 * @async
 	 * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
-	 * @returns {Promise<ResponseArray.<Job>>} A list of services.
+	 * @returns {Promise<ResponseArray.<Service>>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices(oldServices = []) {
