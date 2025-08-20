@@ -5,7 +5,7 @@ const { Utils } = require('@openeo/js-commons');
 jest.setTimeout(30*1000);
 
 describe('VITO back-end', () => {
-	const TESTBACKEND = 'https://openeo.vito.be';
+	const TESTBACKEND = 'https://openeo-dev.vito.be';
 
 	let con;
 	test('Connect', async () => {
@@ -34,6 +34,18 @@ describe('VITO back-end', () => {
 			expect(Utils.isObject(udfs[runtime])).toBeTruthy();
 			expect(Utils.isObject(udfs[runtime].versions)).toBeTruthy();
 			expect(udfs[runtime].type).toBe("language");
+		});
+	});
+
+	describe('Processing Parameters', () => {
+		test('conformance class', async () => {
+			let cap = await con.capabilities();
+			expect(cap.hasConformance(Capabilities.Conformance.processingParameters)).toBeTruthy();
+		});
+		test('listProcessingParameters', async () => {
+			let params = await con.listProcessingParameters();
+			expect(Array.isArray(params.create_job_parameters)).toBeTruthy();
+			expect(Array.isArray(params.create_synchronous_parameters)).toBeTruthy();
 		});
 	});
 

@@ -1,4 +1,7 @@
 const Utils = require('@openeo/js-commons/src/utils');
+if (typeof RegExp.escape !== 'function') {
+	require('regexp.escape').shim();
+}
 
 const FEATURE_MAP = {
 	// Discovery
@@ -6,6 +9,7 @@ const FEATURE_MAP = {
 	listFileTypes: 'get /file_formats',
 	listServiceTypes: 'get /service_types',
 	listUdfRuntimes: 'get /udf_runtimes',
+	listProcessingParameters: 'get /processing_parameters',
 	// Collections
 	listCollections: 'get /collections',
 	describeCollection: 'get /collections/{}',
@@ -56,6 +60,22 @@ const FEATURE_MAP = {
 	updateService: 'patch /services/{}',
 	deleteService: 'delete /services/{}',
 	debugService: 'get /services/{}/logs',
+};
+
+const CONFORMANCE_CLASSES = {
+	openeo: "https://api.openeo.org/extensions/openeo/v1.*",
+	// STAC API
+	stacCollections: [
+		'https://api.stacspec.org/v1.*/collections',
+		'https://api.stacspec.org/v1.*/ogcapi-features'
+	],
+	stacItems: 'https://api.stacspec.org/v1.*/ogcapi-features',
+	// openEO API Extensions
+	commercialData: 'https://api.openeo.org/extensions/commercial-data/0.1.*',
+	federation: 'https://api.openeo.org/extensions/federation/0.1.*',
+	processingParameters: "https://api.openeo.org/extensions/processing-parameters/0.1.*",
+	remoteProcessDefinition: 'https://api.openeo.org/extensions/remote-process-definition/0.1.*',
+	workspaces: 'https://api.openeo.org/extensions/workspaces/0.1.*'
 };
 
 /**
@@ -262,6 +282,29 @@ class Capabilities {
 	}
 
 	/**
+	 * Check whether a conformance class is supported by the back-end.
+	 * 
+	 * Use `*` as a wildcard character for e.g. version numbers.
+	 * 
+	 * @param {string|Array.<string>} uris - Conformance class URI(s) - any of them must match.
+	 * @returns {boolean} `true` if any of the conformance classes is supported, otherwise `false`.
+	 */
+	hasConformance(uris) {
+		if (typeof uris === 'string') {
+			uris = [uris];
+		}
+		if(!Array.isArray(this.data.conformsTo) || !Array.isArray(uris)) {
+			return false;
+		}
+
+		const classRegexp = uris
+			.map(uri => RegExp.escape(uri).replaceAll('\\*', '[^/]+'))
+			.join('|');
+		const regexp = new RegExp('^(' + classRegexp + ')$');
+		return Boolean(this.data.conformsTo.find(uri => uri.match(regexp)));
+	}
+
+	/**
 	 * Get the billing currency.
 	 * 
 	 * @returns {string | null} The billing currency or `null` if not available.
@@ -301,5 +344,7 @@ class Capabilities {
 		return response;
 	}
 }
+
+Capabilities.Conformance = CONFORMANCE_CLASSES;
 
 module.exports = Capabilities;

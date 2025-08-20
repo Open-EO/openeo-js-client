@@ -195,6 +195,18 @@ class Connection {
 	}
 
 	/**
+	 * List the supported output file formats.
+	 * 
+	 * @async
+	 * @returns {Promise<ProcessingParameters>} A response compatible to the API specification.
+	 * @throws {Error}
+	 */
+	async listProcessingParameters() {
+		const response = await this._get('/processing_parameters');
+		return response.data;
+	}
+
+	/**
 	 * List the supported secondary service types.
 	 * 
 	 * @async
