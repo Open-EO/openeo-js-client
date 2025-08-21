@@ -196,6 +196,23 @@
  */
 
 /**
+ * A specific processing parameter.
+ * 
+ * @typedef ProcessingParameter
+ * @type {object.<string, *>}
+ */
+
+/**
+ * All types of processing parameters.
+ * 
+ * @typedef ProcessingParameters
+ * @type {object}
+ * @property {Array.<ProcessingParameter>} create_job_parameters Processing parameters for batch jobs.
+ * @property {Array.<ProcessingParameter>} create_service_parameters Processing parameters for secondary web services.
+ * @property {Array.<ProcessingParameter>} create_synchronous_parameters Processing parameters for synchronous processing.
+ */
+
+/**
  * A back-end in the federation.
  * 
  * @typedef FederationBackend

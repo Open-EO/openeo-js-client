@@ -438,6 +438,15 @@ declare namespace OpenEO {
          */
         hasFeature(methodName: string): boolean;
         /**
+         * Check whether a conformance class is supported by the back-end.
+         *
+         * Use `*` as a wildcard character for e.g. version numbers.
+         *
+         * @param {string|Array.<string>} uris - Conformance class URI(s) - any of them must match.
+         * @returns {boolean} `true` if any of the conformance classes is supported, otherwise `false`.
+         */
+        hasConformance(uris: string | Array<string>): boolean;
+        /**
          * Get the billing currency.
          *
          * @returns {string | null} The billing currency or `null` if not available.
@@ -457,6 +466,8 @@ declare namespace OpenEO {
          * @returns {AxiosResponse}
          */
         protected migrate(response: AxiosResponse): AxiosResponse;
+
+        static Conformance: Record<string, string | Array<string>>;
     }
     /**
      * The Authentication Provider for OpenID Connect.
@@ -2168,6 +2179,14 @@ declare namespace OpenEO {
          */
         listFileTypes(): Promise<FileTypes>;
         /**
+         * List the supported output file formats.
+         *
+         * @async
+         * @returns {Promise<ProcessingParameters>} A response compatible to the API specification.
+         * @throws {Error}
+         */
+        listProcessingParameters(): Promise<ProcessingParameters>;
+        /**
          * List the supported secondary service types.
          *
          * @async
@@ -3078,6 +3097,27 @@ declare namespace OpenEO {
      * An openEO processing chain.
      */
     export type Process = Record<string, any>;
+    /**
+     * A specific processing parameter.
+     */
+    type ProcessingParameter = object<string, any>;
+    /**
+     * All types of processing parameters.
+     */
+    type ProcessingParameters = {
+        /**
+         * Processing parameters for batch jobs.
+         */
+        create_job_parameters: Array<ProcessingParameter>;
+        /**
+         * Processing parameters for secondary web services.
+         */
+        create_service_parameters: Array<ProcessingParameter>;
+        /**
+         * Processing parameters for synchronous processing.
+         */
+        create_synchronous_parameters: Array<ProcessingParameter>;
+    };
     /**
      * A back-end in the federation.
      */

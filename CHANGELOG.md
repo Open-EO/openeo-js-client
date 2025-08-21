@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Capabilities`: Added `hasConformance` function and `Conformance` URI object
+- `Connection`: Added `listProcessingParameters` function
+
 ## [2.8.0] - 2025-04-25
 
 ### Added
