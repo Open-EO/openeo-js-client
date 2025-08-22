@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: typedefs.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: typedefs.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * An error.
+ * 
+ * @typedef ApiError
+ * @type {object}
+ * @property {string} id 
+ * @property {string} code 
+ * @property {string} message 
+ * @property {Array.&lt;Link>} links 
+ */
+
+/**
+ * Authentication Provider details.
+ * 
+ * @typedef AuthProviderMeta
+ * @type {object}
+ * @property {?string} id Provider identifier, may not be used for all authentication methods. 
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ */
+
+/**
+ * Response for a HTTP request.
+ * 
+ * @typedef AxiosResponse
+ * @type {object}
+ * @property {*} data
+ * @property {number} status
+ * @property {string} statusText
+ * @property {*} headers
+ * @property {object.&lt;string, *>} config
+ * @property {*} request
+ */
+
+/**
+ * @typedef BillingPlan
+ * @type {object}
+ * @property {string} name Name of the billing plan.
+ * @property {string} description A description of the billing plan, may include CommonMark syntax.
+ * @property {boolean} paid `true` if it is a paid plan, otherwise `false`.
+ * @property {string} url A URL pointing to a page describing the billing plan.
+ * @property {boolean} default `true` if it is the default plan of the back-end, otherwise `false`.
+ */
+
+/**
+ * @typedef Collections
+ * @type {object}
+ * @property {Array.&lt;Collection>} collections
+ * @property {Array.&lt;Link>} links
+ * @property {Array.&lt;string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
+ */
+
+/**
+ * @typedef Collection
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef FileTypesAPI
+ * @type {object}
+ * @property {object.&lt;string, FileType>} input - File types supported to import
+ * @property {object.&lt;string, FileType>} output - File types supported to export
+ */
+
+/**
+ * @typedef FileType
+ * @type {object}
+ * @property {string} title
+ * @property {string} description
+ * @property {Array.&lt;string>} gis_data_types
+ * @property {object.&lt;string, *>} parameters
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromNode
+ * @type {object}
+ * @property {string} from_node - The node identifier.
+ */
+
+/**
+ * Reference to a parameter.
+ * 
+ * @typedef FromParameter
+ * @type {object}
+ * @property {string} from_parameter - The name of the parameter.
+ */
+
+/**
+ * @typedef Item
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * @typedef ItemCollection
+ * @type {object}
+ * @property {Array.&lt;Item>} features - The items in the collection.
+ * @property {?Array.&lt;Link>} links - Additional links, e.g. for pagination.
+ * @property {?string} timeStamp This property indicates the time and date when the response was generated.
+ * @property {?number} numberMatched The number (integer) of features of the feature type that match the selection parameters.
+ * @property {?number} numberReturned The number (integer) of features in the feature collection.
+ */
+
+/**
+ * @typedef JobEstimate
+ * @type {object}
+ * @property {?number} costs
+ * @property {string} duration
+ * @property {number} size in bytes as integer
+ * @property {?number} downloads_included integer
+ * @property {string} expires
+ */
+
+/**
+ * A link to another resource.
+ * 
+ * @typedef Link
+ * @type {object}
+ * @property {string} href The URL to the resource.
+ * @property {?string} rel Relation type
+ * @property {?string} type Media type
+ * @property {?string} title Human-readable title
+ * @property {?Array.&lt;string>} roles A list of roles, if link is originating from an asset.
+ */
+
+/**
+ * @typedef LogsAPI
+ * @type {object}
+ * @property {Array.&lt;Log>} logs
+ * @property {Array.&lt;Link>} links
+ */
+
+/**
+ * A log entry.
+ * 
+ * @typedef Log
+ * @type {object}
+ * @property {string} id 
+ * @property {string} code 
+ * @property {string} level
+ * @property {string} message 
+ * @property {*} data
+ * @property {Array.&lt;object.&lt;string, ?string>>} path
+ * @property {Array.&lt;Link>} links 
+ */
+
+/**
+ * Default OpenID Connect Client as returned by the API.
+ * 
+ * @typedef OidcClient
+ * @type {object}
+ * @property {string} id Client ID
+ * @property {Array.&lt;string>} grant_types Supported Grant Types
+ * @property {Array.&lt;string>} redirect_urls Allowed Redirect URLs
+ */
+
+/**
+ * OpenID Connect Provider details as returned by the API.
+ * 
+ * @augments AuthProviderMeta
+ * @typedef OidcProviderMeta
+ * @type {object}
+ * @property {string} id Provider identifier.
+ * @property {string} title Title for the authentication method.
+ * @property {string} description Description for the authentication method.
+ * @property {string} issuer The OpenID Connect issuer location (authority).
+ * @property {Array.&lt;string>} scopes OpenID Connect Scopes
+ * @property {Array.&lt;OidcClient>} default_clients Default OpenID Connect Clients
+ * @property {Array.&lt;Link>} links Links
+ */
+
+/**
+ * Connection options.
+ * 
+ * @typedef Options
+ * @type {object}
+ * @property {boolean} addNamespaceToProcess Add a namespace property to processes if set to `true`. Defaults to `false`.
+ */
+
+/**
+ * @typedef Processes
+ * @type {object}
+ * @property {Array.&lt;Process>} processes
+ * @property {Array.&lt;Link>} links
+ * @property {?Array.&lt;string>} namespaces EXPERIMENTAL!
+ * @property {Array.&lt;string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
+ */
+
+/**
+ * An openEO processing chain.
+ * 
+ * @typedef Process
+ * @type {object.&lt;string, *>} 
+ */
+
+/**
+ * A specific processing parameter.
+ * 
+ * @typedef ProcessingParameter
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * All types of processing parameters.
+ * 
+ * @typedef ProcessingParameters
+ * @type {object}
+ * @property {Array.&lt;ProcessingParameter>} create_job_parameters Processing parameters for batch jobs.
+ * @property {Array.&lt;ProcessingParameter>} create_service_parameters Processing parameters for secondary web services.
+ * @property {Array.&lt;ProcessingParameter>} create_synchronous_parameters Processing parameters for synchronous processing.
+ */
+
+/**
+ * A back-end in the federation.
+ * 
+ * @typedef FederationBackend
+ * @type {object}
+ * @property {string} id ID of the back-end within the federation.
+ * @property {string} url URL to the versioned API endpoint of the back-end.
+ * @property {string} title Name of the back-end.
+ * @property {string} description A description of the back-end and its specifics.
+ * @property {string} status Current status of the back-end (online or offline).
+ * @property {string} last_status_check The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
+ * @property {string} last_successful_check If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
+ * @property {boolean} experimental Declares the back-end to be experimental.
+ * @property {boolean} deprecated Declares the back-end to be deprecated.
+ */
+
+/**
+ * An array, but enriched with additional details from an openEO API response.
+ * 
+ * Adds two properties: `links` and `federation:missing`.
+ * 
+ * @typedef ResponseArray
+ * @augments Array
+ * @type {Array.&lt;*>}
+ * @property {Array.&lt;Link>} links A list of related links.
+ * @property {Array.&lt;string>} ["federation:missing"] A list of backends from the federation that are missing in the response data.
+ */
+
+/**
+ * @typedef ServiceType
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef SyncResult
+ * @type {object}
+ * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+ * @property {?number} costs The costs for the request in the currency exposed by the back-end.
+ * @property {?string} type The content media type returned by the back-end.
+ * @property {Array.&lt;Log>} logs Array of log entries as specified in the API.
+ */
+
+/**
+ * @typedef UdfRuntime
+ * @type {object.&lt;string, *>}
+ */
+
+/**
+ * @typedef UserAccountStorage
+ * @type {object}
+ * @property {number} free in bytes as integer
+ * @property {number} quota in bytes as integer
+ */
+
+/**
+ * @typedef UserAccount
+ * @type {object}
+ * @property {string} user_id
+ * @property {?string} name
+ * @property {?string} default_plan
+ * @property {?UserAccountStorage} storage
+ * @property {?number} budget
+ * @property {?Array.&lt;Link>} links
+ */
+
+/**
+ * An array, but enriched with additional details from an openEO API response.
+ * 
+ * Adds the property `federation:backends`.
+ * 
+ * @typedef ValidationResult
+ * @augments Array
+ * @type {Array.&lt;ApiError>}
+ * @property {Array.&lt;string>} ["federation:backends"] The back-ends that support / do not support the process.
+ */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthProvider.html">AuthProvider</a></li><li><a href="BaseEntity.html">BaseEntity</a></li><li><a href="BasicProvider.html">BasicProvider</a></li><li><a href="Builder.html">Builder</a></li><li><a href="BuilderNode.html">BuilderNode</a></li><li><a href="Capabilities.html">Capabilities</a></li><li><a href="CollectionPages.html">CollectionPages</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Environment.html">Environment</a></li><li><a href="FileTypes.html">FileTypes</a></li><li><a href="Formula.html">Formula</a></li><li><a href="ItemPages.html">ItemPages</a></li><li><a href="Job.html">Job</a></li><li><a href="JobPages.html">JobPages</a></li><li><a href="Logs.html">Logs</a></li><li><a href="OidcProvider.html">OidcProvider</a></li><li><a href="OpenEO.html">OpenEO</a></li><li><a href="Pages.html">Pages</a></li><li><a href="Parameter.html">Parameter</a></li><li><a href="ProcessPages.html">ProcessPages</a></li><li><a href="Service.html">Service</a></li><li><a href="ServicePages.html">ServicePages</a></li><li><a href="UserFile.html">UserFile</a></li><li><a href="UserFilePages.html">UserFilePages</a></li><li><a href="UserProcess.html">UserProcess</a></li></ul><h3>Global</h3><ul><li><a href="global.html#next">next</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Aug 22 2025 09:21:10 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
