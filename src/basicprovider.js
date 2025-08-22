@@ -1,5 +1,5 @@
 const Environment = require('./env');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 const AuthProvider = require('./authprovider');
 
 /**
