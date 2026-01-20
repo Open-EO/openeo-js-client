@@ -2,7 +2,7 @@
 describe('Process Graph Builder (EVI)', () => {
 
 	const { TESTBACKEND } = require('./config.js');
-	const FROM_URL = TESTBACKEND + '/v1.0/processes';
+	const FROM_URL = TESTBACKEND + '/v1/processes';
 
 	const { OpenEO, Connection, Builder, Parameter, Formula } = require('../src/openeo');
 
