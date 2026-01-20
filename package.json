@@ -64,7 +64,7 @@
     "tsd": "tsc --project tsconfig.json",
     "lint": "eslint src/",
     "test": " jest --env=jsdom --runInBand",
-    "test_node": " jest --env=node --runInBand"
+    "test_node": " jest --verbose --env=node --runInBand"
   },
   "browserslist": [
     "> 1%",

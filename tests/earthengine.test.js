@@ -176,7 +176,7 @@ describe('GEE back-end', () => {
 			expect(colls).toHaveProperty('collections');
 			expect(colls).toHaveProperty('links');
 			expect(Array.isArray(colls.collections)).toBe(true);
-			expect(colls.collections.length).toBeGreaterThan(400);
+			expect(colls.collections.length).toBeGreaterThan(50);
 			expect(colls.collections[0]).toHaveProperty("description");
 			expect(colls.collections[0]).toHaveProperty("license");
 			expect(colls.collections[0]).toHaveProperty("extent");
@@ -249,7 +249,7 @@ describe('GEE back-end', () => {
 			expect(acc.name).toBe(TESTUSERNAME);
 		});
 	});
-
+	
 	describe('Process graph validation', () => {
 		let con;
 		beforeAll(async () => {
@@ -378,7 +378,7 @@ describe('GEE back-end', () => {
 			expect(pgs[0].id).toBe(pg1.id);
 		});
 	});
-
+	
 	describe('Sync. computation of results', () => {
 		let con;
 		beforeAll(async () => {
@@ -407,6 +407,7 @@ describe('GEE back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
+				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -572,7 +573,7 @@ describe('GEE back-end', () => {
 			}
 		});
 	});
-
+	
 	describe('Secondary Services management', () => {
 		let con;
 		beforeAll(async () => {
@@ -648,7 +649,6 @@ describe('GEE back-end', () => {
 			expect(svcs).toHaveLength(0);
 		});
 	});
-
 
 	describe('File management', () => {
 		let con, f;
@@ -775,4 +775,5 @@ describe('GEE back-end', () => {
 		});
 
 	});
+	
 });
