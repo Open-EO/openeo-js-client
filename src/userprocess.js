@@ -1,5 +1,5 @@
 const BaseEntity = require('./baseentity');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 
 /**
  * A Stored Process Graph.

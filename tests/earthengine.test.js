@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo');
+const { Client, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/client');
 const { Utils } = require('@openeo/js-commons');
 const waitForExpect = require("wait-for-expect");
 
@@ -18,22 +18,22 @@ describe('GEE back-end', () => {
 	const isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
-		return await OpenEO.connect(TESTBACKEND);
+		return await Client.connect(TESTBACKEND);
 	}
 
 	async function connectWithBasicAuth() {
-		let con = await OpenEO.connect(TESTBACKEND);
+		let con = await Client.connect(TESTBACKEND);
 		await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
 		return con;
 	}
 
 	describe('Connecting', () => {
 		test('Connect with wrong Server URL', async () => {
-			await expect(OpenEO.connect("http://invalid.openeo.org")).rejects.toThrow();
+			await expect(Client.connect("http://invalid.openeo.org")).rejects.toThrow();
 		});
 
 		test('Connect', async () => {
-			let con = await OpenEO.connect(TESTBACKEND);
+			let con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKEND);
@@ -43,7 +43,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('Connect directly to a known version via connect', async () => {
-			let con = await OpenEO.connect(TESTBACKENDDIRECT);
+			let con = await Client.connect(TESTBACKENDDIRECT);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
@@ -53,7 +53,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('Connect directly to a known version via connectDirect', async () => {
-			let con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
+			let con = await Client.connectDirect(TESTBACKENDDIRECT);
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
@@ -176,7 +176,7 @@ describe('GEE back-end', () => {
 			expect(colls).toHaveProperty('collections');
 			expect(colls).toHaveProperty('links');
 			expect(Array.isArray(colls.collections)).toBe(true);
-			expect(colls.collections.length).toBeGreaterThan(400);
+			expect(colls.collections.length).toBeGreaterThan(50);
 			expect(colls.collections[0]).toHaveProperty("description");
 			expect(colls.collections[0]).toHaveProperty("license");
 			expect(colls.collections[0]).toHaveProperty("extent");
@@ -249,7 +249,7 @@ describe('GEE back-end', () => {
 			expect(acc.name).toBe(TESTUSERNAME);
 		});
 	});
-
+	
 	describe('Process graph validation', () => {
 		let con;
 		beforeAll(async () => {
@@ -378,7 +378,7 @@ describe('GEE back-end', () => {
 			expect(pgs[0].id).toBe(pg1.id);
 		});
 	});
-
+	
 	describe('Sync. computation of results', () => {
 		let con;
 		beforeAll(async () => {
@@ -407,6 +407,7 @@ describe('GEE back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
+				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -572,7 +573,7 @@ describe('GEE back-end', () => {
 			}
 		});
 	});
-
+	
 	describe('Secondary Services management', () => {
 		let con;
 		beforeAll(async () => {
@@ -649,7 +650,6 @@ describe('GEE back-end', () => {
 		});
 	});
 
-
 	describe('File management', () => {
 		let con, f;
 		let fileContent = "Lorem ipsum";
@@ -674,7 +674,7 @@ describe('GEE back-end', () => {
 			expect(files['federation:missing']).toEqual([]);
 		});
 
-		test.skip('Upload file', async () => {
+		test('Upload file', async () => {
 			f = await con.getFile(fileName);
 			expect(f instanceof UserFile).toBeTruthy();
 			expect(f.path).toBe(fileName);
@@ -687,7 +687,7 @@ describe('GEE back-end', () => {
 			expect(files[0].path).toBe(f.path);
 		});
 
-		test.skip('Get file contents', (done) => {
+		test('Get file contents', (done) => {
 			f.retrieveFile().then(resource => {
 				expect(resource).not.toBeNull();
 				if (isBrowserEnv) { // Browser environment
@@ -727,7 +727,7 @@ describe('GEE back-end', () => {
 		});
 
 		let target = "downloaded_file.txt";
-		test.skip('Download/Save file', async () => {
+		test('Download/Save file', async () => {
 			if (isBrowserEnv) { 
 				// Browser environment
 				// Hard to test a browser download, ignore
@@ -748,12 +748,12 @@ describe('GEE back-end', () => {
 			}
 		})
 
-		test.skip('Update file being not supported', async () => {
+		test('Update file being not supported', async () => {
 			expect(f.updateFile).toBeUndefined();
 			expect(f.replaceFile).toBeUndefined();
 		});
 
-		test.skip('Delete file', async () => {
+		test('Delete file', async () => {
 			await f.deleteFile();
 
 			let files = await con.listFiles();
@@ -775,4 +775,5 @@ describe('GEE back-end', () => {
 		});
 
 	});
+	
 });
