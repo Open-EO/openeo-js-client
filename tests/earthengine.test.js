@@ -674,7 +674,7 @@ describe('GEE back-end', () => {
 			expect(files['federation:missing']).toEqual([]);
 		});
 
-		test.skip('Upload file', async () => {
+		test('Upload file', async () => {
 			f = await con.getFile(fileName);
 			expect(f instanceof UserFile).toBeTruthy();
 			expect(f.path).toBe(fileName);
@@ -687,7 +687,7 @@ describe('GEE back-end', () => {
 			expect(files[0].path).toBe(f.path);
 		});
 
-		test.skip('Get file contents', (done) => {
+		test('Get file contents', (done) => {
 			f.retrieveFile().then(resource => {
 				expect(resource).not.toBeNull();
 				if (isBrowserEnv) { // Browser environment
@@ -727,7 +727,7 @@ describe('GEE back-end', () => {
 		});
 
 		let target = "downloaded_file.txt";
-		test.skip('Download/Save file', async () => {
+		test('Download/Save file', async () => {
 			if (isBrowserEnv) { 
 				// Browser environment
 				// Hard to test a browser download, ignore
@@ -748,12 +748,12 @@ describe('GEE back-end', () => {
 			}
 		})
 
-		test.skip('Update file being not supported', async () => {
+		test('Update file being not supported', async () => {
 			expect(f.updateFile).toBeUndefined();
 			expect(f.replaceFile).toBeUndefined();
 		});
 
-		test.skip('Delete file', async () => {
+		test('Delete file', async () => {
 			await f.deleteFile();
 
 			let files = await con.listFiles();
