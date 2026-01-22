@@ -19,7 +19,7 @@ jobs:
 
       - run: git clone https://github.com/moregeo-it/openeo-test-api.git
       - run: cd openeo-test-api
-      - run: git fetch remote remove_gee
+      - run: git fetch origin
       - run: git checkout remove_gee && npm install
       - run: node src/adduser.js js-client js-client
       - run: npm run up
