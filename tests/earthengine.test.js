@@ -12,7 +12,9 @@ describe('GEE back-end', () => {
 	const TESTCOLLECTION = require("./data/gee/collection.json");
 	const TESTPROCESS = require("./data/gee/process.json");
 	const PROCESSGRAPH = require("./data/gee/processgraph.json");
+	const SIMPLECALCULATION = require("./data/gee/simpleCalculation.json");
 	const VALID_PROCESS = {"process_graph":PROCESSGRAPH};
+	const SIMPLE_CALCULATION_PROCESS = {"process_graph":SIMPLECALCULATION};
 	const INVALID_PROCESS = {"process_graph":{"load": {"process_id": "load_collection","arguments": {}}}};
 
 	const isBrowserEnv = (typeof Blob !== 'undefined');
@@ -261,6 +263,44 @@ describe('GEE back-end', () => {
 			expect(Array.isArray(result)).toBeTruthy();
 			expect(result.length).toBe(0);
 			expect(result["federation:backends"]).toEqual([]);
+		});
+
+		test('Simple calculation process graph', async () => {
+			let result = await con.validateProcess(SIMPLE_CALCULATION_PROCESS);
+			expect(Array.isArray(result)).toBeTruthy();
+			expect(result.length).toBe(0);
+			expect(result["federation:backends"]).toEqual([]);
+		});
+
+		test('Simple calculation process graph result', async () => {
+			let result = await con.computeResult(SIMPLE_CALCULATION_PROCESS, 'JSON');
+			expect(result).not.toBeNull();
+			expect(typeof result).toBe('object');
+			expect(result.costs).not.toBeUndefined();
+			expect(Array.isArray(result.logs)).toBeTruthy();
+			
+			// Parse the result data
+			if (isBrowserEnv) {
+				// Browser environment
+				expect(result.data).toBeInstanceOf(Blob);
+				const text = await result.data.text();
+				const data = JSON.parse(text);
+				expect(data).toBe(9);
+			} else {
+				// Node environment
+				const stream = require('stream');
+				expect(result.data).toBeInstanceOf(stream.Readable);
+				
+				const chunks = [];
+				await new Promise((resolve, reject) => {
+					result.data.on("data", (chunk) => chunks.push(chunk));
+					result.data.on("end", () => resolve());
+					result.data.on("error", reject);
+				});
+				
+				const data = JSON.parse(Buffer.concat(chunks).toString());
+				expect(data).toBe(9);
+			}
 		});
 
 		test('Invalid process graph', async () => {

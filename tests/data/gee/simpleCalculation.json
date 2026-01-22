@@ -1,0 +1,28 @@
+{
+    "add1": {
+        "process_id": "add",
+        "arguments": {
+            "x": 1,
+            "y": 2
+        }
+    },
+    "multiply2": {
+        "process_id": "multiply",
+        "arguments": {
+            "x": {
+                "from_node": "add1"
+            },
+            "y": 3
+        }
+    },
+    "save1": {
+        "process_id": "save_result",
+        "arguments": {
+            "data": {
+                "from_node": "multiply2"
+            },
+            "format": "JSON"
+        },
+        "result": true
+    }
+}
