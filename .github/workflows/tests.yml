@@ -16,5 +16,14 @@ jobs:
       - uses: actions/setup-node@v4
       - uses: actions/checkout@v4
       - run: npm install
+      
+      - run: git clone https://github.com/moregeo-it/openeo-test-api.git
+      - run: cd openeo-test-api
+      - run: git fetch --all
+      - run: git checkout remove_gee && npm install
+      - run: node src/adduser.js js-client js-client
+      - run: npm run up
+
+      - run: cd ..
       - run: npm run test
       - run: npm run test_node
