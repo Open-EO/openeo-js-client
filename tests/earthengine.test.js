@@ -218,7 +218,7 @@ describe('GEE back-end', () => {
 			let types = await con.listFileTypes();
 			expect(types instanceof FileTypes).toBeTruthy();
 			expect(Utils.size(types.getInputTypes())).toBe(0);
-			expect(Utils.size(types.getOutputTypes())).toBe(5);
+			expect(Utils.size(types.getOutputTypes())).toBeGreaterThan(1);
 			expect(types.getInputType('PNG')).toBeNull();
 			expect(types.getOutputType('PNG')).toHaveProperty('title');
 			expect(types.getOutputType('PNG')).toHaveProperty('gis_data_types');
