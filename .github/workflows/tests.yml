@@ -29,8 +29,14 @@ jobs:
           npm run adduser js-client js-client
           npm run up
 
-      - name: install and test js-client
+      - name: Install js-client dependencies
         working-directory: js-client 
-        run: | 
-          npm install
-          npm run test_node
+        run: npm install
+
+      - name: Test (Browser)
+        working-directory: js-client 
+        run: npm run test
+
+      - name: Test (NodeJS)
+        working-directory: js-client 
+        run: npm run test-node
