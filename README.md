@@ -75,7 +75,7 @@ Run tests:
 * `npm test browser` (browser tests)
 * `npm test node` (node tests)
 * `npm test builder` (tests only the process builder)
-* `npm test earthengine` (full test suite using the Google Earth Engine back-end as server)
+* `npm test test-api` (full test suite using the openeo-test-api back-end as server)
 
 # Contributions
 

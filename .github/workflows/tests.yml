@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: npm install
       - run: npm run lint
       - run: npm run build
@@ -14,7 +14,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
-      - uses: actions/checkout@v4
-      - run: npm install
-      - run: npm run test
-      - run: npm run test_node
+      - uses: actions/checkout@v6
+        with:
+          path: js-client
+
+      - uses: actions/checkout@v6
+        with:
+          repository: moregeo-it/openeo-test-api
+          path: test-api
+      - name: setup and run test-api
+        working-directory: test-api
+        run: | 
+          npm install
+          npm run adduser js-client js-client
+          npm run up
+
+      - name: Install js-client dependencies
+        working-directory: js-client 
+        run: npm install
+
+      - name: Test (Browser)
+        working-directory: js-client 
+        run: npm run test
+
+      - name: Test (NodeJS)
+        working-directory: js-client 
+        run: npm run test_node
