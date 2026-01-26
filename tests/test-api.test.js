@@ -1,18 +1,18 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo');
+const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo.js');
 const { Utils } = require('@openeo/js-commons');
 const waitForExpect = require("wait-for-expect");
 
 const timeout = 2*60*1000;
-jest.setTimeout(timeout); // Give Google some time to process data
+jest.setTimeout(timeout); // Give backend some time to process data
 
-describe('GEE back-end', () => {
+describe('openEO testing-api back-end', () => {
 	const { TESTBACKEND, TESTPATH, TESTUSERNAME, TESTPASSWORD, STAC_MIGRATE_VERSION } = require('./config.js');
 	const TESTBACKENDDIRECT = TESTBACKEND + TESTPATH;
-	const TESTCOLLECTION = require("./data/gee/collection.json");
-	const TESTPROCESS = require("./data/gee/process.json");
-	const PROCESSGRAPH = require("./data/gee/processgraph.json");
-	const SIMPLECALCULATION = require("./data/gee/simpleCalculation.json");
+	const TESTCOLLECTION = require("./data/test-api/collection.json");
+	const TESTPROCESS = require("./data/test-api/process.json");
+	const PROCESSGRAPH = require("./data/test-api/processgraph.json");
+	const SIMPLECALCULATION = require("./data/test-api/simpleCalculation.json");
 	const VALID_PROCESS = {"process_graph":PROCESSGRAPH};
 	const SIMPLE_CALCULATION_PROCESS = {"process_graph":SIMPLECALCULATION};
 	const INVALID_PROCESS = {"process_graph":{"load": {"process_id": "load_collection","arguments": {}}}};
@@ -234,7 +234,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('UDF runtimes', async () => {
-			// Not implemented by GEE back-end
+			// Not implemented
 			await expect(con.listUdfRuntimes()).rejects.toThrow();
 		});
 	});
@@ -515,7 +515,7 @@ describe('GEE back-end', () => {
 		});
 
 		test('Estimate job', async () => {
-			// Not implemented by GEE back-end
+			// Not implemented
 			await expect(job.estimateJob()).rejects.toThrow();
 		});
 		
