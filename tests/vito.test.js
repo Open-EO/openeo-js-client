@@ -5,7 +5,7 @@ const { Utils } = require('@openeo/js-commons');
 jest.setTimeout(30*1000);
 
 describe('VITO back-end', () => {
-	const TESTBACKEND = 'https://openeo-dev.vito.be';
+	const { TESTBACKEND } = require('./config');
 
 	let con;
 	test('Connect', async () => {

@@ -5,7 +5,7 @@ const { Utils } = require('@openeo/js-commons');
 jest.setTimeout(30*1000);
 
 describe('EODC back-end', () => {
-	const TESTBACKEND = 'https://openeo.eodc.eu';
+	const { TESTBACKEND } = require('./config');;
 
 	const TESTCOLLECTION = 'SENTINEL2_L2A';
 
@@ -13,6 +13,7 @@ describe('EODC back-end', () => {
 
 		let con;
 		// Skip this test for now, EODC back-end has no CORS headers
+
 		test.skip('Connect', async () => {
 			con = await OpenEO.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
@@ -21,7 +22,7 @@ describe('EODC back-end', () => {
 		});
 
 		// Skip this test for now, EODC back-end has no CORS headers
-		test.skip('Check collection', async () => {
+		test('Check collection', async () => {
 			let col = await con.describeCollection(TESTCOLLECTION);
 			console.log(col.id);
 			expect(col.id).toBe(TESTCOLLECTION);
@@ -30,7 +31,7 @@ describe('EODC back-end', () => {
 		});
 
 		// Skip this test for now, EODC back-end requires Auth
-		test.skip('Request three pages of items', async () => {
+		test('Request three pages of items', async () => {
 			let page = 1;
 			let spatialExtent = [5.0,45.0,20.0,50.0];
 			let temporalExtent = [Date.UTC(2015, 0, 1), Date.UTC(2017, 0, 1)];
