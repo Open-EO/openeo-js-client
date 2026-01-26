@@ -22,7 +22,6 @@ jobs:
         with:
           repository: moregeo-it/openeo-test-api
           path: test-api
-          ref: remove_gee
       - name: setup and run test-api
         working-directory: test-api
         run: | 
