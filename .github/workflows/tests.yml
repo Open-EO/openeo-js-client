@@ -24,7 +24,7 @@ jobs:
           git checkout remove_gee
           rm -rf tests 
           npm install 
-          node src/adduser.js js-client js-client
+          npm run adduser js-client js-client
           npm run up
 
       - run: npm run test_node
