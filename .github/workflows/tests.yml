@@ -39,4 +39,4 @@ jobs:
 
       - name: Test (NodeJS)
         working-directory: js-client 
-        run: npm run test-node
+        run: npm run test_node
