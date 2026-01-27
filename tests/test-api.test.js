@@ -140,6 +140,7 @@ describe('openEO testing-api back-end', () => {
 				"listJobs",
 				"createJob",
 				"listServices",
+				"listUdfRuntimes",
 				"createService",
 				"debugJob",
 				"debugService",
@@ -235,9 +236,14 @@ describe('openEO testing-api back-end', () => {
 			expect(types).toHaveProperty('xyz');
 		});
 
-		test('UDF runtimes', async () => {
-			// Not implemented
-			await expect(con.listUdfRuntimes()).rejects.toThrow();
+		test('UDF Runtimes', async () => {
+			let runtime = "Python";
+			let udfs = await con.listUdfRuntimes();
+			expect(Utils.isObject(udfs)).toBeTruthy();
+			expect(udfs).toHaveProperty(runtime);
+			expect(Utils.isObject(udfs[runtime])).toBeTruthy();
+			expect(Utils.isObject(udfs[runtime].versions)).toBeTruthy();
+			expect(udfs[runtime].type).toBe("language");
 		});
 	});
 

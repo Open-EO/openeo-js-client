@@ -25,18 +25,6 @@ describe('VITO back-end', () => {
 		});
 	});
 
-	describe('UDFs', () => {
-		test('listUdfRuntimes', async () => {
-			let runtime = "Python";
-			let udfs = await con.listUdfRuntimes();
-			expect(Utils.isObject(udfs)).toBeTruthy();
-			expect(udfs).toHaveProperty(runtime);
-			expect(Utils.isObject(udfs[runtime])).toBeTruthy();
-			expect(Utils.isObject(udfs[runtime].versions)).toBeTruthy();
-			expect(udfs[runtime].type).toBe("language");
-		});
-	});
-
 	describe('Processing Parameters', () => {
 		test('conformance class', async () => {
 			let cap = await con.capabilities();
