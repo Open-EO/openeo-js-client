@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo.js');
+const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs, OidcProvider } = require('../src/openeo.js');
 const { Utils } = require('@openeo/js-commons');
 
 const waitForExpect = require("wait-for-expect");
@@ -174,7 +174,8 @@ describe('openEO testing-api back-end', () => {
 				"describeService",
 				"getService",
 				"updateService",
-				"deleteService"
+				"deleteService",
+				"listProcessingParameters"
 			].sort());
 			let plans = caps.listPlans();
 			expect(plans.length).toBe(1);
@@ -189,7 +190,7 @@ describe('openEO testing-api back-end', () => {
 
 		test('conformance class', async () => {
 			let cap = await con.capabilities();
-			expect(cap.hasConformance(cap.conformanceClasses.processingParameters)).toBeTruthy();
+			expect(cap.hasConformance("https://api.openeo.org/extensions/processing-parameters/0.1.0")).toBeTruthy();
 		});
 		test('list Processing Parameters', async () => {
 			let params = await con.listProcessingParameters();
@@ -273,7 +274,7 @@ describe('openEO testing-api back-end', () => {
 		let con;
 		// Skip this test for now, EODC back-end has no CORS headers
 		test('Connect', async () => {
-			con = await OpenEO.Client.connect(TESTBACKEND);
+			con = await OpenEO.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			let cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -282,9 +283,22 @@ describe('openEO testing-api back-end', () => {
 		// Skip this test for now, EODC back-end has no CORS headers
 		test('Check collection', async () => {
 			let col = await con.describeCollection(TESTCOLLECTION.id);
+			//helper function
+			getLinkHref = function(links, rel, types = ['application/json']) {
+				if (!Array.isArray(rel)) {
+					rel = [rel];
+				}
+				if (Array.isArray(links)) {
+					let link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string' && (!l.type || types.includes(l.type)));
+					if (link) {
+						return link.href;
+					}
+				}
+				return null;
+			}
 			expect(col.id).toBe(TESTCOLLECTION.id);
 			expect(col).toHaveProperty("links");
-			expect(typeof Utils.getLinkHref(col.links, 'items', ['application/geo+json', 'application/json'])).toBe("string");
+			expect(typeof getLinkHref(col.links, 'items', ['application/geo+json', 'application/json'])).toBe("string");
 		});
 
 		// Skip this test for now, EODC back-end requires Auth
