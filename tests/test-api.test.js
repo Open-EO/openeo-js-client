@@ -1,6 +1,8 @@
 // @ts-nocheck
+
 const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo.js');
 const { Utils } = require('@openeo/js-commons');
+
 const waitForExpect = require("wait-for-expect");
 
 const timeout = 2*60*1000;
@@ -239,6 +241,44 @@ describe('openEO testing-api back-end', () => {
 		});
 	});
 
+	describe('Request Collection Items', () => {
+
+		let con;
+		// Skip this test for now, EODC back-end has no CORS headers
+		test('Connect', async () => {
+			con = await OpenEO.Client.connect(TESTBACKEND);
+			expect(con instanceof Connection).toBeTruthy();
+			let cap = con.capabilities();
+			expect(cap instanceof Capabilities).toBeTruthy();
+		});
+
+		// Skip this test for now, EODC back-end has no CORS headers
+		test('Check collection', async () => {
+			let col = await con.describeCollection(TESTCOLLECTION.id);
+			expect(col.id).toBe(TESTCOLLECTION.id);
+			expect(col).toHaveProperty("links");
+			expect(typeof Utils.getLinkHref(col.links, 'items', ['application/geo+json', 'application/json'])).toBe("string");
+		});
+
+		// Skip this test for now, EODC back-end requires Auth
+		test('Request three pages of items', async () => {
+			let page = 1;
+			let spatialExtent = [5.0,45.0,20.0,50.0];
+			let temporalExtent = [Date.UTC(2015, 0, 1), Date.UTC(2017, 0, 1)];
+			let limit = 5;
+			for await(let response of con.listCollectionItems(TESTCOLLECTION.id, spatialExtent, temporalExtent, limit)) {
+				expect(typeof response).toBe("object");
+				expect(Array.isArray(response)).toBeTruthy();
+				expect(response.length).toBe(limit);
+				page++;
+				if (page > 3) {
+					break;
+				}
+			}
+		});
+
+	});
+
 	describe('Getting user-specific data', () => {
 		let con;
 		beforeAll(async () => {
@@ -448,7 +488,6 @@ describe('openEO testing-api back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
-				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -742,7 +781,6 @@ describe('openEO testing-api back-end', () => {
 							done();
 						}
 						catch(error) {
-							console.log(error.message); // it's not being printed by expect itself
 							done.fail();
 						}
 					});
