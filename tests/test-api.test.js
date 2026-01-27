@@ -594,6 +594,37 @@ describe('openEO testing-api back-end', () => {
 			expect(typeof jobdetails.created).toBe('string');
 		});
 
+		let jobPP;
+		let processing_parameters;
+		test('Post Job with processing parameters', async () => {
+			processing_params = {
+				"driver-memory": "1G", 
+				"driver-cores": 2, 
+				"invalid-parameter": true
+			};
+			jobPP = await con.createJob(
+				VALID_PROCESS, 
+				"processing_params", 
+				"contains processing params",
+				null,
+				null,
+				processing_params
+			);
+			expect(job instanceof Job).toBeTruthy();
+			expect(job.id).not.toBeNull();
+			expect(job.id).not.toBeUndefined();
+			expect(job.invalid_parameter).toBe(undefined);
+		})
+
+		test('Get Job with processing parameters', async () => {
+			res = await con.getJob(jobPP.id)
+			console.log(res)
+			jobDesc = await res.describeJob()
+			expect(jobDesc.extra['driver-memory']).toBe("1G")
+			expect(jobDesc.extra['invalid-parameter']).toBe(undefined)
+			await jobPP.deleteJob()
+		})
+
 		test('Estimate job', async () => {
 			// Not implemented
 			await expect(job.estimateJob()).rejects.toThrow();
