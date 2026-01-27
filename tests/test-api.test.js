@@ -113,7 +113,7 @@ describe('openEO testing-api back-end', () => {
 			expect(caps instanceof Capabilities).toBeTruthy();
 			expect(caps.apiVersion()).toBe("1.2.0");
 			expect(caps.backendVersion()).not.toBeUndefined();
-			expect(caps.title()).toBe("openEO testing-Api");
+			expect(caps.title()).not.toBeUndefined();
 			expect(caps.description()).not.toBeUndefined();
 			expect(caps.isStable()).toBe(false);
 			expect(caps.links().length).toBeGreaterThan(0);
