@@ -1,5 +1,4 @@
 // @ts-nocheck
-
 const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo.js');
 const { Utils } = require('@openeo/js-commons');
 
@@ -74,7 +73,7 @@ describe('openEO testing-api back-end', () => {
 
 		let providers;
 		let basic;
-		test('List providers', async () => {
+		test('List Basic providers', async () => {
 			expect(con instanceof Connection).toBeTruthy();
 			providers = await con.listAuthProviders();
 			expect(Array.isArray(providers)).toBeTruthy();
@@ -83,6 +82,18 @@ describe('openEO testing-api back-end', () => {
 			basic = filtered[0];
 			expect(basic instanceof BasicProvider).toBeTruthy();
 			expect(basic.getId()).toEqual('basic');
+			expect(basic.getToken()).toBeNull();
+		});
+
+		test('list OIDC Providers', async () => {
+			expect(con instanceof Connection).toBeTruthy();
+			let providers = await con.listAuthProviders();
+			expect(Array.isArray(providers)).toBeTruthy();
+			filtered = providers.filter(p => p.getType() === 'oidc');
+			expect(filtered.length).toBe(1);
+			oidc = filtered[0];
+			expect(oidc instanceof OidcProvider).toBeTruthy();
+			expect(oidc.getId()).toEqual('oidc.sample');
 			expect(basic.getToken()).toBeNull();
 		});
 
@@ -174,6 +185,16 @@ describe('openEO testing-api back-end', () => {
 			expect(caps.hasFeature('startJob')).toBeTruthy();
 			expect(caps.hasFeature('getFile')).toBeTruthy();
 			expect(caps.hasFeature('somethingThatIsntSupported')).toBeFalsy();
+		});
+
+		test('conformance class', async () => {
+			let cap = await con.capabilities();
+			expect(cap.hasConformance(cap.conformanceClasses.processingParameters)).toBeTruthy();
+		});
+		test('list Processing Parameters', async () => {
+			let params = await con.listProcessingParameters();
+			expect(Array.isArray(params.create_job_parameters)).toBeTruthy();
+			expect(Array.isArray(params.create_synchronous_parameters)).toBeTruthy();
 		});
 
 		test('Collections', async () => {
