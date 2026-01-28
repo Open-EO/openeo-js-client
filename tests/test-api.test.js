@@ -291,7 +291,7 @@ describe('openEO testing-api back-end', () => {
 		let con;
 		// Skip this test for now, EODC back-end has no CORS headers
 		test('Connect', async () => {
-			con = await OpenEO.connect(TESTBACKEND);
+			con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			let cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -546,6 +546,7 @@ describe('openEO testing-api back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
+				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -623,19 +624,18 @@ describe('openEO testing-api back-end', () => {
 				VALID_PROCESS, 
 				"processing_params", 
 				"contains processing params",
-				null,
-				null,
 				processing_params
 			);
-			expect(job instanceof Job).toBeTruthy();
-			expect(job.id).not.toBeNull();
-			expect(job.id).not.toBeUndefined();
-			expect(job.invalid_parameter).toBe(undefined);
+			console.log(jobPP)
+			expect(jobPP instanceof Job).toBeTruthy();
+			expect(jobPP.id).not.toBeNull();
+			expect(jobPP.id).not.toBeUndefined();
 		})
 
 		test('Get Job with processing parameters', async () => {
 			res = await con.getJob(jobPP.id)
 			jobDesc = await res.describeJob()
+			console.log(jobDesc)
 			expect(jobDesc.extra['driver-memory']).toBe("1G")
 			expect(jobDesc.extra['invalid-parameter']).toBe(undefined)
 			await jobPP.deleteJob()
