@@ -36,6 +36,8 @@ const OPENEO_FEATURE_MAP = {
 	updateService: 'patch /services/{}',
 	deleteService: 'delete /services/{}',
 	debugService: 'get /services/{}/logs',
+	// Processing Parameters
+	listProcessingParameters: 'get /processing_parameters'
 };
 
 const CONFORMANCE_CLASSES = {
