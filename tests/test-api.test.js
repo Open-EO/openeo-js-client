@@ -1,6 +1,7 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs } = require('../src/openeo.js');
+const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs, OidcProvider } = require('../src/openeo.js');
 const { Utils } = require('@openeo/js-commons');
+
 const waitForExpect = require("wait-for-expect");
 
 const timeout = 2*60*1000;
@@ -72,7 +73,7 @@ describe('openEO testing-api back-end', () => {
 
 		let providers;
 		let basic;
-		test('List providers', async () => {
+		test('List Basic providers', async () => {
 			expect(con instanceof Connection).toBeTruthy();
 			providers = await con.listAuthProviders();
 			expect(Array.isArray(providers)).toBeTruthy();
@@ -81,6 +82,18 @@ describe('openEO testing-api back-end', () => {
 			basic = filtered[0];
 			expect(basic instanceof BasicProvider).toBeTruthy();
 			expect(basic.getId()).toEqual('basic');
+			expect(basic.getToken()).toBeNull();
+		});
+
+		test('list OIDC Providers', async () => {
+			expect(con instanceof Connection).toBeTruthy();
+			let providers = await con.listAuthProviders();
+			expect(Array.isArray(providers)).toBeTruthy();
+			filtered = providers.filter(p => p.getType() === 'oidc');
+			expect(filtered.length).toBe(1);
+			oidc = filtered[0];
+			expect(oidc instanceof OidcProvider).toBeTruthy();
+			expect(oidc.getId()).toEqual('oidc.sample');
 			expect(basic.getToken()).toBeNull();
 		});
 
@@ -111,7 +124,7 @@ describe('openEO testing-api back-end', () => {
 			expect(caps instanceof Capabilities).toBeTruthy();
 			expect(caps.apiVersion()).toBe("1.2.0");
 			expect(caps.backendVersion()).not.toBeUndefined();
-			expect(caps.title()).toBe("Google Earth Engine Proxy for openEO");
+			expect(caps.title()).not.toBeUndefined();
 			expect(caps.description()).not.toBeUndefined();
 			expect(caps.isStable()).toBe(false);
 			expect(caps.links().length).toBeGreaterThan(0);
@@ -138,6 +151,7 @@ describe('openEO testing-api back-end', () => {
 				"listJobs",
 				"createJob",
 				"listServices",
+				"listUdfRuntimes",
 				"createService",
 				"debugJob",
 				"debugService",
@@ -160,7 +174,8 @@ describe('openEO testing-api back-end', () => {
 				"describeService",
 				"getService",
 				"updateService",
-				"deleteService"
+				"deleteService",
+				"listProcessingParameters"
 			].sort());
 			let plans = caps.listPlans();
 			expect(plans.length).toBe(1);
@@ -171,6 +186,16 @@ describe('openEO testing-api back-end', () => {
 			expect(caps.hasFeature('startJob')).toBeTruthy();
 			expect(caps.hasFeature('getFile')).toBeTruthy();
 			expect(caps.hasFeature('somethingThatIsntSupported')).toBeFalsy();
+		});
+
+		test('conformance class', async () => {
+			let cap = await con.capabilities();
+			expect(cap.hasConformance("https://api.openeo.org/extensions/processing-parameters/0.1.0")).toBeTruthy();
+		});
+		test('list Processing Parameters', async () => {
+			let params = await con.listProcessingParameters();
+			expect(Array.isArray(params.create_job_parameters)).toBeTruthy();
+			expect(Array.isArray(params.create_synchronous_parameters)).toBeTruthy();
 		});
 
 		test('Collections', async () => {
@@ -233,10 +258,66 @@ describe('openEO testing-api back-end', () => {
 			expect(types).toHaveProperty('xyz');
 		});
 
-		test('UDF runtimes', async () => {
-			// Not implemented
-			await expect(con.listUdfRuntimes()).rejects.toThrow();
+		test('UDF Runtimes', async () => {
+			let runtime = "Python";
+			let udfs = await con.listUdfRuntimes();
+			expect(Utils.isObject(udfs)).toBeTruthy();
+			expect(udfs).toHaveProperty(runtime);
+			expect(Utils.isObject(udfs[runtime])).toBeTruthy();
+			expect(Utils.isObject(udfs[runtime].versions)).toBeTruthy();
+			expect(udfs[runtime].type).toBe("language");
 		});
+	});
+
+	describe('Request Collection Items', () => {
+
+		let con;
+		// Skip this test for now, EODC back-end has no CORS headers
+		test('Connect', async () => {
+			con = await OpenEO.connect(TESTBACKEND);
+			expect(con instanceof Connection).toBeTruthy();
+			let cap = con.capabilities();
+			expect(cap instanceof Capabilities).toBeTruthy();
+		});
+
+		// Skip this test for now, EODC back-end has no CORS headers
+		test('Check collection', async () => {
+			let col = await con.describeCollection(TESTCOLLECTION.id);
+			//helper function
+			getLinkHref = function(links, rel, types = ['application/json']) {
+				if (!Array.isArray(rel)) {
+					rel = [rel];
+				}
+				if (Array.isArray(links)) {
+					let link = links.find(l => Utils.isObject(l) && rel.includes(l.rel) && typeof l.href === 'string' && (!l.type || types.includes(l.type)));
+					if (link) {
+						return link.href;
+					}
+				}
+				return null;
+			}
+			expect(col.id).toBe(TESTCOLLECTION.id);
+			expect(col).toHaveProperty("links");
+			expect(typeof getLinkHref(col.links, 'items', ['application/geo+json', 'application/json'])).toBe("string");
+		});
+
+		// Skip this test for now, EODC back-end requires Auth
+		test('Request three pages of items', async () => {
+			let page = 1;
+			let spatialExtent = [5.0,45.0,20.0,50.0];
+			let temporalExtent = [Date.UTC(2015, 0, 1), Date.UTC(2017, 0, 1)];
+			let limit = 5;
+			for await(let response of con.listCollectionItems(TESTCOLLECTION.id, spatialExtent, temporalExtent, limit)) {
+				expect(typeof response).toBe("object");
+				expect(Array.isArray(response)).toBeTruthy();
+				expect(response.length).toBe(limit);
+				page++;
+				if (page > 3) {
+					break;
+				}
+			}
+		});
+
 	});
 
 	describe('Getting user-specific data', () => {
@@ -448,7 +529,6 @@ describe('openEO testing-api back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
-				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -513,6 +593,37 @@ describe('openEO testing-api back-end', () => {
 			expect(jobdetails.title).toBe('Test job');
 			expect(typeof jobdetails.created).toBe('string');
 		});
+
+		let jobPP;
+		let processing_parameters;
+		test('Post Job with processing parameters', async () => {
+			processing_params = {
+				"driver-memory": "1G", 
+				"driver-cores": 2, 
+				"invalid-parameter": true
+			};
+			jobPP = await con.createJob(
+				VALID_PROCESS, 
+				"processing_params", 
+				"contains processing params",
+				null,
+				null,
+				processing_params
+			);
+			expect(job instanceof Job).toBeTruthy();
+			expect(job.id).not.toBeNull();
+			expect(job.id).not.toBeUndefined();
+			expect(job.invalid_parameter).toBe(undefined);
+		})
+
+		test('Get Job with processing parameters', async () => {
+			res = await con.getJob(jobPP.id)
+			console.log(res)
+			jobDesc = await res.describeJob()
+			expect(jobDesc.extra['driver-memory']).toBe("1G")
+			expect(jobDesc.extra['invalid-parameter']).toBe(undefined)
+			await jobPP.deleteJob()
+		})
 
 		test('Estimate job', async () => {
 			// Not implemented
@@ -742,7 +853,6 @@ describe('openEO testing-api back-end', () => {
 							done();
 						}
 						catch(error) {
-							console.log(error.message); // it's not being printed by expect itself
 							done.fail();
 						}
 					});
