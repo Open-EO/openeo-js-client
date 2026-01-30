@@ -94,7 +94,7 @@ class AuthProvider {
 	getToken(){
 		//check conformance
 		const isJWT = this.connection.capabilities().hasConformance(
-			"https://api.openeo.org/1.3.0/authentication/jwt"
+			"https://api.openeo.org/*/authentication/jwt"
 		);
 		if (typeof this.token === 'string') {
 			if(isJWT){
