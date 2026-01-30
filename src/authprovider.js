@@ -90,13 +90,23 @@ class AuthProvider {
 	 * 
 	 * @returns {string | null}
 	 */
-	getToken() {
-		if (typeof this.token === 'string') {
-			return this.getType() + "/" + this.getProviderId() + "/" + this.token;
+	getToken(){
+		//check conformance
+		const isJWT = this.connection.capabilities().hasConformance(
+			"https://api.openeo.org/1.3.0/authentication/jwt"
+		);
+		if(isJWT){
+			// return the JWT token instead of the legacy token
+			if (typeof this.token === 'string') {
+				// should we check for 'iss'?
+				return this.token;
+			}
+		} else {
+			if (typeof this.token === 'string') {
+				return this.getType() + "/" + this.getProviderId() + "/" + this.token;
+			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	/**
