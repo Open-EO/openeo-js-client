@@ -86,6 +86,7 @@ class AuthProvider {
 	/**
 	 * Returns the access token that is used as Bearer Token in API requests.
 	 * 
+	 * Checks server's conformance for JWT usage.
 	 * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
 	 * 
 	 * @returns {string | null}
@@ -95,14 +96,12 @@ class AuthProvider {
 		const isJWT = this.connection.capabilities().hasConformance(
 			"https://api.openeo.org/1.3.0/authentication/jwt"
 		);
-		if(isJWT){
-			// return the JWT token instead of the legacy token
-			if (typeof this.token === 'string') {
-				// should we check for 'iss'?
+		if (typeof this.token === 'string') {
+			if(isJWT){
+				//1.3.0
 				return this.token;
-			}
-		} else {
-			if (typeof this.token === 'string') {
+			} else {
+				//legacy
 				return this.getType() + "/" + this.getProviderId() + "/" + this.token;
 			}
 		}
