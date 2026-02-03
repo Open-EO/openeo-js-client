@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.10.0] - unreleased
 
 ### Added
 
@@ -268,7 +268,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.9.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.10.0...HEAD
+[2.10.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.6.0...v2.7.0
