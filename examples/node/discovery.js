@@ -1,13 +1,13 @@
 // Import the JS client
-const { OpenEO } = require('@openeo/js-client');
+const { Client } = require('@openeo/js-client');
 
 const url = "https://earthengine.openeo.org"; // Insert the openEO server URL here
 let connection = null;
 
 console.log('URL: ' + url);
-console.log('Client Version: ' + OpenEO.clientVersion());
+console.log('Client Version: ' + Client.clientVersion());
 
-OpenEO.connect(url)
+Client.connect(url)
 	.then(c => {
 		connection = c;
 		return connection.capabilities();
