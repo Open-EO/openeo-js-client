@@ -70,6 +70,8 @@ declare namespace OpenEO {
          * Returns the access token that is used as Bearer Token in API requests.
          *
          * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
+         * 
+         * Checks whether the server supports the JWT conformance class.
          *
          * @returns {string | null}
          */

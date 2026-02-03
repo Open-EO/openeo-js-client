@@ -88,15 +88,23 @@ class AuthProvider {
 	 * 
 	 * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
 	 * 
+	 * Checks whether the server supports the JWT conformance class.
+	 * 
 	 * @returns {string | null}
 	 */
 	getToken() {
+		//check conformance
+		const isJWT = this.connection.capabilities().hasConformance(
+			"https://api.openeo.org/*/authentication/jwt"
+		);
 		if (typeof this.token === 'string') {
-			return this.getType() + "/" + this.getProviderId() + "/" + this.token;
+			if(isJWT) {
+				return this.token; // JWT since API v1.3.0
+			} else {
+				return this.getType() + "/" + this.getProviderId() + "/" + this.token; // legacy
+			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	/**

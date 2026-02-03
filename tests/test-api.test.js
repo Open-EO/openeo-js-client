@@ -97,19 +97,36 @@ describe('openEO testing-api back-end', () => {
 			expect(basic.getToken()).toBeNull();
 		});
 
+		let jwt_conformance
+		test('check JWT conformance', async () => {
+			let cap = await con.capabilities();
+			jwt_conformance = cap.hasConformance("https://api.openeo.org/*/authentication/jwt")
+			expect(jwt_conformance).toBeTruthy(); // >= v1.3.0
+			//expect(jwt_conformance).toBeFalsy(); // < v1.3.0
+		});
+
 		test('Connect with wrong Basic Auth credentials', async () => {
 			await expect(basic.login("foo", "bar")).rejects.toThrow();
 			expect(con.isAuthenticated()).toBeFalsy();
 		});
 
+		let token = null
 		test('Connect with Basic Auth credentials', async () => {
 			let tokenValue = null;
 			con.on('tokenChanged', token => tokenValue = token);
 			await basic.login(TESTUSERNAME, TESTPASSWORD);
-			expect(basic.getToken()).not.toBeNull();
+			token = basic.getToken()
+			expect(token).not.toBeNull();
 			expect(con.isAuthenticated()).toBeTruthy();
 			expect(typeof tokenValue).toBe('string');
 		});
+
+		test('Basic token formatting complies with conformance', async () => {
+			expect(typeof token).toBe('string');
+			const isLegacy = token.startsWith('basic');
+			expect( (isLegacy == jwt_conformance) ).toBeFalsy();
+		});
+
 	
 	});
 
@@ -618,7 +635,6 @@ describe('openEO testing-api back-end', () => {
 
 		test('Get Job with processing parameters', async () => {
 			res = await con.getJob(jobPP.id)
-			console.log(res)
 			jobDesc = await res.describeJob()
 			expect(jobDesc.extra['driver-memory']).toBe("1G")
 			expect(jobDesc.extra['invalid-parameter']).toBe(undefined)
