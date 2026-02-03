@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for JWT tokens as defined in openEO API v1.3.0 (conformance class: `https://api.openeo.org/1.3.0/authentication/jwt`)
 
+### Fixed
+
+- Federation extension support in `Connection.validateProcess` for `POST /validation` responses
+
 ## [2.9.0] - 2025-08-22
 
 ### Added
