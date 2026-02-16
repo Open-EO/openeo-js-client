@@ -139,7 +139,7 @@ describe('openEO testing-api back-end', () => {
 		test('Capabilities', async () => {
 			let caps = await con.capabilities();
 			expect(caps instanceof Capabilities).toBeTruthy();
-			expect(caps.apiVersion()).toBe("1.2.0");
+			expect(caps.apiVersion()).toBe("1.3.0");
 			expect(caps.backendVersion()).not.toBeUndefined();
 			expect(caps.title()).not.toBeUndefined();
 			expect(caps.description()).not.toBeUndefined();
