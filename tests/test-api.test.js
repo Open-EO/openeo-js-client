@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { OpenEO, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs, OidcProvider } = require('../src/openeo.js');
+const { Client, Connection, FileTypes, Capabilities, UserProcess, Job, Service, UserFile, BasicProvider, Logs, OidcProvider  } = require('../src/client');
 const { Utils } = require('@openeo/js-commons');
 
 const waitForExpect = require("wait-for-expect");
@@ -21,22 +21,22 @@ describe('openEO testing-api back-end', () => {
 	const isBrowserEnv = (typeof Blob !== 'undefined');
 
 	async function connectWithoutAuth() {
-		return await OpenEO.connect(TESTBACKEND);
+		return await Client.connect(TESTBACKEND);
 	}
 
 	async function connectWithBasicAuth() {
-		let con = await OpenEO.connect(TESTBACKEND);
+		let con = await Client.connect(TESTBACKEND);
 		await con.authenticateBasic(TESTUSERNAME, TESTPASSWORD);
 		return con;
 	}
 
 	describe('Connecting', () => {
 		test('Connect with wrong Server URL', async () => {
-			await expect(OpenEO.connect("http://invalid.openeo.org")).rejects.toThrow();
+			await expect(Client.connect("http://invalid.openeo.org")).rejects.toThrow();
 		});
 
 		test('Connect', async () => {
-			let con = await OpenEO.connect(TESTBACKEND);
+			let con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKEND);
@@ -46,7 +46,7 @@ describe('openEO testing-api back-end', () => {
 		});
 
 		test('Connect directly to a known version via connect', async () => {
-			let con = await OpenEO.connect(TESTBACKENDDIRECT);
+			let con = await Client.connect(TESTBACKENDDIRECT);
 			expect(con instanceof Connection).toBeTruthy();
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
@@ -56,7 +56,7 @@ describe('openEO testing-api back-end', () => {
 		});
 
 		test('Connect directly to a known version via connectDirect', async () => {
-			let con = await OpenEO.connectDirect(TESTBACKENDDIRECT);
+			let con = await Client.connectDirect(TESTBACKENDDIRECT);
 			expect(con.isAuthenticated()).toBeFalsy();
 			expect(con.getUrl()).toBe(TESTBACKENDDIRECT);
 			expect(con.getBaseUrl()).toBe(TESTBACKENDDIRECT);
@@ -291,7 +291,7 @@ describe('openEO testing-api back-end', () => {
 		let con;
 		// Skip this test for now, EODC back-end has no CORS headers
 		test('Connect', async () => {
-			con = await OpenEO.connect(TESTBACKEND);
+			con = await Client.connect(TESTBACKEND);
 			expect(con instanceof Connection).toBeTruthy();
 			let cap = con.capabilities();
 			expect(cap instanceof Capabilities).toBeTruthy();
@@ -546,6 +546,7 @@ describe('openEO testing-api back-end', () => {
 				let r = await con.computeResult(INVALID_PROCESS, 'jpeg');
 				expect(r).toBeUndefined();
 			} catch (error) {
+				console.log(error)
 				expect(error.code).toBe("ResultNodeMissing");
 				expect(error.message).toBe("No result node found for the process.")
 			}
@@ -623,19 +624,18 @@ describe('openEO testing-api back-end', () => {
 				VALID_PROCESS, 
 				"processing_params", 
 				"contains processing params",
-				null,
-				null,
 				processing_params
 			);
-			expect(job instanceof Job).toBeTruthy();
-			expect(job.id).not.toBeNull();
-			expect(job.id).not.toBeUndefined();
-			expect(job.invalid_parameter).toBe(undefined);
+			console.log(jobPP)
+			expect(jobPP instanceof Job).toBeTruthy();
+			expect(jobPP.id).not.toBeNull();
+			expect(jobPP.id).not.toBeUndefined();
 		})
 
 		test('Get Job with processing parameters', async () => {
 			res = await con.getJob(jobPP.id)
 			jobDesc = await res.describeJob()
+			console.log(jobDesc)
 			expect(jobDesc.extra['driver-memory']).toBe("1G")
 			expect(jobDesc.extra['invalid-parameter']).toBe(undefined)
 			await jobPP.deleteJob()
