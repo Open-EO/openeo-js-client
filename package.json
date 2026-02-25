@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Open-EO/openeo-js-client.git"
+    "url": "https://github.com/Open-EO/openeo-js-client"
   },
   "funding": {
     "type": "github",
@@ -60,7 +60,7 @@
   },
   "scripts": {
     "docs": "jsdoc -r -d docs/ -P package.json -R README.md -c .jsdoc",
-    "build": "npm run lint && webpack",
+    "build": "webpack",
     "tsd": "tsc --project tsconfig.json",
     "lint": "eslint src/",
     "test": " jest --env=jsdom --runInBand tests/",
