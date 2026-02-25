@@ -128,6 +128,16 @@ class OidcProvider extends AuthProvider {
 		this.defaultClients = Array.isArray(options.default_clients) ? options.default_clients : [];
 
 		/**
+		 * Additional parameters to include in authorization requests.
+		 * 
+		 * As defined by the API, these parameters MUST be included when
+		 * requesting the authorization endpoint.
+		 * 
+		 * @type {object.<string, *>}
+		 */
+		this.authorizationParameters = Utils.isObject(options.authorization_parameters) ? options.authorization_parameters : {};
+
+		/**
 		 * The detected default Client.
 		 * 
 		 * @type {OidcClient}
@@ -244,7 +254,8 @@ class OidcProvider extends AuthProvider {
 			scope: scope.join(' '),
 			validateSubOnSilentRenew: true,
 			response_type,
-			response_mode: response_type.includes('code') ? 'query' : 'fragment'
+			response_mode: response_type.includes('code') ? 'query' : 'fragment',
+			extraQueryParams: this.authorizationParameters
 		}, options);
 	}
 

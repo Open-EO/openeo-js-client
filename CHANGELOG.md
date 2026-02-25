@@ -5,11 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.10.0] - unreleased
+## [unreleased]
+
+## [2.10.0] - 2026-02-25
 
 ### Added
 
 - Support for JWT tokens as defined in openEO API v1.3.0 (conformance class: `https://api.openeo.org/1.3.0/authentication/jwt`)
+- Support OIDC client `authorization_parameters`
+
+### Changed
+
+- Tests run on openeo-test-api instead of openeo-earthengine-driver
 
 ### Fixed
 
