@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resume previously authenticated sessions via `AuthProvider.resume()`
 
+### Fixed
+
+- Clean stale OIDC auth entries from local storage
+
 ## [2.10.0] - 2026-02-25
 
 ### Added

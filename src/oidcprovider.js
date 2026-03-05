@@ -53,6 +53,7 @@ class OidcProvider extends AuthProvider {
 		}
 		let providerOptions = provider.getOptions(options);
 		let oidc = new Oidc.UserManager(providerOptions);
+		await oidc.clearStaleState();
 		return await oidc.signinCallback(url);
 	}
 
