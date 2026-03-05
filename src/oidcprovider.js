@@ -84,9 +84,18 @@ class OidcProvider extends AuthProvider {
 		this.clientId = null;
 
 		/**
+		 * The client secret to use for authentication.
+		 * 
+		 * Only used for the `client_credentials` grant type.
+		 * 
+		 * @type {string | null}
+		 */
+		this.clientSecret = null;
+
+		/**
 		 * The grant type (flow) to use for this provider.
 		 * 
-		 * Either "authorization_code+pkce" (default) or "implicit"
+		 * Either "authorization_code+pkce" (default), "implicit" or "client_credentials"
 		 * 
 		 * @type {string}
 		 */
@@ -144,6 +153,13 @@ class OidcProvider extends AuthProvider {
 		 * @type {OidcClient}
 		 */
 		this.defaultClient = this.detectDefaultClient();
+
+		/**
+		 * The cached OpenID Connect well-known configuration document.
+		 * 
+		 * @type {object.<string, *> | null}
+		 */
+		this.wellKnownDocument = null;
 	}
 
 	/**
@@ -177,7 +193,8 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Authenticate with OpenID Connect (OIDC).
 	 * 
-	 * Supported only in Browser environments.
+	 * Supported in Browser environments for `authorization_code+pkce` and `implicit` grants.
+	 * The `client_credentials` grant is supported in all environments.
 	 * 
 	 * @async
 	 * @param {object.<string, *>} [options={}] - Object with authentication options.
@@ -192,6 +209,10 @@ class OidcProvider extends AuthProvider {
 			throw new Error("No Issuer URL available for OpenID Connect");
 		}
 
+		if (this.grant === 'client_credentials') {
+			return await this.loginClientCredentials();
+		}
+
 		this.manager = new Oidc.UserManager(this.getOptions(options, requestRefreshToken));
 		this.addListener('UserLoaded', async () => this.setUser(await this.manager.getUser()), 'js-client');
 		this.addListener('AccessTokenExpired', () => this.setUser(null), 'js-client');
@@ -204,7 +225,102 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
+	 * Authenticate using the OIDC Client Credentials grant.
+	 * 
+	 * Requires `clientId` and `clientSecret` to be set.
+	 * This flow does not use the oidc-client library and works in all environments.
+	 * 
+	 * @async
+	 * @protected
+	 * @returns {Promise<void>}
+	 * @throws {Error}
+	 */
+	async loginClientCredentials() {
+		if (!this.clientId || !this.clientSecret) {
+			throw new Error("Client ID and Client Secret are required for the client credentials flow");
+		}
+
+		let tokenEndpoint = await this.getTokenEndpoint();
+
+		let params = new URLSearchParams();
+		params.append('grant_type', 'client_credentials');
+		params.append('client_id', this.clientId);
+		params.append('client_secret', this.clientSecret);
+		params.append('scope', this.scopes.join(' '));
+
+		let response = await Environment.axios.post(tokenEndpoint, params.toString(), {
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+		});
+
+		let data = response.data;
+		let user = new Oidc.User({
+			access_token: data.access_token,
+			token_type: data.token_type || 'Bearer',
+			scope: data.scope || this.scopes.join(' '),
+			expires_at: data.expires_in ? Math.floor(Date.now() / 1000) + data.expires_in : undefined,
+			profile: {}
+		});
+		this.setUser(user);
+	}
+
+	/**
+	 * Retrieves the OpenID Connect well-known configuration document.
+	 * 
+	 * @async
+	 * @returns {Promise<object.<str, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
+	 */
+	async getWellKnownDocument() {
+		if (!this.issuer || typeof this.issuer !== 'string') {
+			return null;
+		}
+		if (this.wellKnownDocument === null) {
+			const authority = this.issuer.replace('/.well-known/openid-configuration', '');
+			const discoveryUrl = authority + '/.well-known/openid-configuration';
+			const response = await Environment.axios.get(discoveryUrl);
+			this.wellKnownDocument = response.data;
+		}
+		return this.wellKnownDocument;
+	}
+
+	/**
+	 * Discovers the token endpoint from the OpenID Connect issuer.
+	 * 
+	 * @async
+	 * @protected
+	 * @returns {Promise<string>} The token endpoint URL.
+	 * @throws {Error}
+	 */
+	async getTokenEndpoint() {
+		const wellKnown = await this.getWellKnownDocument();
+		if (!Utils.isObject(wellKnown) || !wellKnown.token_endpoint) {
+			throw new Error("Unable to discover token endpoint from issuer");
+		}
+		return wellKnown.token_endpoint;
+	}
+
+	/**
+	 * Checks whether the OpenID Connect provider supports the Client Credentials grant.
+	 * 
+	 * @async
+	 * @returns {Promise<boolean|null>} `true` if the Client Credentials grant is supported, `false` otherwise. `null` if unknown.
+	 */
+	async supportsClientCredentials() {
+		try {
+			const wellKnown = await this.getWellKnownDocument();
+			if (!Utils.isObject(wellKnown) || !Array.isArray(wellKnown.grant_types_supported)) {
+				return null;
+			}
+			return wellKnown.grant_types_supported.includes('client_credentials');
+		} catch (error) {
+			return null;
+		}
+	}
+
+	/**
 	 * Restores a previously established OIDC session from storage.
+	 * 
+	 * Not supported for the `client_credentials` grant as credentials
+	 * are not persisted. Use `login()` to re-authenticate instead.
 	 * 
 	 * @async
 	 * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
@@ -212,6 +328,10 @@ class OidcProvider extends AuthProvider {
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
 	 */
 	async resume(options = {}) {
+		if (this.grant === 'client_credentials') {
+			return false;
+		}
+
 		this.manager = new Oidc.UserManager(this.getOptions(options));
 		this.addListener('UserLoaded', async () => this.setUser(await this.manager.getUser()), 'js-client');
 		this.addListener('AccessTokenExpired', () => this.setUser(null), 'js-client');
@@ -235,6 +355,12 @@ class OidcProvider extends AuthProvider {
 	 * @async
 	 */
 	async logout() {
+		if (this.grant === 'client_credentials') {
+			super.logout();
+			this.setUser(null);
+			return;
+		}
+
 		if (this.manager !== null) {
 			try {
 				if (OidcProvider.uiMethod === 'popup') {
@@ -299,6 +425,8 @@ class OidcProvider extends AuthProvider {
 				return 'code';
 			case 'implicit':
 				return 'token id_token';
+			case 'client_credentials':
+				return null;
 			default:
 				throw new Error('Grant Type not supported');
 		}
@@ -314,6 +442,7 @@ class OidcProvider extends AuthProvider {
 		switch(grant) {
 			case 'authorization_code+pkce':
 			case 'implicit':
+			case 'client_credentials':
 				this.grant = grant;
 				break;
 			default:
@@ -330,6 +459,17 @@ class OidcProvider extends AuthProvider {
 	 */
 	setClientId(clientId) {
 		this.clientId = clientId;
+	}
+
+	/**
+	 * Sets the Client Secret for OIDC authentication.
+	 * 
+	 * Only used for the `client_credentials` grant type.
+	 * 
+	 * @param {string | null} clientSecret
+	 */
+	setClientSecret(clientSecret) {
+		this.clientSecret = clientSecret;
 	}
 
 	/**
@@ -352,11 +492,20 @@ class OidcProvider extends AuthProvider {
 	/**
 	 * Returns a display name for the authenticated user.
 	 * 
+	 * For the `client_credentials` grant, returns a name based on the client ID.
+	 * 
 	 * @returns {string?} Name of the user or `null`
 	 */
 	getDisplayName() {
 		if (this.user && Utils.isObject(this.user.profile)) {
 			return this.user.profile.name || this.user.profile.preferred_username || this.user.profile.email || null;
+		}
+		if (this.grant === 'client_credentials' && this.clientId) {
+			let id = this.clientId;
+			if (id.length > 15) {
+				id = id.slice(0, 5) + '\u2026' + id.slice(-5);
+			}
+			return `Client ${id}`;
 		}
 		return null;
 	}
@@ -372,7 +521,16 @@ class OidcProvider extends AuthProvider {
 	 */
 	detectDefaultClient() {
 		for(let grant of OidcProvider.grants) {
-			let defaultClient = this.defaultClients.find(client => Boolean(client.grant_types.includes(grant) && Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(OidcProvider.redirectUrl))));
+			let defaultClient = this.defaultClients.find(client => {
+				if (!client.grant_types.includes(grant)) {
+					return false;
+				}
+				// client_credentials doesn't require redirect URLs
+				if (grant === 'client_credentials') {
+					return true;
+				}
+				return Array.isArray(client.redirect_urls) && client.redirect_urls.find(url => url.startsWith(OidcProvider.redirectUrl));
+			});
 			if (defaultClient) {
 				this.setGrant(grant);
 				this.setClientId(defaultClient.id);
@@ -419,7 +577,8 @@ OidcProvider.redirectUrl = Environment.getUrl().split('#')[0].split('?')[0].repl
  */
 OidcProvider.grants = [
 	'authorization_code+pkce',
-	'implicit'
+	'implicit',
+	'client_credentials'
 ];
 
 module.exports = OidcProvider;

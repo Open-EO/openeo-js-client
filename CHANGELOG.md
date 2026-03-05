@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Resume previously authenticated sessions via `AuthProvider.resume()`
+- Support OIDC Client Credentials flow
 
 ### Fixed
 
