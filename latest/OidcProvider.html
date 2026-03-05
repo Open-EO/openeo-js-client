@@ -1042,6 +1042,81 @@ requesting the authorization endpoint.</p>
 
         
             
+<h4 class="name" id=".WebStorageStateStore"><span class="type-signature">(static) </span>WebStorageStateStore<span class="type-signature"> :Oidc.WebStorageStateStore</span></h4>
+
+
+
+
+<div class="description">
+    <p>The WebStorageStateStore class from oidc-client.</p>
+<p>Can be used to configure the <code>userStore</code> option for the UserManager,
+e.g. to persist tokens in localStorage:
+<code>new OidcProvider.WebStorageStateStore({ store: window.localStorage })</code></p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Oidc.WebStorageStateStore</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line433">line 433</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
 <h4 class="name" id=".grants"><span class="type-signature">(static) </span>grants<span class="type-signature"> :Array.&lt;string></span></h4>
 
 
@@ -1100,7 +1175,7 @@ The default grant type since client version 2.0.0 is 'authorization_code+pkce'.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line393">line 393</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line419">line 419</a>
     </li></ul></dd>
     
 
@@ -1177,7 +1252,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line380">line 380</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line406">line 406</a>
     </li></ul></dd>
     
 
@@ -1249,7 +1324,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line367">line 367</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line393">line 393</a>
     </li></ul></dd>
     
 
@@ -1562,7 +1637,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line346">line 346</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line372">line 372</a>
     </li></ul></dd>
     
 
@@ -1796,7 +1871,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line330">line 330</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line356">line 356</a>
     </li></ul></dd>
     
 
@@ -2122,7 +2197,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line243">line 243</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line269">line 269</a>
     </li></ul></dd>
     
 
@@ -2346,7 +2421,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line269">line 269</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line295">line 295</a>
     </li></ul></dd>
     
 
@@ -3054,7 +3129,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line210">line 210</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line236">line 236</a>
     </li></ul></dd>
     
 
@@ -3289,6 +3364,197 @@ The trailing slash is removed for consistency.</p>
     
 
     
+    <h4 class="name" id="resume"><span class="type-signature">(async) </span>resume<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;boolean>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Restores a previously established OIDC session from storage.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object.&lt;string, *></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last"><p>Additional options passed to the OIDC UserManager.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="AuthProvider.html#resume">AuthProvider#resume</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line213">line 213</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/IdentityModel/oidc-client-js/wiki#usermanager">https://github.com/IdentityModel/oidc-client-js/wiki#usermanager</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>true</code> if the session could be resumed, <code>false</code> otherwise.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;boolean></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="setClientId"><span class="type-signature"></span>setClientId<span class="signature">(clientId)</span><span class="type-signature"></span></h4>
     
 
@@ -3394,7 +3660,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line304">line 304</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line330">line 330</a>
     </li></ul></dd>
     
 
@@ -3531,7 +3797,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line286">line 286</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line312">line 312</a>
     </li></ul></dd>
     
 
@@ -3842,7 +4108,7 @@ The trailing slash is removed for consistency.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line314">line 314</a>
+        <a href="oidcprovider.js.html">oidcprovider.js</a>, <a href="oidcprovider.js.html#line340">line 340</a>
     </li></ul></dd>
     
 
@@ -4247,7 +4513,7 @@ The trailing slash is removed for consistency.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Feb 25 2026 11:20:44 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Thu Mar 05 2026 13:49:36 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
