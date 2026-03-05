@@ -203,6 +203,32 @@ class OidcProvider extends AuthProvider {
 	}
 
 	/**
+	 * Restores a previously established OIDC session from storage.
+	 * 
+	 * @async
+	 * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
+	 * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
+	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
+	 */
+	async resume(options = {}) {
+		this.manager = new Oidc.UserManager(this.getOptions(options));
+		this.addListener('UserLoaded', async () => this.setUser(await this.manager.getUser()), 'js-client');
+		this.addListener('AccessTokenExpired', () => this.setUser(null), 'js-client');
+
+		let user = await this.manager.getUser();
+		if (user && user.expired && user.refresh_token) {
+			user = await this.manager.signinSilent();
+		}
+
+		if (user && !user.expired) {
+			this.setUser(user);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Logout from the established session.
 	 * 
 	 * @async

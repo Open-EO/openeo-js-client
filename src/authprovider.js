@@ -128,6 +128,16 @@ class AuthProvider {
 	}
 
 	/**
+	 * Tries to resume an existing session.
+	 * 
+	 * @param  {...any} args 
+	 * @returns {boolean} `true` if the session could be resumed, `false` otherwise
+	 */
+	async resume(...args) { // eslint-disable-line no-unused-vars
+		return false;
+	}
+
+	/**
 	 * Abstract method that extending classes implement the login process with.
 	 * 
 	 * @async

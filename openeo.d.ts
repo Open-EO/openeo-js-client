@@ -87,6 +87,13 @@ declare namespace OpenEO {
          */
         setToken(token: string | null): void;
         /**
+         * Tries to resume an existing session.
+         *
+         * @param  {...any} args
+         * @returns {boolean} `true` if the session could be resumed, `false` otherwise
+         */
+        resume(...args: any[]): boolean;
+        /**
          * Abstract method that extending classes implement the login process with.
          *
          * @async
@@ -570,6 +577,15 @@ declare namespace OpenEO {
          */
         defaultClients: Array<OidcClient>;
         /**
+         * Additional parameters to include in authorization requests.
+         *
+         * As defined by the API, these parameters MUST be included when
+         * requesting the authorization endpoint.
+         *
+         * @type {object.<string, *>}
+         */
+        authorizationParameters: Record<string, any>;
+        /**
          * The detected default Client.
          *
          * @type {OidcClient}
@@ -608,7 +624,16 @@ declare namespace OpenEO {
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          * @see {OidcProvider#refreshTokenScope}
          */
-        login(options?: Record<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        login(options?: object<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        /**
+         * Restores a previously established OIDC session from storage.
+         *
+         * @async
+         * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
+         * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
+         */
+        resume(options?: object<string, any>): Promise<boolean>;
         /**
          * Returns the options for the OIDC client library.
          *
