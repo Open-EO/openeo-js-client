@@ -538,9 +538,17 @@ declare namespace OpenEO {
          */
         clientId: string | null;
         /**
+         * The client secret to use for authentication.
+         *
+         * Only used for the `client_credentials` grant type.
+         *
+         * @type {string | null}
+         */
+        clientSecret: string | null;
+        /**
          * The grant type (flow) to use for this provider.
          *
-         * Either "authorization_code+pkce" (default) or "implicit"
+         * Either "authorization_code+pkce" (default), "implicit" or "client_credentials"
          *
          * @type {string}
          */
@@ -592,6 +600,12 @@ declare namespace OpenEO {
          */
         defaultClient: OidcClient;
         /**
+         * The cached OpenID Connect well-known configuration document.
+         *
+         * @type {object.<string, *> | null}
+         */
+        wellKnownDocument: Record<string, any> | null;
+        /**
          * Adds a listener to one of the following events:
          *
          * - AccessTokenExpiring: Raised prior to the access token expiring.
@@ -614,7 +628,8 @@ declare namespace OpenEO {
         /**
          * Authenticate with OpenID Connect (OIDC).
          *
-         * Supported only in Browser environments.
+         * Supported in Browser environments for `authorization_code+pkce` and `implicit` grants.
+         * The `client_credentials` grant is supported in all environments.
          *
          * @async
          * @param {object.<string, *>} [options={}] - Object with authentication options.
@@ -624,16 +639,54 @@ declare namespace OpenEO {
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
          * @see {OidcProvider#refreshTokenScope}
          */
-        login(options?: object<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        login(options?: Record<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        /**
+         * Authenticate using the OIDC Client Credentials grant.
+         *
+         * Requires `clientId` and `clientSecret` to be set.
+         * This flow does not use the oidc-client library and works in all environments.
+         *
+         * @async
+         * @protected
+         * @returns {Promise<void>}
+         * @throws {Error}
+         */
+        protected loginClientCredentials(): Promise<void>;
+        /**
+         * Retrieves the OpenID Connect well-known configuration document.
+         *
+         * @async
+         * @returns {Promise<object.<str, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
+         */
+        getWellKnownDocument(): Promise<Record<string, any>> | null;
+        /**
+         * Discovers the token endpoint from the OpenID Connect issuer.
+         *
+         * @async
+         * @protected
+         * @returns {Promise<string>} The token endpoint URL.
+         * @throws {Error}
+         */
+        protected getTokenEndpoint(): Promise<string>;
+        /**
+         * Checks whether the OpenID Connect provider supports the Client Credentials grant.
+         *
+         * @async
+         * @returns {Promise<boolean|null>} `true` if the Client Credentials grant is supported, `false` otherwise. `null` if unknown.
+         */
+        supportsClientCredentials(): Promise<boolean | null>;
         /**
          * Restores a previously established OIDC session from storage.
+         *
+         * Not supported for the `client_credentials` grant as credentials
+         * are not persisted. Use `login()` to re-authenticate instead.
          *
          * @async
          * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
          * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
          * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
          */
-        resume(options?: object<string, any>): Promise<boolean>;
+        resume(options?: Record<string, any>): Promise<boolean>;
         /**
          * Returns the options for the OIDC client library.
          *
@@ -669,6 +722,14 @@ declare namespace OpenEO {
          * @param {string | null} clientId
          */
         setClientId(clientId: string | null): void;
+        /**
+         * Sets the Client Secret for OIDC authentication.
+         *
+         * Only used for the `client_credentials` grant type.
+         *
+         * @param {string | null} clientSecret
+         */
+        setClientSecret(clientSecret: string | null): void;
         /**
          * Sets the OIDC User.
          *
