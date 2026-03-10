@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [2.11.0] - 2026-03-10
+
 ### Added
 
 - Resume previously authenticated sessions via `AuthProvider.resume()`
@@ -284,7 +286,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All prior releases have been documented in the [GitHub Releases](https://github.com/Open-EO/openeo-js-client/releases).
 
-[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/Open-EO/openeo-js-client/compare/v2.11.0...HEAD
+[2.11.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.10.0...v2.11.0
 [2.10.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/Open-EO/openeo-js-client/compare/v2.7.0...v2.8.0
