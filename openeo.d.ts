@@ -3188,7 +3188,7 @@ declare namespace OpenEO {
     /**
      * A specific processing parameter.
      */
-    type ProcessingParameter = object<string, any>;
+    type ProcessingParameter = Record<string, any>;
     /**
      * All types of processing parameters.
      */
