@@ -199,7 +199,7 @@
  * A specific processing parameter.
  * 
  * @typedef ProcessingParameter
- * @type {object.<string, *>}
+ * @type {Record<string, *>}
  */
 
 /**
