@@ -1,5 +1,9 @@
+/**
+ * @typedef {import('stream').Readable} Readable
+ * @typedef {import('@openeo/js-commons/src/processRegistry')} ProcessRegistry
+ */
+
 const Environment = require('./env');
-const Stream = require('stream');
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
 const axios = require('axios');
@@ -93,7 +97,7 @@ class Connection {
 		 * Process cache
 		 *
 		 * @protected
-		 * @type {require('@openeo/js-commons/src/processRegistry')}
+		 * @type {ProcessRegistry}
 		 */
 		this.processes = new ProcessRegistry([], Boolean(options.addNamespaceToProcess));
 		this.processes.listeners.push((...args) => this.emit('processesChanged', ...args));
@@ -1197,7 +1201,7 @@ class Connection {
 	 *
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-	 * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+	 * @returns {Promise<Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
 	 * @throws {Error}
 	 */
 	async download(url, authorize) {

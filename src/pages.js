@@ -1,12 +1,15 @@
 /* eslint-disable max-classes-per-file */
 
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const Job = require('./job.js');
 const Service = require('./service.js');
 const UserFile = require('./userfile.js');
 const UserProcess = require('./userprocess.js');
 const Utils = require('@openeo/js-commons/src/utils');
 const StacMigrate = require('@radiantearth/stac-migrate');
-const Connection = require('./connection');
 
 const FED_MISSING = 'federation:missing';
 

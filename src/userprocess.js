@@ -1,6 +1,9 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const BaseEntity = require('./baseentity');
 const Utils = require('@openeo/js-commons/src/utils');
-const Connection = require('./connection');
 
 /**
  * A Stored Process Graph.

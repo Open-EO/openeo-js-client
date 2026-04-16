@@ -1,7 +1,10 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
-const Connection = require('./connection');
 const Utils = require('@openeo/js-commons/src/utils');
 const StacMigrate = require('@radiantearth/stac-migrate');
 

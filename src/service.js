@@ -1,5 +1,8 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const BaseEntity = require('./baseentity');
-const Connection = require('./connection');
 const Logs = require('./logs');
 
 /**

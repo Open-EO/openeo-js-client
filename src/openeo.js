@@ -1,30 +1,30 @@
 // External deps
-import axios from 'axios';
-import Utils from '@openeo/js-commons/src/utils';
-import Versions from '@openeo/js-commons/src/versions';
+const axios = require('axios');
+const Utils = require('@openeo/js-commons/src/utils');
+const Versions = require('@openeo/js-commons/src/versions');
 
 // API wrapper
-import Connection from './connection.js';
-import Job from './job.js';
-import Logs from './logs.js';
-import UserFile from './userfile.js';
-import UserProcess from './userprocess.js';
-import Service from './service.js';
+const Connection = require('./connection');
+const Job = require('./job');
+const Logs = require('./logs');
+const UserFile = require('./userfile');
+const UserProcess = require('./userprocess');
+const Service = require('./service');
 
 // Auth Providers
-import AuthProvider from './authprovider.js';
-import BasicProvider from './basicprovider.js';
-import OidcProvider from './oidcprovider.js';
+const AuthProvider = require('./authprovider');
+const BasicProvider = require('./basicprovider');
+const OidcProvider = require('./oidcprovider');
 
 // Response wrapper
-import Capabilities from './capabilities.js';
-import FileTypes from './filetypes.js';
+const Capabilities = require('./capabilities');
+const FileTypes = require('./filetypes');
 
 // Builder
-import Builder from './builder/builder.js';
-import BuilderNode from './builder/node.js';
-import Parameter from './builder/parameter.js';
-import Formula from './builder/formula.js';
+const Builder = require('./builder/builder');
+const BuilderNode = require('./builder/node');
+const Parameter = require('./builder/parameter');
+const Formula = require('./builder/formula');
 
 const MIN_API_VERSION = '1.0.0-rc.2';
 const MAX_API_VERSION = '1.x.x';
@@ -120,12 +120,13 @@ class OpenEO {
 
 }
 
-OpenEO.Environment = (await import('./env.js')).default;
+OpenEO.Environment = require('./env');
 
 // This is to silent TypeScript which does not like that we export external modules.
 // So we define these locally first, with proper types.
+/* eslint-disable jsdoc/valid-types */
 /** @type {typeof globalThis.AbortController} */
-const AbortController_ = globalThis.AbortController;
+const AbortController_ = AbortController;
 /** @type {typeof import('./authprovider')} */
 const AuthProvider_ = AuthProvider;
 /** @type {typeof import('./basicprovider')} */
@@ -156,23 +157,24 @@ const BuilderNode_ = BuilderNode;
 const Parameter_ = Parameter;
 /** @type {typeof import('./builder/formula')} */
 const Formula_ = Formula;
+/* eslint-enable jsdoc/valid-types */
 
-export {
-	AbortController_ as AbortController,
-	AuthProvider_ as AuthProvider,
-	BasicProvider_ as BasicProvider,
-	Capabilities_ as Capabilities,
-	Connection_ as Connection,
-	FileTypes_ as FileTypes,
-	Job_ as Job,
-	Logs_ as Logs,
-	OidcProvider_ as OidcProvider,
+module.exports = {
+	AbortController: AbortController_,
+	AuthProvider: AuthProvider_,
+	BasicProvider: BasicProvider_,
+	Capabilities: Capabilities_,
+	Connection: Connection_,
+	FileTypes: FileTypes_,
+	Job: Job_,
+	Logs: Logs_,
+	OidcProvider: OidcProvider_,
 	OpenEO,
-	Service_ as Service,
-	UserFile_ as UserFile,
-	UserProcess_ as UserProcess,
-	Builder_ as Builder,
-	BuilderNode_ as BuilderNode,
-	Parameter_ as Parameter,
-	Formula_ as Formula
+	Service: Service_,
+	UserFile: UserFile_,
+	UserProcess: UserProcess_,
+	Builder: Builder_,
+	BuilderNode: BuilderNode_,
+	Parameter: Parameter_,
+	Formula: Formula_
 };

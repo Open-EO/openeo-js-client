@@ -1,7 +1,10 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Environment = require('./env');
-const Connection = require('./connection');
 const Oidc = require('oidc-client');
 
 /**

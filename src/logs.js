@@ -1,5 +1,8 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const Utils = require('@openeo/js-commons/src/utils');
-const Connection = require('./connection');
 
 /**
  * Interface to loop through the logs.

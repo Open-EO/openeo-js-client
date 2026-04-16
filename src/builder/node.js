@@ -1,6 +1,9 @@
+/**
+ * @typedef {import('./builder')} Builder
+ */
+
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
-const Builder = require('./builder');
 
 /**
  * A class that represents a process node and also a result from a process.

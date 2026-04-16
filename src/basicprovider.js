@@ -1,7 +1,10 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
-const Connection = require('./connection');
 
 /**
  * The Authentication Provider for HTTP Basic.

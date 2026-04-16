@@ -1,6 +1,9 @@
+/**
+ * @typedef {import('./builder')} Builder
+ */
+
 const TapDigit = require("./tapdigit");
 const Parameter = require("./parameter");
-const Builder = require('./builder');
 const BuilderNode = require('./node');
 
 /**

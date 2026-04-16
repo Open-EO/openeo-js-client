@@ -1,4 +1,6 @@
-const Connection = require('./connection');
+/**
+ * @typedef {import('./connection')} Connection
+ */
 
 /**
  * The base class for entities such as Job, Process Graph, Service etc.

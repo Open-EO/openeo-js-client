@@ -1,5 +1,7 @@
-const AuthProviderMeta = require('./typedefs').AuthProviderMeta;
-const Connection = require('./connection');
+/**
+ * @typedef {import('./connection')} Connection
+ * @typedef {import('./typedefs').AuthProviderMeta} AuthProviderMeta
+ */
 
 /**
  * The base class for authentication providers such as Basic and OpenID Connect.

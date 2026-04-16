@@ -1,6 +1,8 @@
 "use strict";
 
-const Builder = require('./builder');
+/**
+ * @typedef {import('./builder')} Builder
+ */
 
 /**
  * A class that represents a process parameter.

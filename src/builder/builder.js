@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('@openeo/js-commons/src/processRegistry')} ProcessRegistry
+ */
+
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
 const axios = require('axios');
@@ -118,7 +122,7 @@ class Builder {
 	 *
 	 * Each process passed to the constructor is made available as object method.
 	 *
-	 * @param {Array.<Process>|Processes|require('@openeo/js-commons/src/processRegistry')} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+	 * @param {Array.<Process>|Processes|ProcessRegistry} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
 	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
 	 */
@@ -152,7 +156,7 @@ class Builder {
 
 		/**
 		 * List of all non-namespaced process specifications.
-		 * @type {require('@openeo/js-commons/src/processRegistry')}
+		 * @type {ProcessRegistry}
 		 */
 		this.processes = null;
 

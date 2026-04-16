@@ -1,4 +1,6 @@
-const Connection = require('./connection');
+/**
+ * @typedef {import('./connection')} Connection
+ */
 
 /**
  * Platform dependant utilities for the openEO JS Client.
