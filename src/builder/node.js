@@ -1,5 +1,6 @@
 const Utils = require("@openeo/js-commons/src/utils");
 const Parameter = require("./parameter");
+const Builder = require('./builder');
 
 /**
  * A class that represents a process node and also a result from a process.
@@ -8,10 +9,10 @@ class BuilderNode {
 
 	/**
 	 * Creates a new process node for the builder.
-	 * 
+	 *
 	 * @param {Builder} parent
-	 * @param {string} processId 
-	 * @param {object.<string, *>} [processArgs={}]
+	 * @param {string} processId
+	 * @param {Record.<string, *>} [processArgs={}]
 	 * @param {?string} [processDescription=null]
 	 * @param {?string} [processNamespace=null]
 	 */
@@ -44,7 +45,7 @@ class BuilderNode {
 		this.namespace = processNamespace;
 		/**
 		 * The arguments for the process.
-		 * @type {object.<string, *>}
+		 * @type {Record.<string, *>}
 		 */
 		this.arguments = Array.isArray(processArgs) ? this.namedArguments(processArgs) : processArgs;
 		/**
@@ -62,9 +63,9 @@ class BuilderNode {
 
 	/**
 	 * Converts a sorted array of arguments to an object with the respective parameter names.
-	 * 
-	 * @param {Array.<object.<string, *>>} processArgs 
-	 * @returns {object.<string, *>}
+	 *
+	 * @param {Array.<Record.<string, *>>} processArgs
+	 * @returns {Record.<string, *>}
 	 * @throws {Error}
 	 */
 	namedArguments(processArgs) {
@@ -82,8 +83,8 @@ class BuilderNode {
 
 	/**
 	 * Checks the arguments given for parameters and add them to the process.
-	 * 
-	 * @param {object.<string, *>|Array} processArgs 
+	 *
+	 * @param {Record.<string, *>|Array} processArgs
 	 */
 	addParametersToProcess(processArgs) {
 		for(let key in processArgs) {
@@ -104,18 +105,18 @@ class BuilderNode {
 
 	/**
 	 * Gets/Sets a description for the node.
-	 * 
+	 *
 	 * Can be used in a variety of ways:
-	 * 
-	 * By default, this is a function: 
+	 *
+	 * By default, this is a function:
 	 * `node.description()` - Returns the description.
 	 * `node.description("foo")` - Sets the description to "foo". Returns the node itself for method chaining.
-	 * 
+	 *
 	 * You can also "replace" the function (not supported in TypeScript!),
 	 * then it acts as normal property and the function is not available any longer:
 	 * `node.description = "foo"` - Sets the description to "foo".
 	 * Afterwards you can call `node.description` as normal object property.
-	 * 
+	 *
 	 * @param {string|undefined} description - Optional: If given, set the value.
 	 * @returns {string|BuilderNode}
 	 */
@@ -131,7 +132,7 @@ class BuilderNode {
 
 	/**
 	 * Converts the given argument into something serializable...
-	 * 
+	 *
 	 * @protected
 	 * @param {*} arg - Argument
 	 * @param {string} name - Parameter name
@@ -179,7 +180,7 @@ class BuilderNode {
 
 	/**
 	 * Creates a new Builder, usually for a callback.
-	 * 
+	 *
 	 * @protected
 	 * @param {?BuilderNode} [parentNode=null]
 	 * @param {?string} [parentParameter=null]
@@ -196,11 +197,11 @@ class BuilderNode {
 
 	/**
 	 * Returns the serializable process for the callback function given.
-	 * 
+	 *
 	 * @protected
 	 * @param {Function} arg - callback function
 	 * @param {string} name - Parameter name
-	 * @returns {object.<string, *>}
+	 * @returns {Record.<string, *>}
 	 * @throws {Error}
 	 */
 	exportCallback(arg, name) {
@@ -226,8 +227,8 @@ class BuilderNode {
 
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
-	 * 
-	 * @returns {object.<string, *>}
+	 *
+	 * @returns {Record.<string, *>}
 	 */
 	toJSON() {
 		let obj = {
@@ -256,7 +257,7 @@ class BuilderNode {
 
 	/**
 	 * Returns the reference object for this node.
-	 * 
+	 *
 	 * @returns {FromNode}
 	 */
 	ref() {

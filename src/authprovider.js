@@ -1,13 +1,16 @@
+const AuthProviderMeta = require('./typedefs').AuthProviderMeta;
+const Connection = require('./connection');
+
 /**
  * The base class for authentication providers such as Basic and OpenID Connect.
- * 
+ *
  * @abstract
  */
 class AuthProvider {
 
 	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
-	 * 
+	 *
 	 * @param {string} type - The type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {AuthProviderMeta} options - Options
@@ -27,7 +30,7 @@ class AuthProvider {
 
 	/**
 	 * Get an identifier for the auth provider (combination of the type + provider identifier).
-	 * 
+	 *
 	 * @returns {string}
 	 */
 	getId() {
@@ -40,7 +43,7 @@ class AuthProvider {
 
 	/**
 	 * Returns a display name for the authenticated user.
-	 * 
+	 *
 	 * @returns {string?} Name of the user or `null`
 	 */
 	getDisplayName() {
@@ -49,7 +52,7 @@ class AuthProvider {
 
 	/**
 	 * Returns the type of the authentication procedure as specified by the API, e.g. `oidc` or `basic`.
-	 * 
+	 *
 	 * @returns {string}
 	 */
 	getType() {
@@ -58,7 +61,7 @@ class AuthProvider {
 
 	/**
 	 * Returns the provider identifier, may not be available for all authentication methods.
-	 * 
+	 *
 	 * @returns {string}
 	 */
 	getProviderId() {
@@ -67,7 +70,7 @@ class AuthProvider {
 
 	/**
 	 * Returns the human-readable title for the authentication method / provider.
-	 * 
+	 *
 	 * @returns {string}
 	 */
 	getTitle() {
@@ -76,7 +79,7 @@ class AuthProvider {
 
 	/**
 	 * Returns the human-readable description for the authentication method / provider.
-	 * 
+	 *
 	 * @returns {string}
 	 */
 	getDescription() {
@@ -85,11 +88,11 @@ class AuthProvider {
 
 	/**
 	 * Returns the access token that is used as Bearer Token in API requests.
-	 * 
+	 *
 	 * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
-	 * 
+	 *
 	 * Checks whether the server supports the JWT conformance class.
-	 * 
+	 *
 	 * @returns {string | null}
 	 */
 	getToken() {
@@ -109,12 +112,12 @@ class AuthProvider {
 
 	/**
 	 * Sets the access token that is used as Bearer Token in API requests.
-	 * 
+	 *
 	 * Set to `null` to remove the access token.
-	 * 
+	 *
 	 * This also manages which auth provider is set for the connection.
-	 * 
-	 * @param {?string} token 
+	 *
+	 * @param {?string} token
 	 */
 	setToken(token) {
 		this.token = token;
@@ -129,9 +132,9 @@ class AuthProvider {
 
 	/**
 	 * Tries to resume an existing session.
-	 * 
-	 * @param  {...any} args 
-	 * @returns {boolean} `true` if the session could be resumed, `false` otherwise
+	 *
+	 * @param  {...any} args
+	 * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise
 	 */
 	async resume(...args) { // eslint-disable-line no-unused-vars
 		return false;
@@ -139,9 +142,9 @@ class AuthProvider {
 
 	/**
 	 * Abstract method that extending classes implement the login process with.
-	 * 
+	 *
 	 * @async
-	 * @param {...*} args 
+	 * @param {...*} args
 	 * @throws {Error}
 	 */
 	async login(...args) {
@@ -150,10 +153,10 @@ class AuthProvider {
 
 	/**
 	 * Logout from the established session.
-	 * 
+	 *
 	 * This is experimental and just removes the token for now.
 	 * May need to be overridden by sub-classes.
-	 * 
+	 *
 	 * @async
 	 */
 	async logout() {

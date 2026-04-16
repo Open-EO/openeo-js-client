@@ -1,17 +1,587 @@
-/// <reference types="node" />
-
-import { User, UserManager } from 'oidc-client';
-import { ProcessRegistry } from '@openeo/js-commons';
-import { Readable } from 'stream';
-import axios from 'axios';
-
-declare namespace OpenEO {
+declare module "node" {
+    export = Environment;
+    /**
+     * Platform dependant utilities for the openEO JS Client.
+     *
+     * Node.js implementation, don't use in other environments.
+     *
+     * @hideconstructor
+     */
+    class Environment {
+        /**
+         * Returns the name of the Environment, here `Node`.
+         *
+         * @returns {string}
+         * @static
+         */
+        static getName(): string;
+        /**
+         * Returns the URL of the server instance.
+         *
+         * @returns {string}
+         * @static
+         */
+        static getUrl(): string;
+        /**
+         * Sets the URL of the server instance.
+         *
+         * @param {string} uri
+         * @static
+         */
+        static setUrl(uri: string): void;
+        /**
+         * Handles errors from the API that are returned as Streams.
+         *
+         * @ignore
+         * @static
+         * @param {Stream.Readable} error
+         * @returns {Promise<void>}
+         */
+        static handleErrorResponse(error: Stream.Readable): Promise<void>;
+        /**
+         * Returns how binary responses from the servers are returned (`stream` or `blob`).
+         *
+         * @returns {string}
+         * @static
+         */
+        static getResponseType(): string;
+        /**
+         * Encodes a string into Base64 encoding.
+         *
+         * @static
+         * @param {string|Buffer} str - String to encode.
+         * @returns {string} String encoded in Base64.
+         */
+        static base64encode(str: string | Buffer): string;
+        /**
+         * Detect the file name for the given data source.
+         *
+         * @ignore
+         * @static
+         * @param {string} source - A path to a file as string.
+         * @returns {string}
+         */
+        static fileNameForUpload(source: string): string;
+        /**
+         * Get the data from the source that should be uploaded.
+         *
+         * @ignore
+         * @static
+         * @param {string} source - A path to a file as string.
+         * @returns {Stream.Readable}
+         */
+        static dataForUpload(source: string): Stream.Readable;
+        /**
+         * Downloads files to local storage and returns a list of file paths.
+         *
+         * @static
+         * @param {Connection} con
+         * @param {Array.<Record.<string, *>>} assets
+         * @param {string} targetFolder
+         * @returns {Promise<Array.<string>>}
+         * @throws {Error}
+         */
+        static downloadResults(con: Connection, assets: Array<Record<string, any>>, targetFolder: string): Promise<Array<string>>;
+        /**
+         * Streams data into a file.
+         *
+         * @static
+         * @async
+         * @param {Stream.Readable} data - Data stream to read from.
+         * @param {string} filename - File path to store the data at.
+         * @returns {Promise<void>}
+         * @throws {Error}
+         */
+        static saveToFile(data: Stream.Readable, filename: string): Promise<void>;
+    }
+    namespace Environment {
+        let url: string;
+    }
+    import Stream = require("node:stream");
+    import Connection = require("connection");
+}
+declare module "browser" {
+    export = Environment;
+    /**
+     * Platform dependant utilities for the openEO JS Client.
+     *
+     * Browser implementation, don't use in other environments.
+     *
+     * @hideconstructor
+     */
+    class Environment {
+        /**
+         * Returns the name of the Environment, here `Browser`.
+         *
+         * @returns {string}
+         * @static
+         */
+        static getName(): string;
+        /**
+         * Returns the current URL of the browser window.
+         *
+         * @returns {string}
+         * @static
+         */
+        static getUrl(): string;
+        /**
+         * Sets the URL.
+         *
+         * Not supported in Browsers and only throws an Error!
+         *
+         * @param {string} uri
+         * @static
+         */
+        static setUrl(uri: string): void;
+        /**
+         * Handles errors from the API that are returned as Blobs.
+         *
+         * @ignore
+         * @static
+         * @param {Blob} error
+         * @returns {Promise<void>}
+         */
+        static handleErrorResponse(error: Blob): Promise<void>;
+        /**
+         * Returns how binary responses from the servers are returned (`stream` or `blob`).
+         *
+         * @returns {string}
+         * @static
+         */
+        static getResponseType(): string;
+        /**
+         * Encodes a string into Base64 encoding.
+         *
+         * @static
+         * @param {string} str - String to encode.
+         * @returns {string} String encoded in Base64.
+         */
+        static base64encode(str: string): string;
+        /**
+         * Detect the file name for the given data source.
+         *
+         * @ignore
+         * @static
+         * @param {*} source - An object from a file upload form.
+         * @returns {string}
+         */
+        static fileNameForUpload(source: any): string;
+        /**
+         * Get the data from the source that should be uploaded.
+         *
+         * @ignore
+         * @static
+         * @param {*} source - An object from a file upload form.
+         * @returns {*}
+         */
+        static dataForUpload(source: any): any;
+        /**
+         * Downloads files to local storage and returns a list of file paths.
+         *
+         * Not supported in Browsers and only throws an Error!
+         *
+         * @static
+         * @param {Connection} con
+         * @param {Array.<Record.<string, *>>} assets
+         * @param {string} targetFolder
+         * @throws {Error}
+         */
+        static downloadResults(con: Connection, assets: Array<Record<string, any>>, targetFolder: string): Promise<void>;
+        /**
+         * Offers data to download in the browser.
+         *
+         * This method may fail with overly big data.
+         *
+         * @async
+         * @static
+         * @param {*} data - Data to download.
+         * @param {string} filename - File name that is suggested to the user.
+         * @returns {Promise<void>}
+         * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
+         */
+        static saveToFile(data: any, filename: string): Promise<void>;
+    }
+    import Connection = require("connection");
+}
+declare module "env" {
+    export = Environment;
+    let Environment: any;
+}
+/**
+ * An error.
+ */
+type ApiError = {
+    id: string;
+    code: string;
+    message: string;
+    links: Array<Link>;
+};
+/**
+ * Authentication Provider details.
+ */
+type AuthProviderMeta = {
+    /**
+     * Provider identifier, may not be used for all authentication methods.
+     */
+    id: string | null;
+    /**
+     * Title for the authentication method.
+     */
+    title: string;
+    /**
+     * Description for the authentication method.
+     */
+    description: string;
+};
+/**
+ * Response for a HTTP request.
+ */
+type AxiosResponse = {
+    data: any;
+    status: number;
+    statusText: string;
+    headers: any;
+    config: Record<string, any>;
+    request: any;
+};
+type BillingPlan = {
+    /**
+     * Name of the billing plan.
+     */
+    name: string;
+    /**
+     * A description of the billing plan, may include CommonMark syntax.
+     */
+    description: string;
+    /**
+     * `true` if it is a paid plan, otherwise `false`.
+     */
+    paid: boolean;
+    /**
+     * A URL pointing to a page describing the billing plan.
+     */
+    url: string;
+    /**
+     * `true` if it is the default plan of the back-end, otherwise `false`.
+     */
+    default: boolean;
+};
+type Collections = {
+    collections: Array<Collection>;
+    links: Array<Link>;
+    /**
+     * "federation:missing"] A list of backends from the federation that are missing in the response data.
+     */
+    ""?: Array<string>;
+};
+type Collection = Record<string, any>;
+type FileTypesAPI = {
+    /**
+     * - File types supported to import
+     */
+    input: Record<string, FileType>;
+    /**
+     * - File types supported to export
+     */
+    output: Record<string, FileType>;
+};
+type FileType = {
+    title: string;
+    description: string;
+    gis_data_types: Array<string>;
+    parameters: Record<string, any>;
+    links: Array<Link>;
+};
+/**
+ * Reference to a parameter.
+ */
+type FromNode = {
+    /**
+     * - The node identifier.
+     */
+    from_node: string;
+};
+/**
+ * Reference to a parameter.
+ */
+type FromParameter = {
+    /**
+     * - The name of the parameter.
+     */
+    from_parameter: string;
+};
+type Item = Record<string, any>;
+type ItemCollection = {
+    /**
+     * - The items in the collection.
+     */
+    features: Array<Item>;
+    /**
+     * - Additional links, e.g. for pagination.
+     */
+    links: Array<Link> | null;
+    /**
+     * This property indicates the time and date when the response was generated.
+     */
+    timeStamp: string | null;
+    /**
+     * The number (integer) of features of the feature type that match the selection parameters.
+     */
+    numberMatched: number | null;
+    /**
+     * The number (integer) of features in the feature collection.
+     */
+    numberReturned: number | null;
+};
+type JobEstimate = {
+    costs: number | null;
+    duration: string;
+    /**
+     * in bytes as integer
+     */
+    size: number;
+    /**
+     * integer
+     */
+    downloads_included: number | null;
+    expires: string;
+};
+/**
+ * A link to another resource.
+ */
+type Link = {
+    /**
+     * The URL to the resource.
+     */
+    href: string;
+    /**
+     * Relation type
+     */
+    rel: string | null;
+    /**
+     * Media type
+     */
+    type: string | null;
+    /**
+     * Human-readable title
+     */
+    title: string | null;
+    /**
+     * A list of roles, if link is originating from an asset.
+     */
+    roles: Array<string> | null;
+};
+type LogsAPI = {
+    logs: Array<Log>;
+    links: Array<Link>;
+};
+/**
+ * A log entry.
+ */
+type Log = {
+    id: string;
+    code: string;
+    level: string;
+    message: string;
+    data: any;
+    path: Array<Record<string, string | null>>;
+    links: Array<Link>;
+};
+/**
+ * Default OpenID Connect Client as returned by the API.
+ */
+type OidcClient = {
+    /**
+     * Client ID
+     */
+    id: string;
+    /**
+     * Supported Grant Types
+     */
+    grant_types: Array<string>;
+    /**
+     * Allowed Redirect URLs
+     */
+    redirect_urls: Array<string>;
+};
+/**
+ * OpenID Connect Provider details as returned by the API.
+ */
+type OidcProviderMeta = {
+    /**
+     * Provider identifier.
+     */
+    id: string;
+    /**
+     * Title for the authentication method.
+     */
+    title: string;
+    /**
+     * Description for the authentication method.
+     */
+    description: string;
+    /**
+     * The OpenID Connect issuer location (authority).
+     */
+    issuer: string;
+    /**
+     * OpenID Connect Scopes
+     */
+    scopes: Array<string>;
+    /**
+     * Default OpenID Connect Clients
+     */
+    default_clients: Array<OidcClient>;
+    /**
+     * Links
+     */
+    links: Array<Link>;
+};
+/**
+ * Connection options.
+ */
+type Options = {
+    /**
+     * Add a namespace property to processes if set to `true`. Defaults to `false`.
+     */
+    addNamespaceToProcess: boolean;
+};
+type Processes = {
+    processes: Array<Process>;
+    links: Array<Link>;
+    /**
+     * EXPERIMENTAL!
+     */
+    namespaces: Array<string> | null;
+    /**
+     * "federation:missing"] A list of backends from the federation that are missing in the response data.
+     */
+    ""?: Array<string>;
+};
+/**
+ * An openEO processing chain.
+ */
+type Process = Record<string, any>;
+/**
+ * A specific processing parameter.
+ */
+type ProcessingParameter = Record<string, any>;
+/**
+ * All types of processing parameters.
+ */
+type ProcessingParameters = {
+    /**
+     * Processing parameters for batch jobs.
+     */
+    create_job_parameters: Array<ProcessingParameter>;
+    /**
+     * Processing parameters for secondary web services.
+     */
+    create_service_parameters: Array<ProcessingParameter>;
+    /**
+     * Processing parameters for synchronous processing.
+     */
+    create_synchronous_parameters: Array<ProcessingParameter>;
+};
+/**
+ * A back-end in the federation.
+ */
+type FederationBackend = {
+    /**
+     * ID of the back-end within the federation.
+     */
+    id: string;
+    /**
+     * URL to the versioned API endpoint of the back-end.
+     */
+    url: string;
+    /**
+     * Name of the back-end.
+     */
+    title: string;
+    /**
+     * A description of the back-end and its specifics.
+     */
+    description: string;
+    /**
+     * Current status of the back-end (online or offline).
+     */
+    status: string;
+    /**
+     * The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
+     */
+    last_status_check: string;
+    /**
+     * If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
+     */
+    last_successful_check: string;
+    /**
+     * Declares the back-end to be experimental.
+     */
+    experimental: boolean;
+    /**
+     * Declares the back-end to be deprecated.
+     */
+    deprecated: boolean;
+};
+/**
+ * An array, but enriched with additional details from an openEO API response.
+ *
+ * Adds two properties: `links` and `federation:missing`.
+ */
+type ResponseArray = any;
+type ServiceType = Record<string, any>;
+type SyncResult = {
+    /**
+     * ('stream').Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+     */
+    "": NodeJS.Require;
+    /**
+     * The costs for the request in the currency exposed by the back-end.
+     */
+    costs: number | null;
+    /**
+     * The content media type returned by the back-end.
+     */
+    type: string | null;
+    /**
+     * Array of log entries as specified in the API.
+     */
+    logs: Array<Log>;
+};
+type UdfRuntime = Record<string, any>;
+type UserAccountStorage = {
+    /**
+     * in bytes as integer
+     */
+    free: number;
+    /**
+     * in bytes as integer
+     */
+    quota: number;
+};
+type UserAccount = {
+    user_id: string;
+    name: string | null;
+    default_plan: string | null;
+    storage: UserAccountStorage | null;
+    budget: number | null;
+    links: Array<Link> | null;
+};
+/**
+ * An array, but enriched with additional details from an openEO API response.
+ *
+ * Adds the property `federation:backends`.
+ */
+type ValidationResult = any;
+declare module "authprovider" {
+    export = AuthProvider;
     /**
      * The base class for authentication providers such as Basic and OpenID Connect.
      *
      * @abstract
      */
-    export class AuthProvider {
+    class AuthProvider {
         /**
          * Creates a new OidcProvider instance to authenticate using OpenID Connect.
          *
@@ -20,9 +590,9 @@ declare namespace OpenEO {
          * @param {AuthProviderMeta} options - Options
          */
         constructor(type: string, connection: Connection, options: AuthProviderMeta);
-        id: string;
-        title: string;
-        description: string;
+        id: any;
+        title: any;
+        description: any;
         type: string;
         /**
          * @protected
@@ -70,7 +640,7 @@ declare namespace OpenEO {
          * Returns the access token that is used as Bearer Token in API requests.
          *
          * Returns `null` if no access token has been set yet (i.e. not authenticated any longer).
-         * 
+         *
          * Checks whether the server supports the JWT conformance class.
          *
          * @returns {string | null}
@@ -90,9 +660,9 @@ declare namespace OpenEO {
          * Tries to resume an existing session.
          *
          * @param  {...any} args
-         * @returns {boolean} `true` if the session could be resumed, `false` otherwise
+         * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise
          */
-        resume(...args: any[]): boolean;
+        resume(...args: any[]): Promise<boolean>;
         /**
          * Abstract method that extending classes implement the login process with.
          *
@@ -111,206 +681,16 @@ declare namespace OpenEO {
          */
         logout(): Promise<void>;
     }
-    /**
-     * The base class for entities such as Job, Process Graph, Service etc.
-     *
-     * @abstract
-     */
-    export class BaseEntity {
-        /**
-         * Creates an instance of this object.
-         *
-         * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-         * @param {Array.<string|Array.<string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
-         */
-        constructor(connection: Connection, properties?: Array<string | Array<string>>);
-        /**
-         * @protected
-         * @type {Connection}
-         */
-        protected connection: Connection;
-        /**
-         * @protected
-         * @type {object.<string, string>}
-         */
-        protected apiToClientNames: Record<string, string>;
-        /**
-         * @protected
-         * @type {object.<string, string>}
-         */
-        protected clientToApiNames: Record<string, string>;
-        /**
-         * @protected
-         * @type {number}
-         */
-        protected lastRefreshTime: number;
-        /**
-         * Additional (non-standardized) properties received from the API.
-         *
-         * @protected
-         * @type {object.<string, *>}
-         */
-        protected extra: Record<string, any>;
-        /**
-         * Returns a JSON serializable representation of the data that is API compliant.
-         *
-         * @returns {object.<string, *>}
-         */
-        toJSON(): Record<string, any>;
-        /**
-         * Converts the data from an API response into data suitable for our JS client models.
-         *
-         * @param {object.<string, *>} metadata - JSON object originating from an API response.
-         * @returns {BaseEntity} Returns the object itself.
-         */
-        setAll(metadata: Record<string, any>): BaseEntity;
-        /**
-         * Returns the age of the data in seconds.
-         *
-         * @returns {number} Age of the data in seconds as integer.
-         */
-        getDataAge(): number;
-        /**
-         * Returns all data in the model.
-         *
-         * @returns {object.<string, *>}
-         */
-        getAll(): Record<string, any>;
-        /**
-         * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
-         *
-         * @param {string} name - Name of the property.
-         * @returns {*} The value, which could be of any type.
-         */
-        get(name: string): any;
-        /**
-         * Converts the object to a valid objects for API requests.
-         *
-         * @param {object.<string, *>} parameters
-         * @returns {object.<string, *>}
-         * @protected
-         */
-        protected _convertToRequest(parameters: Record<string, any>): Record<string, any>;
-        /**
-         * Checks whether a features is supported by the API.
-         *
-         * @param {string} feature
-         * @returns {boolean}
-         * @protected
-         * @see Capabilities#hasFeature
-         */
-        protected _supports(feature: string): boolean;
-    }
-    /**
-     * Platform dependant utilities for the openEO JS Client.
-     *
-     * @hideconstructor
-     */
-    export class Environment {
-        /**
-         * The axios instance to use for HTTP requests.
-         *
-         * 
-         * @type {object}
-         * @static
-         */
-        static axios: typeof axios;
-        /**
-         * Returns the name of the Environment, `Node` or `Browser`.
-         *
-         * @returns {string}
-         * @static
-         */
-        static getName(): string;
-        /**
-         * Returns the URL of the Environment.
-         *
-         * @returns {string}
-         * @static
-         */
-        static getUrl(): string;
-        /**
-         * Sets the URL of the Environment.
-         *
-         * @param {string} uri
-         * @static
-         */
-        static setUrl(uri: string): void;
-        /**
-         * Handles errors from the API that are returned as Blobs/Streams.
-         *
-         * @ignore
-         * @static
-         * @param {Blob | Readable} error
-         * @returns {Promise<void>}
-         */
-        static handleErrorResponse(error: Blob | Readable): Promise<void>;
-        /**
-         * Returns how binary responses from the servers are returned (`stream` or `blob`).
-         *
-         * @returns {string}
-         * @static
-         */
-        static getResponseType(): string;
-        /**
-         * Encodes a string into Base64 encoding.
-         *
-         * @static
-         * @param {string|Buffer} str - String to encode.
-         * @returns {string} String encoded in Base64.
-         */
-        static base64encode(str: string | Buffer): string;
-        /**
-         * Detect the file name for the given data source.
-         *
-         * @ignore
-         * @static
-         * @param {*} source - An object from a file upload form.
-         * @returns {string}
-         */
-        static fileNameForUpload(source: any): string;
-        /**
-         * Get the data from the source that should be uploaded.
-         *
-         * @ignore
-         * @static
-         * @param {*} source - An object from a file upload form.
-         * @returns {*}
-         */
-        static dataForUpload(source: any): any;
-        /**
-         * Downloads files to local storage and returns a list of file paths.
-         *
-         * Not supported in Browsers and only throws an Error!
-         *
-         * @static
-         * @param {Connection} con
-         * @param {Array.<object.<string, *>>} assets
-         * @param {string} targetFolder
-         * @throws {Error}
-         */
-        static downloadResults(con: Connection, assets: Array<Record<string, any>>, targetFolder: string): Promise<void>;
-        /**
-         * Streams data into a file (node) or offers data to download (browser).
-         *
-         * This method may fail with overly big data in browsers.
-         *
-         * @async
-         * @static
-         * @param {*} data - Data to save.
-         * @param {string} filename - File path to store the data at (node) or file name that is suggested to the user (browser).
-         * @returns {Promise<void>}
-         * @throws {Error}
-         * @see https://github.com/kennethjiang/js-file-download/blob/master/file-download.js
-         */
-        static saveToFile(data: any, filename: string): Promise<void>;
-    }
+    import Connection = require("connection");
+}
+declare module "basicprovider" {
+    export = BasicProvider;
     /**
      * The Authentication Provider for HTTP Basic.
      *
      * @augments AuthProvider
      */
-    export class BasicProvider extends AuthProvider {
+    class BasicProvider extends AuthProvider {
         /**
          * Creates a new BasicProvider instance to authenticate using HTTP Basic.
          *
@@ -329,26 +709,312 @@ declare namespace OpenEO {
          */
         login(username: string, password: string): Promise<void>;
     }
+    import AuthProvider = require("authprovider");
+    import Connection = require("connection");
+}
+declare module "oidcprovider" {
+    export = OidcProvider;
+    /**
+     * The Authentication Provider for OpenID Connect.
+     *
+     * See the openid-connect-popup.html and openid-connect-redirect.html files in
+     * the `/examples/oidc` folder for usage examples in the browser.
+     *
+     * If you want to implement OIDC in a non-browser environment, you can override
+     * the OidcProvider or AuthProvider classes with custom behavior.
+     * In this case you must provide a function that creates your new class to the
+     * `Connection.setOidcProviderFactory()` method.
+     *
+     * @augments AuthProvider
+     * @see Connection#setOidcProviderFactory
+     */
+    class OidcProvider extends AuthProvider {
+        /**
+         * Checks whether the required OIDC client library `openid-client-js` is available.
+         *
+         * @static
+         * @returns {boolean}
+         */
+        static isSupported(): boolean;
+        /**
+         * Finishes the OpenID Connect sign in (authentication) workflow.
+         *
+         * Must be called in the page that OpenID Connect redirects to after logging in.
+         *
+         * Supported only in Browser environments.
+         *
+         * @async
+         * @static
+         * @param {OidcProvider} provider - A OIDC provider to assign the user to.
+         * @param {Record.<string, *>} [options={}] - Object with additional options.
+         * @returns {Promise<?Oidc.User>} For uiMethod = 'redirect' only: OIDC User
+         * @throws {Error}
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
+         */
+        static signinCallback(provider?: OidcProvider, options?: Record<string, any>): Promise<Oidc.User | null>;
+        /**
+         * Creates a new OidcProvider instance to authenticate using OpenID Connect.
+         *
+         * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+         * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
+         */
+        constructor(connection: Connection, options: OidcProviderMeta);
+        manager: Oidc.UserManager;
+        listeners: {};
+        /**
+         * The authenticated OIDC user.
+         *
+         * @type {Oidc.User}
+         */
+        user: Oidc.User;
+        /**
+         * The client ID to use for authentication.
+         *
+         * @type {string | null}
+         */
+        clientId: string | null;
+        /**
+         * The client secret to use for authentication.
+         *
+         * Only used for the `client_credentials` grant type.
+         *
+         * @type {string | null}
+         */
+        clientSecret: string | null;
+        /**
+         * The grant type (flow) to use for this provider.
+         *
+         * Either "authorization_code+pkce" (default), "implicit" or "client_credentials"
+         *
+         * @type {string}
+         */
+        grant: string;
+        /**
+         * The issuer, i.e. the link to the identity provider.
+         *
+         * @type {string}
+         */
+        issuer: string;
+        /**
+         * The scopes to be requested.
+         *
+         * @type {Array.<string>}
+         */
+        scopes: Array<string>;
+        /**
+         * The scope that is used to request a refresh token.
+         *
+         * @type {string}
+         */
+        refreshTokenScope: string;
+        /**
+         * Any additional links.
+         *
+         *
+         * @type {Array.<Link>}
+         */
+        links: Array<Link>;
+        /**
+         * The default clients made available by the back-end.
+         *
+         * @type {Array.<OidcClient>}
+         */
+        defaultClients: Array<OidcClient>;
+        /**
+         * Additional parameters to include in authorization requests.
+         *
+         * As defined by the API, these parameters MUST be included when
+         * requesting the authorization endpoint.
+         *
+         * @type {Record.<string, *>}
+         */
+        authorizationParameters: Record<string, any>;
+        /**
+         * The detected default Client.
+         *
+         * @type {OidcClient}
+         */
+        defaultClient: OidcClient;
+        /**
+         * The cached OpenID Connect well-known configuration document.
+         *
+         * @type {Record.<string, *> | null}
+         */
+        wellKnownDocument: Record<string, any> | null;
+        /**
+         * Adds a listener to one of the following events:
+         *
+         * - AccessTokenExpiring: Raised prior to the access token expiring.
+         * - AccessTokenExpired: Raised after the access token has expired.
+         * - SilentRenewError: Raised when the automatic silent renew has failed.
+         *
+         * @param {string} event
+         * @param {Function} callback
+         * @param {string} [scope="default"]
+         */
+        addListener(event: string, callback: Function, scope?: string): void;
+        /**
+         * Removes the listener for the given event that has been set with addListener.
+         *
+         * @param {string} event
+         * @param {string} [scope="default"]
+         * @see OidcProvider#addListener
+         */
+        removeListener(event: string, scope?: string): void;
+        /**
+         * Authenticate with OpenID Connect (OIDC).
+         *
+         * Supported in Browser environments for `authorization_code+pkce` and `implicit` grants.
+         * The `client_credentials` grant is supported in all environments.
+         *
+         * @async
+         * @param {Record.<string, *>} [options={}] - Object with authentication options.
+         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
+         * @returns {Promise<void>}
+         * @throws {Error}
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
+         * @see {OidcProvider#refreshTokenScope}
+         */
+        login(options?: Record<string, any>, requestRefreshToken?: boolean): Promise<void>;
+        /**
+         * Authenticate using the OIDC Client Credentials grant.
+         *
+         * Requires `clientId` and `clientSecret` to be set.
+         * This flow does not use the oidc-client library and works in all environments.
+         *
+         * @async
+         * @protected
+         * @returns {Promise<void>}
+         * @throws {Error}
+         */
+        protected loginClientCredentials(): Promise<void>;
+        /**
+         * Retrieves the OpenID Connect well-known configuration document.
+         *
+         * @async
+         * @returns {Promise<Record.<string, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
+         */
+        getWellKnownDocument(): Promise<Record<string, any>> | null;
+        /**
+         * Discovers the token endpoint from the OpenID Connect issuer.
+         *
+         * @async
+         * @protected
+         * @returns {Promise<string>} The token endpoint URL.
+         * @throws {Error}
+         */
+        protected getTokenEndpoint(): Promise<string>;
+        /**
+         * Checks whether the OpenID Connect provider supports the Client Credentials grant.
+         *
+         * @async
+         * @returns {Promise<boolean|null>} `true` if the Client Credentials grant is supported, `false` otherwise. `null` if unknown.
+         */
+        supportsClientCredentials(): Promise<boolean | null>;
+        /**
+         * Restores a previously established OIDC session from storage.
+         *
+         * Not supported for the `client_credentials` grant as credentials
+         * are not persisted. Use `login()` to re-authenticate instead.
+         *
+         * @async
+         * @param {Record.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
+         * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
+         */
+        resume(options?: Record<string, any>): Promise<boolean>;
+        /**
+         * Returns the options for the OIDC client library.
+         *
+         * Options can be overridden by custom options via the options parameter.
+         *
+         * @protected
+         * @param {Record.<string, *>} options
+         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
+         * @returns {Record.<string, *>}
+         * @see {OidcProvider#refreshTokenScope}
+         */
+        protected getOptions(options?: Record<string, any>, requestRefreshToken?: boolean): Record<string, any>;
+        /**
+         * Get the response_type based on the grant type.
+         *
+         * @protected
+         * @returns {string}
+         * @throws {Error}
+         */
+        protected getResponseType(): string;
+        /**
+         * Sets the grant type (flow) used for OIDC authentication.
+         *
+         * @param {string} grant - Grant Type
+         * @throws {Error}
+         */
+        setGrant(grant: string): void;
+        /**
+         * Sets the Client ID for OIDC authentication.
+         *
+         * This may override a detected default client ID.
+         *
+         * @param {string | null} clientId
+         */
+        setClientId(clientId: string | null): void;
+        /**
+         * Sets the Client Secret for OIDC authentication.
+         *
+         * Only used for the `client_credentials` grant type.
+         *
+         * @param {string | null} clientSecret
+         */
+        setClientSecret(clientSecret: string | null): void;
+        /**
+         * Sets the OIDC User.
+         *
+         * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
+         * @param {Oidc.User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
+         */
+        setUser(user: Oidc.User | null): void;
+        /**
+         * Detects the default OIDC client ID for the given redirect URL.
+         *
+         * Sets the grant and client ID accordingly.
+         *
+         * @returns {OidcClient | null}
+         * @see OidcProvider#setGrant
+         * @see OidcProvider#setClientId
+         */
+        detectDefaultClient(): OidcClient | null;
+    }
+    namespace OidcProvider {
+        let uiMethod: string;
+        let redirectUrl: string;
+        let grants: Array<string>;
+    }
+    import AuthProvider = require("authprovider");
+    import Oidc = require("oidc-client");
+    import Connection = require("connection");
+}
+declare module "capabilities" {
+    export = Capabilities;
     /**
      * Capabilities of a back-end.
      */
-    export class Capabilities {
+    class Capabilities {
         /**
          * Creates a new Capabilities object from an API-compatible JSON response.
          *
-         * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
+         * @param {Record.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
          * @throws {Error}
          */
         constructor(data: Record<string, any>);
         /**
          * @private
-         * @type {object.<string, *>}
+         * @type {Record.<string, *>}
          */
         private data;
         /**
          * @private
          * @ignore
-         * @type {object.<string, string>}
+         * @type {Record.<string, string>}
          */
         private featureMap;
         /**
@@ -374,7 +1040,7 @@ declare namespace OpenEO {
         /**
          * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
          *
-         * @returns {object.<string, *>} - A reference to the capabilities response.
+         * @returns {Record.<string, *>} - A reference to the capabilities response.
          */
         toJSON(): Record<string, any>;
         /**
@@ -475,288 +1141,27 @@ declare namespace OpenEO {
          * @returns {AxiosResponse}
          */
         protected migrate(response: AxiosResponse): AxiosResponse;
-
-        static Conformance: Record<string, string | Array<string>>;
     }
-    /**
-     * The Authentication Provider for OpenID Connect.
-     *
-     * See the openid-connect-popup.html and openid-connect-redirect.html files in
-     * the `/examples/oidc` folder for usage examples in the browser.
-     *
-     * If you want to implement OIDC in a non-browser environment, you can override
-     * the OidcProvider or AuthProvider classes with custom behavior.
-     * In this case you must provide a function that creates your new class to the
-     * `Connection.setOidcProviderFactory()` method.
-     *
-     * @augments AuthProvider
-     * @see Connection#setOidcProviderFactory
-     */
-    export class OidcProvider extends AuthProvider {
-        /**
-         * Checks whether the required OIDC client library `openid-client-js` is available.
-         *
-         * @static
-         * @returns {boolean}
-         */
-        static isSupported(): boolean;
-        /**
-         * Finishes the OpenID Connect sign in (authentication) workflow.
-         *
-         * Must be called in the page that OpenID Connect redirects to after logging in.
-         *
-         * Supported only in Browser environments.
-         *
-         * @async
-         * @static
-         * @param {OidcProvider} provider - A OIDC provider to assign the user to.
-         * @param {object.<string, *>} [options={}] - Object with additional options.
-         * @returns {Promise<?User>} For uiMethod = 'redirect' only: OIDC User
-         * @throws {Error}
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
-         */
-        static signinCallback(provider?: OidcProvider, options?: Record<string, any>): Promise<User | null>;
-        /**
-         * Creates a new OidcProvider instance to authenticate using OpenID Connect.
-         *
-         * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
-         * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
-         */
-        constructor(connection: Connection, options: OidcProviderMeta);
-        manager: UserManager;
-        listeners: {};
-        /**
-         * The authenticated OIDC user.
-         *
-         * @type {User}
-         */
-        user: Oidc.User;
-        /**
-         * The client ID to use for authentication.
-         *
-         * @type {string | null}
-         */
-        clientId: string | null;
-        /**
-         * The client secret to use for authentication.
-         *
-         * Only used for the `client_credentials` grant type.
-         *
-         * @type {string | null}
-         */
-        clientSecret: string | null;
-        /**
-         * The grant type (flow) to use for this provider.
-         *
-         * Either "authorization_code+pkce" (default), "implicit" or "client_credentials"
-         *
-         * @type {string}
-         */
-        grant: string;
-        /**
-         * The issuer, i.e. the link to the identity provider.
-         *
-         * @type {string}
-         */
-        issuer: string;
-        /**
-         * The scopes to be requested.
-         *
-         * @type {Array.<string>}
-         */
-        scopes: Array<string>;
-        /**
-         * The scope that is used to request a refresh token.
-         *
-         * @type {string}
-         */
-        refreshTokenScope: string;
-        /**
-         * Any additional links.
-         *
-         *
-         * @type {Array.<Link>}
-         */
-        links: Array<Link>;
-        /**
-         * The default clients made available by the back-end.
-         *
-         * @type {Array.<OidcClient>}
-         */
-        defaultClients: Array<OidcClient>;
-        /**
-         * Additional parameters to include in authorization requests.
-         *
-         * As defined by the API, these parameters MUST be included when
-         * requesting the authorization endpoint.
-         *
-         * @type {object.<string, *>}
-         */
-        authorizationParameters: Record<string, any>;
-        /**
-         * The detected default Client.
-         *
-         * @type {OidcClient}
-         */
-        defaultClient: OidcClient;
-        /**
-         * The cached OpenID Connect well-known configuration document.
-         *
-         * @type {object.<string, *> | null}
-         */
-        wellKnownDocument: Record<string, any> | null;
-        /**
-         * Adds a listener to one of the following events:
-         *
-         * - AccessTokenExpiring: Raised prior to the access token expiring.
-         * - AccessTokenExpired: Raised after the access token has expired.
-         * - SilentRenewError: Raised when the automatic silent renew has failed.
-         *
-         * @param {string} event
-         * @param {Function} callback
-         * @param {string} [scope="default"]
-         */
-        addListener(event: string, callback: Function, scope?: string): void;
-        /**
-         * Removes the listener for the given event that has been set with addListener.
-         *
-         * @param {string} event
-         * @param {string} [scope="default"]
-         * @see OidcProvider#addListener
-         */
-        removeListener(event: string, scope?: string): void;
-        /**
-         * Authenticate with OpenID Connect (OIDC).
-         *
-         * Supported in Browser environments for `authorization_code+pkce` and `implicit` grants.
-         * The `client_credentials` grant is supported in all environments.
-         *
-         * @async
-         * @param {object.<string, *>} [options={}] - Object with authentication options.
-         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
-         * @returns {Promise<void>}
-         * @throws {Error}
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
-         * @see {OidcProvider#refreshTokenScope}
-         */
-        login(options?: Record<string, any>, requestRefreshToken?: boolean): Promise<void>;
-        /**
-         * Authenticate using the OIDC Client Credentials grant.
-         *
-         * Requires `clientId` and `clientSecret` to be set.
-         * This flow does not use the oidc-client library and works in all environments.
-         *
-         * @async
-         * @protected
-         * @returns {Promise<void>}
-         * @throws {Error}
-         */
-        protected loginClientCredentials(): Promise<void>;
-        /**
-         * Retrieves the OpenID Connect well-known configuration document.
-         *
-         * @async
-         * @returns {Promise<object.<str, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
-         */
-        getWellKnownDocument(): Promise<Record<string, any>> | null;
-        /**
-         * Discovers the token endpoint from the OpenID Connect issuer.
-         *
-         * @async
-         * @protected
-         * @returns {Promise<string>} The token endpoint URL.
-         * @throws {Error}
-         */
-        protected getTokenEndpoint(): Promise<string>;
-        /**
-         * Checks whether the OpenID Connect provider supports the Client Credentials grant.
-         *
-         * @async
-         * @returns {Promise<boolean|null>} `true` if the Client Credentials grant is supported, `false` otherwise. `null` if unknown.
-         */
-        supportsClientCredentials(): Promise<boolean | null>;
-        /**
-         * Restores a previously established OIDC session from storage.
-         *
-         * Not supported for the `client_credentials` grant as credentials
-         * are not persisted. Use `login()` to re-authenticate instead.
-         *
-         * @async
-         * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
-         * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
-         */
-        resume(options?: Record<string, any>): Promise<boolean>;
-        /**
-         * Returns the options for the OIDC client library.
-         *
-         * Options can be overridden by custom options via the options parameter.
-         *
-         * @protected
-         * @param {object.<string, *>} options
-         * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
-         * @returns {object.<string, *>}
-         * @see {OidcProvider#refreshTokenScope}
-         */
-        protected getOptions(options?: Record<string, any>, requestRefreshToken?: boolean): Record<string, any>;
-        /**
-         * Get the response_type based on the grant type.
-         *
-         * @protected
-         * @returns {string}
-         * @throws {Error}
-         */
-        protected getResponseType(): string;
-        /**
-         * Sets the grant type (flow) used for OIDC authentication.
-         *
-         * @param {string} grant - Grant Type
-         * @throws {Error}
-         */
-        setGrant(grant: string): void;
-        /**
-         * Sets the Client ID for OIDC authentication.
-         *
-         * This may override a detected default client ID.
-         *
-         * @param {string | null} clientId
-         */
-        setClientId(clientId: string | null): void;
-        /**
-         * Sets the Client Secret for OIDC authentication.
-         *
-         * Only used for the `client_credentials` grant type.
-         *
-         * @param {string | null} clientSecret
-         */
-        setClientSecret(clientSecret: string | null): void;
-        /**
-         * Sets the OIDC User.
-         *
-         * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
-         * @param {User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
-         */
-        setUser(user: User | null): void;
-        /**
-         * Detects the default OIDC client ID for the given redirect URL.
-         *
-         * Sets the grant and client ID accordingly.
-         *
-         * @returns {OidcClient | null}
-         * @see OidcProvider#setGrant
-         * @see OidcProvider#setClientId
-         */
-        detectDefaultClient(): OidcClient | null;
+    namespace Capabilities {
+        export { CONFORMANCE_CLASSES as Conformance };
     }
-    export namespace OidcProvider {
-        let uiMethod: string;
-        let redirectUrl: string;
-        let grants: Array<string>;
+    namespace CONFORMANCE_CLASSES {
+        let openeo: string;
+        let stacCollections: string[];
+        let stacItems: string;
+        let commercialData: string;
+        let federation: string;
+        let processingParameters: string;
+        let remoteProcessDefinition: string;
+        let workspaces: string;
     }
+}
+declare module "filetypes" {
+    export = FileTypes;
     /**
      * Manages the files types supported by the back-end.
      */
-    export class FileTypes {
+    class FileTypes {
         /**
          * Creates a new FileTypes object from an API-compatible JSON response.
          *
@@ -784,13 +1189,13 @@ declare namespace OpenEO {
         /**
          * Returns the input file formats.
          *
-         * @returns {object.<string, FileType>}
+         * @returns {Record.<string, FileType>}
          */
         getInputTypes(): Record<string, FileType>;
         /**
          * Returns the output file formats.
          *
-         * @returns {object.<string, FileType>}
+         * @returns {Record.<string, FileType>}
          */
         getOutputTypes(): Record<string, FileType>;
         /**
@@ -821,12 +1226,109 @@ declare namespace OpenEO {
          */
         protected _findType(type: string, io: string): FileType | null;
     }
+}
+declare module "baseentity" {
+    export = BaseEntity;
+    /**
+     * The base class for entities such as Job, Process Graph, Service etc.
+     *
+     * @abstract
+     */
+    class BaseEntity {
+        /**
+         * Creates an instance of this object.
+         *
+         * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
+         * @param {Array.<string|Array.<string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
+         */
+        constructor(connection: Connection, properties?: Array<string | Array<string>>);
+        /**
+         * @protected
+         * @type {Connection}
+         */
+        protected connection: Connection;
+        /**
+         * @protected
+         * @type {Record.<string, string>}
+         */
+        protected apiToClientNames: Record<string, string>;
+        /**
+         * @protected
+         * @type {Record.<string, string>}
+         */
+        protected clientToApiNames: Record<string, string>;
+        /**
+         * @protected
+         * @type {number}
+         */
+        protected lastRefreshTime: number;
+        /**
+         * Additional (non-standardized) properties received from the API.
+         *
+         * @protected
+         * @type {Record.<string, *>}
+         */
+        protected extra: Record<string, any>;
+        /**
+         * Returns a JSON serializable representation of the data that is API compliant.
+         *
+         * @returns {Record.<string, *>}
+         */
+        toJSON(): Record<string, any>;
+        /**
+         * Converts the data from an API response into data suitable for our JS client models.
+         *
+         * @param {Record.<string, *>} metadata - JSON object originating from an API response.
+         * @returns {BaseEntity} Returns the object itself.
+         */
+        setAll(metadata: Record<string, any>): BaseEntity;
+        /**
+         * Returns the age of the data in seconds.
+         *
+         * @returns {number} Age of the data in seconds as integer.
+         */
+        getDataAge(): number;
+        /**
+         * Returns all data in the model.
+         *
+         * @returns {Record.<string, *>}
+         */
+        getAll(): Record<string, any>;
+        /**
+         * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
+         *
+         * @param {string} name - Name of the property.
+         * @returns {*} The value, which could be of any type.
+         */
+        get(name: string): any;
+        /**
+         * Converts the object to a valid objects for API requests.
+         *
+         * @param {Record.<string, *>} parameters
+         * @returns {Record.<string, *>}
+         * @protected
+         */
+        protected _convertToRequest(parameters: Record<string, any>): Record<string, any>;
+        /**
+         * Checks whether a features is supported by the API.
+         *
+         * @param {string} feature
+         * @returns {boolean}
+         * @protected
+         * @see Capabilities#hasFeature
+         */
+        protected _supports(feature: string): boolean;
+    }
+    import Connection = require("connection");
+}
+declare module "userfile" {
+    export = UserFile;
     /**
      * A File on the user workspace.
      *
      * @augments BaseEntity
      */
-    export class UserFile extends BaseEntity {
+    class UserFile extends BaseEntity {
         /**
          * Creates an object representing a file on the user workspace.
          *
@@ -862,10 +1364,10 @@ declare namespace OpenEO {
          * Returns a stream in a NodeJS environment or a Blob in a browser environment.
          *
          * @async
-         * @returns {Promise<Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+         * @returns {Promise<require('stream').Readable|Blob>} - Return value depends on the target and environment, see method description for details.
          * @throws {Error}
          */
-        retrieveFile(): Promise<Readable | Blob>;
+        retrieveFile(): Promise<NodeJS.Require>;
         /**
          * Downloads a file from the user workspace and saves it.
          *
@@ -901,7 +1403,7 @@ declare namespace OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, statusCallback?: uploadStatusCallback | null, abortController?: AbortController | null): Promise<UserFile>;
+        uploadFile(source: any, statusCallback?: ((percentCompleted: number, file: UserFile) => any) | null, abortController?: AbortController | null): Promise<UserFile>;
         /**
          * Deletes the file from the user workspace.
          *
@@ -910,17 +1412,15 @@ declare namespace OpenEO {
          */
         deleteFile(): Promise<void>;
     }
-    /**
-     * A callback that is executed on upload progress updates.
-     */
-    type uploadStatusCallback = (percentCompleted: number, file: UserFile) => any;
-    namespace UserFile {
-        export { uploadStatusCallback };
-    }
+    import BaseEntity = require("baseentity");
+    import Connection = require("connection");
+}
+declare module "logs" {
+    export = Logs;
     /**
      * Interface to loop through the logs.
      */
-    export class Logs {
+    class Logs {
         /**
          * Creates a new Logs instance to retrieve logs from a back-end.
          *
@@ -985,12 +1485,16 @@ declare namespace OpenEO {
          */
         next(limit?: number): Promise<LogsAPI>;
     }
+    import Connection = require("connection");
+}
+declare module "job" {
+    export = Job;
     /**
      * A Batch Job.
      *
      * @augments BaseEntity
      */
-    export class Job extends BaseEntity {
+    class Job extends BaseEntity {
         /**
          * Creates an object representing a batch job stored at the back-end.
          *
@@ -1167,7 +1671,7 @@ declare namespace OpenEO {
          * The Item or Collection returned always complies to the latest STAC version (currently 1.0.0).
          *
          * @async
-         * @returns {Promise<object.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
+         * @returns {Promise<Record.<string, *>>} The JSON-based response compatible to the API specification, but also including a `costs` property if present in the headers.
          * @throws {Error}
          */
         getResultsAsStac(): Promise<Record<string, any>>;
@@ -1191,12 +1695,18 @@ declare namespace OpenEO {
          */
         downloadResults(targetFolder: string): Promise<Array<string> | void>;
     }
+    import BaseEntity = require("baseentity");
+    import Logs = require("logs");
+    import Connection = require("connection");
+}
+declare module "userprocess" {
+    export = UserProcess;
     /**
      * A Stored Process Graph.
      *
      * @augments BaseEntity
      */
-    export class UserProcess extends BaseEntity {
+    class UserProcess extends BaseEntity {
         /**
          * Creates an object representing a process graph stored at the back-end.
          *
@@ -1235,14 +1745,14 @@ declare namespace OpenEO {
          *
          * @public
          * @readonly
-         * @type {?Array.<object.<string, *>>}
+         * @type {?Array.<Record.<string, *>>}
          */
         public readonly parameters: Array<Record<string, any>> | null;
         /**
          * Description of the data that is returned by this process.
          * @public
          * @readonly
-         * @type {?object.<string, *>}
+         * @type {?Record.<string, *>}
          */
         public readonly returns: Record<string, any> | null;
         /**
@@ -1263,13 +1773,13 @@ declare namespace OpenEO {
          * Declares any exceptions (errors) that might occur during execution of this process.
          * @public
          * @readonly
-         * @type {?object.<string, *>}
+         * @type {?Record.<string, *>}
          */
         public readonly exceptions: Record<string, any> | null;
         /**
          * @public
          * @readonly
-         * @type {?Array.<object.<string, *>>}
+         * @type {?Array.<Record.<string, *>>}
          */
         public readonly examples: Array<Record<string, any>> | null;
         /**
@@ -1282,7 +1792,7 @@ declare namespace OpenEO {
         /**
          * @public
          * @readonly
-         * @type {?object.<string, *>}
+         * @type {?Record.<string, *>}
          */
         public readonly processGraph: Record<string, any> | null;
         /**
@@ -1317,12 +1827,17 @@ declare namespace OpenEO {
          */
         deleteUserProcess(): Promise<void>;
     }
+    import BaseEntity = require("baseentity");
+    import Connection = require("connection");
+}
+declare module "service" {
+    export = Service;
     /**
      * A Secondary Web Service.
      *
      * @augments BaseEntity
      */
-    export class Service extends BaseEntity {
+    class Service extends BaseEntity {
         /**
          * Creates an object representing a secondary web service stored at the back-end.
          *
@@ -1380,14 +1895,14 @@ declare namespace OpenEO {
          * Map of configuration settings, i.e. the setting names supported by the secondary web service combined with actual values.
          * @public
          * @readonly
-         * @type {?object.<string, *>}
+         * @type {?Record.<string, *>}
          */
         public readonly configuration: Record<string, any> | null;
         /**
          * Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.
          * @public
          * @readonly
-         * @type {?object.<string, *>}
+         * @type {?Record.<string, *>}
          */
         public readonly attributes: Record<string, any> | null;
         /**
@@ -1435,7 +1950,7 @@ declare namespace OpenEO {
          * @param {string} parameters.title - A new title.
          * @param {string} parameters.description - A new description.
          * @param {boolean} parameters.enabled - Enables (`true`) or disables (`false`) the service.
-         * @param {object.<string, *>} parameters.configuration - A new set of configuration parameters to set for the service.
+         * @param {Record.<string, *>} parameters.configuration - A new set of configuration parameters to set for the service.
          * @param {string} parameters.plan - A new plan.
          * @param {number} parameters.budget - A new budget.
          * @returns {Promise<Service>} The updated service object (this).
@@ -1485,6 +2000,12 @@ declare namespace OpenEO {
          */
         monitorService(callback: Function, interval?: number, requestLogs?: boolean): Function;
     }
+    import BaseEntity = require("baseentity");
+    import Logs = require("logs");
+    import Connection = require("connection");
+}
+declare module "builder/parameter" {
+    export = Parameter;
     /**
      * A class that represents a process parameter.
      *
@@ -1510,7 +2031,7 @@ declare namespace OpenEO {
      * Simple access to numeric labels is not supported. You need to use `array_element` directly, e.g.
      * `this.array_element(data, undefined, 1)`.
      */
-    export class Parameter {
+    class Parameter {
         /**
          * Creates a new parameter instance, but proxies calls to it
          * so that array access is possible (see class description).
@@ -1525,7 +2046,7 @@ declare namespace OpenEO {
          * Creates a new process parameter.
          *
          * @param {string} name - Name of the parameter.
-         * @param {object.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
+         * @param {Record.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
          * @param {string} description - A description for the parameter
          * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
          */
@@ -1533,13 +2054,13 @@ declare namespace OpenEO {
         name: string;
         spec: {
             name: string;
-            schema: any;
+            schema: Record<string, any>;
             description: string;
         };
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
-         * @returns {object.<string, *>}
+         * @returns {Record.<string, *>}
          */
         toJSON(): Record<string, any>;
         /**
@@ -1549,6 +2070,9 @@ declare namespace OpenEO {
          */
         ref(): FromParameter;
     }
+    import Builder = require("builder/builder");
+}
+declare module "builder/tapdigit" {
     export function Lexer(): {
         reset: (str: any) => void;
         next: () => {
@@ -1569,6 +2093,9 @@ declare namespace OpenEO {
             Expression: any;
         };
     };
+}
+declare module "builder/formula" {
+    export = Formula;
     /**
      * This converts a mathematical formula into a openEO process for you.
      *
@@ -1587,7 +2114,7 @@ declare namespace OpenEO {
      *
      * An example that computes an EVI (assuming the labels for the bands are `NIR`, `RED` and `BLUE`): `2.5 * ($NIR - $RED) / (1 + $NIR + 6 * $RED + (-7.5 * $BLUE))`
      */
-    export class Formula {
+    class Formula {
         /**
          * Creates a math formula object.
          *
@@ -1595,7 +2122,7 @@ declare namespace OpenEO {
          */
         constructor(formula: string);
         /**
-         * @type {object.<string, *>}
+         * @type {Record.<string, *>}
          */
         tree: Record<string, any>;
         /**
@@ -1622,8 +2149,8 @@ declare namespace OpenEO {
          * Walks through the tree generated by the TapDigit parser and generates process nodes.
          *
          * @protected
-         * @param {object.<string, *>} tree
-         * @returns {object.<string, *>}
+         * @param {Record.<string, *>} tree
+         * @returns {Record.<string, *>}
          * @throws {Error}
          */
         protected parseTree(tree: Record<string, any>): Record<string, any>;
@@ -1639,26 +2166,31 @@ declare namespace OpenEO {
          * Adds a process node for an operator like +, -, *, / etc.
          *
          * @param {string} operator - The operator.
-         * @param {number|object.<string, *>} left - The left part for the operator.
-         * @param {number|object.<string, *>} right - The right part for the operator.
+         * @param {number|Record.<string, *>} left - The left part for the operator.
+         * @param {number|Record.<string, *>} right - The right part for the operator.
          * @returns {BuilderNode}
          * @throws {Error}
          */
         addOperatorProcess(operator: string, left: number | Record<string, any>, right: number | Record<string, any>): BuilderNode;
     }
-    export namespace Formula {
+    namespace Formula {
         let operatorMapping: Record<string, string>;
     }
+    import Builder = require("builder/builder");
+    import BuilderNode = require("builder/node");
+}
+declare module "builder/node" {
+    export = BuilderNode;
     /**
      * A class that represents a process node and also a result from a process.
      */
-    export class BuilderNode {
+    class BuilderNode {
         /**
          * Creates a new process node for the builder.
          *
          * @param {Builder} parent
          * @param {string} processId
-         * @param {object.<string, *>} [processArgs={}]
+         * @param {Record.<string, *>} [processArgs={}]
          * @param {?string} [processDescription=null]
          * @param {?string} [processNamespace=null]
          */
@@ -1686,7 +2218,7 @@ declare namespace OpenEO {
         namespace: string;
         /**
          * The arguments for the process.
-         * @type {object.<string, *>}
+         * @type {Record.<string, *>}
          */
         arguments: Record<string, any>;
         /**
@@ -1701,15 +2233,15 @@ declare namespace OpenEO {
         /**
          * Converts a sorted array of arguments to an object with the respective parameter names.
          *
-         * @param {Array.<object.<string, *>>} processArgs
-         * @returns {object.<string, *>}
+         * @param {Array.<Record.<string, *>>} processArgs
+         * @returns {Record.<string, *>}
          * @throws {Error}
          */
         namedArguments(processArgs: Array<Record<string, any>>): Record<string, any>;
         /**
          * Checks the arguments given for parameters and add them to the process.
          *
-         * @param {object.<string, *>|Array} processArgs
+         * @param {Record.<string, *>|Array} processArgs
          */
         addParametersToProcess(processArgs: Record<string, any> | any[]): void;
         /**
@@ -1754,14 +2286,14 @@ declare namespace OpenEO {
          * @protected
          * @param {Function} arg - callback function
          * @param {string} name - Parameter name
-         * @returns {object.<string, *>}
+         * @returns {Record.<string, *>}
          * @throws {Error}
          */
         protected exportCallback(arg: Function, name: string): Record<string, any>;
         /**
          * Returns a JSON serializable representation of the data that is API compliant.
          *
-         * @returns {object.<string, *>}
+         * @returns {Record.<string, *>}
          */
         toJSON(): Record<string, any>;
         /**
@@ -1771,6 +2303,10 @@ declare namespace OpenEO {
          */
         ref(): FromNode;
     }
+    import Builder = require("builder/builder");
+}
+declare module "builder/builder" {
+    export = Builder;
     /**
      * A class to construct processes easily.
      *
@@ -1835,7 +2371,7 @@ declare namespace OpenEO {
      * Using arrow functions is available only since JS client version 1.3.0.
      * Beforehand it was not possible to use arrow functions in this context.
      */
-    export class Builder {
+    class Builder {
         /**
          * Creates a Builder instance that can be used without connecting to a back-end.
          *
@@ -1867,11 +2403,11 @@ declare namespace OpenEO {
          *
          * Each process passed to the constructor is made available as object method.
          *
-         * @param {Array.<Process>|Processes|ProcessRegistry} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
+         * @param {Array.<Process>|Processes|require('@openeo/js-commons/src/processRegistry')} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
          * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
          * @param {string} id - A unique identifier for the process.
          */
-        constructor(processes: Array<Process> | Processes | ProcessRegistry, parent?: Builder | null, id?: string);
+        constructor(processes: any, parent?: Builder | null, id?: string);
         /**
          * A unique identifier for the process.
          * @public
@@ -1899,9 +2435,9 @@ declare namespace OpenEO {
         parameters: any;
         /**
          * List of all non-namespaced process specifications.
-         * @type {ProcessRegistry}
+         * @type {require('@openeo/js-commons/src/processRegistry')}
          */
-        processes: ProcessRegistry;
+        processes: NodeJS.Require;
         /**
          * Creates a callable function on the builder object for a process.
          *
@@ -1935,7 +2471,7 @@ declare namespace OpenEO {
         /**
          * Gets the callback parameter specifics from the parent process.
          *
-         * @returns {Array.<object.<string,*>>}
+         * @returns {Array.<Record.<string,*>>}
          * @todo Should this also pass callback parameters from parents until root is reached?
          */
         getParentCallbackParameters(): Array<Record<string, any>>;
@@ -1944,7 +2480,7 @@ declare namespace OpenEO {
          *
          * Doesn't add the parameter if it has the same name as a callback parameter.
          *
-         * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
+         * @param {Record.<string, *>} parameter - The parameter spec to add, must comply to the API.
          * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
          */
         addParameter(parameter: Record<string, any>, root?: boolean): void;
@@ -1979,7 +2515,7 @@ declare namespace OpenEO {
          * Adds another process call to the process chain.
          *
          * @param {string} processId - The id of the process to call. To access a namespaced process, use the `process@namespace` notation.
-         * @param {object.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+         * @param {Record.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
          * @param {?string} [description=null] - An optional description for the process call.
          * @returns {BuilderNode}
          */
@@ -2001,6 +2537,9 @@ declare namespace OpenEO {
          */
         generateId(prefix?: string): string;
     }
+    import BuilderNode = require("builder/node");
+}
+declare module "pages" {
     /**
      * A class to handle pagination of resources.
      *
@@ -2013,16 +2552,16 @@ declare namespace OpenEO {
          * @param {Connection} connection
          * @param {string} endpoint
          * @param {string} key
-         * @param {Constructor} cls - Class
+         * @param {any} cls - Class
          * @param {object} [params={}]
          * @param {string} primaryKey
          */
-        constructor(connection: Connection, endpoint: string, key: string, cls: Constructor, params?: object, primaryKey?: string);
+        constructor(connection: Connection, endpoint: string, key: string, cls: any, params?: object, primaryKey?: string);
         connection: Connection;
         nextUrl: string;
         key: string;
         primaryKey: string;
-        cls: Constructor;
+        cls: any;
         params: any;
         /**
          * Returns true if there are more pages to fetch.
@@ -2089,6 +2628,13 @@ declare namespace OpenEO {
          * @param {?number} limit
          */
         constructor(connection: Connection, limit?: number | null);
+        /**
+         * Migrates the STAC collection to the latest version.
+         *
+         * @param {object} obj
+         * @returns {Collection}
+         */
+        _createObject(obj: object): Collection;
     }
     /**
      * Paginate through collection items.
@@ -2102,6 +2648,13 @@ declare namespace OpenEO {
          * @param {object} params
          */
         constructor(connection: Connection, collectionId: string, params: object);
+        /**
+         * Migrates the STAC item to the latest version.
+         *
+         * @param {object} obj
+         * @returns {Item}
+         */
+        _createObject(obj: object): Item;
     }
     /**
      * Paginate through jobs.
@@ -2153,10 +2706,14 @@ declare namespace OpenEO {
          */
         constructor(connection: Connection, limit?: number | null);
     }
+    import Connection = require("connection");
+}
+declare module "connection" {
+    export = Connection;
     /**
      * A connection to a back-end.
      */
-    export class Connection {
+    class Connection {
         /**
          * Creates a new Connection.
          *
@@ -2206,7 +2763,7 @@ declare namespace OpenEO {
          * Listeners for events.
          *
          * @protected
-         * @type {object.<string|Function>}
+         * @type {Record.<string, Function>}
          */
         protected listeners: Record<string, Function>;
         /**
@@ -2220,9 +2777,9 @@ declare namespace OpenEO {
          * Process cache
          *
          * @protected
-         * @type {ProcessRegistry}
+         * @type {require('@openeo/js-commons/src/processRegistry')}
          */
-        protected processes: ProcessRegistry;
+        protected processes: NodeJS.Require;
         /**
          * Initializes the connection by requesting the capabilities.
          *
@@ -2278,7 +2835,7 @@ declare namespace OpenEO {
          * List the supported secondary service types.
          *
          * @async
-         * @returns {Promise<object.<string, ServiceType>>} A response compatible to the API specification.
+         * @returns {Promise<Record.<string, ServiceType>>} A response compatible to the API specification.
          * @throws {Error}
          */
         listServiceTypes(): Promise<Record<string, ServiceType>>;
@@ -2286,7 +2843,7 @@ declare namespace OpenEO {
          * List the supported UDF runtimes.
          *
          * @async
-         * @returns {Promise<object.<string, UdfRuntime>>} A response compatible to the API specification.
+         * @returns {Promise<Record.<string, UdfRuntime>>} A response compatible to the API specification.
          * @throws {Error}
          */
         listUdfRuntimes(): Promise<Record<string, UdfRuntime>>;
@@ -2430,7 +2987,7 @@ declare namespace OpenEO {
          * May return `null` if the instance can't be created.
          *
          * @callback oidcProviderFactoryFunction
-         * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
+         * @param {Record.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
          * @returns {AuthProvider | null}
          */
         /**
@@ -2443,8 +3000,8 @@ declare namespace OpenEO {
          * @param {?oidcProviderFactoryFunction} [providerFactoryFunc=null]
          * @see AuthProvider
          */
-        setOidcProviderFactory(providerFactoryFunc?: oidcProviderFactoryFunction | null): void;
-        oidcProviderFactory: oidcProviderFactoryFunction;
+        setOidcProviderFactory(providerFactoryFunc?: ((providerInfo: Record<string, any>) => AuthProvider | null) | null): void;
+        oidcProviderFactory: (providerInfo: Record<string, any>) => AuthProvider | null;
         /**
          * Get the OpenID Connect provider factory.
          *
@@ -2454,7 +3011,7 @@ declare namespace OpenEO {
          * @returns {oidcProviderFactoryFunction | null}
          * @see AuthProvider
          */
-        getOidcProviderFactory(): oidcProviderFactoryFunction | null;
+        getOidcProviderFactory(): ((providerInfo: Record<string, any>) => AuthProvider | null) | null;
         /**
          * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
          *
@@ -2541,10 +3098,10 @@ declare namespace OpenEO {
          * List all files from the user workspace.
          *
          * @async
-         * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
+         * @returns {Promise<import('./typedefs').ResponseArray.<UserFile>>} A list of files.
          * @throws {Error}
          */
-        listFiles(): Promise<ResponseArray<UserFile>>;
+        listFiles(): Promise<any>;
         /**
          * Paginate through the files from the user workspace.
          *
@@ -2575,7 +3132,7 @@ declare namespace OpenEO {
          * @returns {Promise<UserFile>}
          * @throws {Error}
          */
-        uploadFile(source: any, targetPath?: string | null, statusCallback?: uploadStatusCallback | null, abortController?: AbortController | null): Promise<UserFile>;
+        uploadFile(source: any, targetPath?: string | null, statusCallback?: ((percentCompleted: number, file: UserFile) => any) | null, abortController?: AbortController | null): Promise<UserFile>;
         /**
          * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
          *
@@ -2589,9 +3146,9 @@ declare namespace OpenEO {
          * Takes a UserProcess, BuilderNode or a plain object containing process nodes
          * and converts it to an API compliant object.
          *
-         * @param {UserProcess|BuilderNode|object.<string, *>} process - Process to be normalized.
-         * @param {object.<string, *>} additional - Additional properties to be merged with the resulting object.
-         * @returns {object.<string, *>}
+         * @param {UserProcess|BuilderNode|Record.<string, *>} process - Process to be normalized.
+         * @param {Record.<string, *>} additional - Additional properties to be merged with the resulting object.
+         * @returns {Record.<string, *>}
          * @protected
          */
         protected _normalizeUserProcess(process: UserProcess | BuilderNode | Record<string, any>, additional?: Record<string, any>): Record<string, any>;
@@ -2609,10 +3166,10 @@ declare namespace OpenEO {
          *
          * @async
          * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
-         * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
+         * @returns {Promise<import('./typedefs').ResponseArray.<UserProcess>>} A list of user-defined processes.
          * @throws {Error}
          */
-        listUserProcesses(oldProcesses?: Array<UserProcess>): Promise<ResponseArray<UserProcess>>;
+        listUserProcesses(oldProcesses?: Array<UserProcess>): Promise<any>;
         /**
          * Paginates through the user-defined processes of the authenticated user.
          *
@@ -2649,7 +3206,7 @@ declare namespace OpenEO {
          * @param {?string} [plan=null] - The billing plan to use for this computation.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
-         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+         * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<SyncResult>} - An object with the data and some metadata.
          */
         computeResult(process: Process, plan?: string | null, budget?: number | null, abortController?: AbortController | null, additional?: Record<string, any>): Promise<SyncResult>;
@@ -2676,10 +3233,10 @@ declare namespace OpenEO {
          *
          * @async
          * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
-         * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
+         * @returns {Promise<import('./typedefs').ResponseArray.<Job>>} A list of jobs.
          * @throws {Error}
          */
-        listJobs(oldJobs?: Array<Job>): Promise<ResponseArray<Job>>;
+        listJobs(oldJobs?: Array<Job>): Promise<any>;
         /**
          * Paginate through the batch jobs of the authenticated user.
          *
@@ -2696,7 +3253,7 @@ declare namespace OpenEO {
          * @param {?string} [description=null] - A description for the batch job.
          * @param {?string} [plan=null] - The billing plan to use for this batch job.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+         * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
          * @returns {Promise<Job>} The stored batch job.
          * @throws {Error}
          */
@@ -2715,10 +3272,10 @@ declare namespace OpenEO {
          *
          * @async
          * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
-         * @returns {Promise<ResponseArray.<Service>>} A list of services.
+         * @returns {Promise<import('./typedefs').ResponseArray.<Service>>} A list of services.
          * @throws {Error}
          */
-        listServices(oldServices?: Array<Service>): Promise<ResponseArray<Service>>;
+        listServices(oldServices?: Array<Service>): Promise<any>;
         /**
          * Paginate through the secondary web services of the authenticated user.
          *
@@ -2735,10 +3292,10 @@ declare namespace OpenEO {
          * @param {?string} [title=null] - A title for the service.
          * @param {?string} [description=null] - A description for the service.
          * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
-         * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
+         * @param {Record.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
          * @param {?string} [plan=null] - The billing plan to use for this service.
          * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-         * @param {object.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
+         * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
          * @returns {Promise<Service>} The stored service.
          * @throws {Error}
          */
@@ -2776,7 +3333,7 @@ declare namespace OpenEO {
          * @protected
          * @async
          * @param {string} path
-         * @param {object.<string, *>} query
+         * @param {Record.<string, *>} query
          * @param {string} responseType - Response type according to axios, defaults to `json`.
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
          * @returns {Promise<AxiosResponse>}
@@ -2837,15 +3394,15 @@ declare namespace OpenEO {
          *
          * @param {string} url - An absolute or relative URL to download data from.
          * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-         * @returns {Promise<Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+         * @returns {Promise<require('stream').Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
          * @throws {Error}
          */
-        download(url: string, authorize: boolean): Promise<Readable | Blob>;
+        download(url: string, authorize: boolean): Promise<NodeJS.Require>;
         /**
          * Get the authorization header for requests.
          *
          * @protected
-         * @returns {object.<string, string>}
+         * @returns {Record.<string, string>}
          */
         protected _getAuthHeaders(): Record<string, string>;
         /**
@@ -2862,7 +3419,7 @@ declare namespace OpenEO {
          *
          * @protected
          * @async
-         * @param {object.<string, *>} options
+         * @param {Record.<string, *>} options
          * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
          * @returns {Promise<AxiosResponse>}
          * @throws {Error}
@@ -2870,20 +3427,40 @@ declare namespace OpenEO {
          */
         protected _send(options: Record<string, any>, abortController?: AbortController | null): Promise<AxiosResponse>;
     }
-    namespace Connection {
-        export { oidcProviderFactoryFunction, uploadStatusCallback };
-    }
-    /**
-     * This function is meant to create the OIDC providers used for authentication.
-     *
-     * The function gets passed a single argument that contains the
-     * provider information as provided by the API, e.g. having the properties
-     * `id`, `issuer`, `title` etc.
-     *
-     * The function must return an instance of AuthProvider or any derived class.
-     * May return `null` if the instance can't be created.
-     */
-    type oidcProviderFactoryFunction = (providerInfo: any) => AuthProvider | null;
+    import AuthProvider = require("authprovider");
+    import Capabilities = require("capabilities");
+    import FileTypes = require("filetypes");
+    import { CollectionPages } from "pages";
+    import { ItemPages } from "pages";
+    import { ProcessPages } from "pages";
+    import Builder = require("builder/builder");
+    import { ServicePages } from "pages";
+    import UserFile = require("userfile");
+    import UserProcess = require("userprocess");
+    import BuilderNode = require("builder/node");
+    import Job = require("job");
+    import { JobPages } from "pages";
+    import Service = require("service");
+}
+declare module "openeo" {
+    /** @type {typeof globalThis.AbortController} */
+    const AbortController_: typeof globalThis.AbortController;
+    /** @type {typeof import('./authprovider')} */
+    const AuthProvider_: typeof import("authprovider");
+    /** @type {typeof import('./basicprovider')} */
+    const BasicProvider_: typeof import("basicprovider");
+    /** @type {typeof import('./capabilities')} */
+    const Capabilities_: typeof import("capabilities");
+    /** @type {typeof import('./connection')} */
+    const Connection_: typeof import("connection");
+    /** @type {typeof import('./filetypes')} */
+    const FileTypes_: typeof import("filetypes");
+    /** @type {typeof import('./job')} */
+    const Job_: typeof import("job");
+    /** @type {typeof import('./logs')} */
+    const Logs_: typeof import("logs");
+    /** @type {typeof import('./oidcprovider')} */
+    const OidcProvider_: typeof import("oidcprovider");
     /**
      * Main class to start with openEO. Allows to connect to a server.
      *
@@ -2891,412 +3468,40 @@ declare namespace OpenEO {
      */
     export class OpenEO {
         /**
-         * Connect to a back-end with version discovery (recommended).
-         *
-         * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
-         * Requests the capabilities and authenticates where required.
-         *
          * @async
-         * @param {string} url - The server URL to connect to.
-         * @param {Options} [options={}] - Additional options for the connection.
-         * @returns {Promise<Connection>}
-         * @throws {Error}
-         * @static
+         * @param {string} url
+         * @param {Options} [options={}]
+         * @returns {Promise<import('./connection')>}
          */
-        static connect(url: string, options?: Options): Promise<Connection>;
+        static connect(url: string, options?: Options): Promise<import("connection")>;
         /**
-         * Connects directly to a back-end instance, without version discovery (NOT recommended).
-         *
-         * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
-         *
          * @async
-         * @param {string} versionedUrl - The server URL to connect to.
-         * @param {Options} [options={}] - Additional options for the connection.
-         * @returns {Promise<Connection>}
-         * @throws {Error}
-         * @static
+         * @param {string} versionedUrl
+         * @param {Options} [options={}]
+         * @returns {Promise<import('./connection')>}
          */
-        static connectDirect(versionedUrl: string, options?: Options): Promise<Connection>;
+        static connectDirect(versionedUrl: string, options?: Options): Promise<import("connection")>;
         /**
-         * Returns the version number of the client.
-         *
-         * Not to confuse with the API version(s) supported by the client.
-         *
-         * @returns {string} Version number (according to SemVer).
+         * @returns {string}
          */
         static clientVersion(): string;
     }
     export namespace OpenEO {
-        const Environment: Environment;
+        let Environment: any;
     }
-
-    /**
-     * An error.
-     */
-    export type ApiError = {
-        id: string;
-        code: string;
-        message: string;
-        links: Array<Link>;
-    };
-    /**
-     * Authentication Provider details.
-     */
-    export type AuthProviderMeta = {
-        /**
-         * Provider identifier, may not be used for all authentication methods.
-         */
-        id: string | null;
-        /**
-         * Title for the authentication method.
-         */
-        title: string;
-        /**
-         * Description for the authentication method.
-         */
-        description: string;
-    };
-    /**
-     * Response for a HTTP request.
-     */
-    export type AxiosResponse = {
-        data: any;
-        status: number;
-        statusText: string;
-        headers: any;
-        config: Record<string, any>;
-        request: any;
-    };
-    export type BillingPlan = {
-        /**
-         * Name of the billing plan.
-         */
-        name: string;
-        /**
-         * A description of the billing plan, may include CommonMark syntax.
-         */
-        description: string;
-        /**
-         * `true` if it is a paid plan, otherwise `false`.
-         */
-        paid: boolean;
-        /**
-         * A URL pointing to a page describing the billing plan.
-         */
-        url: string;
-        /**
-         * `true` if it is the default plan of the back-end, otherwise `false`.
-         */
-        default: boolean;
-    };
-    export type Collections = {
-        collections: Array<Collection>;
-        links: Array<Link>;
-        /**
-         * "federation:missing"] A list of backends from the federation that are missing in the response data.
-         */
-	"federation:missing": Array<string>;
-    };
-    export type Collection = Record<string, any>;
-    export type FileTypesAPI = {
-        /**
-         * - File types supported to import
-         */
-        input: Record<string, FileType>;
-        /**
-         * - File types supported to export
-         */
-        output: Record<string, FileType>;
-    };
-    export type FileType = {
-        title: string;
-        description: string;
-        gis_data_types: Array<string>;
-        parameters: Record<string, any>;
-        links: Array<Link>;
-    };
-    /**
-     * Reference to a parameter.
-     */
-    export type FromNode = {
-        /**
-         * - The node identifier.
-         */
-        from_node: string;
-    };
-    /**
-     * Reference to a parameter.
-     */
-    export type FromParameter = {
-        /**
-         * - The name of the parameter.
-         */
-        from_parameter: string;
-    };
-    export type Item = Record<string, any>;
-    export type ItemCollection = {
-        /**
-         * - The items in the collection.
-         */
-        features: Array<Item>;
-        /**
-         * - Additional links, e.g. for pagination.
-         */
-        links: Array<Link> | null;
-        /**
-         * This property indicates the time and date when the response was generated.
-         */
-        timeStamp: string | null;
-        /**
-         * The number (integer) of features of the feature type that match the selection parameters.
-         */
-        numberMatched: number | null;
-        /**
-         * The number (integer) of features in the feature collection.
-         */
-        numberReturned: number | null;
-    };
-    export type JobEstimate = {
-        costs: number | null;
-        duration: string;
-        /**
-         * in bytes as integer
-         */
-        size: number;
-        /**
-         * integer
-         */
-        downloads_included: number | null;
-        expires: string;
-    };
-    /**
-     * A link to another resource.
-     */
-    export type Link = {
-        /**
-         * The URL to the resource.
-         */
-        href: string;
-        /**
-         * Relation type
-         */
-        rel: string | null;
-        /**
-         * Media type
-         */
-        type: string | null;
-        /**
-         * Human-readable title
-         */
-        title: string | null;
-        /**
-         * A list of roles, if link is originating from an asset.
-         */
-        roles: Array<string> | null;
-    };
-    export type LogsAPI = {
-        logs: Array<Log>;
-        links: Array<Link>;
-    };
-    /**
-     * A log entry.
-     */
-    export type Log = {
-        id: string;
-        code: string;
-        level: string;
-        message: string;
-        data: any;
-        path: Array<Record<string, string | null>>;
-        links: Array<Link>;
-    };
-    /**
-     * Default OpenID Connect Client as returned by the API.
-     */
-    export type OidcClient = {
-        /**
-         * Client ID
-         */
-        id: string;
-        /**
-         * Supported Grant Types
-         */
-        grant_types: Array<string>;
-        /**
-         * Allowed Redirect URLs
-         */
-        redirect_urls: Array<string>;
-    };
-    /**
-     * OpenID Connect Provider details as returned by the API.
-     */
-    export type OidcProviderMeta = {
-        /**
-         * Provider identifier.
-         */
-        id: string;
-        /**
-         * Title for the authentication method.
-         */
-        title: string;
-        /**
-         * Description for the authentication method.
-         */
-        description: string;
-        /**
-         * The OpenID Connect issuer location (authority).
-         */
-        issuer: string;
-        /**
-         * OpenID Connect Scopes
-         */
-        scopes: Array<string>;
-        /**
-         * Default OpenID Connect Clients
-         */
-        default_clients: Array<OidcClient>;
-        /**
-         * Links
-         */
-        links: Array<Link>;
-    };
-    /**
-     * Connection options.
-     */
-    export type Options = {
-        /**
-         * Add a namespace property to processes if set to `true`. Defaults to `false`.
-         */
-        addNamespaceToProcess: boolean;
-    };
-    export type Processes = {
-        processes: Array<Process>;
-        links: Array<Link>;
-        /**
-         * EXPERIMENTAL!
-         */
-        namespaces: Array<string> | null;
-        /**
-         * "federation:missing"] A list of backends from the federation that are missing in the response data.
-         */
-	"federation:missing": Array<string>;
-    };
-    /**
-     * An openEO processing chain.
-     */
-    export type Process = Record<string, any>;
-    /**
-     * A specific processing parameter.
-     */
-    type ProcessingParameter = Record<string, any>;
-    /**
-     * All types of processing parameters.
-     */
-    type ProcessingParameters = {
-        /**
-         * Processing parameters for batch jobs.
-         */
-        create_job_parameters: Array<ProcessingParameter>;
-        /**
-         * Processing parameters for secondary web services.
-         */
-        create_service_parameters: Array<ProcessingParameter>;
-        /**
-         * Processing parameters for synchronous processing.
-         */
-        create_synchronous_parameters: Array<ProcessingParameter>;
-    };
-    /**
-     * A back-end in the federation.
-     */
-    export type FederationBackend = {
-        /**
-         * ID of the back-end within the federation.
-         */
-        id: string;
-        /**
-         * URL to the versioned API endpoint of the back-end.
-         */
-        url: string;
-        /**
-         * Name of the back-end.
-         */
-        title: string;
-        /**
-         * A description of the back-end and its specifics.
-         */
-        description: string;
-        /**
-         * Current status of the back-end (online or offline).
-         */
-        status: string;
-        /**
-         * The time at which the status of the back-end was checked last, formatted as a RFC 3339 date-time.
-         */
-        last_status_check: string;
-        /**
-         * If the `status` is `offline`: The time at which the back-end was checked and available the last time. Otherwise, this is equal to the property `last_status_check`. Formatted as a RFC 3339 date-time.
-         */
-        last_successful_check: string;
-        /**
-         * Declares the back-end to be experimental.
-         */
-        experimental: boolean;
-        /**
-         * Declares the back-end to be deprecated.
-         */
-        deprecated: boolean;
-    };
-    /**
-     * An array, but enriched with additional details from an openEO API response.
-     *
-     * Adds two properties: `links` and `federation:missing`.
-     */
-    export type ResponseArray = any;
-    export type ServiceType = Record<string, any>;
-    export type SyncResult = {
-        /**
-         * The data as `Stream` in NodeJS environments or as `Blob` in browsers.
-         */
-        data: Readable | Blob;
-        /**
-         * The costs for the request in the currency exposed by the back-end.
-         */
-        costs: number | null;
-        /**
-         * The content media type returned by the back-end.
-         */
-        type: string | null;
-        /**
-         * Array of log entries as specified in the API.
-         */
-        logs: Array<Log>;
-    };
-    export type UdfRuntime = Record<string, any>;
-    export type UserAccountStorage = {
-        /**
-         * in bytes as integer
-         */
-        free: number;
-        /**
-         * in bytes as integer
-         */
-        quota: number;
-    };
-    export type UserAccount = {
-        user_id: string;
-        name: string | null;
-        default_plan: string | null;
-        storage: UserAccountStorage | null;
-        budget: number | null;
-        links: Array<Link> | null;
-    };
-    /**
-     * An array, but enriched with additional details from an openEO API response.
-     *
-     * Adds the property `federation:backends`.
-     */
-    export type ValidationResult = any;
+    /** @type {typeof import('./service')} */
+    const Service_: typeof import("service");
+    /** @type {typeof import('./userfile')} */
+    const UserFile_: typeof import("userfile");
+    /** @type {typeof import('./userprocess')} */
+    const UserProcess_: typeof import("userprocess");
+    /** @type {typeof import('./builder/builder')} */
+    const Builder_: typeof import("builder/builder");
+    /** @type {typeof import('./builder/node')} */
+    const BuilderNode_: typeof import("builder/node");
+    /** @type {typeof import('./builder/parameter')} */
+    const Parameter_: typeof import("builder/parameter");
+    /** @type {typeof import('./builder/formula')} */
+    const Formula_: typeof import("builder/formula");
+    export { AbortController_ as AbortController, AuthProvider_ as AuthProvider, BasicProvider_ as BasicProvider, Capabilities_ as Capabilities, Connection_ as Connection, FileTypes_ as FileTypes, Job_ as Job, Logs_ as Logs, OidcProvider_ as OidcProvider, Service_ as Service, UserFile_ as UserFile, UserProcess_ as UserProcess, Builder_ as Builder, BuilderNode_ as BuilderNode, Parameter_ as Parameter, Formula_ as Formula };
 }
-
-export = OpenEO;

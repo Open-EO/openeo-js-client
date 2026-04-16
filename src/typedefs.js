@@ -1,34 +1,34 @@
 /**
  * An error.
- * 
+ *
  * @typedef ApiError
  * @type {object}
- * @property {string} id 
- * @property {string} code 
- * @property {string} message 
- * @property {Array.<Link>} links 
+ * @property {string} id
+ * @property {string} code
+ * @property {string} message
+ * @property {Array.<Link>} links
  */
 
 /**
  * Authentication Provider details.
- * 
+ *
  * @typedef AuthProviderMeta
  * @type {object}
- * @property {?string} id Provider identifier, may not be used for all authentication methods. 
+ * @property {?string} id Provider identifier, may not be used for all authentication methods.
  * @property {string} title Title for the authentication method.
  * @property {string} description Description for the authentication method.
  */
 
 /**
  * Response for a HTTP request.
- * 
+ *
  * @typedef AxiosResponse
  * @type {object}
  * @property {*} data
  * @property {number} status
  * @property {string} statusText
  * @property {*} headers
- * @property {object.<string, *>} config
+ * @property {Record.<string, *>} config
  * @property {*} request
  */
 
@@ -52,14 +52,14 @@
 
 /**
  * @typedef Collection
- * @type {object.<string, *>} 
+ * @type {Record.<string, *>}
  */
 
 /**
  * @typedef FileTypesAPI
  * @type {object}
- * @property {object.<string, FileType>} input - File types supported to import
- * @property {object.<string, FileType>} output - File types supported to export
+ * @property {Record.<string, FileType>} input - File types supported to import
+ * @property {Record.<string, FileType>} output - File types supported to export
  */
 
 /**
@@ -68,13 +68,13 @@
  * @property {string} title
  * @property {string} description
  * @property {Array.<string>} gis_data_types
- * @property {object.<string, *>} parameters
+ * @property {Record.<string, *>} parameters
  * @property {Array.<Link>} links
  */
 
 /**
  * Reference to a parameter.
- * 
+ *
  * @typedef FromNode
  * @type {object}
  * @property {string} from_node - The node identifier.
@@ -82,7 +82,7 @@
 
 /**
  * Reference to a parameter.
- * 
+ *
  * @typedef FromParameter
  * @type {object}
  * @property {string} from_parameter - The name of the parameter.
@@ -90,7 +90,7 @@
 
 /**
  * @typedef Item
- * @type {object.<string, *>} 
+ * @type {Record.<string, *>}
  */
 
 /**
@@ -115,7 +115,7 @@
 
 /**
  * A link to another resource.
- * 
+ *
  * @typedef Link
  * @type {object}
  * @property {string} href The URL to the resource.
@@ -134,21 +134,21 @@
 
 /**
  * A log entry.
- * 
+ *
  * @typedef Log
  * @type {object}
- * @property {string} id 
- * @property {string} code 
+ * @property {string} id
+ * @property {string} code
  * @property {string} level
- * @property {string} message 
+ * @property {string} message
  * @property {*} data
- * @property {Array.<object.<string, ?string>>} path
- * @property {Array.<Link>} links 
+ * @property {Array.<Record.<string, ?string>>} path
+ * @property {Array.<Link>} links
  */
 
 /**
  * Default OpenID Connect Client as returned by the API.
- * 
+ *
  * @typedef OidcClient
  * @type {object}
  * @property {string} id Client ID
@@ -158,7 +158,7 @@
 
 /**
  * OpenID Connect Provider details as returned by the API.
- * 
+ *
  * @augments AuthProviderMeta
  * @typedef OidcProviderMeta
  * @type {object}
@@ -173,7 +173,7 @@
 
 /**
  * Connection options.
- * 
+ *
  * @typedef Options
  * @type {object}
  * @property {boolean} addNamespaceToProcess Add a namespace property to processes if set to `true`. Defaults to `false`.
@@ -190,21 +190,21 @@
 
 /**
  * An openEO processing chain.
- * 
+ *
  * @typedef Process
- * @type {object.<string, *>} 
+ * @type {Record.<string, *>}
  */
 
 /**
  * A specific processing parameter.
- * 
+ *
  * @typedef ProcessingParameter
  * @type {Record<string, *>}
  */
 
 /**
  * All types of processing parameters.
- * 
+ *
  * @typedef ProcessingParameters
  * @type {object}
  * @property {Array.<ProcessingParameter>} create_job_parameters Processing parameters for batch jobs.
@@ -214,7 +214,7 @@
 
 /**
  * A back-end in the federation.
- * 
+ *
  * @typedef FederationBackend
  * @type {object}
  * @property {string} id ID of the back-end within the federation.
@@ -230,9 +230,9 @@
 
 /**
  * An array, but enriched with additional details from an openEO API response.
- * 
+ *
  * Adds two properties: `links` and `federation:missing`.
- * 
+ *
  * @typedef ResponseArray
  * @augments Array
  * @type {Array.<*>}
@@ -242,13 +242,13 @@
 
 /**
  * @typedef ServiceType
- * @type {object.<string, *>}
+ * @type {Record.<string, *>}
  */
 
 /**
  * @typedef SyncResult
  * @type {object}
- * @property {Stream.Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
+ * @property {require('stream').Readable|Blob} data The data as `Stream` in NodeJS environments or as `Blob` in browsers.
  * @property {?number} costs The costs for the request in the currency exposed by the back-end.
  * @property {?string} type The content media type returned by the back-end.
  * @property {Array.<Log>} logs Array of log entries as specified in the API.
@@ -256,7 +256,7 @@
 
 /**
  * @typedef UdfRuntime
- * @type {object.<string, *>}
+ * @type {Record.<string, *>}
  */
 
 /**
@@ -279,9 +279,9 @@
 
 /**
  * An array, but enriched with additional details from an openEO API response.
- * 
+ *
  * Adds the property `federation:backends`.
- * 
+ *
  * @typedef ValidationResult
  * @augments Array
  * @type {Array.<ApiError>}

@@ -1,19 +1,20 @@
 const Utils = require('@openeo/js-commons/src/utils');
 const AuthProvider = require('./authprovider');
 const Environment = require('./env');
+const Connection = require('./connection');
 const Oidc = require('oidc-client');
 
 /**
  * The Authentication Provider for OpenID Connect.
- * 
+ *
  * See the openid-connect-popup.html and openid-connect-redirect.html files in
  * the `/examples/oidc` folder for usage examples in the browser.
- * 
- * If you want to implement OIDC in a non-browser environment, you can override 
+ *
+ * If you want to implement OIDC in a non-browser environment, you can override
  * the OidcProvider or AuthProvider classes with custom behavior.
  * In this case you must provide a function that creates your new class to the
  * `Connection.setOidcProviderFactory()` method.
- * 
+ *
  * @augments AuthProvider
  * @see Connection#setOidcProviderFactory
  */
@@ -21,7 +22,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Checks whether the required OIDC client library `openid-client-js` is available.
-	 * 
+	 *
 	 * @static
 	 * @returns {boolean}
 	 */
@@ -31,15 +32,15 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Finishes the OpenID Connect sign in (authentication) workflow.
-	 * 
+	 *
 	 * Must be called in the page that OpenID Connect redirects to after logging in.
-	 * 
+	 *
 	 * Supported only in Browser environments.
-	 * 
+	 *
 	 * @async
 	 * @static
 	 * @param {OidcProvider} provider - A OIDC provider to assign the user to.
-	 * @param {object.<string, *>} [options={}] - Object with additional options.
+	 * @param {Record.<string, *>} [options={}] - Object with additional options.
 	 * @returns {Promise<?Oidc.User>} For uiMethod = 'redirect' only: OIDC User
 	 * @throws {Error}
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#other-optional-settings
@@ -59,7 +60,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Creates a new OidcProvider instance to authenticate using OpenID Connect.
-	 * 
+	 *
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {OidcProviderMeta} options - OpenID Connect Provider details as returned by the API.
 	 */
@@ -71,105 +72,105 @@ class OidcProvider extends AuthProvider {
 
 		/**
 		 * The authenticated OIDC user.
-		 * 
+		 *
 		 * @type {Oidc.User}
 		 */
 		this.user = null;
-		
+
 		/**
 		 * The client ID to use for authentication.
-		 * 
+		 *
 		 * @type {string | null}
 		 */
 		this.clientId = null;
 
 		/**
 		 * The client secret to use for authentication.
-		 * 
+		 *
 		 * Only used for the `client_credentials` grant type.
-		 * 
+		 *
 		 * @type {string | null}
 		 */
 		this.clientSecret = null;
 
 		/**
 		 * The grant type (flow) to use for this provider.
-		 * 
+		 *
 		 * Either "authorization_code+pkce" (default), "implicit" or "client_credentials"
-		 * 
+		 *
 		 * @type {string}
 		 */
 		this.grant = "authorization_code+pkce"; // Set this before calling detectDefaultClient
 
 		/**
 		 * The issuer, i.e. the link to the identity provider.
-		 * 
+		 *
 		 * @type {string}
 		 */
 		this.issuer = options.issuer || "";
 
 		/**
 		 * The scopes to be requested.
-		 * 
+		 *
 		 * @type {Array.<string>}
 		 */
 		this.scopes = Array.isArray(options.scopes) && options.scopes.length > 0 ? options.scopes : ['openid'];
 
 		/**
 		 * The scope that is used to request a refresh token.
-		 * 
+		 *
 		 * @type {string}
 		 */
 		this.refreshTokenScope = "offline_access";
 
 		/**
 		 * Any additional links.
-		 * 
-		 * 
+		 *
+		 *
 		 * @type {Array.<Link>}
 		 */
 		this.links = Array.isArray(options.links) ? options.links : [];
 
 		/**
 		 * The default clients made available by the back-end.
-		 * 
+		 *
 		 * @type {Array.<OidcClient>}
 		 */
 		this.defaultClients = Array.isArray(options.default_clients) ? options.default_clients : [];
 
 		/**
 		 * Additional parameters to include in authorization requests.
-		 * 
+		 *
 		 * As defined by the API, these parameters MUST be included when
 		 * requesting the authorization endpoint.
-		 * 
-		 * @type {object.<string, *>}
+		 *
+		 * @type {Record.<string, *>}
 		 */
 		this.authorizationParameters = Utils.isObject(options.authorization_parameters) ? options.authorization_parameters : {};
 
 		/**
 		 * The detected default Client.
-		 * 
+		 *
 		 * @type {OidcClient}
 		 */
 		this.defaultClient = this.detectDefaultClient();
 
 		/**
 		 * The cached OpenID Connect well-known configuration document.
-		 * 
-		 * @type {object.<string, *> | null}
+		 *
+		 * @type {Record.<string, *> | null}
 		 */
 		this.wellKnownDocument = null;
 	}
 
 	/**
 	 * Adds a listener to one of the following events:
-	 * 
+	 *
 	 * - AccessTokenExpiring: Raised prior to the access token expiring.
 	 * - AccessTokenExpired: Raised after the access token has expired.
 	 * - SilentRenewError: Raised when the automatic silent renew has failed.
-	 * 
-	 * @param {string} event 
+	 *
+	 * @param {string} event
 	 * @param {Function} callback
 	 * @param {string} [scope="default"]
 	 */
@@ -180,8 +181,8 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Removes the listener for the given event that has been set with addListener.
-	 * 
-	 * @param {string} event 
+	 *
+	 * @param {string} event
 	 * @param {string} [scope="default"]
 	 * @see OidcProvider#addListener
 	 */
@@ -192,12 +193,12 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Authenticate with OpenID Connect (OIDC).
-	 * 
+	 *
 	 * Supported in Browser environments for `authorization_code+pkce` and `implicit` grants.
 	 * The `client_credentials` grant is supported in all environments.
-	 * 
+	 *
 	 * @async
-	 * @param {object.<string, *>} [options={}] - Object with authentication options.
+	 * @param {Record.<string, *>} [options={}] - Object with authentication options.
 	 * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
 	 * @returns {Promise<void>}
 	 * @throws {Error}
@@ -226,10 +227,10 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Authenticate using the OIDC Client Credentials grant.
-	 * 
+	 *
 	 * Requires `clientId` and `clientSecret` to be set.
 	 * This flow does not use the oidc-client library and works in all environments.
-	 * 
+	 *
 	 * @async
 	 * @protected
 	 * @returns {Promise<void>}
@@ -265,9 +266,9 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Retrieves the OpenID Connect well-known configuration document.
-	 * 
+	 *
 	 * @async
-	 * @returns {Promise<object.<str, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
+	 * @returns {Promise<Record.<string, *>> | null} The well-known configuration document, or `null` if the issuer URL is not set.
 	 */
 	async getWellKnownDocument() {
 		if (!this.issuer || typeof this.issuer !== 'string') {
@@ -284,7 +285,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Discovers the token endpoint from the OpenID Connect issuer.
-	 * 
+	 *
 	 * @async
 	 * @protected
 	 * @returns {Promise<string>} The token endpoint URL.
@@ -300,7 +301,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Checks whether the OpenID Connect provider supports the Client Credentials grant.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<boolean|null>} `true` if the Client Credentials grant is supported, `false` otherwise. `null` if unknown.
 	 */
@@ -318,12 +319,12 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Restores a previously established OIDC session from storage.
-	 * 
+	 *
 	 * Not supported for the `client_credentials` grant as credentials
 	 * are not persisted. Use `login()` to re-authenticate instead.
-	 * 
+	 *
 	 * @async
-	 * @param {object.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
+	 * @param {Record.<string, *>} [options={}] - Additional options passed to the OIDC UserManager.
 	 * @returns {Promise<boolean>} `true` if the session could be resumed, `false` otherwise.
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#usermanager
 	 */
@@ -351,7 +352,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Logout from the established session.
-	 * 
+	 *
 	 * @async
 	 */
 	async logout() {
@@ -384,13 +385,13 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Returns the options for the OIDC client library.
-	 * 
+	 *
 	 * Options can be overridden by custom options via the options parameter.
-	 * 
+	 *
 	 * @protected
-	 * @param {object.<string, *>} options 
+	 * @param {Record.<string, *>} options
 	 * @param {boolean} [requestRefreshToken=false] - If set to `true`, adds a scope to request a refresh token.
-	 * @returns {object.<string, *>}
+	 * @returns {Record.<string, *>}
 	 * @see {OidcProvider#refreshTokenScope}
 	 */
 	getOptions(options = {}, requestRefreshToken = false) {
@@ -414,7 +415,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Get the response_type based on the grant type.
-	 * 
+	 *
 	 * @protected
 	 * @returns {string}
 	 * @throws {Error}
@@ -434,11 +435,11 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Sets the grant type (flow) used for OIDC authentication.
-	 * 
+	 *
 	 * @param {string} grant - Grant Type
 	 * @throws {Error}
 	 */
-	setGrant(grant) { // 
+	setGrant(grant) { //
 		switch(grant) {
 			case 'authorization_code+pkce':
 			case 'implicit':
@@ -452,9 +453,9 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Sets the Client ID for OIDC authentication.
-	 * 
+	 *
 	 * This may override a detected default client ID.
-	 * 
+	 *
 	 * @param {string | null} clientId
 	 */
 	setClientId(clientId) {
@@ -463,9 +464,9 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Sets the Client Secret for OIDC authentication.
-	 * 
+	 *
 	 * Only used for the `client_credentials` grant type.
-	 * 
+	 *
 	 * @param {string | null} clientSecret
 	 */
 	setClientSecret(clientSecret) {
@@ -474,7 +475,7 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Sets the OIDC User.
-	 * 
+	 *
 	 * @see https://github.com/IdentityModel/oidc-client-js/wiki#user
 	 * @param {Oidc.User | null} user - The OIDC User. Passing `null` resets OIDC authentication details.
 	 */
@@ -491,9 +492,9 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Returns a display name for the authenticated user.
-	 * 
+	 *
 	 * For the `client_credentials` grant, returns a name based on the client ID.
-	 * 
+	 *
 	 * @returns {string?} Name of the user or `null`
 	 */
 	getDisplayName() {
@@ -512,9 +513,9 @@ class OidcProvider extends AuthProvider {
 
 	/**
 	 * Detects the default OIDC client ID for the given redirect URL.
-	 * 
+	 *
 	 * Sets the grant and client ID accordingly.
-	 * 
+	 *
 	 * @returns {OidcClient | null}
 	 * @see OidcProvider#setGrant
 	 * @see OidcProvider#setClientId
@@ -537,33 +538,33 @@ class OidcProvider extends AuthProvider {
 
 /**
  * The global "UI" method to use to open the login URL, either "redirect" (default) or "popup".
- * 
+ *
  * @type {string}
  */
 OidcProvider.uiMethod = 'redirect';
 
 /**
  * The global redirect URL to use.
- * 
+ *
  * By default uses the location of the browser, but removes fragment, query and
  * trailing slash.
  * The fragment conflicts with the fragment appended by the Implicit Flow and
  * the query conflicts with the query appended by the Authorization Code Flow.
  * The trailing slash is removed for consistency.
- * 
+ *
  * @type {string}
  */
 OidcProvider.redirectUrl = Environment.getUrl().split('#')[0].split('?')[0].replace(/\/$/, '');
 
 /**
  * The supported OpenID Connect grants (flows).
- * 
+ *
  * The grants are given as defined in openEO API, e.g. `implicit` and/or `authorization_code+pkce`
  * If not defined there, consult the OpenID Connect Discovery documentation.
- * 
+ *
  * Lists the grants by priority so that the first grant is the default grant.
  * The default grant type since client version 2.0.0 is 'authorization_code+pkce'.
- * 
+ *
  * @type {Array.<string>}
  */
 OidcProvider.grants = [

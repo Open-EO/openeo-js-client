@@ -6,12 +6,13 @@ const UserFile = require('./userfile.js');
 const UserProcess = require('./userprocess.js');
 const Utils = require('@openeo/js-commons/src/utils');
 const StacMigrate = require('@radiantearth/stac-migrate');
+const Connection = require('./connection');
 
 const FED_MISSING = 'federation:missing';
 
 /**
  * A class to handle pagination of resources.
- * 
+ *
  * @abstract
  */
 class Pages {
@@ -21,7 +22,7 @@ class Pages {
    * @param {Connection} connection
    * @param {string} endpoint
    * @param {string} key
-   * @param {Constructor} cls - Class
+   * @param {any} cls - Class
    * @param {object} [params={}]
    * @param {string} primaryKey
    */
@@ -48,7 +49,7 @@ class Pages {
 
   /**
    * Returns the next page of resources.
-   * 
+   *
    * @async
    * @param {Array.<object>} oldObjects - Existing objects to update, if any.
    * @param {boolean} [toArray=true] - Whether to return the objects as a simplified array or as an object with all information.
@@ -109,9 +110,9 @@ class Pages {
 
   /**
    * Ensures a variable is an array.
-   * 
+   *
    * @protected
-   * @param {*} x 
+   * @param {*} x
    * @returns {Array}
    */
   _ensureArray(x) {
@@ -122,7 +123,7 @@ class Pages {
    * Creates a facade for the object, if needed.
    *
    * @protected
-   * @param {object} obj 
+   * @param {object} obj
    * @returns {object}
    */
   _createObject(obj) {
@@ -139,26 +140,26 @@ class Pages {
 
   /**
    * Caches the plain objects if needed.
-   * 
+   *
    * @param {Array.<object>} objects
    * @returns {Array.<object>}
    */
   _cache(objects) {
     return objects;
   }
-  
+
   /**
    * Get the URL of the next page from a response.
-   * 
+   *
    * @protected
-   * @param {AxiosResponse} response 
+   * @param {AxiosResponse} response
    * @returns {string | null}
    */
   _getNextLink(response) {
     const links = this.connection.makeLinksAbsolute(response.data.links, response);
     return this.connection._getLinkHref(links, 'next');
   }
-  
+
   /**
    * Makes this class asynchronously iterable.
    *
@@ -265,7 +266,7 @@ class ProcessPages extends Pages {
 
   /**
    * Caches the objects to the ProcessRegistry.
-   * 
+   *
    * @param {Array.<object>} objects
    * @returns {Array.<object>}
    */
@@ -297,8 +298,8 @@ class CollectionPages extends Pages {
 
   /**
    * Migrates the STAC collection to the latest version.
-   * 
-   * @param {object} obj 
+   *
+   * @param {object} obj
    * @returns {Collection}
    */
   _createObject(obj) {
@@ -326,8 +327,8 @@ class ItemPages extends Pages {
 
   /**
    * Migrates the STAC item to the latest version.
-   * 
-   * @param {object} obj 
+   *
+   * @param {object} obj
    * @returns {Item}
    */
   _createObject(obj) {

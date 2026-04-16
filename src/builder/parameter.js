@@ -1,27 +1,29 @@
 "use strict";
 
+const Builder = require('./builder');
+
 /**
- * A class that represents a process parameter. 
- * 
+ * A class that represents a process parameter.
+ *
  * This is used for two things:
  * 1. You can create process parameters (placeholders) with `new Parameter()`.
  * 2. This is passed to functions for the parameters of the sub-process.
- * 
+ *
  * For the second case, you can access array elements referred to by the parameter
- * with a simplified notation: 
- * 
+ * with a simplified notation:
+ *
  * ```
  * function(data, context) {
  *     data['B1'] // Accesses the B1 element of the array by label
  *     data[1] // Accesses the second element of the array by index
  * }
  * ```
- * 
+ *
  * Those array calls create corresponding `array_element` nodes in the process. So it's
  * equivalent to
- * `this.array_element(data, undefined, 'B1')` or 
+ * `this.array_element(data, undefined, 'B1')` or
  * `this.array_element(data, 1)` respectively.
- * 
+ *
  * Simple access to numeric labels is not supported. You need to use `array_element` directly, e.g.
  * `this.array_element(data, undefined, 1)`.
  */
@@ -30,10 +32,10 @@ class Parameter {
 	/**
 	 * Creates a new parameter instance, but proxies calls to it
 	 * so that array access is possible (see class description).
-	 * 
+	 *
 	 * @static
-	 * @param {Builder} builder 
-	 * @param {string} parameterName 
+	 * @param {Builder} builder
+	 * @param {string} parameterName
 	 * @returns {Proxy<Parameter>}
 	 */
 	static create(builder, parameterName) {
@@ -44,11 +46,11 @@ class Parameter {
 				nodeCache: {},
 				/**
 				 * Getter for array access (see class description).
-				 * 
+				 *
 				 * @ignore
-				 * @param {object} target 
-				 * @param {string|number|symbol} name 
-				 * @param {?*} receiver 
+				 * @param {object} target
+				 * @param {string|number|symbol} name
+				 * @param {?*} receiver
 				 * @returns {*}
 				 */
 				get(target, name, receiver) {
@@ -68,7 +70,7 @@ class Parameter {
 							// @ts-ignore
 							this.nodeCache[name] = builder.process("array_element", args);
 						}
-					
+
 						// @ts-ignore
 						return this.nodeCache[name];
 					}
@@ -76,14 +78,14 @@ class Parameter {
 				},
 				/**
 				 * Setter for array access.
-				 * 
+				 *
 				 * Usually fails as write access to arrays is not supported.
-				 * 
+				 *
 				 * @ignore
-				 * @param {object} target 
-				 * @param {string|number|symbol} name 
-				 * @param {*} value 
-				 * @param {?*} receiver 
+				 * @param {object} target
+				 * @param {string|number|symbol} name
+				 * @param {*} value
+				 * @param {?*} receiver
 				 * @returns {boolean}
 				 */
 				set(target, name, value, receiver) {
@@ -98,12 +100,12 @@ class Parameter {
 			throw new Error('Simplified array access not supported, use array_element directly');
 		}
 	}
-	
+
 	/**
 	 * Creates a new process parameter.
-	 * 
+	 *
 	 * @param {string} name - Name of the parameter.
-	 * @param {object.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
+	 * @param {Record.<string, *>|string} schema - The schema for the parameter. Can be either an object compliant to JSON Schema or a string with a JSON Schema compliant data type, e.g. `string`.
 	 * @param {string} description - A description for the parameter
 	 * @param {*} defaultValue - An optional default Value for the parameter. If set, make the parameter optional. If not set, the parameter is required. Defaults to `undefined`.
 	 */
@@ -123,8 +125,8 @@ class Parameter {
 
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
-	 * 
-	 * @returns {object.<string, *>}
+	 *
+	 * @returns {Record.<string, *>}
 	 */
 	toJSON() {
 		return this.spec;
@@ -132,7 +134,7 @@ class Parameter {
 
 	/**
 	 * Returns the reference object for this parameter.
-	 * 
+	 *
 	 * @returns {FromParameter}
 	 */
 	ref() {

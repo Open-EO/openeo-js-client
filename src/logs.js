@@ -1,4 +1,5 @@
 const Utils = require('@openeo/js-commons/src/utils');
+const Connection = require('./connection');
 
 /**
  * Interface to loop through the logs.
@@ -7,7 +8,7 @@ class Logs {
 
 	/**
 	 * Creates a new Logs instance to retrieve logs from a back-end.
-	 * 
+	 *
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {string} endpoint - The relative endpoint to request the logs from, usually `/jobs/.../logs` or `/services/.../logs` with `...` being the actual job or service id.
 	 * @param {?string} [level=null] - Minimum level of logs to return.
@@ -42,9 +43,9 @@ class Logs {
 
 	/**
 	 * Retrieves the next log entries since the last request.
-	 * 
+	 *
 	 * Retrieves log entries only.
-	 * 
+	 *
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
 	 * @returns {Promise<Array.<Log>>}
@@ -56,9 +57,9 @@ class Logs {
 
 	/**
 	 * Retrieves the backend identifiers that are (partially) missing in the logs.
-	 * 
+	 *
 	 * This is only filled after the first request using `nextLogs` or `next`.
-	 * 
+	 *
 	 * @returns {Array.<string>}
 	 * @see {Logs#nextLogs}
 	 * @see {Logs#next}
@@ -69,9 +70,9 @@ class Logs {
 
 	/**
 	 * Retrieves the next log entries since the last request.
-	 * 
+	 *
 	 * Retrieves the full response compliant to the API, including log entries and links.
-	 * 
+	 *
 	 * @async
 	 * @param {number} limit - The number of log entries to retrieve per request, as integer.
 	 * @returns {Promise<LogsAPI>}
