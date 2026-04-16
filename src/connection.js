@@ -1,4 +1,5 @@
 const Environment = require('./env');
+const Stream = require('stream');
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
 const axios = require('axios');
@@ -1196,7 +1197,7 @@ class Connection {
 	 *
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-	 * @returns {Promise<require('stream').Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+	 * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
 	 * @throws {Error}
 	 */
 	async download(url, authorize) {

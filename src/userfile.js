@@ -1,3 +1,4 @@
+const Stream = require('stream');
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Connection = require('./connection');
@@ -47,7 +48,7 @@ class UserFile extends BaseEntity {
 	 * Returns a stream in a NodeJS environment or a Blob in a browser environment.
 	 *
 	 * @async
-	 * @returns {Promise<require('stream').Readable|Blob>} - Return value depends on the target and environment, see method description for details.
+	 * @returns {Promise<Stream.Readable|Blob>} - Return value depends on the target and environment, see method description for details.
 	 * @throws {Error}
 	 */
 	async retrieveFile() {

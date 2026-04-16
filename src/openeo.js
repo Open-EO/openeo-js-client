@@ -37,10 +37,17 @@ const MAX_API_VERSION = '1.x.x';
 class OpenEO {
 
 	/**
+	 * @Connect to a back-end with version discovery (recommended).
+	 *
+	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
+	 * Requests the capabilities and authenticates where required.
+	 *
 	 * @async
-	 * @param {string} url
-	 * @param {Options} [options={}]
+	 * @param {string} url - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
 	 * @returns {Promise<import('./connection')>}
+	 * @throws {Error}
+	 * @static
 	 */
 	static async connect(url, options = {}) {
 		let wellKnownUrl = Utils.normalizeUrl(url, '/.well-known/openeo');
@@ -74,14 +81,21 @@ class OpenEO {
 	}
 
 	/**
+	 * Connects directly to a back-end instance, without version discovery (NOT recommended).
+	 *
+	 * Doesn't do version discovery, therefore a URL of a versioned API must be specified. Requests the capabilities and authenticates where required.
+	 *
 	 * @async
-	 * @param {string} versionedUrl
-	 * @param {Options} [options={}]
+	 * @param {string} versionedUrl - The server URL to connect to.
+	 * @param {Options} [options={}] - Additional options for the connection.
 	 * @returns {Promise<import('./connection')>}
+	 * @throws {Error}
+	 * @static
 	 */
 	static async connectDirect(versionedUrl, options = {}) {
 		let connection = new Connection(versionedUrl, options);
 
+		// Check whether back-end is accessible and supports a compatible version.
 		let capabilities = await connection.init();
 		if (
 			Versions.compare(capabilities.apiVersion(), MIN_API_VERSION, "<") ||
@@ -94,7 +108,11 @@ class OpenEO {
 	}
 
 	/**
-	 * @returns {string}
+	 * Returns the version number of the client.
+	 *
+	 * Not to confuse with the API version(s) supported by the client.
+	 *
+	 * @returns {string} Version number (according to SemVer).
 	 */
 	static clientVersion() {
 		return "2.11.0";
@@ -102,7 +120,6 @@ class OpenEO {
 
 }
 
-// Keep static property assignment (same runtime behavior)
 OpenEO.Environment = (await import('./env.js')).default;
 
 // This is to silent TypeScript which does not like that we export external modules.
