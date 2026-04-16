@@ -17,3 +17,6 @@ docs/
 /lorem.txt
 /randomnumber.txt
 /downloaded_file.txt
+
+# Auto-generated types
+openeo.d.ts
