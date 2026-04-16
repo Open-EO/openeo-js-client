@@ -7,7 +7,7 @@ class FileTypes {
 
 	/**
 	 * Creates a new FileTypes object from an API-compatible JSON response.
-	 * 
+	 *
 	 * @param {FileTypesAPI} data - A capabilities response compatible to the API specification for `GET /file_formats`.
 	 */
 	constructor(data) {
@@ -32,7 +32,7 @@ class FileTypes {
 		}
 		/**
 		 * A list of backends from the federation that are missing in the response data.
-		 * 
+		 *
 		 * @public
 		 * @type {Array.<string>}
 		 */
@@ -41,7 +41,7 @@ class FileTypes {
 
 	/**
 	 * Returns the file types response as a JSON serializable representation of the data that is API compliant.
-	 * 
+	 *
 	 * @returns {FileTypesAPI}
 	 */
 	toJSON() {
@@ -50,8 +50,8 @@ class FileTypes {
 
 	/**
 	 * Returns the input file formats.
-	 * 
-	 * @returns {object.<string, FileType>}
+	 *
+	 * @returns {Record.<string, FileType>}
 	 */
 	getInputTypes() {
 		return this.data.input;
@@ -59,8 +59,8 @@ class FileTypes {
 
 	/**
 	 * Returns the output file formats.
-	 * 
-	 * @returns {object.<string, FileType>}
+	 *
+	 * @returns {Record.<string, FileType>}
 	 */
 	getOutputTypes() {
 		return this.data.output;
@@ -68,9 +68,9 @@ class FileTypes {
 
 	/**
 	 * Returns a single input file format for a given identifier.
-	 * 
+	 *
 	 * Returns null if no input file format was found for the given identifier.
-	 * 
+	 *
 	 * @param {string} type - Case-insensitive file format identifier
 	 * @returns {FileType | null}
 	 */
@@ -80,9 +80,9 @@ class FileTypes {
 
 	/**
 	 * Returns a single output file format for a given identifier.
-	 * 
+	 *
 	 * Returns null if no output file format was found for the given identifier.
-	 * 
+	 *
 	 * @param {string} type - Case-insensitive file format identifier
 	 * @returns {FileType | null}
 	 */
@@ -92,7 +92,7 @@ class FileTypes {
 
 	/**
 	 * Get a file type object from the list of input or output file formats.
-	 * 
+	 *
 	 * @param {string} type - Identifier of the file type
 	 * @param {string} io - Either `input` or `output`
 	 * @returns {FileType | null}

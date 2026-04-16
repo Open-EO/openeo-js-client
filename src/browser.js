@@ -1,15 +1,19 @@
 /**
+ * @typedef {import('./connection')} Connection
+ */
+
+/**
  * Platform dependant utilities for the openEO JS Client.
- * 
+ *
  * Browser implementation, don't use in other environments.
- * 
+ *
  * @hideconstructor
  */
 class Environment {
 
 	/**
 	 * Returns the name of the Environment, here `Browser`.
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -19,7 +23,7 @@ class Environment {
 
 	/**
 	 * Returns the current URL of the browser window.
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -29,9 +33,9 @@ class Environment {
 
 	/**
 	 * Sets the URL.
-	 * 
+	 *
 	 * Not supported in Browsers and only throws an Error!
-	 * 
+	 *
 	 * @param {string} uri
 	 * @static
 	 */
@@ -41,10 +45,10 @@ class Environment {
 
 	/**
 	 * Handles errors from the API that are returned as Blobs.
-	 * 
+	 *
 	 * @ignore
 	 * @static
-	 * @param {Blob} error 
+	 * @param {Blob} error
 	 * @returns {Promise<void>}
 	 */
 	static handleErrorResponse(error) {
@@ -66,7 +70,7 @@ class Environment {
 
 	/**
 	 * Returns how binary responses from the servers are returned (`stream` or `blob`).
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -76,7 +80,7 @@ class Environment {
 
 	/**
 	 * Encodes a string into Base64 encoding.
-	 * 
+	 *
 	 * @static
 	 * @param {string} str - String to encode.
 	 * @returns {string} String encoded in Base64.
@@ -88,7 +92,7 @@ class Environment {
 
 	/**
 	 * Detect the file name for the given data source.
-	 * 
+	 *
 	 * @ignore
 	 * @static
 	 * @param {*} source - An object from a file upload form.
@@ -100,7 +104,7 @@ class Environment {
 
 	/**
 	 * Get the data from the source that should be uploaded.
-	 * 
+	 *
 	 * @ignore
 	 * @static
 	 * @param {*} source - An object from a file upload form.
@@ -112,13 +116,13 @@ class Environment {
 
 	/**
 	 * Downloads files to local storage and returns a list of file paths.
-	 * 
+	 *
 	 * Not supported in Browsers and only throws an Error!
-	 * 
+	 *
 	 * @static
-	 * @param {Connection} con 
-	 * @param {Array.<object.<string, *>>} assets 
-	 * @param {string} targetFolder 
+	 * @param {Connection} con
+	 * @param {Array.<Record.<string, *>>} assets
+	 * @param {string} targetFolder
 	 * @throws {Error}
 	 */
 	static async downloadResults(con, assets, targetFolder) { // eslint-disable-line no-unused-vars
@@ -127,9 +131,9 @@ class Environment {
 
 	/**
 	 * Offers data to download in the browser.
-	 * 
+	 *
 	 * This method may fail with overly big data.
-	 * 
+	 *
 	 * @async
 	 * @static
 	 * @param {*} data - Data to download.

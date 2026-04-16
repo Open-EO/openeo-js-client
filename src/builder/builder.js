@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('@openeo/js-commons/src/processRegistry')} ProcessRegistry
+ */
+
 const BuilderNode = require('./node');
 const Parameter = require('./parameter');
 const axios = require('axios');
@@ -12,19 +16,19 @@ const PROCESS_META = [
 
 /**
  * A class to construct processes easily.
- * 
+ *
  * An example (`con` is a object of type `Connection`):
- * 
+ *
  * ```
  * var builder = await con.buildProcess();
- * 
+ *
  * var datacube = builder.load_collection(
  *   new Parameter("collection-id", "string", "The ID of the collection to load"), // collection-id is then a process parameter that can be specified by users.
  *   { "west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2 },
  *   ["2018-01-01", "2018-02-01"],
  *   ["B02", "B04", "B08"]
  * );
- * 
+ *
  * // Alternative 1 - using the Formula class
  * var eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
  * // Alternative 2 - "by hand"
@@ -47,30 +51,30 @@ const PROCESS_META = [
  * };
  * datacube = builder.reduce_dimension(datacube, eviAlgorithm, "bands")
  *                   .description("Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)");
- *                   
+ *
  * var min = function(data) { return this.min(data); };
  * datacube = builder.reduce_dimension(datacube, min, "t");
- * 
+ *
  * datacube = builder.save_result(datacube, "PNG");
- * 
+ *
  * var storedProcess = await con.setUserProcess("evi", datacube);
  * ```
- * 
+ *
  * As you can see above, the builder in callback functions is available as `this`.
  * Arrow functions do not support rebinding this and therefore the builder is passed as the last argument.
- * 
+ *
  * So a normal function can be defined as follows:
  * ```
  * let callback = function(data) {
  *   return this.mean(data);
  * }
  * ```
- * 
+ *
  * An arrow function on the other hand has to use the builder that is passed as the last parameter:
  * ```
  * let callback = (data, c, builder) => builder.mean(data);
  * ```
- * 
+ *
  * Using arrow functions is available only since JS client version 1.3.0.
  * Beforehand it was not possible to use arrow functions in this context.
  */
@@ -78,10 +82,10 @@ class Builder {
 
 	/**
 	 * Creates a Builder instance that can be used without connecting to a back-end.
-	 * 
+	 *
 	 * It requests the processes for the version specified from processes.openeo.org.
 	 * Requests the latest version if no version number is passed.
-	 * 
+	 *
 	 * @async
 	 * @static
 	 * @param {?string} [version=null]
@@ -98,13 +102,13 @@ class Builder {
 
 	/**
 	 * Creates a Builder instance that can be used without connecting to a back-end.
-	 * 
+	 *
 	 * It requests the processes for the version specified from the given URL.
 	 * CORS needs to be implemented on the server-side for the URL given.
-	 * 
+	 *
 	 * @async
 	 * @static
-	 * @param {string | null} url 
+	 * @param {string | null} url
 	 * @returns {Promise<Builder>}
 	 * @throws {Error}
 	 */
@@ -115,9 +119,9 @@ class Builder {
 
 	/**
 	 * Creates a Builder instance.
-	 * 
+	 *
 	 * Each process passed to the constructor is made available as object method.
-	 * 
+	 *
 	 * @param {Array.<Process>|Processes|ProcessRegistry} processes - Either an array containing processes or an object compatible with `GET /processes` of the API.
 	 * @param {?Builder} parent - The parent builder, usually only used by the Builder itself.
 	 * @param {string} id - A unique identifier for the process.
@@ -144,7 +148,7 @@ class Builder {
 		 * @type {string | null}
 		 */
 		this.parentParameter = null;
-		
+
 		this.nodes = {};
 		this.idCounter = {};
 		this.callbackParameterCache = {};
@@ -176,7 +180,7 @@ class Builder {
 
 	/**
 	 * Creates a callable function on the builder object for a process.
-	 * 
+	 *
 	 * @param {Process} process
 	 * @throws {Error}
 	 */
@@ -187,9 +191,9 @@ class Builder {
 
 		/**
 		 * Implicitly calls the process with the given name on the back-end by adding it to the process.
-		 * 
+		 *
 		 * This is a shortcut for {@link Builder#process}.
-		 * 
+		 *
 		 * @param {...*} args - The arguments for the process.
 		 * @returns {BuilderNode}
 		 * @see Builder#process
@@ -202,7 +206,7 @@ class Builder {
 
 	/**
 	 * Adds a process specification to the builder so that it can be used to create a process graph.
-	 * 
+	 *
 	 * @param {Process} process - Process specification compliant to openEO API
 	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @throws {Error}
@@ -225,9 +229,9 @@ class Builder {
 
 	/**
 	 * Sets the parent for this Builder.
-	 * 
-	 * @param {BuilderNode} node 
-	 * @param {string} parameterName 
+	 *
+	 * @param {BuilderNode} node
+	 * @param {string} parameterName
 	 */
 	setParent(node, parameterName) {
 		this.parentNode = node;
@@ -236,9 +240,9 @@ class Builder {
 
 	/**
 	 * Creates a callback parameter with the given name.
-	 * 
+	 *
 	 * @protected
-	 * @param {string} parameterName 
+	 * @param {string} parameterName
 	 * @returns {Proxy<Parameter>}
 	 */
 	createCallbackParameter(parameterName) {
@@ -250,8 +254,8 @@ class Builder {
 
 	/**
 	 * Gets the callback parameter specifics from the parent process.
-	 * 
-	 * @returns {Array.<object.<string,*>>}
+	 *
+	 * @returns {Array.<Record.<string,*>>}
 	 * @todo Should this also pass callback parameters from parents until root is reached?
 	 */
 	getParentCallbackParameters() {
@@ -268,10 +272,10 @@ class Builder {
 
 	/**
 	 * Adds a parameter to the list of process parameters.
-	 * 
+	 *
 	 * Doesn't add the parameter if it has the same name as a callback parameter.
-	 * 
-	 * @param {object.<string, *>} parameter - The parameter spec to add, must comply to the API.
+	 *
+	 * @param {Record.<string, *>} parameter - The parameter spec to add, must comply to the API.
 	 * @param {boolean} [root=true] - Adds the parameter to the root process if set to `true`, otherwise to the process constructed by this builder. Usually you want to add it to the root.
 	 */
 	addParameter(parameter, root = true) {
@@ -302,7 +306,7 @@ class Builder {
 
 	/**
 	 * Returns the process specification for the given process identifier and namespace (or `null`).
-	 * 
+	 *
 	 * @param {string} id - Process identifier
 	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. user or backend namespace). EXPERIMENTAL!
 	 * @returns {Process | null}
@@ -313,10 +317,10 @@ class Builder {
 
 	/**
 	 * Adds a mathematical formula to the process.
-	 * 
+	 *
 	 * See the {@link Formula} class for more information.
-	 * 
-	 * @param {string} formula 
+	 *
+	 * @param {string} formula
 	 * @returns {BuilderNode}
 	 * @throws {Error}
 	 * @see Formula
@@ -330,7 +334,7 @@ class Builder {
 
 	/**
 	 * Checks whether a process with the given id and namespace is supported by the back-end.
-	 * 
+	 *
 	 * @param {string} processId - The id of the process.
 	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {boolean}
@@ -341,9 +345,9 @@ class Builder {
 
 	/**
 	 * Adds another process call to the process chain.
-	 * 
+	 *
 	 * @param {string} processId - The id of the process to call. To access a namespaced process, use the `process@namespace` notation.
-	 * @param {object.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
+	 * @param {Record.<string, *>|Array} [args={}] - The arguments as key-value pairs or as array. For objects, they keys must be the parameter names and the values must be the arguments. For arrays, arguments must be specified in the same order as in the corresponding process.
 	 * @param {?string} [description=null] - An optional description for the process call.
 	 * @returns {BuilderNode}
 	 */
@@ -361,7 +365,7 @@ class Builder {
 
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
-	 * 
+	 *
 	 * @returns {Process}
 	 */
 	toJSON() {
@@ -375,13 +379,13 @@ class Builder {
 		});
 		return process;
 	}
-	
+
 	/**
 	 * Generates a unique identifier for the process nodes.
-	 * 
+	 *
 	 * A prefix can be given to make the identifiers more human-readable.
 	 * If the given name is empty, the id is simply an incrementing number.
-	 * 
+	 *
 	 * @param {string} [prefix=""]
 	 * @returns {string}
 	 */

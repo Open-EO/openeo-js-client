@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('./connection')} Connection
+ */
+
 const fs = require('fs');
 const url = require("url");
 const path = require("path");
@@ -5,16 +9,16 @@ const Stream = require('stream');
 
 /**
  * Platform dependant utilities for the openEO JS Client.
- * 
+ *
  * Node.js implementation, don't use in other environments.
- * 
+ *
  * @hideconstructor
  */
 class Environment {
 
 	/**
 	 * Returns the name of the Environment, here `Node`.
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -24,7 +28,7 @@ class Environment {
 
 	/**
 	 * Returns the URL of the server instance.
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -34,7 +38,7 @@ class Environment {
 
 	/**
 	 * Sets the URL of the server instance.
-	 * 
+	 *
 	 * @param {string} uri
 	 * @static
 	 */
@@ -44,10 +48,10 @@ class Environment {
 
 	/**
 	 * Handles errors from the API that are returned as Streams.
-	 * 
+	 *
 	 * @ignore
 	 * @static
-	 * @param {Stream.Readable} error 
+	 * @param {Stream.Readable} error
 	 * @returns {Promise<void>}
 	 */
 	static handleErrorResponse(error) {
@@ -61,7 +65,7 @@ class Environment {
 
 	/**
 	 * Returns how binary responses from the servers are returned (`stream` or `blob`).
-	 * 
+	 *
 	 * @returns {string}
 	 * @static
 	 */
@@ -71,7 +75,7 @@ class Environment {
 
 	/**
 	 * Encodes a string into Base64 encoding.
-	 * 
+	 *
 	 * @static
 	 * @param {string|Buffer} str - String to encode.
 	 * @returns {string} String encoded in Base64.
@@ -88,7 +92,7 @@ class Environment {
 
 	/**
 	 * Detect the file name for the given data source.
-	 * 
+	 *
 	 * @ignore
 	 * @static
 	 * @param {string} source - A path to a file as string.
@@ -100,7 +104,7 @@ class Environment {
 
 	/**
 	 * Get the data from the source that should be uploaded.
-	 * 
+	 *
 	 * @ignore
 	 * @static
 	 * @param {string} source - A path to a file as string.
@@ -112,11 +116,11 @@ class Environment {
 
 	/**
 	 * Downloads files to local storage and returns a list of file paths.
-	 * 
+	 *
 	 * @static
-	 * @param {Connection} con 
-	 * @param {Array.<object.<string, *>>} assets 
-	 * @param {string} targetFolder 
+	 * @param {Connection} con
+	 * @param {Array.<Record.<string, *>>} assets
+	 * @param {string} targetFolder
 	 * @returns {Promise<Array.<string>>}
 	 * @throws {Error}
 	 */

@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('stream').Readable} Readable
+ * @typedef {import('@openeo/js-commons/src/processRegistry')} ProcessRegistry
+ */
+
 const Environment = require('./env');
 const Utils = require('@openeo/js-commons/src/utils');
 const ProcessRegistry = require('@openeo/js-commons/src/processRegistry');
@@ -31,7 +36,7 @@ class Connection {
 
 	/**
 	 * Creates a new Connection.
-	 * 
+	 *
 	 * @param {string} baseUrl - The versioned URL or the back-end instance.
 	 * @param {Options} [options={}] - Additional options for the connection.
 	 * @param {?string} [url=null] - User-provided URL of the backend connected to.
@@ -39,58 +44,58 @@ class Connection {
 	constructor(baseUrl, options = {}, url = null) {
 		/**
 		 * User-provided URL of the backend connected to.
-		 * 
+		 *
 		 * `null` if not given and the connection was directly made to a versioned instance of the back-end.
-		 * 
+		 *
 		 * @protected
 		 * @type {string | null}
 		 */
 		this.url = url;
 		/**
 		 * The versioned URL or the back-end instance.
-		 * 
+		 *
 		 * @protected
 		 * @type {string}
 		 */
 		this.baseUrl = Utils.normalizeUrl(baseUrl);
 		/**
 		 * Auth Provider cache
-		 * 
+		 *
 		 * @protected
 		 * @type {Array.<AuthProvider> | null}
 		 */
 		this.authProviderList = null;
 		/**
 		 * Current auth provider
-		 * 
+		 *
 		 * @protected
 		 * @type {AuthProvider | null}
 		 */
 		this.authProvider = null;
 		/**
 		 * Capability cache
-		 * 
+		 *
 		 * @protected
 		 * @type {Capabilities | null}
 		 */
 		this.capabilitiesObject = null;
 		/**
 		 * Listeners for events.
-		 * 
+		 *
 		 * @protected
-		 * @type {object.<string|Function>}
+		 * @type {Record.<string, Function>}
 		 */
 		this.listeners = {};
 		/**
 		 * Additional options for the connection.
-		 * 
+		 *
 		 * @protected
 		 * @type {Options}
 		 */
 		this.options = options;
 		/**
 		 * Process cache
-		 * 
+		 *
 		 * @protected
 		 * @type {ProcessRegistry}
 		 */
@@ -100,7 +105,7 @@ class Connection {
 
 	/**
 	 * Initializes the connection by requesting the capabilities.
-	 * 
+	 *
 	 * @async
 	 * @protected
 	 * @returns {Promise<Capabilities>} Capabilities
@@ -127,7 +132,7 @@ class Connection {
 
 	/**
 	 * Refresh the cache for processes.
-	 * 
+	 *
 	 * @async
 	 * @protected
 	 * @returns {Promise}
@@ -157,7 +162,7 @@ class Connection {
 
 	/**
 	 * Returns the URL of the versioned back-end instance currently connected to.
-	 * 
+	 *
 	 * @returns {string} The versioned URL or the back-end instance.
 	 */
 	getBaseUrl() {
@@ -166,7 +171,7 @@ class Connection {
 
 	/**
 	 * Returns the user-provided URL of the back-end currently connected to.
-	 * 
+	 *
 	 * @returns {string} The URL or the back-end.
 	 */
 	getUrl() {
@@ -175,7 +180,7 @@ class Connection {
 
 	/**
 	 * Returns the capabilities of the back-end.
-	 * 
+	 *
 	 * @returns {Capabilities} Capabilities
 	 */
 	capabilities() {
@@ -184,7 +189,7 @@ class Connection {
 
 	/**
 	 * List the supported output file formats.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<FileTypes>} A response compatible to the API specification.
 	 * @throws {Error}
@@ -196,7 +201,7 @@ class Connection {
 
 	/**
 	 * List the supported output file formats.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<ProcessingParameters>} A response compatible to the API specification.
 	 * @throws {Error}
@@ -208,9 +213,9 @@ class Connection {
 
 	/**
 	 * List the supported secondary service types.
-	 * 
+	 *
 	 * @async
-	 * @returns {Promise<object.<string, ServiceType>>} A response compatible to the API specification.
+	 * @returns {Promise<Record.<string, ServiceType>>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listServiceTypes() {
@@ -220,9 +225,9 @@ class Connection {
 
 	/**
 	 * List the supported UDF runtimes.
-	 * 
+	 *
 	 * @async
-	 * @returns {Promise<object.<string, UdfRuntime>>} A response compatible to the API specification.
+	 * @returns {Promise<Record.<string, UdfRuntime>>} A response compatible to the API specification.
 	 * @throws {Error}
 	 */
 	async listUdfRuntimes() {
@@ -232,10 +237,10 @@ class Connection {
 
 	/**
 	 * List all collections available on the back-end.
-	 * 
-	 * The collections returned always comply to the latest STAC version (currently 1.0.0). 
+	 *
+	 * The collections returned always comply to the latest STAC version (currently 1.0.0).
 	 * This function adds a self link to the response if not present.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<Collections>} A response compatible to the API specification.
 	 * @throws {Error}
@@ -247,9 +252,9 @@ class Connection {
 
 	/**
 	 * Paginate through the collections available on the back-end.
-	 * 
+	 *
 	 * The collections returned always comply to the latest STAC version (currently 1.0.0).
-	 * 
+	 *
 	 * @param {?number} [limit=50] - The number of collections per request/page as integer. If `null`, requests all collections.
 	 * @returns {CollectionPages} A paged list of collections.
 	 */
@@ -259,9 +264,9 @@ class Connection {
 
 	/**
 	 * Get further information about a single collection.
-	 * 
-	 * The collection returned always complies to the latest STAC version (currently 1.0.0). 
-	 * 
+	 *
+	 * The collection returned always complies to the latest STAC version (currently 1.0.0).
+	 *
 	 * @async
 	 * @param {string} collectionId - Collection ID to request further metadata for.
 	 * @returns {Promise<Collection>} - A response compatible to the API specification.
@@ -279,11 +284,11 @@ class Connection {
 
 	/**
 	 * Paginate through items for a specific collection.
-	 * 
+	 *
 	 * May not be available for all collections.
-	 * 
-	 * The items returned always comply to the latest STAC version (currently 1.0.0). 
-	 * 
+	 *
+	 * The items returned always comply to the latest STAC version (currently 1.0.0).
+	 *
 	 * @async
 	 * @param {string} collectionId - Collection ID to request items for.
 	 * @param {?Array.<number>} [spatialExtent=null] - Limits the items to the given bounding box in WGS84:
@@ -331,7 +336,7 @@ class Connection {
 	 * parts of the API (such as the listing of the processes, only the name of the namespace is required.
 	 *
 	 * This function will extract the short name of the namespace from a shareable URL.
-	 * 
+	 *
 	 * @protected
 	 * @param {?string} namespace - Namespace of the process
 	 * @returns {?string}
@@ -344,15 +349,15 @@ class Connection {
 
 	/**
 	 * List all processes available on the back-end.
-	 * 
+	 *
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
-	 * 
+	 *
 	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
 	 * The namespaces are then listed in the property `namespaces`.
-	 * 
+	 *
 	 * This function adds a self link to the response if not present.
-	 * 
+	 *
 	 * @async
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @returns {Promise<Processes>} - A response compatible to the API specification.
@@ -365,13 +370,13 @@ class Connection {
 
 	/**
 	 * Paginate through the processes available on the back-end.
-	 * 
+	 *
 	 * Requests pre-defined processes by default.
 	 * Set the namespace parameter to request processes from a specific namespace.
-	 * 
+	 *
 	 * Note: The list of namespaces can be retrieved by calling `listProcesses` without a namespace given.
 	 * The namespaces are then listed in the property `namespaces`.
-	 * 
+	 *
 	 * @param {?string} [namespace=null] - Namespace of the processes (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
 	 * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
 	 * @returns {ProcessPages} A paged list of processes.
@@ -382,7 +387,7 @@ class Connection {
 
 	/**
 	 * Get information about a single process.
-	 * 
+	 *
 	 * @async
 	 * @param {string} processId - Collection ID to request further metadata for.
 	 * @param {?string} [namespace=null] - Namespace of the process (default to `null`, i.e. pre-defined processes). EXPERIMENTAL!
@@ -409,7 +414,7 @@ class Connection {
 
 	/**
 	 * Returns an object to simply build user-defined processes based upon pre-defined processes.
-	 * 
+	 *
 	 * @async
 	 * @param {string} id - A name for the process.
 	 * @returns {Promise<Builder>}
@@ -423,7 +428,7 @@ class Connection {
 
 	/**
 	 * List all authentication methods supported by the back-end.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<Array.<AuthProvider>>} An array containing all supported AuthProviders (including all OIDC providers and HTTP Basic).
 	 * @throws {Error}
@@ -450,7 +455,7 @@ class Connection {
 				}
 			}
 		}
-		
+
 		// Add Basic provider
 		if (cap.hasFeature('authenticateBasic')) {
 			this.authProviderList.push(new BasicProvider(this));
@@ -461,26 +466,26 @@ class Connection {
 
 	/**
 	 * This function is meant to create the OIDC providers used for authentication.
-	 * 
+	 *
 	 * The function gets passed a single argument that contains the
 	 * provider information as provided by the API, e.g. having the properties
 	 * `id`, `issuer`, `title` etc.
-	 * 
+	 *
 	 * The function must return an instance of AuthProvider or any derived class.
 	 * May return `null` if the instance can't be created.
 	 *
 	 * @callback oidcProviderFactoryFunction
-	 * @param {object.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
+	 * @param {Record.<string, *>} providerInfo - The provider information as provided by the API, having the properties `id`, `issuer`, `title` etc.
 	 * @returns {AuthProvider | null}
 	 */
 
 	/**
 	 * Sets a factory function that creates custom OpenID Connect provider instances.
-	 * 
+	 *
 	 * You only need to call this if you have implemented a new AuthProvider based
 	 * on the AuthProvider interface (or OIDCProvider class), e.g. to use a
 	 * OIDC library other than oidc-client-js.
-	 * 
+	 *
 	 * @param {?oidcProviderFactoryFunction} [providerFactoryFunc=null]
 	 * @see AuthProvider
 	 */
@@ -490,10 +495,10 @@ class Connection {
 
 	/**
 	 * Get the OpenID Connect provider factory.
-	 * 
+	 *
 	 * Returns `null` if OIDC is not supported by the client or an instance
 	 * can't be created for whatever reason.
-	 * 
+	 *
 	 * @returns {oidcProviderFactoryFunction | null}
 	 * @see AuthProvider
 	 */
@@ -513,13 +518,13 @@ class Connection {
 
 	/**
 	 * Authenticates with username and password against a back-end supporting HTTP Basic Authentication.
-	 * 
+	 *
 	 * DEPRECATED in favor of using `listAuthProviders` and `BasicProvider`.
-	 * 
+	 *
 	 * @async
 	 * @deprecated
-	 * @param {string} username 
-	 * @param {string} password 
+	 * @param {string} username
+	 * @param {string} password
 	 * @see BasicProvider
 	 * @see Connection#listAuthProviders
 	 */
@@ -530,7 +535,7 @@ class Connection {
 
 	/**
 	 * Returns whether the user is authenticated (logged in) at the back-end or not.
-	 * 
+	 *
 	 * @returns {boolean} `true` if authenticated, `false` if not.
 	 */
 	isAuthenticated() {
@@ -539,9 +544,9 @@ class Connection {
 
 	/**
 	 * Emits the given event.
-	 * 
+	 *
 	 * @protected
-	 * @param {string} event 
+	 * @param {string} event
 	 * @param {...*} args
 	 */
 	emit(event, ...args) {
@@ -552,14 +557,14 @@ class Connection {
 
 	/**
 	 * Registers a listener with the given event.
-	 * 
+	 *
 	 * Currently supported:
 	 * - authProviderChanged(provider): Raised when the auth provider has changed.
 	 * - tokenChanged(token): Raised when the access token has changed.
 	 * - processesChanged(type, data, namespace): Raised when the process registry has changed (i.e. a process was added, updated or deleted).
-	 * 
-	 * @param {string} event 
-	 * @param {Function} callback 
+	 *
+	 * @param {string} event
+	 * @param {Function} callback
 	 */
 	on(event, callback) {
 		this.listeners[event] = callback;
@@ -567,8 +572,8 @@ class Connection {
 
 	/**
 	 * Removes a listener from the given event.
-	 * 
-	 * @param {string} event 
+	 *
+	 * @param {string} event
 	 */
 	off(event) {
 		delete this.listeners[event];
@@ -576,8 +581,8 @@ class Connection {
 
 	/**
 	 * Returns the AuthProvider.
-	 * 
-	 * @returns {AuthProvider | null} 
+	 *
+	 * @returns {AuthProvider | null}
 	 */
 	getAuthProvider() {
 		return this.authProvider;
@@ -585,7 +590,7 @@ class Connection {
 
 	/**
 	 * Sets the AuthProvider.
-	 * 
+	 *
 	 * @param {AuthProvider} provider
 	 */
 	setAuthProvider(provider) {
@@ -605,13 +610,13 @@ class Connection {
 
 	/**
 	 * Sets the authentication token for the connection.
-	 * 
+	 *
 	 * This creates a new custom `AuthProvider` with the given details and returns it.
 	 * After calling this function you can make requests against the API.
-	 * 
+	 *
 	 * This is NOT recommended to use. Only use if you know what you are doing.
 	 * It is recommended to authenticate through `listAuthProviders` or related functions.
-	 * 
+	 *
 	 * @param {string} type - The authentication type, e.g. `basic` or `oidc`.
 	 * @param {string} providerId - The provider identifier. For OIDC the `id` of the provider.
 	 * @param {string} token - The actual access token as given by the authentication method during the login process.
@@ -630,9 +635,9 @@ class Connection {
 
 	/**
 	 * Get information about the authenticated user.
-	 * 
+	 *
 	 * Updates the User ID if available.
-	 * 
+	 *
 	 * @async
 	 * @returns {Promise<UserAccount>} A response compatible to the API specification.
 	 * @throws {Error}
@@ -643,10 +648,10 @@ class Connection {
 	}
 
 	/**
-	 * List all files from the user workspace. 
-	 * 
+	 * List all files from the user workspace.
+	 *
 	 * @async
-	 * @returns {Promise<ResponseArray.<UserFile>>} A list of files.
+	 * @returns {Promise<import('./typedefs').ResponseArray.<UserFile>>} A list of files.
 	 * @throws {Error}
 	 */
 	async listFiles() {
@@ -655,8 +660,8 @@ class Connection {
 	}
 
 	/**
-	 * Paginate through the files from the user workspace. 
-	 * 
+	 * Paginate through the files from the user workspace.
+	 *
 	 * @param {?number} [limit=50] - The number of files per request/page as integer. If `null`, requests all files.
 	 * @returns {ServicePages} A paged list of files.
 	 */
@@ -666,7 +671,7 @@ class Connection {
 
 	/**
 	 * A callback that is executed on upload progress updates.
-	 * 
+	 *
 	 * @callback uploadStatusCallback
 	 * @param {number} percentCompleted - The percent (0-100) completed.
 	 * @param {UserFile} file - The file object corresponding to the callback.
@@ -675,11 +680,11 @@ class Connection {
 	/**
 	 * Uploads a file to the user workspace.
 	 * If a file with the name exists, overwrites it.
-	 * 
+	 *
 	 * This method has different behaviour depending on the environment.
 	 * In a nodeJS environment the source must be a path to a file as string.
 	 * In a browser environment the source must be an object from a file upload form.
-	 * 
+	 *
 	 * @async
 	 * @param {*} source - The source, see method description for details.
 	 * @param {?string} [targetPath=null] - The target path on the server, relative to the user workspace. Defaults to the file name of the source file.
@@ -697,8 +702,8 @@ class Connection {
 	}
 
 	/**
-	 * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end. 
-	 * 
+	 * Opens a (existing or non-existing) file without reading any information or creating a new file at the back-end.
+	 *
 	 * @async
 	 * @param {string} path - Path to the file, relative to the user workspace.
 	 * @returns {Promise<UserFile>} A file.
@@ -711,10 +716,10 @@ class Connection {
 	/**
 	 * Takes a UserProcess, BuilderNode or a plain object containing process nodes
 	 * and converts it to an API compliant object.
-	 * 
-	 * @param {UserProcess|BuilderNode|object.<string, *>} process - Process to be normalized.
-	 * @param {object.<string, *>} additional - Additional properties to be merged with the resulting object.
-	 * @returns {object.<string, *>}
+	 *
+	 * @param {UserProcess|BuilderNode|Record.<string, *>} process - Process to be normalized.
+	 * @param {Record.<string, *>} additional - Additional properties to be merged with the resulting object.
+	 * @returns {Record.<string, *>}
 	 * @protected
 	 */
 	_normalizeUserProcess(process, additional = {}) {
@@ -735,7 +740,7 @@ class Connection {
 
 	/**
 	 * Validates a user-defined process at the back-end.
-	 * 
+	 *
 	 * @async
 	 * @param {Process} process - User-defined process to validate.
 	 * @returns {Promise<ValidationResult>} errors - A list of API compatible error objects. A valid process returns an empty list.
@@ -755,10 +760,10 @@ class Connection {
 
 	/**
 	 * List all user-defined processes of the authenticated user.
-	 * 
+	 *
 	 * @async
 	 * @param {Array.<UserProcess>} [oldProcesses=[]] - A list of existing user-defined processes to update.
-	 * @returns {Promise<ResponseArray.<UserProcess>>} A list of user-defined processes.
+	 * @returns {Promise<import('./typedefs').ResponseArray.<UserProcess>>} A list of user-defined processes.
 	 * @throws {Error}
 	 */
 	async listUserProcesses(oldProcesses = []) {
@@ -768,7 +773,7 @@ class Connection {
 
 	/**
 	 * Paginates through the user-defined processes of the authenticated user.
-	 * 
+	 *
 	 * @param {?number} [limit=50] - The number of processes per request/page as integer. If `null`, requests all processes.
 	 * @returns {ProcessPages} A paged list of user-defined processes.
 	 */
@@ -778,7 +783,7 @@ class Connection {
 
 	/**
 	 * Creates a new stored user-defined process at the back-end.
-	 * 
+	 *
 	 * @async
 	 * @param {string} id - Unique identifier for the process.
 	 * @param {Process} process - A user-defined process.
@@ -792,9 +797,9 @@ class Connection {
 
 	/**
 	 * Get all information about a user-defined process.
-	 * 
+	 *
 	 * @async
-	 * @param {string} id - Identifier of the user-defined process. 
+	 * @param {string} id - Identifier of the user-defined process.
 	 * @returns {Promise<UserProcess>} The user-defined process.
 	 * @throws {Error}
 	 */
@@ -805,15 +810,15 @@ class Connection {
 
 	/**
 	 * Executes a process synchronously and returns the result as the response.
-	 * 
+	 *
 	 * Please note that requests can take a very long time of several minutes or even hours.
-	 * 
+	 *
 	 * @async
 	 * @param {Process} process - A user-defined process.
 	 * @param {?string} [plan=null] - The billing plan to use for this computation.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this computation.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the processing request.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+	 * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise<SyncResult>} - An object with the data and some metadata.
 	 */
 	async computeResult(process, plan = null, budget = null, abortController = null, additional = {}) {
@@ -831,11 +836,11 @@ class Connection {
 			type: null,
 			logs: []
 		};
-		
+
 		if (typeof response.headers['openeo-costs'] === 'number') {
 			syncResult.costs = response.headers['openeo-costs'];
 		}
-		
+
 		if (typeof response.headers['content-type'] === 'string') {
 			syncResult.type = response.headers['content-type'];
 		}
@@ -863,13 +868,13 @@ class Connection {
 
 	/**
 	 * Executes a process synchronously and downloads to result the given path.
-	 * 
+	 *
 	 * Please note that requests can take a very long time of several minutes or even hours.
-	 * 
+	 *
 	 * This method has different behaviour depending on the environment.
 	 * If a NodeJs environment, writes the downloaded file to the target location on the file system.
 	 * In a browser environment, offers the file for downloading using the specified name (folders are not supported).
-	 * 
+	 *
 	 * @async
 	 * @param {Process} process - A user-defined process.
 	 * @param {string} targetPath - The target, see method description for details.
@@ -886,10 +891,10 @@ class Connection {
 
 	/**
 	 * List all batch jobs of the authenticated user.
-	 * 
+	 *
 	 * @async
 	 * @param {Array.<Job>} [oldJobs=[]] - A list of existing jobs to update.
-	 * @returns {Promise<ResponseArray.<Job>>} A list of jobs.
+	 * @returns {Promise<import('./typedefs').ResponseArray.<Job>>} A list of jobs.
 	 * @throws {Error}
 	 */
 	async listJobs(oldJobs = []) {
@@ -900,7 +905,7 @@ class Connection {
 
 	/**
 	 * Paginate through the batch jobs of the authenticated user.
-	 * 
+	 *
 	 * @param {?number} [limit=50] - The number of jobs per request/page as integer. If `null`, requests all jobs.
 	 * @returns {JobPages} A paged list of jobs.
 	 */
@@ -910,14 +915,14 @@ class Connection {
 
 	/**
 	 * Creates a new batch job at the back-end.
-	 * 
+	 *
 	 * @async
 	 * @param {Process} process - A user-define process to execute.
 	 * @param {?string} [title=null] - A title for the batch job.
 	 * @param {?string} [description=null] - A description for the batch job.
 	 * @param {?string} [plan=null] - The billing plan to use for this batch job.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this batch job.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
+	 * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the batch job, e.g. `log_level`.
 	 * @returns {Promise<Job>} The stored batch job.
 	 * @throws {Error}
 	 */
@@ -944,9 +949,9 @@ class Connection {
 
 	/**
 	 * Get all information about a batch job.
-	 * 
+	 *
 	 * @async
-	 * @param {string} id - Batch Job ID. 
+	 * @param {string} id - Batch Job ID.
 	 * @returns {Promise<Job>} The batch job.
 	 * @throws {Error}
 	 */
@@ -957,10 +962,10 @@ class Connection {
 
 	/**
 	 * List all secondary web services of the authenticated user.
-	 * 
+	 *
 	 * @async
 	 * @param {Array.<Service>} [oldServices=[]] - A list of existing services to update.
-	 * @returns {Promise<ResponseArray.<Service>>} A list of services.
+	 * @returns {Promise<import('./typedefs').ResponseArray.<Service>>} A list of services.
 	 * @throws {Error}
 	 */
 	async listServices(oldServices = []) {
@@ -970,7 +975,7 @@ class Connection {
 
 	/**
 	 * Paginate through the secondary web services of the authenticated user.
-	 * 
+	 *
 	 * @param {?number} [limit=50] - The number of services per request/page as integer. If `null` (default), requests all services.
 	 * @returns {ServicePages} A paged list of services.
 	 */
@@ -979,18 +984,18 @@ class Connection {
 	}
 
 	/**
-	 * Creates a new secondary web service at the back-end. 
-	 * 
+	 * Creates a new secondary web service at the back-end.
+	 *
 	 * @async
 	 * @param {Process} process - A user-defined process.
 	 * @param {string} type - The type of service to be created (see `Connection.listServiceTypes()`).
 	 * @param {?string} [title=null] - A title for the service.
 	 * @param {?string} [description=null] - A description for the service.
 	 * @param {boolean} [enabled=true] - Enable the service (`true`, default) or not (`false`).
-	 * @param {object.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
+	 * @param {Record.<string, *>} [configuration={}] - Configuration parameters to pass to the service.
 	 * @param {?string} [plan=null] - The billing plan to use for this service.
 	 * @param {?number} [budget=null] - The maximum budget allowed to spend for this service.
-	 * @param {object.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
+	 * @param {Record.<string, *>} [additional={}] - Other parameters to pass for the service, e.g. `log_level`.
 	 * @returns {Promise<Service>} The stored service.
 	 * @throws {Error}
 	 */
@@ -1019,9 +1024,9 @@ class Connection {
 
 	/**
 	 * Get all information about a secondary web service.
-	 * 
+	 *
 	 * @async
-	 * @param {string} id - Service ID. 
+	 * @param {string} id - Service ID.
 	 * @returns {Promise<Service>} The service.
 	 * @throws {Error}
 	 */
@@ -1032,7 +1037,7 @@ class Connection {
 
 	/**
 	 * Get the a link with the given rel type.
-	 * 
+	 *
 	 * @protected
 	 * @param {Array.<Link>} links - An array of links.
 	 * @param {string|Array.<string>} rel - Relation type(s) to find.
@@ -1054,7 +1059,7 @@ class Connection {
 
 	/**
 	 * Makes all links in the list absolute.
-	 * 
+	 *
 	 * @param {Array.<Link>} links - An array of links.
 	 * @param {?string|AxiosResponse} [base=null] - The base url to use for relative links, or an response to derive the url from.
 	 * @returns {Array.<Link>}
@@ -1091,11 +1096,11 @@ class Connection {
 
 	/**
 	 * Sends a GET request.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {string} path 
-	 * @param {object.<string, *>} query 
+	 * @param {string} path
+	 * @param {Record.<string, *>} query
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
@@ -1116,11 +1121,11 @@ class Connection {
 
 	/**
 	 * Sends a POST request.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {string} path 
-	 * @param {*} body 
+	 * @param {string} path
+	 * @param {*} body
 	 * @param {string} responseType - Response type according to axios, defaults to `json`.
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
@@ -1139,11 +1144,11 @@ class Connection {
 
 	/**
 	 * Sends a PUT request.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {string} path 
-	 * @param {*} body 
+	 * @param {string} path
+	 * @param {*} body
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 */
@@ -1157,11 +1162,11 @@ class Connection {
 
 	/**
 	 * Sends a PATCH request.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {string} path 
-	 * @param {*} body 
+	 * @param {string} path
+	 * @param {*} body
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 */
@@ -1175,10 +1180,10 @@ class Connection {
 
 	/**
 	 * Sends a DELETE request.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {string} path 
+	 * @param {string} path
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}
 	 */
@@ -1191,12 +1196,12 @@ class Connection {
 
 	/**
 	 * Downloads data from a URL.
-	 * 
+	 *
 	 * May include authorization details where required.
-	 * 
+	 *
 	 * @param {string} url - An absolute or relative URL to download data from.
 	 * @param {boolean} authorize - Send authorization details (`true`) or not (`false`).
-	 * @returns {Promise<Stream.Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
+	 * @returns {Promise<Readable|Blob>} - Returns the data as `Stream` in NodeJS environments or as `Blob` in browsers
 	 * @throws {Error}
 	 */
 	async download(url, authorize) {
@@ -1211,9 +1216,9 @@ class Connection {
 
 	/**
 	 * Get the authorization header for requests.
-	 * 
+	 *
 	 * @protected
-	 * @returns {object.<string, string>}
+	 * @returns {Record.<string, string>}
 	 */
 	_getAuthHeaders() {
 		const headers = {};
@@ -1225,19 +1230,19 @@ class Connection {
 
 	/**
 	 * Sends a HTTP request.
-	 * 
+	 *
 	 * Options mostly conform to axios,
 	 * see {@link https://github.com/axios/axios#request-config}.
-	 * 
+	 *
 	 * Automatically sets a baseUrl and the authorization information.
 	 * Default responseType is `json`.
-	 * 
+	 *
 	 * Tries to smoothly handle error responses by providing an object for all response types,
 	 * instead of Streams or Blobs for non-JSON response types.
-	 * 
+	 *
 	 * @protected
 	 * @async
-	 * @param {object.<string, *>} options 
+	 * @param {Record.<string, *>} options
 	 * @param {?AbortController} [abortController=null] - An AbortController object that can be used to cancel the request.
 	 * @returns {Promise<AxiosResponse>}
 	 * @throws {Error}

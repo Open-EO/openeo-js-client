@@ -85,22 +85,22 @@ class Capabilities {
 
 	/**
 	 * Creates a new Capabilities object from an API-compatible JSON response.
-	 * 
-	 * @param {object.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
+	 *
+	 * @param {Record.<string, *>} data - A capabilities response compatible to the API specification for `GET /`.
 	 * @throws {Error}
 	 */
 	constructor(data) {
 
 		/**
 		 * @private
-		 * @type {object.<string, *>}
+		 * @type {Record.<string, *>}
 		 */
 		this.data = data;
 
 		/**
 		 * @private
 		 * @ignore
-		 * @type {object.<string, string>}
+		 * @type {Record.<string, string>}
 		 */
 		this.featureMap = FEATURE_MAP;
 
@@ -116,9 +116,9 @@ class Capabilities {
 
 	/**
 	 * Validates the capabilities.
-	 * 
+	 *
 	 * Throws an error in case of an issue, otherwise just passes.
-	 * 
+	 *
 	 * @protected
 	 * @throws {Error}
 	 */
@@ -136,7 +136,7 @@ class Capabilities {
 
 	/**
 	 * Initializes the class.
-	 * 
+	 *
 	 * @protected
 	 */
 	init() {
@@ -151,8 +151,8 @@ class Capabilities {
 
 	/**
 	 * Returns the capabilities response as a JSON serializable representation of the data that is API compliant.
-	 * 
-	 * @returns {object.<string, *>} - A reference to the capabilities response.
+	 *
+	 * @returns {Record.<string, *>} - A reference to the capabilities response.
 	 */
 	toJSON() {
 		return this.data;
@@ -160,7 +160,7 @@ class Capabilities {
 
 	/**
 	 * Returns the openEO API version implemented by the back-end.
-	 * 
+	 *
 	 * @returns {string} openEO API version number.
 	 */
 	apiVersion() {
@@ -169,7 +169,7 @@ class Capabilities {
 
 	/**
 	 * Returns the back-end version number.
-	 * 
+	 *
 	 * @returns {string} openEO back-end version number.
 	 */
 	backendVersion() {
@@ -178,7 +178,7 @@ class Capabilities {
 
 	/**
 	 * Returns the back-end title.
-	 * 
+	 *
 	 * @returns {string} Title
 	 */
 	title() {
@@ -187,7 +187,7 @@ class Capabilities {
 
 	/**
 	 * Returns the back-end description.
-	 * 
+	 *
 	 * @returns {string} Description
 	 */
 	description() {
@@ -196,7 +196,7 @@ class Capabilities {
 
 	/**
 	 * Is the back-end suitable for use in production?
-	 * 
+	 *
 	 * @returns {boolean} true = stable/production, false = unstable
 	 */
 	isStable() {
@@ -205,7 +205,7 @@ class Capabilities {
 
 	/**
 	 * Returns the links.
-	 * 
+	 *
 	 * @returns {Array.<Link>} Array of link objects (href, title, rel, type)
 	 */
 	links() {
@@ -214,7 +214,7 @@ class Capabilities {
 
 	/**
 	 * Returns list of backends in the federation.
-	 * 
+	 *
 	 * @returns {Array.<FederationBackend>} Array of backends
 	 */
 	listFederation() {
@@ -231,7 +231,7 @@ class Capabilities {
 
 	/**
 	 * Given just the string ID of a backend within the federation, returns that backend's full details as a FederationBackend object.
-	 * 
+	 *
 	 * @param {string} backendId - The ID of a backend within the federation
 	 * @returns {FederationBackend} The full details of the backend
 	 */
@@ -243,7 +243,7 @@ class Capabilities {
 
 	/**
 	 * Given a list of string IDs of backends within the federation, returns those backends' full details as FederationBackend objects.
-	 * 
+	 *
 	 * @param {Array<string>} backendIds - The IDs of backends within the federation
 	 * @returns {Array<FederationBackend>} An array in the same order as the input, containing for each position the full details of the backend
 	 */
@@ -254,7 +254,7 @@ class Capabilities {
 
 	/**
 	 * Lists all supported features.
-	 * 
+	 *
 	 * @returns {Array.<string>} An array of supported features.
 	 */
 	listFeatures() {
@@ -269,7 +269,7 @@ class Capabilities {
 
 	/**
 	 * Check whether a feature is supported by the back-end.
-	 * 
+	 *
 	 * @param {string} methodName - A feature name (corresponds to the JS client method names, see also the feature map for allowed values).
 	 * @returns {boolean} `true` if the feature is supported, otherwise `false`.
 	 */
@@ -283,9 +283,9 @@ class Capabilities {
 
 	/**
 	 * Check whether a conformance class is supported by the back-end.
-	 * 
+	 *
 	 * Use `*` as a wildcard character for e.g. version numbers.
-	 * 
+	 *
 	 * @param {string|Array.<string>} uris - Conformance class URI(s) - any of them must match.
 	 * @returns {boolean} `true` if any of the conformance classes is supported, otherwise `false`.
 	 */
@@ -306,7 +306,7 @@ class Capabilities {
 
 	/**
 	 * Get the billing currency.
-	 * 
+	 *
 	 * @returns {string | null} The billing currency or `null` if not available.
 	 */
 	currency() {
@@ -315,7 +315,7 @@ class Capabilities {
 
 	/**
 	 * List all billing plans.
-	 * 
+	 *
 	 * @returns {Array.<BillingPlan>} Billing plans
 	 */
 	listPlans() {
@@ -335,8 +335,8 @@ class Capabilities {
 
 	/**
 	 * Migrates a response, if required.
-	 * 
-	 * @param {AxiosResponse} response 
+	 *
+	 * @param {AxiosResponse} response
 	 * @protected
 	 * @returns {AxiosResponse}
 	 */
