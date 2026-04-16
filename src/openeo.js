@@ -37,7 +37,7 @@ const MAX_API_VERSION = '1.x.x';
 class OpenEO {
 
 	/**
-	 * @Connect to a back-end with version discovery (recommended).
+	 * Connect to a back-end with version discovery (recommended).
 	 *
 	 * Includes version discovery (request to `GET /well-known/openeo`) and connects to the most suitable version compatible to this JS client version.
 	 * Requests the capabilities and authenticates where required.
