@@ -24,6 +24,12 @@ const CONFORMANCE_RELS = [
 	'http://www.opengis.net/def/rel/ogc/1.0/conformance'
 ];
 
+const QUERYABLES_RELS = [
+	'queryables', // Old way in STAC (deprecated)
+	'http://www.opengis.net/def/rel/ogc/1.0/queryables', // STAC and OGC APIs
+	'ogc-rel:queryables', // Alternative in OGC APIs
+]
+
 /**
  * A connection to a back-end.
  */
@@ -275,6 +281,30 @@ class Connection {
 		else {
 			return response.data;
 		}
+	}
+
+	/**
+	 * Get the queryable properties for a collection.
+	 * 
+	 * @todo No support for resolving $ref in the schema yet.
+	 * @param {string|Collection} collection - Collection ID or object to request queryables for.
+	 * @returns {Promise<object|null>} A JSON Schema object containing the queryable properties for the collection.
+	 * @throws {Error}
+	 */
+	async describeCollectionQueryables(collection) {
+		if (typeof collection === 'string') {
+			collection = await this.describeCollection(collection);
+		}
+		if (!Array.isArray(collection.links)) {
+			return null;
+		}
+		const qLink = collection.links.find(link => (
+			QUERYABLES_RELS.includes(link.rel)
+			&& link.type === 'application/schema+json'
+			&& typeof link.href === 'string'
+		));
+		const response = await this._get(qLink.href);
+		return response.data;
 	}
 
 	/**

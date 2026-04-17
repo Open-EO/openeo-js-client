@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [2.12.0] - 2026-04-17
+
+### Added
+
+- Added function to get collection queryables: `Connection.describeCollectionQueryables()`
+
 ## [2.11.0] - 2026-03-10
 
 ### Added
