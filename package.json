@@ -60,7 +60,7 @@
   },
   "scripts": {
     "docs": "jsdoc -r -d docs/ -P package.json -R README.md -c .jsdoc",
-    "build": "webpack",
+    "build": "webpack && npm run tsd",
     "tsd": "tsc --project tsconfig.json",
     "lint": "eslint src/",
     "test": " jest --env=jsdom --runInBand tests/",

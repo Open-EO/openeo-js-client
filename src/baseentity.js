@@ -1,13 +1,17 @@
 /**
+ * @typedef {import('./connection')} Connection
+ */
+
+/**
  * The base class for entities such as Job, Process Graph, Service etc.
- * 
+ *
  * @abstract
  */
 class BaseEntity {
 
 	/**
 	 * Creates an instance of this object.
-	 * 
+	 *
 	 * @param {Connection} connection - A Connection object representing an established connection to an openEO back-end.
 	 * @param {Array.<string|Array.<string>>} properties - A mapping from the API property names to the JS client property names (usually to convert between snake_case and camelCase), e.g. `["id", "title", ["process_graph", "processGraph"]]`
 	 */
@@ -19,12 +23,12 @@ class BaseEntity {
 		this.connection = connection;
 		/**
 		 * @protected
-		 * @type {object.<string, string>}
+		 * @type {Record.<string, string>}
 		 */
 		this.apiToClientNames = {};
 		/**
 		 * @protected
-		 * @type {object.<string, string>}
+		 * @type {Record.<string, string>}
 		 */
 		this.clientToApiNames = {};
 		/**
@@ -34,12 +38,12 @@ class BaseEntity {
 		this.lastRefreshTime = 0;
 		/**
 		 * Additional (non-standardized) properties received from the API.
-		 * 
+		 *
 		 * @protected
-		 * @type {object.<string, *>}
+		 * @type {Record.<string, *>}
 		 */
 		this.extra = {};
-		
+
 		for(let i in properties) {
 			let backend, client;
 			if (Array.isArray(properties[i])) {
@@ -57,8 +61,8 @@ class BaseEntity {
 
 	/**
 	 * Returns a JSON serializable representation of the data that is API compliant.
-	 * 
-	 * @returns {object.<string, *>}
+	 *
+	 * @returns {Record.<string, *>}
 	 */
 	toJSON() {
 		let obj = {};
@@ -73,8 +77,8 @@ class BaseEntity {
 
 	/**
 	 * Converts the data from an API response into data suitable for our JS client models.
-	 * 
-	 * @param {object.<string, *>} metadata - JSON object originating from an API response.
+	 *
+	 * @param {Record.<string, *>} metadata - JSON object originating from an API response.
 	 * @returns {BaseEntity} Returns the object itself.
 	 */
 	setAll(metadata) {
@@ -92,7 +96,7 @@ class BaseEntity {
 
 	/**
 	 * Returns the age of the data in seconds.
-	 * 
+	 *
 	 * @returns {number} Age of the data in seconds as integer.
 	 */
 	getDataAge() {
@@ -101,8 +105,8 @@ class BaseEntity {
 
 	/**
 	 * Returns all data in the model.
-	 * 
-	 * @returns {object.<string, *>}
+	 *
+	 * @returns {Record.<string, *>}
 	 */
 	getAll() {
 		let obj = {};
@@ -117,7 +121,7 @@ class BaseEntity {
 
 	/**
 	 * Get a value from the additional data that is not part of the core model, i.e. from proprietary extensions.
-	 * 
+	 *
 	 * @param {string} name - Name of the property.
 	 * @returns {*} The value, which could be of any type.
 	 */
@@ -127,9 +131,9 @@ class BaseEntity {
 
 	/**
 	 * Converts the object to a valid objects for API requests.
-	 * 
-	 * @param {object.<string, *>} parameters
-	 * @returns {object.<string, *>}
+	 *
+	 * @param {Record.<string, *>} parameters
+	 * @returns {Record.<string, *>}
 	 * @protected
 	 */
 	_convertToRequest(parameters) {
@@ -147,7 +151,7 @@ class BaseEntity {
 
 	/**
 	 * Checks whether a features is supported by the API.
-	 * 
+	 *
 	 * @param {string} feature
 	 * @returns {boolean}
 	 * @protected
