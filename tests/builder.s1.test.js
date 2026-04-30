@@ -1,7 +1,7 @@
 // @ts-nocheck
 describe('Process Graph Builder (S1)', () => {
 
-	const { Builder, Formula } = require('../src/openeo');
+	const { Builder, Formula } = require('../src/client');
 	const expectedProcess = require('./data/builder.s1.example.json');
 
 	test('S1 with callback (function)', async () => build(false));

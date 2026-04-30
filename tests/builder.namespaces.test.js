@@ -1,7 +1,7 @@
 // @ts-nocheck
 describe('Process Graph Builder (EVI)', () => {
 
-	const { Builder, Formula } = require('../src/openeo');
+	const { Builder, Formula } = require('../src/client');
 
 	test('Namespaces processes in builder', async () => {
 		const builder = await Builder.fromVersion('1.1.0');	

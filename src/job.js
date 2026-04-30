@@ -1,7 +1,7 @@
 const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 const Logs = require('./logs');
-const Utils = require('@openeo/js-commons/src/utils');
+const Utils = require('./utils');
 const StacMigrate = require('@radiantearth/stac-migrate');
 
 const STOP_STATUS = ['finished', 'canceled', 'error'];
