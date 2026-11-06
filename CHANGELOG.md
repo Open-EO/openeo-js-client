@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- Documented how to filter by metadata properties (e.g. by item ID / product title and cloud cover) in `load_collection` and added corresponding unit tests. #59
+
 ## [2.12.0] - 2026-04-17
 
 ### Added

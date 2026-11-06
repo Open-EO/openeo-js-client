@@ -25,6 +25,50 @@ const PROCESS_META = [
  *   ["B02", "B04", "B08"]
  * );
  * 
+ * The fifth parameter of `load_collection` is `properties`, which restricts the
+ * data to load based on the metadata properties of the individual items
+ * (features) in the collection. Specify an object with the property names as
+ * keys and a callback function as value for each property. The callback
+ * receives the value of the property and must return `true` to include the
+ * corresponding item and `false` to exclude it. All specified properties must
+ * return `true` for an item to be included (AND operation).
+ * 
+ * The metadata properties available for a collection can be retrieved with
+ * `Connection.listCollectionItems()` or `Connection.describeCollection()`.
+ * Common properties include `id` (the unique ID of an item, often a UUID),
+ * `title` (the product name/title) and - for optical data such as Sentinel-2 -
+ * `eo:cloud_cover` (the cloud cover in percent). For example, to load only the
+ * item with the given product title and exclude all items with a cloud cover
+ * of 25% or more:
+ * 
+ * ```js
+ * var datacube = builder.load_collection(
+ *   "SENTINEL2_L2A",
+ *   { "west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2 },
+ *   ["2018-01-01", "2018-02-01"],
+ *   ["B02", "B04", "B08"],
+ *   {
+ *     "title": function(value) { return this.eq(value, "S2A_MSIL2A_20180101T103431_N0500_R108_T32UQD_20230406T140228"); },
+ *     "eo:cloud_cover": function(value) { return this.lt(value, 25); }
+ *   }
+ * );
+ * ```
+ * 
+ * For cloud cover it is often simpler to use the `between` process instead,
+ * which also allows to specify a lower bound, e.g. `0`:
+ * 
+ * ```js
+ * var datacube = builder.load_collection(
+ *   "SENTINEL2_L2A",
+ *   null,
+ *   ["2018-01-01", "2018-02-01"],
+ *   null,
+ *   {
+ *     "eo:cloud_cover": function(value) { return this.between(value, 0, 25); }
+ *   }
+ * );
+ * ```
+ * 
  * // Alternative 1 - using the Formula class
  * var eviAlgorithm = new Formula('2.5 * (($B08 - $B04) / (1 + $B08 + 6 * $B04 + -7.5 * $B02))');
  * // Alternative 2 - "by hand"
