@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- URL-encode the folder and file names of files in the user workspace (`/files/{path}`) as required by the openEO API, e.g. for names with spaces, umlauts, `%` or `?`
+
 ## [2.12.0] - 2026-04-17
 
 ### Added

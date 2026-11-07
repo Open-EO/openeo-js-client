@@ -2,6 +2,16 @@ const Environment = require('./env');
 const BaseEntity = require('./baseentity');
 
 /**
+ * The URL of a file in the user workspace: the folder and file names are URL-encoded, the path separators `/` aren't.
+ *
+ * @param {string} path
+ * @returns {string}
+ */
+function fileUrl(path) {
+	return '/files/' + path.split('/').map(encodeURIComponent).join('/');
+}
+
+/**
  * A File on the user workspace.
  * 
  * @augments BaseEntity
@@ -50,7 +60,7 @@ class UserFile extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async retrieveFile() {
-		return await this.connection.download('/files/' + this.path, true);
+		return await this.connection.download(fileUrl(this.path), true);
 	}
 
 	/**
@@ -66,7 +76,7 @@ class UserFile extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async downloadFile(target) {
-		let data = await this.connection.download('/files/' + this.path, true);
+		let data = await this.connection.download(fileUrl(this.path), true);
 		// @ts-ignore
 		return await Environment.saveToFile(data, target);
 	}
@@ -97,7 +107,7 @@ class UserFile extends BaseEntity {
 	async uploadFile(source, statusCallback = null, abortController = null) {
 		let options = {
 			method: 'put',
-			url: '/files/' + this.path,
+			url: fileUrl(this.path),
 			data: Environment.dataForUpload(source),
 			headers: {
 				'Content-Type': 'application/octet-stream'
@@ -121,7 +131,7 @@ class UserFile extends BaseEntity {
 	 * @throws {Error}
 	 */
 	async deleteFile() {
-		await this.connection._delete('/files/' + this.path);
+		await this.connection._delete(fileUrl(this.path));
 	}
 }
 
